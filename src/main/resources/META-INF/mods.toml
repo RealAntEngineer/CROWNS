@@ -1,0 +1,29 @@
+
+modLoader="javafml"
+loaderVersion="[43,)"
+license="MIT"
+
+
+[[mods]]
+modId="crowns"
+version="0.1"
+displayName="Creating Rotation Operated With Nuclear Science"
+logoFile="logo.jpg"
+credits='''
+
+'''
+authors="Real Ant Engineer"
+
+description='''
+'''
+
+[[dependencies.crowns]]
+modId="create"
+mandatory=true
+versionRange="[0.5.1.a,)"
+ordering="NONE"
+side="BOTH"
+
+
+
+

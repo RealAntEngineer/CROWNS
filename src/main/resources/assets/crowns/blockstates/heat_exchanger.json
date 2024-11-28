@@ -1,0 +1,14 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "crowns:block/pipe/heat_exchanger_horizontal",
+      "y": 90
+    },
+    "axis=y": {
+      "model": "crowns:block/pipe/heat_exchanger"
+    },
+    "axis=z": {
+      "model": "crowns:block/pipe/heat_exchanger_horizontal"
+    }
+  }
+}

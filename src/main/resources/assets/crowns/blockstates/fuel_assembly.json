@@ -1,0 +1,40 @@
+{
+  "variants": {
+    "axis=x,activity=none": {
+      "model": "crowns:block/fuel_assembly/none_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,activity=none": {
+      "model": "crowns:block/fuel_assembly/none"
+    },
+    "axis=z,activity=none": {
+      "model": "crowns:block/fuel_assembly/none_horizontal",
+      "x": 90
+    },
+    "axis=x,activity=low": {
+      "model": "crowns:block/fuel_assembly/low_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,activity=low": {
+      "model": "crowns:block/fuel_assembly/low"
+    },
+    "axis=z,activity=low": {
+      "model": "crowns:block/fuel_assembly/low_horizontal",
+      "x": 90
+    },
+    "axis=x,activity=high": {
+      "model": "crowns:block/fuel_assembly/high_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,activity=high": {
+      "model": "crowns:block/fuel_assembly/high"
+    },
+    "axis=z,activity=high": {
+      "model": "crowns:block/fuel_assembly/high_horizontal",
+      "x": 90
+    }
+  }
+}

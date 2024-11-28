@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "crowns:block/fuel_assembly/none_top",
+    "side": "crowns:block/fuel_assembly/none"
+  }
+}
