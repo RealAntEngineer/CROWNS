@@ -1,14 +1,13 @@
-package com.rae.crowns.content.thermals.turbine;
+package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.init.BlockEntityInit;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
-import com.simibubi.create.foundation.utility.Couple;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
-public class SteamCollectorBlock extends WrenchableDirectionalBlock implements IBE<SteamInputBlockEntity> {
+public class SteamInputBlock extends WrenchableDirectionalBlock implements IBE<SteamInputBlockEntity> {
 
-    public SteamCollectorBlock(Properties pProperties) {
+    public SteamInputBlock(Properties pProperties) {
         super(pProperties);
     }
 
@@ -21,4 +20,5 @@ public class SteamCollectorBlock extends WrenchableDirectionalBlock implements I
     public BlockEntityType<? extends SteamInputBlockEntity> getBlockEntityType() {
         return BlockEntityInit.STEAM_INPUT.get();
     }
+
 }

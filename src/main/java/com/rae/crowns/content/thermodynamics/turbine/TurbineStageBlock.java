@@ -1,4 +1,4 @@
-package com.rae.crowns.content.thermals.turbine;
+package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.init.BlockEntityInit;
 import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
@@ -11,8 +11,8 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class CompressorStageBlock extends DirectionalKineticBlock implements IBE<TurbineStageBlockEntity> {
-    public CompressorStageBlock(Properties pProperties) {
+public class TurbineStageBlock extends DirectionalKineticBlock implements IBE<TurbineStageBlockEntity> {
+    public TurbineStageBlock(Properties pProperties) {
         super(pProperties);
     }
     @Override
@@ -46,5 +46,8 @@ public class CompressorStageBlock extends DirectionalKineticBlock implements IBE
     @Override
     public BlockEntityType<? extends TurbineStageBlockEntity> getBlockEntityType() {
         return BlockEntityInit.TURBINE_STAGE.get();
+    }
+    public static Couple<Integer> getSpeedRange() {
+        return Couple.create(1, 16);
     }
 }

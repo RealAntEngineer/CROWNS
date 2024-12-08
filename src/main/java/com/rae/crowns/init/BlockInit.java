@@ -1,12 +1,12 @@
 package com.rae.crowns.init;
 
 import com.rae.crowns.content.nuclear.AssemblyBlock;
-import com.rae.crowns.content.thermals.*;
+import com.rae.crowns.content.thermodynamics.*;
 import com.rae.crowns.content.legacy.TurbineBearingBlock;
 import com.rae.crowns.content.legacy.TurbineBladeBlock;
-import com.rae.crowns.content.thermals.turbine.SteamCollectorBlock;
-import com.rae.crowns.content.thermals.turbine.SteamInputBlock;
-import com.rae.crowns.content.thermals.turbine.TurbineStageBlock;
+import com.rae.crowns.content.thermodynamics.turbine.SteamCollectorBlock;
+import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlock;
+import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
 import com.simibubi.create.content.kinetics.BlockStressDefaults;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntry;

@@ -1,4 +1,4 @@
-package com.rae.crowns.content.thermals;
+package com.rae.crowns.content.thermodynamics;
 
 public class ThermalCycle {
     //this is just for the documentation

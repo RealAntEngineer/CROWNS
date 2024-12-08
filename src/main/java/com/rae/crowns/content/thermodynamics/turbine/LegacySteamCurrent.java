@@ -1,4 +1,4 @@
-package com.rae.crowns.content.thermals.turbine;
+package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.api.thermal_utilities.ISteamCurrentSource;
 import com.rae.crowns.init.TagsInit;

@@ -1,4 +1,4 @@
-package com.rae.crowns.content.thermals;
+package com.rae.crowns.content.thermodynamics;
 
 import com.rae.crowns.api.nuclear.IHaveTemperature;
 import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
@@ -37,7 +37,7 @@ import static com.rae.crowns.api.transformations.WaterAsRealGazTransformationHel
 
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
     //transform the IHaveTemperature interface into a behavior
-
+    // for now if T > 373°K P = 20 bar.
     public float C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
     public float temperature = 300;
 
@@ -91,6 +91,10 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     public void tick() {
         super.tick();
         if (!level.isClientSide()) {
+            // to entirely recode -> need more info on the blockstate + end bit
+            /*System.out.println("block : "+getBlockPos());
+            System.out.println("input : "+inputState);
+            System.out.println("output : "+outputState);
             if (syncCooldown > 0) {
                 syncCooldown--;
                 if (syncCooldown == 0 && queuedSync)
@@ -161,7 +165,9 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                     be.inputState = this.outputState;
                 }
             }
+            this.outputState = this.inputState;
 
+            */
 
         }
     }
@@ -238,7 +244,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.FLUID_HANDLER) {
-            Direction localDir = Direction.fromAxisAndDirection(this.getBlockState().getValue(HeatExchangerBlock.AXIS), Direction.AxisDirection.POSITIVE);
+            Direction localDir = this.getBlockState().getValue(HeatExchangerBlock.FACING);
             if (side == localDir){
                 return this.fluidCapability.cast();
             }

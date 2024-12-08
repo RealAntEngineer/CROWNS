@@ -1,4 +1,4 @@
-package com.rae.crowns.content.thermals.turbine;
+package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllSpecialTextures;

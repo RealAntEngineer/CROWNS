@@ -1,8 +1,8 @@
 package com.rae.crowns.init;
 
 import com.rae.crowns.CROWNS;
-import com.rae.crowns.content.thermals.turbine.SteamCurrentRenderer;
-import com.rae.crowns.content.thermals.turbine.SteamCurrent;
+import com.rae.crowns.content.thermodynamics.turbine.SteamCurrentRenderer;
+import com.rae.crowns.content.thermodynamics.turbine.SteamCurrent;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 import com.simibubi.create.foundation.data.CreateEntityBuilder;
 import com.simibubi.create.foundation.utility.Lang;

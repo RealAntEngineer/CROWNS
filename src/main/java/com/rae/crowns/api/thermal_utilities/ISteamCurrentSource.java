@@ -1,6 +1,6 @@
 package com.rae.crowns.api.thermal_utilities;
 
-import com.rae.crowns.content.thermals.turbine.LegacySteamCurrent;
+import com.rae.crowns.content.thermodynamics.turbine.LegacySteamCurrent;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

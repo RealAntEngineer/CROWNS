@@ -1,13 +1,23 @@
 {
   "variants": {
-    "axis=x": {
+    "facing=east,in=false,out=false": {
       "model": "crowns:block/pipe/heat_exchanger_horizontal",
       "y": 90
     },
-    "axis=y": {
+    "facing=west,in=false,out=false": {
+      "model": "crowns:block/pipe/heat_exchanger_horizontal",
+      "y": 90
+    },
+    "facing=up,in=false,out=false": {
       "model": "crowns:block/pipe/heat_exchanger"
     },
-    "axis=z": {
+    "facing=down,in=false,out=false": {
+      "model": "crowns:block/pipe/heat_exchanger"
+    },
+    "facing=north,in=false,out=false": {
+      "model": "crowns:block/pipe/heat_exchanger_horizontal"
+    },
+    "facing=south,in=false,out=false": {
       "model": "crowns:block/pipe/heat_exchanger_horizontal"
     }
   }
