@@ -54,24 +54,25 @@ public class HeatExchangerBlock extends DirectionalBlock implements ProperWaterl
         if (clickedState.is(BlockInit.HEAT_EXCHANGER.get())  && clickedState.getValue(FACING).getAxis() == context.getClickedFace().getAxis()){
             state.setValue(FACING, clickedState.getValue(FACING));
             if (clickedState.getValue(FACING).getAxisDirection() ==  context.getClickedFace().getAxisDirection()){
-                state.setValue(OUT, false);
+                state = state.setValue(IN, false);
             }
             else {
-                state.setValue(IN, false);
+                state = state.setValue(OUT, false);
 
             }
         }
         else if (oppositeState.is(BlockInit.HEAT_EXCHANGER.get()) && oppositeState.getValue(FACING).getAxis() == context.getClickedFace().getAxis()){
             state.setValue(FACING, oppositeState.getValue(FACING));
+        }
+        if (oppositeState.is(BlockInit.HEAT_EXCHANGER.get()) && oppositeState.getValue(FACING).getAxis() == context.getClickedFace().getAxis()){
             if (oppositeState.getValue(FACING).getAxisDirection() ==  context.getClickedFace().getAxisDirection()){
-                state.setValue(OUT, false);
+                state = state.setValue(OUT, false);
             }
             else {
-                state.setValue(IN, false);
+                state = state.setValue(IN, false);
 
             }
         }
-
         return state;
     }
 
@@ -84,8 +85,42 @@ public class HeatExchangerBlock extends DirectionalBlock implements ProperWaterl
                                            @NotNull LevelAccessor pLevel, @NotNull BlockPos pCurrentPos, @NotNull BlockPos pNeighborPos) {
         updateWater(pLevel, pState, pCurrentPos);
         if (pNeighborState.is(this.asBlock())) {
-            if (pState.getValue(FACING) != pNeighborState.getValue(FACING)) {
-                pState.setValue(FACING, pNeighborState.getValue(FACING));
+            boolean changed = false;
+            if (pState.getValue(FACING) != pNeighborState.getValue(FACING) && (pState.getValue(FACING).getAxis() == pNeighborState.getValue(FACING).getAxis())) {
+                pState = pState.setValue(FACING, pNeighborState.getValue(FACING));
+                changed = true;
+            }
+
+            if (pState.getValue(FACING).getAxis() == pDirection.getAxis() && pState.getValue(FACING) == pNeighborState.getValue(FACING)){
+                if (pDirection == pState.getValue(FACING)) {
+                    pState = pState.setValue(OUT, false);
+                }else{
+                    pState = pState.setValue(IN, false);
+                }
+                changed = true;
+
+            }
+
+            if (changed) pLevel.setBlock( pCurrentPos, pState,3);
+
+        }
+        else {
+            if (pState.getValue(FACING).getAxis() == pDirection.getAxis()){
+                boolean changed = false;
+
+                if (pDirection == pState.getValue(FACING)) {
+                    if (!pState.getValue(OUT)) {
+                        pState = pState.setValue(OUT, true);
+                        changed = true;
+                    }
+                }else{
+                    if (!pState.getValue(IN)) {
+                        pState = pState.setValue(IN, true);
+                        changed = true;
+                    }
+                }
+                if (changed) pLevel.setBlock(pCurrentPos, pState,3);
+
             }
         }
         return pState;

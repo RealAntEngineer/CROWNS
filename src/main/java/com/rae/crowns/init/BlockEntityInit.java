@@ -1,6 +1,7 @@
 package com.rae.crowns.init;
 
 import com.rae.crowns.client.rendering.instance.TurbineStageInstance;
+import com.rae.crowns.client.rendering.renderer.HeatExchangerRenderer;
 import com.rae.crowns.client.rendering.renderer.TurbineStageRenderer;
 import com.rae.crowns.content.nuclear.AssemblyBlockEntity;
 import com.rae.crowns.content.thermodynamics.HeatExchangerBlockEntity;
@@ -43,6 +44,7 @@ public class BlockEntityInit {
             .register();
     public static final BlockEntityEntry<HeatExchangerBlockEntity> HEAT_EXCHANGER = REGISTRATE.blockEntity(
                     "heat_exchanger",HeatExchangerBlockEntity::new)
+            .renderer(() -> HeatExchangerRenderer::new)
             .validBlock(BlockInit.HEAT_EXCHANGER)
             .register();
     public static void register() {}
