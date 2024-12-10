@@ -1,21 +1,38 @@
 package com.rae.crowns.api.thermal_utilities;
 
-public record SpecificRealGazState(Float temperature, Float pressure, Float specific_enthalpy, Float vaporQuality) {
+import net.minecraft.nbt.CompoundTag;
 
-    public SpecificRealGazState(Float temperature, Float pressure, Float specific_enthalpy, Float vaporQuality){
+public record SpecificRealGazState(Float temperature, Float pressure, Float specificEnthalpy, Float vaporQuality) {
+    /*public Codec<SpecificRealGazState> CODEC = RecordCodecBuilder.create(
+
+    );*/
+
+    public SpecificRealGazState(Float temperature, Float pressure, Float specificEnthalpy, Float vaporQuality){
         this.temperature = Math.max(0,temperature);
         this.pressure = Math.max(0,pressure);
-        this.specific_enthalpy = specific_enthalpy;
+        this.specificEnthalpy = specificEnthalpy;
         this.vaporQuality = Math.max(0,Math.min(vaporQuality,1));
     }
-
+    public SpecificRealGazState(CompoundTag tag){
+        this(tag.getFloat("temperature"), tag.getFloat("pressure"), tag.getFloat("specific_enthalpy"), tag.getFloat("vapor_quality"));
+    }
     @Override
     public String toString() {
         return "SpecificRealGazState{" +
                 "temperature=" + temperature +
                 ", pressure=" + pressure +
-                ", specific_enthalpy=" + specific_enthalpy +
+                ", specific_enthalpy=" + specificEnthalpy +
                 ", vaporQuality=" + vaporQuality +
                 '}';
     }
+
+    public CompoundTag serialize(){
+        CompoundTag tag = new CompoundTag();
+        tag.putFloat("temperature",temperature);
+        tag.putFloat("pressure",pressure);
+        tag.putFloat("specific_enthalpy", specificEnthalpy);
+        tag.putFloat("vapor_quality",vaporQuality);
+        return tag;
+    }
+
 }

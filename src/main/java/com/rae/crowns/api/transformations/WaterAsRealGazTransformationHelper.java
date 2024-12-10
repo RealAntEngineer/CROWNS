@@ -1,7 +1,6 @@
 package com.rae.crowns.api.transformations;
 
 import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
-import com.simibubi.create.foundation.gui.widget.ScrollInput;
 
 
 public class WaterAsRealGazTransformationHelper {
@@ -71,7 +70,7 @@ public class WaterAsRealGazTransformationHelper {
         return new SpecificRealGazState(
                 fluidState.temperature() + dT,
                 fluidState.pressure(),
-                fluidState.specific_enthalpy() + dh,
+                fluidState.specificEnthalpy() + dh,
                 fluidState.vaporQuality() + dx);
     }
 
@@ -118,7 +117,7 @@ public class WaterAsRealGazTransformationHelper {
         return new SpecificRealGazState(
                 fluidState.temperature() + dT,
                 fluidState.pressure(),
-                fluidState.specific_enthalpy() - dh,
+                fluidState.specificEnthalpy() - dh,
                 fluidState.vaporQuality() + dx);
     }
 
@@ -186,7 +185,7 @@ public class WaterAsRealGazTransformationHelper {
             if (fluidState.temperature() > TSat(Pf)) {
                 float Pf_l = (fluidState.temperature() - T0) / TPSat;
                 if (dhVap(Pf_l) == 0) {
-                    return standardExpansion(new SpecificRealGazState(fluidState.temperature(), Pf_l, fluidState.specific_enthalpy(), 1f), Pf_l / Pf);
+                    return standardExpansion(new SpecificRealGazState(fluidState.temperature(), Pf_l, fluidState.specificEnthalpy(), 1f), Pf_l / Pf);
                 }
                 else {
                     dx = ((fluidState.temperature() - TSat(Pf)) * CLiquid) / dhVap(Pf);
@@ -214,7 +213,7 @@ public class WaterAsRealGazTransformationHelper {
      */
     public static SpecificRealGazState standardExpansion(SpecificRealGazState fluidState, float isentropicYield, float expansionCoef){
         SpecificRealGazState revFluidState = standardExpansion(fluidState,expansionCoef);
-        float reversibleDh = revFluidState.specific_enthalpy()- fluidState.specific_enthalpy();
+        float reversibleDh = revFluidState.specificEnthalpy()- fluidState.specificEnthalpy();
         float losth = reversibleDh*(1-isentropicYield);
         return isobaricTransfert(revFluidState,-losth);
     }
@@ -269,11 +268,18 @@ public class WaterAsRealGazTransformationHelper {
      */
     public static SpecificRealGazState standardCompression(SpecificRealGazState fluidState, float yield, float compressionCoef){
         SpecificRealGazState revFluidState = standardExpansion(fluidState,compressionCoef);
-        float reversibleDh = revFluidState.specific_enthalpy()- fluidState.specific_enthalpy();
+        float reversibleDh = revFluidState.specificEnthalpy()- fluidState.specificEnthalpy();
         float losth = reversibleDh*(1-yield);
         return isobaricTransfert(revFluidState,-losth);
     }
 
 
-
+    public static SpecificRealGazState mix(SpecificRealGazState first, float firstAmount, SpecificRealGazState second, float secondAmount){
+        float T = first.temperature()*firstAmount/(firstAmount+ secondAmount) + second.temperature()*secondAmount/(firstAmount+ secondAmount);
+        float P = first.pressure()*firstAmount/(firstAmount+ secondAmount) + second.pressure()*secondAmount/(firstAmount+ secondAmount);
+        float x = first.vaporQuality()*firstAmount/(firstAmount+ secondAmount) + second.vaporQuality()*secondAmount/(firstAmount+ secondAmount);
+        return new SpecificRealGazState(
+                T, P, WaterAsRealGazTransformationHelper.get_h(T,P,x), x
+        );
+    }
 }

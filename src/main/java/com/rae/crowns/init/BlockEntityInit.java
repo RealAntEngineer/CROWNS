@@ -4,7 +4,7 @@ import com.rae.crowns.client.rendering.instance.TurbineStageInstance;
 import com.rae.crowns.client.rendering.renderer.HeatExchangerRenderer;
 import com.rae.crowns.client.rendering.renderer.TurbineStageRenderer;
 import com.rae.crowns.content.nuclear.AssemblyBlockEntity;
-import com.rae.crowns.content.thermodynamics.HeatExchangerBlockEntity;
+import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlockEntity;
 import com.rae.crowns.content.thermodynamics.turbine.SteamCollectorBlockEntity;
 import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlockEntity;
 import com.rae.crowns.content.legacy.TurbineBearingBlockEntity;

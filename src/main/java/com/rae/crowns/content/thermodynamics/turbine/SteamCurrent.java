@@ -107,8 +107,8 @@ public class SteamCurrent extends Entity{
 			}
 			//need to ensure that it's empty before end
 			//.get(this.direction.getAxis()
-			powerForStage.put(((BlockEntity) stage).getBlockPos(), (previousState.specific_enthalpy() - nextState.specific_enthalpy()) * getFlow());
-			System.out.println("stage : "+i+" | "+nextState + "power : "+(previousState.specific_enthalpy() - nextState.specific_enthalpy()) * getFlow());
+			powerForStage.put(((BlockEntity) stage).getBlockPos(), (previousState.specificEnthalpy() - nextState.specificEnthalpy()) * getFlow());
+			System.out.println("stage : "+i+" | "+nextState + "power : "+(previousState.specificEnthalpy() - nextState.specificEnthalpy()) * getFlow());
 			previousState = nextState;
 		}
 

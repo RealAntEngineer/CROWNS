@@ -1,6 +1,5 @@
-package com.rae.crowns.content.thermodynamics;
+package com.rae.crowns.content.thermodynamics.conduction;
 
-import com.google.common.collect.ImmutableMap;
 import com.rae.crowns.init.BlockEntityInit;
 import com.rae.crowns.init.BlockInit;
 import com.simibubi.create.AllShapes;
@@ -8,25 +7,19 @@ import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DirectionalBlock;
-import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.Function;
 
 public class HeatExchangerBlock extends DirectionalBlock implements ProperWaterloggedBlock, IBE<HeatExchangerBlockEntity> {
     public HeatExchangerBlock(Properties properties) {
