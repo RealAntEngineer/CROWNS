@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "priority": 900,
+  "package": "com.rae.crowns.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "crowns.refmap.json",
+  "mixins": [
+    "SmartFluidTankMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

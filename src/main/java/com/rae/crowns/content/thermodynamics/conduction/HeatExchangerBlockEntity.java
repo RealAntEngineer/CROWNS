@@ -43,7 +43,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     // for now if T > 373°K P = 20 bar.
     public float C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
     public float temperature = 300;
-    static final SpecificRealGazState DEFAULT_STATE = new SpecificRealGazState(300f, 101300f, get_h(0,300,101300),0f);
+    public static final SpecificRealGazState DEFAULT_STATE = new SpecificRealGazState(300f, 101300f, get_h(0,300,101300),0f);
     protected LazyOptional<IFluidHandler> fluidCapability;
 
     //for later maybe ? to make the code simpler to understand
