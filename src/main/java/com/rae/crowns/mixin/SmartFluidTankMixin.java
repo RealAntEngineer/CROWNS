@@ -1,23 +1,28 @@
 package com.rae.crowns.mixin;
 
 import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
-import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper.mix;
 import static com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlockEntity.DEFAULT_STATE;
 
-@Mixin(value = SmartFluidTank.class)
-public abstract class SmartFluidTankMixin extends FluidTank {
+@Mixin(value = FluidTank.class)
+public abstract class SmartFluidTankMixin  {
+    @Shadow @NotNull protected FluidStack fluid;
 
-    public SmartFluidTankMixin(int capacity) {
-        super(capacity);
-    }
-    @Override
-    public int fill(FluidStack resource, FluidAction action) {
+    @Shadow public abstract int getFluidAmount();
+
+    @Inject(method = "fill", at = @At(value = "HEAD"),remap = false)
+    public void fill(FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
         if (!fluid.isEmpty()) {
             CompoundTag newStateNBT = resource.getChildTag("realGazState");
             SpecificRealGazState newState;
@@ -41,9 +46,6 @@ public abstract class SmartFluidTankMixin extends FluidTank {
             fluid.setTag(mergedTag);
 
             resource.setTag(fluid.getTag());//to ensure correct merge
-            System.out.println("coucou");
         }
-        System.out.println("coucou2");
-        return super.fill(resource, action);
     }
 }

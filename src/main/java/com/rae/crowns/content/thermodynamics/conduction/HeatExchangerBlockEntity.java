@@ -94,7 +94,8 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             if (outState.is(BlockInit.HEAT_EXCHANGER.get())){
                 HeatExchangerBlockEntity be = (HeatExchangerBlockEntity) level.getBlockEntity(outPos);
                 assert be != null;
-                SmartFluidTank handler = (SmartFluidTank) be.getCapability(ForgeCapabilities.FLUID_HANDLER,getBlockState().getValue(HeatExchangerBlock.FACING)
+                FluidTank handler = (FluidTank)
+                        be.getCapability(ForgeCapabilities.FLUID_HANDLER,getBlockState().getValue(HeatExchangerBlock.FACING)
                 ).orElse(new FluidTank(0));
                 if (handler.getFluidAmount()< (float) WATER_TANK.getFluidAmount()){//if input of following handler is smaller than ours
                     FluidStack stack =  WATER_TANK.getFluid().copy();
