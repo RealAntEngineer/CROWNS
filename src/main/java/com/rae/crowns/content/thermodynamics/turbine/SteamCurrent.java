@@ -26,13 +26,14 @@ import java.util.Objects;
 
 public class SteamCurrent extends Entity{
 	private static final EntityDataAccessor<AABB> SYNCED_BB_ACCESSOR = SynchedEntityData.defineId(SteamCurrent.class, EntityDataSerializersInit.BB_SERIALIZER);
-
+	private SpecificRealGazState inputFluidState = null;
 	private BlockPos injectorPos = null;
 	private BlockPos collectorPos = null;
 	public Direction direction;
 	public float maxDistance;
 	ArrayList<BlockPos> stagesPos = new ArrayList<>();
 	HashMap<BlockPos, Float> powerForStage = new HashMap<>();
+	private float flow;
 	//TODO finish to assemble the bricks + test if it works
 //Sync the AABB ?
 	public SteamCurrent(EntityType<?> entityType, Level level) {
@@ -80,17 +81,19 @@ public class SteamCurrent extends Entity{
 	public void calculateForStage(IPressureChange addedStage){
 		if (!stagesPos.contains(addedStage.getBlockPos())) {//do the list of blockPos or relative distance to take care of..
 			stagesPos.add(addedStage.getBlockPos());
-			stagesPos = new ArrayList<>(stagesPos.stream().sorted(
+			stagesPos = new ArrayList<>(stagesPos.stream().filter(
+					p -> level.getBlockEntity(p) instanceof IPressureChange).sorted(
 					(s1, s2)-> ((this.direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) ? -1:1)*
 							(Objects.requireNonNull(level.getBlockEntity(s1)).getBlockPos().get(this.direction.getAxis()) -
 									(Objects.requireNonNull(level.getBlockEntity(s2))).getBlockPos().get(this.direction.getAxis()))).toList());//sort by distance
 		}
-		ArrayList<IPressureChange> stages = new ArrayList<>(stagesPos.stream().map( p -> (IPressureChange)level.getBlockEntity(p)).toList());
+		ArrayList<IPressureChange> stages = new ArrayList<>(
+				stagesPos.stream().map( p -> (IPressureChange)level.getBlockEntity(p)).toList());
 
 		//rebuild the map
 		powerForStage = new HashMap<>();
 		SpecificRealGazState previousState = getInputFluidState();
-		System.out.println("start water : "+previousState);
+		//System.out.println("start water : "+previousState);
 		//sorted to ensure correct thing
 		if (direction == null){
 			direction = Direction.NORTH;
@@ -108,17 +111,22 @@ public class SteamCurrent extends Entity{
 			//need to ensure that it's empty before end
 			//.get(this.direction.getAxis()
 			powerForStage.put(((BlockEntity) stage).getBlockPos(), (previousState.specificEnthalpy() - nextState.specificEnthalpy()) * getFlow());
-			System.out.println("stage : "+i+" | "+nextState + "power : "+(previousState.specificEnthalpy() - nextState.specificEnthalpy()) * getFlow());
+			//System.out.println("stage : "+i+" | "+nextState + "power : "+(previousState.specificEnthalpy() - nextState.specificEnthalpy()) * getFlow());
 			previousState = nextState;
 		}
 
 	}
-	public SpecificRealGazState getInputFluidState(){
-		SpecificRealGazState roomTemperatureWater = new SpecificRealGazState(300f, 50f*100000,WaterAsRealGazTransformationHelper.get_h(0,300,30f*100000),0f);
-        return WaterAsRealGazTransformationHelper.isobaricTransfert(roomTemperatureWater, 4000000);
-		//return new SpecificRealGazState(1000f, 10f*100000,WaterAsRealGazTransformationHelper.get_h(1,1000,30f*100000),1f);
+
+	public void setInputFluidState(SpecificRealGazState inputFluidState) {
+		this.inputFluidState = inputFluidState;
 	}
-//initialise with a map
+
+	public SpecificRealGazState getInputFluidState(){
+		if (inputFluidState==null){
+			inputFluidState = WaterAsRealGazTransformationHelper.DEFAULT_STATE;
+		}
+        return inputFluidState;
+	}
 
 
 	public float explore(Level world, BlockPos start, float max, Direction facing) {
@@ -140,8 +148,13 @@ public class SteamCurrent extends Entity{
         }
 		return distance;
 	}
+
+	public void setFlow(float flow) {
+		this.flow = flow;
+	}
+
 	public float getFlow(){
-		return 1;//Kg/s
+		return flow;//Kg/s
 	}
 	@Override
 	protected void defineSynchedData() {

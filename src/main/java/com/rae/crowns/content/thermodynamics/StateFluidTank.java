@@ -1,4 +1,4 @@
-package com.rae.crowns.content.thermodynamics.conduction;
+package com.rae.crowns.content.thermodynamics;
 
 import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
 import com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper;
@@ -9,7 +9,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-import static com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlockEntity.DEFAULT_STATE;
+import static com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper.DEFAULT_STATE;
+
 
 public class StateFluidTank extends SmartFluidTank {
     public StateFluidTank(int capacity, Consumer<FluidStack> updateCallback) {
@@ -26,6 +27,7 @@ public class StateFluidTank extends SmartFluidTank {
             } else {
                 oldState = DEFAULT_STATE;
             }
+            SpecificRealGazState state = WaterAsRealGazTransformationHelper.isobaricTransfert(oldState, amount / getFluidAmount());
             tag.put("realGazState", WaterAsRealGazTransformationHelper.isobaricTransfert(oldState, amount / getFluidAmount()).serialize());
             fluid.setTag(tag);
         }

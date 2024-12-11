@@ -1,6 +1,7 @@
 package com.rae.crowns;
 
 import com.mojang.logging.LogUtils;
+import com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.init.*;
 import com.rae.crowns.init.CROWNSContraptionType;
@@ -40,6 +41,7 @@ public class CROWNS {
 
         CROWNSConfigs.registerConfigs(modLoadingContext);
         CROWNSContraptionType.prepare();
+        WaterAsRealGazTransformationHelper.init();
 
         //CreativeModeTabsInit.init();
 

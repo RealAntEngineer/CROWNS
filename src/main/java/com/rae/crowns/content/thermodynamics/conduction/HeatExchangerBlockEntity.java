@@ -2,18 +2,14 @@ package com.rae.crowns.content.thermodynamics.conduction;
 
 import com.rae.crowns.api.nuclear.IHaveTemperature;
 import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
-import com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper;
+import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.BlockInit;
 import com.simibubi.create.content.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.fluids.transfer.FluidManipulationBehaviour;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
-import com.simibubi.create.foundation.fluid.CombinedTankWrapper;
-import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import com.simibubi.create.foundation.utility.Lang;
-import com.simibubi.create.foundation.utility.LangBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,7 +18,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -43,14 +38,13 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     // for now if T > 373°K P = 20 bar.
     public float C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
     public float temperature = 300;
-    public static final SpecificRealGazState DEFAULT_STATE = new SpecificRealGazState(300f, 101300f, get_h(0,300,101300),0f);
     protected LazyOptional<IFluidHandler> fluidCapability;
 
     //for later maybe ? to make the code simpler to understand
     private final StateFluidTank WATER_TANK = new StateFluidTank(1000, (f)-> {}){
         @Override
         public boolean isFluidValid(FluidStack stack) {
-            return  stack.getFluid().is(FluidTags.WATER);
+            return stack.getFluid().is(FluidTags.WATER);
         }
     };
 
@@ -115,11 +109,12 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         conductTemperature(getBlockPos(),level, 0.5f);
 
         //make the calculus, so it's the real nbr or make it in stage ( like ten stage )
-        float power = getThermalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) / 2;
+        float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) / 2;
         WATER_TANK.heat(power);
         this.addTemperature(
                 -power
-                        / this.getThermalCapacity());// the fact that it changes too often make it bugged ->
+                        / this.getThermalCapacity());
+        // the fact that it changes too often make it bugged ->
         // maybe if it's directly in  the fluidTransport behaviour
         sendData();
     }
@@ -132,6 +127,9 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     @Override
     public float getThermalConductivity() {
         return 10000;
+    }
+    public float getInternalConductivity() {
+        return 100000;
     }
 
     @Override
@@ -161,15 +159,12 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 
-        Lang.builder().add(Component.literal("temperature : "+(int)temperature))
+        Lang.builder().add(Component.literal("exchanger T = "+(int)temperature))
                 .add(Component.literal("°K"))
                 .style(ChatFormatting.DARK_RED)
                 .forGoggles(tooltip, 1);
+        containedFluidTooltip(tooltip, isPlayerSneaking, fluidCapability);
 
-        Lang.builder().add(Component.literal("tank : "+ WATER_TANK.getFluidAmount()))
-                .add(Component.literal("mb"))
-                .style(ChatFormatting.DARK_BLUE)
-                .forGoggles(tooltip, 1);
         return true;
     }
 

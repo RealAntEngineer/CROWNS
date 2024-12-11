@@ -6,6 +6,7 @@ import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
 public class WaterAsRealGazTransformationHelper {
 
     //terrible approximation just to get started
+
     static Float CLiquid = 4187f;
     static Float Cv = 1600f;
     static Float Cp = 2100f;
@@ -17,6 +18,8 @@ public class WaterAsRealGazTransformationHelper {
     static float PCrit = 22.064f * 1000000f;
     static float dh0 = 2500000f;
     static Float dhSat = (float) (-2500000f / (22.064 * 1000000 - 611));
+    public static final SpecificRealGazState DEFAULT_STATE = new SpecificRealGazState(300f, 101300f, get_h(0,300,101300),0f);
+
 
     private static float dhVap(Float pressure) {
         return Math.max(0, dhSat * pressure + dh0);
@@ -142,6 +145,17 @@ public class WaterAsRealGazTransformationHelper {
         }
         else{
             return (TSat(P) - 273) * CLiquid + dhVap(P) * x + (T - TSat(P)) * Cp;
+        }
+    }
+    public static float get_x(float h, float T, float P) {
+        if (T < TSat(P)) {
+            return 0;
+        }
+        else if(T < TSat(P)+0.0001) {
+            return (h - (TSat(P) - 273) * CLiquid)/dhVap(P);
+        }
+        else{
+            return 1;
         }
     }
 
@@ -277,9 +291,14 @@ public class WaterAsRealGazTransformationHelper {
     public static SpecificRealGazState mix(SpecificRealGazState first, float firstAmount, SpecificRealGazState second, float secondAmount){
         float T = first.temperature()*firstAmount/(firstAmount+ secondAmount) + second.temperature()*secondAmount/(firstAmount+ secondAmount);
         float P = first.pressure()*firstAmount/(firstAmount+ secondAmount) + second.pressure()*secondAmount/(firstAmount+ secondAmount);
-        float x = first.vaporQuality()*firstAmount/(firstAmount+ secondAmount) + second.vaporQuality()*secondAmount/(firstAmount+ secondAmount);
+        float h = first.specificEnthalpy()*firstAmount/(firstAmount+ secondAmount) + second.specificEnthalpy()*secondAmount/(firstAmount+ secondAmount);
+        //float x = first.vaporQuality()*firstAmount/(firstAmount+ secondAmount) + second.vaporQuality()*secondAmount/(firstAmount+ secondAmount);
         return new SpecificRealGazState(
-                T, P, WaterAsRealGazTransformationHelper.get_h(T,P,x), x
+                T, P, h, get_x(h,T,P)
         );
+    }
+
+    public static void init(){
+
     }
 }

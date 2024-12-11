@@ -12,17 +12,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import static com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper.DEFAULT_STATE;
 import static com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper.mix;
-import static com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlockEntity.DEFAULT_STATE;
 
 @Mixin(value = FluidTank.class)
-public abstract class SmartFluidTankMixin  {
+public abstract class FluidTankMixin {
     @Shadow @NotNull protected FluidStack fluid;
 
     @Shadow public abstract int getFluidAmount();
 
     @Inject(method = "fill", at = @At(value = "HEAD"),remap = false)
-    public void fill(FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
+    public void mergeStateNBT(FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
         if (!fluid.isEmpty()) {
             CompoundTag newStateNBT = resource.getChildTag("realGazState");
             SpecificRealGazState newState;
@@ -43,6 +43,9 @@ public abstract class SmartFluidTankMixin  {
             mergedTag.put("realGazState",
                     mix(newState, resource.getAmount(), oldState, getFluidAmount()).serialize()
             );
+            if (oldStateNBT == null && newStateNBT == null){
+                return;
+            }
             fluid.setTag(mergedTag);
 
             resource.setTag(fluid.getTag());//to ensure correct merge

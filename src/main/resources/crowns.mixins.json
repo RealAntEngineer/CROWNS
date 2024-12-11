@@ -6,7 +6,9 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "crowns.refmap.json",
   "mixins": [
-    "SmartFluidTankMixin"
+    "FluidStackMixin",
+    "FluidTankMixin",
+    "LangMixin"
   ],
   "client": [
   ],
