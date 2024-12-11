@@ -102,7 +102,8 @@ public class SteamCurrent extends Entity{
 									(Objects.requireNonNull(level.getBlockEntity(s2))).getBlockPos().get(this. entityData.get(SYNCED_DIRECTION_ACCESSOR).getAxis()))).toList());//sort by distance
 		}
 		ArrayList<IPressureChange> stages = new ArrayList<>(
-				stagesPos.stream().map( p -> (IPressureChange)level.getBlockEntity(p)).toList());
+				stagesPos.stream().filter(
+						p -> level.getBlockEntity(p) instanceof IPressureChange).map( p -> (IPressureChange)level.getBlockEntity(p)).toList());
 
 		//rebuild the map
 		powerForStage = new HashMap<>();

@@ -8,17 +8,15 @@ public class WaterAsRealGazTransformationHelper {
     //terrible approximation just to get started
 
     static Float CLiquid = 4187f;
-    static Float Cv = 1600f;
     static Float Cp = 2100f;
     static Float gamma = 1.3125f;
 
     static Float TPSat = (float) ((647 - 273) / (22.064 * 1000000 - 611));
-    static Float P0 = (float) (-16000000);
     static Float T0 = (float) (372);
-    static float PCrit = 22.064f * 1000000f;
+    //static float PCrit = 22.064f * 1000000f;
     static float dh0 = 2500000f;
     static Float dhSat = (float) (-2500000f / (22.064 * 1000000 - 611));
-    public static final SpecificRealGazState DEFAULT_STATE = new SpecificRealGazState(300f, 101300f, get_h(0,300,101300),0f);
+    public static final SpecificRealGazState DEFAULT_STATE = new SpecificRealGazState(300f, 1001300f, get_h(0,300,101300),0f);
 
 
     private static float dhVap() {
@@ -27,10 +25,6 @@ public class WaterAsRealGazTransformationHelper {
 
     private static float TSat(Float pressure) {
         return TPSat * pressure + T0;// take the 0 in account
-    }
-
-    private static float PSat(Float temperature) {
-        return temperature / TPSat + P0;// idem
     }
 
     /**
