@@ -18,7 +18,13 @@ public class LangMixin {
         CompoundTag newStateNBT = stack.getChildTag("realGazState");
         if (newStateNBT != null) {
             SpecificRealGazState newState = new SpecificRealGazState(newStateNBT);
-            cir.setReturnValue(cir.getReturnValue().add(Component.literal(" T = " +newState.temperature() + "°K")));
+            cir.setReturnValue(cir.getReturnValue().add(
+                    Component.literal(" T = " + (int) (float) newState.temperature() + "°K").append(
+                            Component.literal(" P = " + (int) (float) newState.pressure() + "Pa")
+                    )
+                            .append(
+                                    Component.literal(" x = " +(int) (newState.vaporQuality() *100) + "%")
+                            )));
         }
 
     }

@@ -1,5 +1,6 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
+import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
 import com.rae.crowns.init.EntityInit;
@@ -33,8 +34,12 @@ import java.util.List;
 public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
 	private final StateFluidTank WATER_TANK = new StateFluidTank(1000, (f)-> {
+		if (!hasLevel()){
+			return;
+		}
         assert level != null;
         if (!level.isClientSide) {
+			flow = f.getAmount()+1;
 			sendData();
 		}
 	}){
@@ -47,6 +52,7 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 	protected int currentUpdateCooldown;
 	protected boolean updateSteamFlow;
 	protected LazyOptional<IFluidHandler> fluidCapability;
+	float flow;
 
 	public SteamInputBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -62,6 +68,7 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 	@Override
 	protected void read(CompoundTag compound, boolean clientPacket) {
 		WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
+		flow = compound.getFloat("flow");
 		super.read(compound, clientPacket);
 
 	}
@@ -70,9 +77,22 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 	public void write(CompoundTag compound, boolean clientPacket) {
 		super.write(compound, clientPacket);
 		compound.put("water_tank",WATER_TANK.writeToNBT(new CompoundTag()));
+		compound.putFloat("flow", flow);
 
 	}
-
+	private static final int SYNC_RATE = 8;
+	protected int syncCooldown;
+	protected boolean queuedSync;
+	@Override
+	public void sendData() {
+		if (syncCooldown > 0) {
+			queuedSync = true;
+			return;
+		}
+		super.sendData();
+		queuedSync = false;
+		syncCooldown = SYNC_RATE;
+	}
 	@Override
 	public void tick() {
 		super.tick();
@@ -82,7 +102,11 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 				currentUpdateCooldown = AllConfigs.server().kinetics.fanBlockCheckRate.get();
 				updateSteamFlow = true;
 			}
-
+			if (syncCooldown > 0) {
+				syncCooldown--;
+				if (syncCooldown == 0 && queuedSync)
+					sendData();
+			}
 			if (updateSteamFlow) {
 				updateSteamFlow = false;
 				if (steamCurrent != null && !steamCurrent.isAlive()) {
@@ -95,21 +119,23 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 						steamCurrent = new SteamCurrent(EntityInit.CURRENT_ENTITY.get(), level);
 						steamCurrent.setPos(worldPosition.relative(facing).getX(), worldPosition.relative(facing).getY(), worldPosition.relative(facing).getZ());
 						steamCurrent.setInputFluidState(WATER_TANK.getState());
-						steamCurrent.setFlow(0);
 						level.addFreshEntity(steamCurrent);
-						BlockPos collectorPos = steamCurrent.initialize(worldPosition, facing, 16);
+						steamCurrent.initialize(worldPosition, facing, 16);
 					} else {
 						steamCurrent = currents.get(0);
 					}
 				}
-				sendData();
 			}
 			if (steamCurrent != null && steamCurrent.isAlive()) {
 				steamCurrent.setInputFluidState(WATER_TANK.getState());
-				steamCurrent.setFlow(WATER_TANK.drain(10, IFluidHandler.FluidAction.EXECUTE).getAmount()*20);
+				flow  = WATER_TANK.drain((int) flow, IFluidHandler.FluidAction.EXECUTE).getAmount();
+				sendData();
 			}
-			sendData();
 		}
+	}
+
+	public SpecificRealGazState getState(){
+		return WATER_TANK.getState();
 	}
 	@Override
 	public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
@@ -133,5 +159,9 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 		containedFluidTooltip(tooltip, isPlayerSneaking, fluidCapability);
 
 		return true;
+	}
+
+	public float getFlow() {
+		return flow * 20;
 	}
 }

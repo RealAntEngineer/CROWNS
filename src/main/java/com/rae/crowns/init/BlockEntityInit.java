@@ -24,7 +24,7 @@ public class BlockEntityInit {
     public static final BlockEntityEntry<TurbineBearingBlockEntity> TURBINE_BEARING = REGISTRATE
             .blockEntity("turbine_bearing", TurbineBearingBlockEntity::new)
             .instance(() -> BearingInstance::new)
-            .validBlock(BlockInit.TURBINE_BEARING)
+            //.validBlock(BlockInit.TURBINE_BEARING)
             .renderer(() -> BearingRenderer::new)
             .register();
     public static final BlockEntityEntry<TurbineStageBlockEntity> TURBINE_STAGE = REGISTRATE
@@ -38,10 +38,10 @@ public class BlockEntityInit {
             "steam_input",SteamInputBlockEntity::new)
             .validBlock(BlockInit.STEAM_INPUT)
             .register();
-    public static final BlockEntityEntry<SteamCollectorBlockEntity> STEAM_COLLECTOR = REGISTRATE.blockEntity(
+    /*public static final BlockEntityEntry<SteamCollectorBlockEntity> STEAM_COLLECTOR = REGISTRATE.blockEntity(
                     "steam_collector", SteamCollectorBlockEntity::new)
             .validBlock(BlockInit.STEAM_COLLECTOR)
-            .register();
+            .register();*/
     public static final BlockEntityEntry<HeatExchangerBlockEntity> HEAT_EXCHANGER = REGISTRATE.blockEntity(
                     "heat_exchanger",HeatExchangerBlockEntity::new)
             .renderer(() -> HeatExchangerRenderer::new)

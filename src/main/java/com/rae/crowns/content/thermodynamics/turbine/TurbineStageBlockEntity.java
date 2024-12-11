@@ -28,7 +28,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
 
     @Override
     public float getGeneratedSpeed() {
-        return flows.isEmpty()?0:256; // * direction du flux
+        return flows.isEmpty()||power==0?0:256; // * direction du flux
     }
     @Override
     public float calculateAddedStressCapacity() {//it's the stress base not the real stress

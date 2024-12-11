@@ -52,14 +52,14 @@ public class BlockInit {
             .build()
             .register();
 
-    public static final BlockEntry<TurbineBladeBlock> TURBINE_BLADE = REGISTRATE.block(
+    /*public static final BlockEntry<TurbineBladeBlock> TURBINE_BLADE = REGISTRATE.block(
             "turbine_blade", TurbineBladeBlock::new)
             .initialProperties(SharedProperties::softMetal)
             .properties(p-> p.noOcclusion())
             .item()
             .tab(()->NUCLEAR_TAB)
             .build()
-            .register();
+            .register();*/
 
     public static final BlockEntry<SteamInputBlock> STEAM_INPUT = REGISTRATE.block(
                     "steam_input", SteamInputBlock::new)
@@ -69,15 +69,15 @@ public class BlockInit {
             .tab(()->NUCLEAR_TAB)
             .build()
             .register();
-    public static final BlockEntry<SteamCollectorBlock> STEAM_COLLECTOR = REGISTRATE.block(
+    /*public static final BlockEntry<SteamCollectorBlock> STEAM_COLLECTOR = REGISTRATE.block(
                     "steam_collector", SteamCollectorBlock::new)
             .initialProperties(SharedProperties::softMetal)
             .properties(p-> p.noOcclusion())
             .item()
             .tab(()->NUCLEAR_TAB)
             .build()
-            .register();
-    public static final BlockEntry<TurbineBearingBlock> TURBINE_BEARING =
+            .register();*/
+    /*public static final BlockEntry<TurbineBearingBlock> TURBINE_BEARING =
             REGISTRATE.block("turbine_bearing",TurbineBearingBlock::new)
                     .initialProperties(SharedProperties::softMetal)
                     .properties(p-> p.noOcclusion())
@@ -86,7 +86,7 @@ public class BlockInit {
                     .item()
                     .tab(()-> NUCLEAR_TAB)
                     .build()
-                    .register();
+                    .register();*/
 
     public static final BlockEntry<TurbineStageBlock> TURBINE_STAGE =
             REGISTRATE.block("turbine_stage",TurbineStageBlock::new)

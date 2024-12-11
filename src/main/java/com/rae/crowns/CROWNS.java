@@ -41,8 +41,6 @@ public class CROWNS {
 
         CROWNSConfigs.registerConfigs(modLoadingContext);
         CROWNSContraptionType.prepare();
-        WaterAsRealGazTransformationHelper.init();
-
         //CreativeModeTabsInit.init();
 
         forgeEventBus.addListener(CROWNS::onAddReloadListeners);

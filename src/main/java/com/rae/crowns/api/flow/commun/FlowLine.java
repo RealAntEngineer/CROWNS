@@ -214,7 +214,7 @@ public class FlowLine {//this is a spline
         Vec3 b = coeffs[1];
         Vec3 c = coeffs[2];
         Vec3 d = coeffs[3];
-
+        //there is a possible bug if the points are seperated by more than 1
         return evaluateCubic(a, b, c, d, localT);
     }
 

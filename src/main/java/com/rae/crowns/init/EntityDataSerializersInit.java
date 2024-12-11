@@ -11,8 +11,11 @@ import net.minecraftforge.registries.RegistryObject;
 public class EntityDataSerializersInit {
     private static final DeferredRegister<EntityDataSerializer<?>> REGISTER = DeferredRegister.create(ForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS, CROWNS.MODID);
     public static final AABBSerializer BB_SERIALIZER = new AABBSerializer();
+    public static final StateMapSerializer SM_SERIALIZER = new StateMapSerializer();
+
 
     public static final RegistryObject<AABBSerializer> SHAPE_DATA_ENTRY = REGISTER.register("aabb", () -> BB_SERIALIZER);
+    public static final RegistryObject<StateMapSerializer> STATE_MAP_DATA_ENTRY = REGISTER.register("state_map", () -> SM_SERIALIZER);
 
     public static void register(IEventBus modEventBus) {
         REGISTER.register(modEventBus);
