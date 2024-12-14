@@ -3,6 +3,7 @@ package com.rae.crowns.init;
 import com.rae.crowns.content.nuclear.AssemblyBlock;
 import com.rae.crowns.content.legacy.TurbineBearingBlock;
 import com.rae.crowns.content.legacy.TurbineBladeBlock;
+import com.rae.crowns.content.nuclear.UraniumOreBlock;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
 import com.rae.crowns.content.thermodynamics.turbine.SteamCollectorBlock;
 import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlock;
@@ -10,7 +11,14 @@ import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
 import com.simibubi.create.content.kinetics.BlockStressDefaults;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntry;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.RedStoneOreBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+
+import java.util.function.ToIntFunction;
 
 import static com.rae.crowns.CROWNS.REGISTRATE;
 import static com.rae.crowns.init.CreativeModeTabsInit.NUCLEAR_TAB;
@@ -47,47 +55,36 @@ public class BlockInit {
     public static final BlockEntry<HeatExchangerBlock> HEAT_EXCHANGER = REGISTRATE
             .block("heat_exchanger", HeatExchangerBlock::new)
             .initialProperties(SharedProperties::softMetal)
-            .properties(p-> p.noOcclusion())
+            .properties(BlockBehaviour.Properties::noOcclusion)
             .item()
             .tab(()->NUCLEAR_TAB)
             .build()
             .register();
 
-    /*public static final BlockEntry<TurbineBladeBlock> TURBINE_BLADE = REGISTRATE.block(
-            "turbine_blade", TurbineBladeBlock::new)
-            .initialProperties(SharedProperties::softMetal)
-            .properties(p-> p.noOcclusion())
+    public static final BlockEntry<UraniumOreBlock> URANIUM_ORE = REGISTRATE
+            .block("uranium_ore", UraniumOreBlock::new)
+            .initialProperties(SharedProperties::stone)
+            .properties(p->p.lightLevel(litBlockEmission(9)).strength(4,4))
             .item()
             .tab(()->NUCLEAR_TAB)
             .build()
-            .register();*/
-
+            .register();
+    public static final BlockEntry<UraniumOreBlock> DEEP_URANIUM_ORE = REGISTRATE
+            .block("deepslate_uranium_ore", UraniumOreBlock::new)
+            .initialProperties(()-> Blocks.DEEPSLATE)
+            .properties(p->p.lightLevel(litBlockEmission(9)).strength(5.5F, 4.0F))
+            .item()
+            .tab(()->NUCLEAR_TAB)
+            .build()
+            .register();
     public static final BlockEntry<SteamInputBlock> STEAM_INPUT = REGISTRATE.block(
                     "steam_input", SteamInputBlock::new)
             .initialProperties(SharedProperties::softMetal)
-            .properties(p-> p.noOcclusion())
+            .properties(BlockBehaviour.Properties::noOcclusion)
             .item()
             .tab(()->NUCLEAR_TAB)
             .build()
             .register();
-    /*public static final BlockEntry<SteamCollectorBlock> STEAM_COLLECTOR = REGISTRATE.block(
-                    "steam_collector", SteamCollectorBlock::new)
-            .initialProperties(SharedProperties::softMetal)
-            .properties(p-> p.noOcclusion())
-            .item()
-            .tab(()->NUCLEAR_TAB)
-            .build()
-            .register();*/
-    /*public static final BlockEntry<TurbineBearingBlock> TURBINE_BEARING =
-            REGISTRATE.block("turbine_bearing",TurbineBearingBlock::new)
-                    .initialProperties(SharedProperties::softMetal)
-                    .properties(p-> p.noOcclusion())
-                    .transform(BlockStressDefaults.setGeneratorSpeed(TurbineBearingBlock::getSpeedRange))
-                    .transform(BlockStressDefaults.setCapacity(100))
-                    .item()
-                    .tab(()-> NUCLEAR_TAB)
-                    .build()
-                    .register();*/
 
     public static final BlockEntry<TurbineStageBlock> TURBINE_STAGE =
             REGISTRATE.block("turbine_stage",TurbineStageBlock::new)
@@ -99,6 +96,9 @@ public class BlockInit {
                     .tab(()-> NUCLEAR_TAB)
                     .build()
                     .register();
+    private static ToIntFunction<BlockState> litBlockEmission(int lightLevel) {
+        return (blockState) -> blockState.getValue(BlockStateProperties.LIT) ? lightLevel : 0;
+    }
     public static void register() {}
 
 }
