@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "UUU",
+    "UIU",
+    "UUU"
+  ],
+  "key": {
+    "U": {
+      "item": "crowns:uranium_ingot"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "crowns:fuel_assembly",
+    "count": 1
+  }
+}

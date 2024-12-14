@@ -1,4 +1,4 @@
-package com.rae.crowns.client.rendering.renderer;
+package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.jozufozu.flywheel.backend.Backend;
 import com.mojang.blaze3d.vertex.PoseStack;

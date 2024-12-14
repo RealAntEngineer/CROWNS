@@ -2,7 +2,7 @@ package com.rae.crowns.init;
 
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.api.flow.client.FlowParticleData;
-import com.rae.crowns.client.particle.SteamFlowParticleData;
+import com.rae.crowns.content.thermodynamics.turbine.SteamFlowParticleData;
 import com.simibubi.create.foundation.particle.ICustomParticleData;
 import com.simibubi.create.foundation.utility.Lang;
 import net.minecraft.core.particles.ParticleOptions;

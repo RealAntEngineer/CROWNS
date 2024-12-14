@@ -26,6 +26,7 @@ import java.util.Map;
 
 import static com.rae.crowns.api.Constants.barnNa;
 import static com.rae.crowns.api.Constants.fissionEnergy;
+import static java.lang.Float.NaN;
 
 public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
 
@@ -100,12 +101,18 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                     sendData();
             }
         }
+        if (Float.isNaN(temperature)){
+            temperature = 300;
+        }
     }
 
     @Override
     public void lazyTick(){
         if (!level.isClientSide()) {
             nbrOfFission = additionalNeutronsAbsorbed+backgroundActivity; //for now a 100% change of fission
+            if (Float.isNaN(nbrOfFission)){
+                nbrOfFission = backgroundActivity;
+            }
             additionalNeutronsAbsorbed = 0;
             BlockPos pos = getBlockPos();
 

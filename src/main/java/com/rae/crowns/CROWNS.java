@@ -32,6 +32,7 @@ public class CROWNS {
         TagsInit.init();
 
         BlockInit.register();
+        ItemInit.register();
         BlockEntityInit.register();
         EntityInit.register();
 

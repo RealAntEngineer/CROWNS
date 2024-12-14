@@ -1,4 +1,4 @@
-package com.rae.crowns.client.particle;
+package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;

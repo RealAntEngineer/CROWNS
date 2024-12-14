@@ -1,0 +1,6 @@
+{
+  "block.crowns.heat_exchanger": "Heat Exchanger",
+  "block.crowns.steam_input": "Steam Input",
+  "block.crowns.fuel_assembly": "Fuel Assembly",
+  "block.crowns.turbine_stage": "Turbine Stage"
+}

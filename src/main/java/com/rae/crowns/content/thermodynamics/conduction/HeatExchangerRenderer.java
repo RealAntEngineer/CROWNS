@@ -1,4 +1,4 @@
-package com.rae.crowns.client.rendering.renderer;
+package com.rae.crowns.content.thermodynamics.conduction;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -36,7 +36,8 @@ public class HeatExchangerRenderer extends SafeBlockEntityRenderer<HeatExchanger
             ms.translate(direction.getStepX()* 0.001f,direction.getStepY()*0.001f,direction.getStepZ()*0.001f);
             SuperByteBuffer outRim =
                     CachedBufferer.partialFacing(AllPartialModels.PIPE_ATTACHMENTS.get(
-                            FluidTransportBehaviour.AttachmentTypes.ComponentPartials.RIM).get(direction), be.getBlockState(), Direction.SOUTH);
+                            FluidTransportBehaviour.AttachmentTypes.ComponentPartials.RIM).get(direction), be.getBlockState(), Direction.SOUTH)
+                            .light(light).overlay(overlay);
             outRim.renderInto(ms, vb);
 
             ms.popPose();
@@ -49,7 +50,7 @@ public class HeatExchangerRenderer extends SafeBlockEntityRenderer<HeatExchanger
             SuperByteBuffer inRim =
                     CachedBufferer.partialFacing(AllPartialModels.PIPE_ATTACHMENTS.get(
                                     FluidTransportBehaviour.AttachmentTypes.ComponentPartials.RIM).get(direction.getOpposite()), be.getBlockState(),
-                            Direction.SOUTH);
+                            Direction.SOUTH).light(light).overlay(overlay);
             inRim.renderInto(ms, vb);
             ms.popPose();
         }

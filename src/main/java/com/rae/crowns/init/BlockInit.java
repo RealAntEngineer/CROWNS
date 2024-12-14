@@ -10,6 +10,7 @@ import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
 import com.simibubi.create.content.kinetics.BlockStressDefaults;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntry;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 
 import static com.rae.crowns.CROWNS.REGISTRATE;
 import static com.rae.crowns.init.CreativeModeTabsInit.NUCLEAR_TAB;
@@ -91,7 +92,7 @@ public class BlockInit {
     public static final BlockEntry<TurbineStageBlock> TURBINE_STAGE =
             REGISTRATE.block("turbine_stage",TurbineStageBlock::new)
                     .initialProperties(SharedProperties::softMetal)
-                    .properties(p-> p.noOcclusion())
+                    .properties(BlockBehaviour.Properties::noOcclusion)
                     .transform(BlockStressDefaults.setGeneratorSpeed(TurbineStageBlock::getSpeedRange))
                     .transform(BlockStressDefaults.setCapacity(100))
                     .item()

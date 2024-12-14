@@ -1,24 +1,30 @@
 {
   "variants": {
+    "facing=down": {
+      "model": "crowns:block/pipe/heat_exchanger",
+      "x": 180
+    },
     "facing=east": {
-      "model": "crowns:block/pipe/heat_exchanger_horizontal",
+      "model": "crowns:block/pipe/heat_exchanger",
+      "x": 90,
       "y": 90
     },
-    "facing=west": {
-      "model": "crowns:block/pipe/heat_exchanger_horizontal",
-      "y": 90
+    "facing=north": {
+      "model": "crowns:block/pipe/heat_exchanger",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "crowns:block/pipe/heat_exchanger",
+      "x": 90,
+      "y": 180
     },
     "facing=up": {
       "model": "crowns:block/pipe/heat_exchanger"
     },
-    "facing=down": {
-      "model": "crowns:block/pipe/heat_exchanger"
-    },
-    "facing=north": {
-      "model": "crowns:block/pipe/heat_exchanger_horizontal"
-    },
-    "facing=south": {
-      "model": "crowns:block/pipe/heat_exchanger_horizontal"
+    "facing=west": {
+      "model": "crowns:block/pipe/heat_exchanger",
+      "x": 90,
+      "y": 270
     }
   }
 }

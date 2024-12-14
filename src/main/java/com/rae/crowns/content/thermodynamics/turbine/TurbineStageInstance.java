@@ -1,4 +1,4 @@
-package com.rae.crowns.client.rendering.instance;
+package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.jozufozu.flywheel.api.Instancer;
 import com.jozufozu.flywheel.api.MaterialManager;
