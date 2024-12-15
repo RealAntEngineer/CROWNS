@@ -1,7 +1,7 @@
 {
   "type": "minecraft:smelting",
   "ingredient": {
-    "item": "crowns:uranium_ore"
+    "item": "crowns:raw_uranium"
   },
   "result": "crowns:uranium_ingot",
   "cookingtime": 200

@@ -161,9 +161,9 @@ mixin {
 jar {
     manifest {
         attributes([
-                "Specification-Title"     : "S.U",
+                "Specification-Title"     : "CROWNS",
                 "Specification-Vendor"    : "Real Ant Engineer",
-                "Specification-Version"   : "0.2", // We are version 1.5.3 of ourselves
+                "Specification-Version"   : "0.2",
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : project.jar.archiveVersion,
                 "Implementation-Vendor"   : "Real Ant Engineer",
