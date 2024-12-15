@@ -20,7 +20,7 @@ public class WaterAsRealGazTransformationHelper {
 
 
     private static float dhVap() {
-        return Math.max(0, dhSat * 101300f + dh0);
+        return  dhSat * 101300f + dh0;
     }
 
     private static float TSat(Float pressure) {
@@ -34,36 +34,35 @@ public class WaterAsRealGazTransformationHelper {
      * @return the new fluid state
      */
     public static SpecificRealGazState isobaricHeating(SpecificRealGazState fluidState, float specific_heat) {
-        float dh = specific_heat;
         float dx = 0;
         float dT = 0;
         if (fluidState.vaporQuality() == 0) {
-            if (fluidState.temperature() + dh / CLiquid <= TSat(fluidState.pressure())) {
-                dT += dh / CLiquid;
+            if (fluidState.temperature() + specific_heat / CLiquid <= TSat(fluidState.pressure())) {
+                dT += specific_heat / CLiquid;
             } else {
                 dT += TSat(fluidState.pressure()) - fluidState.temperature();
-                dx = (dh - dT * CLiquid) / dhVap();
+                dx = (specific_heat - dT * CLiquid) / dhVap();
                 if (dx > 1) {
                     dx = 1;
-                    dT += (dh - dhVap() - dT * CLiquid) / Cp;
+                    dT += (specific_heat - dhVap() - dT * CLiquid) / Cp;
                 }
 
             }
         } else if (fluidState.vaporQuality() < 1.0) {
-            dx = dh / dhVap();
+            dx = specific_heat / dhVap();
             dT = 0;
             if (dx > 1 - fluidState.vaporQuality()) {
                 dx = 1 - fluidState.vaporQuality();
                 //we remove the energy taken by the vaporisation
-                dT = (dh - dhVap() * (1 - fluidState.vaporQuality())) / Cp;
+                dT = (specific_heat - dhVap() * (1 - fluidState.vaporQuality())) / Cp;
             }
         } else {
-            dT = dh / Cp;
+            dT = specific_heat / Cp;
         }
         return new SpecificRealGazState(
                 fluidState.temperature() + dT,
                 fluidState.pressure(),
-                fluidState.specificEnthalpy() + dh,
+                fluidState.specificEnthalpy() + specific_heat,
                 fluidState.vaporQuality() + dx);
     }
 
@@ -145,7 +144,7 @@ public class WaterAsRealGazTransformationHelper {
             return TSat(P);
         }
         else {
-            return TSat(P) + (h - (TSat(P) - 273) * CLiquid - dhVap())*Cp;
+            return TSat(P) + (h - (TSat(P) - 273) * CLiquid - dhVap())/Cp;
         }
     }
     public static float get_x(float h, float T, float P) {
@@ -290,8 +289,15 @@ public class WaterAsRealGazTransformationHelper {
         float P = first.pressure()*firstAmount/(firstAmount+ secondAmount) + second.pressure()*secondAmount/(firstAmount+ secondAmount);
         float h = first.specificEnthalpy()*firstAmount/(firstAmount+ secondAmount) + second.specificEnthalpy()*secondAmount/(firstAmount+ secondAmount);
         //float x = first.vaporQuality()*firstAmount/(firstAmount+ secondAmount) + second.vaporQuality()*secondAmount/(firstAmount+ secondAmount);
-        return new SpecificRealGazState(
-                get_T(P,h), P, h, get_x(h,get_T(P,h),P)
-        );
+        SpecificRealGazState state = new SpecificRealGazState(
+                get_T(P,h), P, h, get_x(h,get_T(P,h),P));
+        //System.out.println(state);
+        if (first.temperature().isNaN() || second.temperature().isNaN()){
+            return DEFAULT_STATE;
+        }
+        if (first.temperature() > 20000 || second.temperature() > 20000){
+            return DEFAULT_STATE;
+        }
+        return state;
     }
 }

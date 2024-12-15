@@ -134,11 +134,17 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
     @Override
     public float getTemperature() {
+        if (Float.isNaN(temperature)){
+            temperature = 300;
+        }
         return temperature;
     }
 
     @Override
     public void addTemperature(float dT) {
+        if (Float.isNaN(temperature)){
+            temperature = 300;
+        }
         temperature+=dT;
     }
     @Override
