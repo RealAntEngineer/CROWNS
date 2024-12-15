@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "create:crushed_raw_uranium"
+  },
+  "result": "crowns:uranium_ingot",
+  "cookingtime": 40
+}

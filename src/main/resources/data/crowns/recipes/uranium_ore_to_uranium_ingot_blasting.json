@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:blasting",
+  "ingredient": {
+    "item": "crowns:uranium_ore"
+  },
+  "result": "crowns:uranium_ingot",
+  "cookingtime": 20
+}

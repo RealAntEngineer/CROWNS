@@ -6,6 +6,8 @@
   "block.crowns.deepslate_uranium_ore": "Deepslate Uranium Ore",
   "block.crowns.turbine_stage": "Turbine Stage",
 
-  "item.crowns.uranium_ingot": "Uranium Ingot"
+  "item.crowns.uranium_ingot": "Uranium Ingot",
+  "item.crowns.raw_uranium": "Raw Uranium",
 
+  "itemGroup.crowns.nuclear": "Creating Rotation Operated With Nuclear Science"
 }

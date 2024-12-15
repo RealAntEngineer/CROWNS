@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "block/air"
+      "model": "crowns:block/turbine/turbine_stage_block"
     }
   }
 }

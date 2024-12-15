@@ -112,6 +112,13 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 				if (steamCurrent != null && !steamCurrent.isAlive()) {
 					steamCurrent = null;
 				}
+				else if (steamCurrent != null && steamCurrent.isAlive()){
+					Direction facing = getBlockState().getValue(SteamInputBlock.FACING);
+					steamCurrent.setPos(worldPosition.relative(facing).getX(), worldPosition.relative(facing).getY(), worldPosition.relative(facing).getZ());
+					steamCurrent.setInputFluidState(WATER_TANK.getState());
+					level.addFreshEntity(steamCurrent);
+					steamCurrent.initialize(worldPosition, facing, 16);
+				}
 				if (steamCurrent == null) {
 					Direction facing = getBlockState().getValue(SteamInputBlock.FACING);
 					List<SteamCurrent> currents = level.getEntitiesOfClass(SteamCurrent.class, new AABB(getBlockPos().relative(facing)));

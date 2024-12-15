@@ -5,6 +5,7 @@ import com.rae.crowns.init.BlockInit;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
+import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -21,7 +22,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-public class HeatExchangerBlock extends DirectionalBlock implements ProperWaterloggedBlock, IBE<HeatExchangerBlockEntity> {
+public class HeatExchangerBlock extends WrenchableDirectionalBlock implements ProperWaterloggedBlock, IBE<HeatExchangerBlockEntity> {
     public HeatExchangerBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState()
@@ -35,7 +36,7 @@ public class HeatExchangerBlock extends DirectionalBlock implements ProperWaterl
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder.add(FACING,WATERLOGGED,IN,OUT));
+        super.createBlockStateDefinition(builder.add(WATERLOGGED,IN,OUT));
 
     }
     @Override

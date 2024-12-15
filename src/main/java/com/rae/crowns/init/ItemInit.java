@@ -14,6 +14,9 @@ public class ItemInit {
     public static final ItemEntry<Item> URANIUM_INGOT = REGISTRATE.item("uranium_ingot", Item::new)
             .properties(properties -> properties.tab(CreativeModeTabsInit.NUCLEAR_TAB))
             .register();
+    public static final ItemEntry<Item> RAW_URANIUM = REGISTRATE.item("raw_uranium", Item::new)
+            .properties(properties -> properties.tab(CreativeModeTabsInit.NUCLEAR_TAB))
+            .register();
     public static void register() {}
 
 }

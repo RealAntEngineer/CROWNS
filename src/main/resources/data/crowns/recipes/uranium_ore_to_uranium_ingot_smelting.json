@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "crowns:uranium_ore"
+  },
+  "result": "crowns:uranium_ingot",
+  "cookingtime": 40
+}
