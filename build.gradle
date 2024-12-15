@@ -13,7 +13,7 @@ plugins {
     id 'org.spongepowered.mixin' version '0.7.+'
 }
 
-version = '0.1'
+version = '0.2'
 group = 'com.rae.crowns' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'crowns'
 
@@ -163,7 +163,7 @@ jar {
         attributes([
                 "Specification-Title"     : "S.U",
                 "Specification-Vendor"    : "Real Ant Engineer",
-                "Specification-Version"   : "0.1", // We are version 1.5.3 of ourselves
+                "Specification-Version"   : "0.2", // We are version 1.5.3 of ourselves
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : project.jar.archiveVersion,
                 "Implementation-Vendor"   : "Real Ant Engineer",

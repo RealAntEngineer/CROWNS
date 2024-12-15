@@ -6,9 +6,9 @@ license="MIT"
 
 [[mods]]
 modId="crowns"
-version="0.1"
+version="0.2"
 displayName="Creating Rotation Operated With Nuclear Science"
-logoFile="logo.jpg"
+logoFile="logo.png"
 credits='''
 
 '''
