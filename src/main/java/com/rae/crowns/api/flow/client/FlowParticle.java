@@ -15,7 +15,7 @@ public class FlowParticle extends SimpleAnimatedParticle {
     private double t; // Parameter along the B-spline (0 to 1)
 
     public FlowParticle(ClientLevel world, FlowLine spline, float initialT, SpriteSet spriteSet) {
-        super(world, 0, 0, 0, spriteSet, 0.0f);
+        super(world, spline.getPoint(0).x, spline.getPoint(0).y, spline.getPoint(0).z, spriteSet, 0.0f);
         setSpriteFromAge(spriteSet);
         this.spline = spline;
         this.t = initialT;

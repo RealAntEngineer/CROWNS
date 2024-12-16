@@ -93,8 +93,8 @@ public class SteamCurrent extends Entity{
 		}
 	}
 	public void calculateForStage(IPressureChange addedStage){
-		if (!stagesPos.contains(addedStage.getBlockPos())) {//do the list of blockPos or relative distance to take care of..
-			stagesPos.add(addedStage.getBlockPos());
+		if (!stagesPos.contains(((BlockEntity)addedStage).getBlockPos())) {//do the list of blockPos or relative distance to take care of..
+			stagesPos.add(((BlockEntity)addedStage).getBlockPos());
 			stagesPos = new ArrayList<>(stagesPos.stream().filter(
 					p -> level.getBlockEntity(p) instanceof IPressureChange).sorted(
 					(s1, s2)-> ((this. entityData.get(SYNCED_DIRECTION_ACCESSOR).getAxisDirection() == Direction.AxisDirection.POSITIVE) ? 1:-1)*
@@ -247,7 +247,7 @@ public class SteamCurrent extends Entity{
 										List.of(0.1d),
 										sortedKeys.stream().map(
 												p ->
-														stateMap.get(p).vaporQuality() > 0?Color.WHITE:new Color(0f,0f,1f,1f)
+														stateMap.get(p).vaporQuality() > 0?Color.WHITE.mixWith(new Color(0f,0f,1f,1f),1-stateMap.get(p).vaporQuality()):new Color(0f,0f,1f,1f)
 										).toList()
 								);
 					} else {
@@ -257,7 +257,7 @@ public class SteamCurrent extends Entity{
 					spline = null;
 				}
 			}
-			if (spline!=null){
+			if (spline!=null && flow > 0){
 				level.addParticle(new FlowParticleData(spline,0),  position().x, position().y, position().z, 0, 0, 0);
 			}
 
