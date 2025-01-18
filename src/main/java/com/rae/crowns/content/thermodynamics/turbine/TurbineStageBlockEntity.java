@@ -1,5 +1,6 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
+import com.rae.crowns.config.CROWNSConfigs;
 import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.minecraft.core.BlockPos;
@@ -28,11 +29,11 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
 
     @Override
     public float getGeneratedSpeed() {
-        return flows.isEmpty()||power==0?0:256; // * direction du flux
+        return flows.isEmpty()||power==0?0: CROWNSConfigs.SERVER.kinetics.turbineSpeed.get(); // * direction du flux
     }
     @Override
     public float calculateAddedStressCapacity() {//it's the stress base not the real stress
-        float capacity = getCombinedCapacity();
+        float capacity = (float) (getCombinedCapacity() * CROWNSConfigs.SERVER.kinetics.turbineCoefficient.get());
         this.lastCapacityProvided = capacity;
         return capacity;
     }
