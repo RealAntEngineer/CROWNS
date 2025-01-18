@@ -14,7 +14,7 @@ public class CROWNSKinetics extends ConfigBase {
         return "kinetics";
     }
 
-    private class Comments {
+    private static class Comments {
         static String stress = "Fine tune the kinetic stats of individual components";
         static String speed = "Fine tune the speed of generators";
         static String turbineCoefficient = "turbine capacity factor";
