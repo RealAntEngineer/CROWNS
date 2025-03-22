@@ -7,7 +7,7 @@ public class CROWNSCfgClient extends ConfigBase {
 
     public final CROWNSKinetics kinetics = nested(0, CROWNSKinetics::new, Comments.kinetics);
 
-    public final CROWNSConstants constants = nested(0,CROWNSConstants::new, Comments.rocketEngine);
+    public final CROWNSNuclear constants = nested(0, CROWNSNuclear::new, Comments.rocketEngine);
     @Override
     public String getName() {
         return CROWNS.MODID +".server";
