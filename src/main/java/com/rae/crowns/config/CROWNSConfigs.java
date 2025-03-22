@@ -20,9 +20,8 @@ import java.util.function.Supplier;
 
 public class CROWNSConfigs
 {
-    private static final Map<ModConfig.Type, ConfigBase> CONFIGS = new EnumMap<>(ModConfig.Type.class);
-    public static CROWNSCfgClient CLIENT;
-    public static CROWNSCfgCommon COMMON;
+    private static final Map<ModConfig.Type, ConfigBase> CONFIGS = new EnumMap(ModConfig.Type.class);
+
     public static CROWNSCfgServer SERVER;
 
     public CROWNSConfigs() {

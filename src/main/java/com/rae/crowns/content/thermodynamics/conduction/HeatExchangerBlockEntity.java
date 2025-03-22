@@ -30,7 +30,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@SuppressWarnings("ALL")
+import static com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper.get_h;
+
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
     //transform the IHaveTemperature interface into a behavior
     // for now if T > 373°K P = 20 bar.
