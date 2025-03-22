@@ -6,26 +6,18 @@ import com.rae.crowns.content.thermodynamics.turbine.TurbineStageRenderer;
 import com.rae.crowns.content.nuclear.AssemblyBlockEntity;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlockEntity;
 import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlockEntity;
-import com.rae.crowns.content.legacy.TurbineBearingBlockEntity;
 import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlockEntity;
-import com.simibubi.create.content.contraptions.bearing.BearingInstance;
-import com.simibubi.create.content.contraptions.bearing.BearingRenderer;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 
 import static com.rae.crowns.CROWNS.REGISTRATE;
 
+@SuppressWarnings("ALL")
 public class BlockEntityInit {
     public static final BlockEntityEntry<AssemblyBlockEntity> FUEL_ASSEMBLY = REGISTRATE
             .blockEntity("fuel_assembly", AssemblyBlockEntity::new)
             .validBlock(BlockInit.FUEL_ASSEMBLY)
             .register();
 
-    public static final BlockEntityEntry<TurbineBearingBlockEntity> TURBINE_BEARING = REGISTRATE
-            .blockEntity("turbine_bearing", TurbineBearingBlockEntity::new)
-            .instance(() -> BearingInstance::new)
-            //.validBlock(BlockInit.TURBINE_BEARING)
-            .renderer(() -> BearingRenderer::new)
-            .register();
     public static final BlockEntityEntry<TurbineStageBlockEntity> TURBINE_STAGE = REGISTRATE
             .blockEntity("turbine_stage", TurbineStageBlockEntity::new)
             .instance(() -> TurbineStageInstance::new)//renderNormally to false to prevent block rendering

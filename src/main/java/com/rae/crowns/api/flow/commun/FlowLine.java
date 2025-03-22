@@ -13,6 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("ALL")
 public class FlowLine {//this is a spline
     public static final Codec<FlowLine> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Vec3.CODEC.listOf().fieldOf("controlPoints").forGetter(FlowLine::getControlPoints),  // Control points

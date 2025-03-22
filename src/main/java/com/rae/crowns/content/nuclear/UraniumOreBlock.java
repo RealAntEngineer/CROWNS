@@ -1,6 +1,5 @@
 package com.rae.crowns.content.nuclear;
 
-import com.mojang.math.Vector3f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -21,6 +20,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+
 
 /**
  * copied from RedstoneOreBlock
@@ -30,7 +31,7 @@ public class UraniumOreBlock extends Block {
 
    public UraniumOreBlock(Properties p_55453_) {
       super(p_55453_);
-      this.registerDefaultState(this.defaultBlockState().setValue(LIT, Boolean.valueOf(false)));
+      this.registerDefaultState(this.defaultBlockState().setValue(LIT, Boolean.FALSE));
    }
 
    public void attack(BlockState p_55467_, Level p_55468_, BlockPos p_55469_, Player p_55470_) {
@@ -60,7 +61,7 @@ public class UraniumOreBlock extends Block {
    private static void interact(BlockState p_55493_, Level p_55494_, BlockPos p_55495_) {
       spawnParticles(p_55494_, p_55495_);
       if (!p_55493_.getValue(LIT)) {
-         p_55494_.setBlock(p_55495_, p_55493_.setValue(LIT, Boolean.valueOf(true)), 3);
+         p_55494_.setBlock(p_55495_, p_55493_.setValue(LIT, Boolean.TRUE), 3);
       }
 
    }
@@ -71,7 +72,7 @@ public class UraniumOreBlock extends Block {
 
    public void randomTick(BlockState blockState, ServerLevel serverLevel, BlockPos pos, RandomSource randomSource) {
       if (blockState.getValue(LIT)) {
-         serverLevel.setBlock(pos, blockState.setValue(LIT, Boolean.valueOf(false)), 3);
+         serverLevel.setBlock(pos, blockState.setValue(LIT, Boolean.FALSE), 3);
       }
 
    }
@@ -103,7 +104,7 @@ public class UraniumOreBlock extends Block {
             double d1 = direction$axis == Direction.Axis.X ? 0.5D + d0 * (double)direction.getStepX() : (double)randomsource.nextFloat();
             double d2 = direction$axis == Direction.Axis.Y ? 0.5D + d0 * (double)direction.getStepY() : (double)randomsource.nextFloat();
             double d3 = direction$axis == Direction.Axis.Z ? 0.5D + d0 * (double)direction.getStepZ() : (double)randomsource.nextFloat();
-            level.addParticle(new DustParticleOptions( new Vector3f(Vec3.fromRGB24(0x0cd628)), 1.0F), (double)pos.getX() + d1, (double)pos.getY() + d2, (double)pos.getZ() + d3, 0.0D, 0.0D, 0.0D);
+            level.addParticle(new DustParticleOptions( new Vector3f(Vec3.fromRGB24(0x0cd628).toVector3f()), 1.0F), (double)pos.getX() + d1, (double)pos.getY() + d2, (double)pos.getZ() + d3, 0.0D, 0.0D, 0.0D);
          }
       }
 

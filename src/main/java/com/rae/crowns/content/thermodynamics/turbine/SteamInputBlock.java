@@ -1,13 +1,11 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.init.BlockEntityInit;
-import com.simibubi.create.content.fluids.FluidPropagator;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@SuppressWarnings("ALL")
 public class FlowManager {
     private final Map<Object, FlowEntry> flows = Collections.synchronizedMap(new HashMap<>());
     private static FlowManager INSTANCE;

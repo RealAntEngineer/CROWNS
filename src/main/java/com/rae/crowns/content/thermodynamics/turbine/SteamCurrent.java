@@ -1,18 +1,16 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
-import com.mojang.math.Vector3f;
 import com.rae.crowns.api.flow.client.FlowParticleData;
 import com.rae.crowns.api.flow.commun.FlowLine;
 import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
 import com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper;
-import com.rae.crowns.init.BlockInit;
 import com.rae.crowns.init.EntityDataSerializersInit;
 import com.simibubi.create.foundation.utility.Color;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -24,7 +22,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,7 +70,7 @@ public class SteamCurrent extends Entity{
 	public void rebuild() {
 
 		BlockPos start = this.entityData.get(SYNCED_INJECTOR_ACCESSOR);
-		maxDistance = explore(level, start, maxDistance, entityData.get(SYNCED_DIRECTION_ACCESSOR));
+		maxDistance = explore(level(), start, maxDistance, entityData.get(SYNCED_DIRECTION_ACCESSOR));
 		if (maxDistance < 0.25f)
 			setBoundingBox(new AABB(0, 0, 0, 0, 0, 0));
 		else {
@@ -96,14 +93,14 @@ public class SteamCurrent extends Entity{
 		if (!stagesPos.contains(((BlockEntity)addedStage).getBlockPos())) {//do the list of blockPos or relative distance to take care of..
 			stagesPos.add(((BlockEntity)addedStage).getBlockPos());
 			stagesPos = new ArrayList<>(stagesPos.stream().filter(
-					p -> level.getBlockEntity(p) instanceof IPressureChange).sorted(
+					p -> level().getBlockEntity(p) instanceof IPressureChange).sorted(
 					(s1, s2)-> ((this. entityData.get(SYNCED_DIRECTION_ACCESSOR).getAxisDirection() == Direction.AxisDirection.POSITIVE) ? 1:-1)*
-							(Objects.requireNonNull(level.getBlockEntity(s1)).getBlockPos().get(this. entityData.get(SYNCED_DIRECTION_ACCESSOR).getAxis()) -
-									(Objects.requireNonNull(level.getBlockEntity(s2))).getBlockPos().get(this. entityData.get(SYNCED_DIRECTION_ACCESSOR).getAxis()))).toList());//sort by distance
+							(Objects.requireNonNull(level().getBlockEntity(s1)).getBlockPos().get(this. entityData.get(SYNCED_DIRECTION_ACCESSOR).getAxis()) -
+									(Objects.requireNonNull(level().getBlockEntity(s2))).getBlockPos().get(this. entityData.get(SYNCED_DIRECTION_ACCESSOR).getAxis()))).toList());//sort by distance
 		}
 		ArrayList<IPressureChange> stages = new ArrayList<>(
 				stagesPos.stream().filter(
-						p -> level.getBlockEntity(p) instanceof IPressureChange).map( p -> (IPressureChange)level.getBlockEntity(p)).toList());
+						p -> level().getBlockEntity(p) instanceof IPressureChange).map( p -> (IPressureChange)level().getBlockEntity(p)).toList());
 
 		//rebuild the map
 		powerForStage = new HashMap<>();
@@ -140,7 +137,7 @@ public class SteamCurrent extends Entity{
 	}
 
 	public SpecificRealGazState getInputFluidState(){
-        BlockEntity be = level.getBlockEntity(entityData.get(SYNCED_INJECTOR_ACCESSOR));
+        BlockEntity be = level().getBlockEntity(entityData.get(SYNCED_INJECTOR_ACCESSOR));
         if (be instanceof SteamInputBlockEntity){
             inputFluidState = ((SteamInputBlockEntity) be).getState();
         }
@@ -170,7 +167,7 @@ public class SteamCurrent extends Entity{
 		return distance;
 	}
 	public float getFlow(){
-		BlockEntity be = level.getBlockEntity(entityData.get(SYNCED_INJECTOR_ACCESSOR));
+		BlockEntity be = level().getBlockEntity(entityData.get(SYNCED_INJECTOR_ACCESSOR));
 		if (be instanceof SteamInputBlockEntity){
 			flow = ((SteamInputBlockEntity) be).getFlow();
 		}
@@ -207,8 +204,8 @@ public class SteamCurrent extends Entity{
 		AABB syncedBB = this.entityData.get(SYNCED_BB_ACCESSOR);
 		if (spline!=null)
 			nbt.put("BSpline", spline.serializeNBT());
-		nbt.putLong("startPos", new BlockPos(syncedBB.minX,syncedBB.minY,syncedBB.minZ).asLong());
-		nbt.putLong("endPos", new BlockPos(syncedBB.maxX,syncedBB.maxY,syncedBB.maxZ).asLong());
+		nbt.putLong("startPos", new BlockPos((int) syncedBB.minX, (int)syncedBB.minY,(int)syncedBB.minZ).asLong());
+		nbt.putLong("endPos", new BlockPos((int) syncedBB.maxX, (int) syncedBB.maxY, (int) syncedBB.maxZ).asLong());
 		nbt.putLong("injectorPos", this.entityData.get(SYNCED_INJECTOR_ACCESSOR).asLong());
         nbt.putString("direction", entityData.get(SYNCED_DIRECTION_ACCESSOR).getName());
     }
@@ -216,7 +213,7 @@ public class SteamCurrent extends Entity{
 	@Override
 	public void tick() {
 		//System.out.println((level.isClientSide?"client":"server") +" : "+ getBoundingBox());
-		if (level.isClientSide){
+		if (level().isClientSide){
 			setBoundingBox(this.entityData.get(SYNCED_BB_ACCESSOR));
 			if (entityData.get(SYNCED_RELOAD_SPLINE_ACCESSOR)){
 				try {
@@ -224,10 +221,10 @@ public class SteamCurrent extends Entity{
 					HashMap<BlockPos, SpecificRealGazState> stateMap = this.entityData.get(SYNCED_STATE_MAP_ACCESSOR);
 					if (stateMap.keySet().stream().filter(Objects::nonNull).toList().size() > 1) {
 						Direction direction = this.entityData.get(SYNCED_DIRECTION_ACCESSOR);
-						List<BlockPos> sortedKeys = stateMap.keySet().stream().filter(p -> p != null && level.getBlockEntity(p) != null)
+						List<BlockPos> sortedKeys = stateMap.keySet().stream().filter(p -> p != null && level().getBlockEntity(p) != null)
 								.sorted((s1, s2) -> ((direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) ? 1 : -1) *
-										(Objects.requireNonNull(level.getBlockEntity(s1)).getBlockPos().get(direction.getAxis()) -
-												(Objects.requireNonNull(level.getBlockEntity(s2))).getBlockPos().get(direction.getAxis())))
+										(Objects.requireNonNull(level().getBlockEntity(s1)).getBlockPos().get(direction.getAxis()) -
+												(Objects.requireNonNull(level().getBlockEntity(s2))).getBlockPos().get(direction.getAxis())))
 
 								//.map(Vec3::atCenterOf)
 								.toList();
@@ -258,14 +255,14 @@ public class SteamCurrent extends Entity{
 				}
 			}
 			if (spline!=null && flow > 0){
-				level.addParticle(new FlowParticleData(spline,0),  position().x, position().y, position().z, 0, 0, 0);
+				level().addParticle(new FlowParticleData(spline,0),  position().x, position().y, position().z, 0, 0, 0);
 			}
 
 		}
 	}
 
 	@Override
-	public @NotNull Packet<?> getAddEntityPacket() {
+	public Packet<ClientGamePacketListener> getAddEntityPacket() {
 		return NetworkHooks.getEntitySpawningPacket(this);
 	}
 

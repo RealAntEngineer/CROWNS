@@ -29,28 +29,28 @@ public class SteamFlowParticleData implements ParticleOptions, ICustomParticleDa
 				)
 		.apply(i, SteamFlowParticleData::new));
 
-	public static final Deserializer<SteamFlowParticleData> DESERIALIZER = new Deserializer<SteamFlowParticleData>() {
-		public SteamFlowParticleData fromCommand(ParticleType<SteamFlowParticleData> particleTypeIn, StringReader reader)
-				throws CommandSyntaxException {
-			reader.expect(' ');
-			float rx = reader.readFloat();
-			reader.expect(' ');
-			float ry = reader.readFloat();
-			reader.expect(' ');
-			float rz = reader.readFloat();
-			reader.expect(' ');
-			float ox = reader.readFloat();
-			reader.expect(' ');
-			float oy = reader.readFloat();
-			reader.expect(' ');
-			float oz = reader.readFloat();
-			return new SteamFlowParticleData(rx, ry, rz,ox, oy, oz);
-		}
+	public static final Deserializer<SteamFlowParticleData> DESERIALIZER = new Deserializer<>() {
+        public SteamFlowParticleData fromCommand(ParticleType<SteamFlowParticleData> particleTypeIn, StringReader reader)
+                throws CommandSyntaxException {
+            reader.expect(' ');
+            float rx = reader.readFloat();
+            reader.expect(' ');
+            float ry = reader.readFloat();
+            reader.expect(' ');
+            float rz = reader.readFloat();
+            reader.expect(' ');
+            float ox = reader.readFloat();
+            reader.expect(' ');
+            float oy = reader.readFloat();
+            reader.expect(' ');
+            float oz = reader.readFloat();
+            return new SteamFlowParticleData(rx, ry, rz, ox, oy, oz);
+        }
 
-		public SteamFlowParticleData fromNetwork(ParticleType<SteamFlowParticleData> particleTypeIn, FriendlyByteBuf buffer) {
-			return new SteamFlowParticleData(buffer.readFloat(), buffer.readFloat(), buffer.readFloat(),buffer.readFloat(), buffer.readFloat(), buffer.readFloat());
-		}
-	};
+        public SteamFlowParticleData fromNetwork(ParticleType<SteamFlowParticleData> particleTypeIn, FriendlyByteBuf buffer) {
+            return new SteamFlowParticleData(buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat());
+        }
+    };
 
 	final float rotX;
 	final float rotY;

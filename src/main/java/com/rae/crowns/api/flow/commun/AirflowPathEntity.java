@@ -1,12 +1,11 @@
 package com.rae.crowns.api.flow.commun;
-import com.mojang.math.Vector3f;
-import com.rae.crowns.api.flow.commun.FlowLine;
-import com.rae.crowns.api.flow.commun.IAirflowPath;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import org.joml.Vector3f;
 
 public class AirflowPathEntity extends Entity implements IAirflowPath {
     private FlowLine spline;
@@ -73,7 +72,7 @@ public class AirflowPathEntity extends Entity implements IAirflowPath {
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         // For syncing entity with client (optional)
         return null;
     }

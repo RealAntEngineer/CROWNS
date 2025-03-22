@@ -16,6 +16,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -118,7 +119,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             //float thermal_loses = (temperature-300)*10;// ambient temperature = 300K make thermal loses in the conduct temperature
 
             float power = (float) (nbrOfFission*fissionEnergy *
-                    CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
+                    CROWNSConfigs.SERVER.constants.realismCoefficient.get());// - thermal_loses;
 
             temperature += power/C;
 
@@ -139,7 +140,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
                 }
             }
-            moreOptimizedImpactEnv(pos,level,CROWNSConfigs.SERVER.nuclear.assemblyRange.get());
+            moreOptimizedImpactEnv(pos,level,CROWNSConfigs.SERVER.constants.assemblyRange.get());
             conductTemperature(pos,level);
             notifyUpdate();
         }
@@ -189,7 +190,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     private void explosion(BlockPos pos) {
         float power = 50f;
         assert level != null;
-        level.explode(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, power, true, Explosion.BlockInteraction.BREAK);
+        level.explode(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, power, Level.ExplosionInteraction.BLOCK);
 
         // Remove the block after the explosion
         level.setBlock(worldPosition, Blocks.AIR.defaultBlockState(), 3);

@@ -3,6 +3,7 @@ package com.rae.crowns.api.transformations;
 import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
 
 
+@SuppressWarnings("ALL")
 public class OldWaterAsRealGazTransformationHelper {
 
     //terrible approximation just to get started

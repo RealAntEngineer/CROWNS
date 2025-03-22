@@ -4,10 +4,8 @@ import com.simibubi.create.content.fluids.VirtualFluid;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import org.checkerframework.checker.units.qual.Temperature;
 
 public class RealWorkingFluid extends VirtualFluid {
     //will not work -> a less possible state should be used

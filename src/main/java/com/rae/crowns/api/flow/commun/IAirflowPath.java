@@ -1,6 +1,6 @@
 package com.rae.crowns.api.flow.commun;
 
-import com.mojang.math.Vector3f;
+import org.joml.Vector3f;
 
 public interface IAirflowPath {
     FlowLine getSpline();

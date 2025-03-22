@@ -23,7 +23,3 @@ run
 
 # Files from Forge MDK
 forge*changelog.txt
-
-# Project exclude paths
-/src/main/resources/assets/create/
-/src/main/resources/assets/minecraft/

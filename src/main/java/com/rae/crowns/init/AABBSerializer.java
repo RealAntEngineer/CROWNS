@@ -5,8 +5,6 @@ import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 public class AABBSerializer implements EntityDataSerializer<AABB> {
     public AABBSerializer() {
     }

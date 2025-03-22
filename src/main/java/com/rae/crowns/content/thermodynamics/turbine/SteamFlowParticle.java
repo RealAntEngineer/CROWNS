@@ -72,7 +72,7 @@ public class SteamFlowParticle extends SimpleAnimatedParticle {
 
 
 	public int getLightColor(float partialTick) {
-		BlockPos blockpos = new BlockPos(this.x, this.y, this.z);
+		BlockPos blockpos = new BlockPos((int) this.x, (int) this.y, (int) this.z);
 		return this.level.isLoaded(blockpos) ? LevelRenderer.getLightColor(level, blockpos) : 0;
 	}
 

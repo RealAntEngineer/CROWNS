@@ -20,6 +20,7 @@ public class CompressorStageBlockEntity extends KineticBlockEntity implements IP
         super(type, pos, state);
     }
 
+    @SuppressWarnings("RedundantMethodOverride")
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
 

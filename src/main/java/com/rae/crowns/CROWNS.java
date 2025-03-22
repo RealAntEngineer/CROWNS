@@ -1,10 +1,8 @@
 package com.rae.crowns;
 
 import com.mojang.logging.LogUtils;
-import com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.init.*;
-import com.rae.crowns.init.CROWNSContraptionType;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,6 +15,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
+@SuppressWarnings("ALL")
 @Mod(CROWNS.MODID)//CreatingRotationOperatedWithNuclearScience
 public class CROWNS {
     public static final String MODID = "crowns";
@@ -36,6 +35,7 @@ public class CROWNS {
         BlockEntityInit.register();
         EntityInit.register();
 
+        CreativeModeTabsInit.register(modEventBus);
         ParticleTypeInit.register(modEventBus);
         PartialModelInit.init();
         EntityDataSerializersInit.register(modEventBus);

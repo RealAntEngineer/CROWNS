@@ -1,8 +1,8 @@
 package com.rae.crowns.api.math;
 
 
-import com.mojang.math.Vector3d;
 import com.simibubi.create.foundation.utility.Couple;
+import org.joml.Vector3d;
 
 public class DerivationHelper {
 

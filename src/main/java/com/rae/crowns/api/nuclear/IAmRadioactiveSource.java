@@ -28,10 +28,6 @@ public interface IAmRadioactiveSource {
     //@Nonnull
     //List<HashMap<BlockPos, List<BlockPos>>> getPosGraph();
 
-    /**
-     * make radiation impact the environment
-     * @param range :  the range of impact
-     */
     /*default void impactEnvironment(BlockPos pos,Level level,int range) {
         assert level!=null;
 
@@ -118,7 +114,7 @@ public interface IAmRadioactiveSource {
         }
     }
     private static void testRadio(BlockPos pos, Level level, int range, Vec3 vec) {
-            Vec3i partialVec = new Vec3i(vec.x() * range + 0.5f, vec.y() * range + 0.5f, vec.z() * range + 0.5f);
+            Vec3i partialVec = new Vec3i((int) (vec.x() * range + 0.5f), (int) (vec.y() * range + 0.5f), (int) (vec.z() * range + 0.5f));
             BlockPos child = pos.offset(partialVec);
             level.setBlock(child, Blocks.STONE.defaultBlockState(), 11);
     }
@@ -128,7 +124,7 @@ public interface IAmRadioactiveSource {
         //TODO make the surface a variable
         Couple<Float> radiationFlux = Couple.create((float) (50*fastNeutrons /(4*Math.PI* range * range)),0f);
         for (int i = 1; i <= range; i++) {
-            Vec3i partialVec = new Vec3i(newVec.x()* i+0.5f, newVec.y()* i+0.5f, newVec.z()* i+0.5f);
+            Vec3i partialVec = new Vec3i((int) (newVec.x()* i+0.5f), (int) (newVec.y()* i+0.5f), (int) (newVec.z()* i+0.5f));
             BlockPos child = pos.offset(partialVec);
             BlockEntity childBE = level.getBlockEntity(child);
             if (childBE instanceof IAmFissileMaterial fissileMaterial){

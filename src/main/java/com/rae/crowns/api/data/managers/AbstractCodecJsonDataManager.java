@@ -40,7 +40,7 @@ import java.util.Map;
 
 /**
  * <p>See drullkus's primer on what codecs are and how to assemble them:<br>
- * https://gist.github.com/Drullkus/1bca3f2d7f048b1fe03be97c28f87910</p>
+ * <a href="https://gist.github.com/Drullkus/1bca3f2d7f048b1fe03be97c28f87910">...</a></p>
  *
  * Usage for this is as follows:</p>
  *

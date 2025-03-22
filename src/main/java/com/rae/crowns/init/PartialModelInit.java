@@ -3,6 +3,7 @@ package com.rae.crowns.init;
 import com.jozufozu.flywheel.core.PartialModel;
 import com.rae.crowns.CROWNS;
 
+@SuppressWarnings("ALL")
 public class PartialModelInit {
     public static final PartialModel TURBINE_STAGE = block("turbine/turbine_stage");
 

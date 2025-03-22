@@ -1,7 +1,6 @@
 package com.rae.crowns.content.thermodynamics.conduction;
 
 import com.rae.crowns.api.nuclear.IHaveTemperature;
-import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.BlockInit;
 import com.simibubi.create.content.equipment.goggles.IHaveGoggleInformation;
@@ -31,8 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper.get_h;
-
+@SuppressWarnings("ALL")
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
     //transform the IHaveTemperature interface into a behavior
     // for now if T > 373°K P = 20 bar.
