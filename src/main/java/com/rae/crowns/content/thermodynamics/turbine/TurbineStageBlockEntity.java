@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Arrays;
 import java.util.List;
 
-public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implements IPressureChange{
+public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implements ISteamPressureChange {
     //the turbine add itself to the SteamCurrent
     protected List<SteamCurrent> flows = List.of();
     float power;
@@ -41,7 +41,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     private float getCombinedCapacity() {
         if (level == null) return 0;
 
-        return speed==0?power/speed:power;// capacity is
+        return getGeneratedSpeed()==0?power:power/getGeneratedSpeed();// capacity is
     }
 
     @Override

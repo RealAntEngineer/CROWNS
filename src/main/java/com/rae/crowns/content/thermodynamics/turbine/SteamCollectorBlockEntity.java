@@ -1,5 +1,6 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
+import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -16,13 +17,16 @@ import java.util.List;
 @MethodsReturnNonnullByDefault
 public class SteamCollectorBlockEntity extends SmartBlockEntity {
 
-	private final FluidTank WATER_TANK = new FluidTank(4000){
-		@Override
-		protected void onContentsChanged() {
-			sendData();
-			super.onContentsChanged();
+	private final StateFluidTank WATER_TANK =  new StateFluidTank(1000, (f)-> {
+		if (!hasLevel()){
+			return;
 		}
-
+		assert level != null;
+		if (!level.isClientSide) {
+			flow = f.getAmount()+1;
+			sendData();
+		}
+	}){
 		@Override
 		public boolean isFluidValid(FluidStack stack) {
 			return stack.getFluid().is(FluidTags.WATER);
@@ -31,7 +35,7 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity {
 	//public SteamCurrent steamCurrent;
 	//protected int currentUpdateCooldown;
 	//protected boolean updateSteamFlow;
-
+	float flow;
 	public SteamCollectorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 		//steamCurrent = null;

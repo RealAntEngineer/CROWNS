@@ -24,6 +24,7 @@ public class CreativeModeTabsInit {
                                 output.accept(BlockInit.HEAT_EXCHANGER);
                                 output.accept(BlockInit.STEAM_INPUT);
                                 output.accept(BlockInit.TURBINE_STAGE);
+                                output.accept(BlockInit.COMPRESSOR_STAGE);
                                 output.accept(BlockInit.FUEL_ASSEMBLY);
                                 output.accept(BlockInit.DEEP_URANIUM_ORE);
                                 output.accept(BlockInit.URANIUM_ORE);

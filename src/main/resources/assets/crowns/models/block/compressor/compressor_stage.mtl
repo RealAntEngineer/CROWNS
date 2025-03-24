@@ -1,0 +1,11 @@
+# Made in Blockbench 4.11.1
+newmtl center
+map_Kd #center
+newmtl rim
+map_Kd #rim
+newmtl axis
+map_Kd #axis
+newmtl axis_top
+map_Kd #axis_top
+newmtl blade
+map_Kd #blade

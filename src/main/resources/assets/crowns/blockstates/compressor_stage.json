@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "crowns:block/compressor/compressor_stage_block"
+    }
+  }
+}

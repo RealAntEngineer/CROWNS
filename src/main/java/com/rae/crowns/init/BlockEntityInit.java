@@ -1,12 +1,12 @@
 package com.rae.crowns.init;
 
-import com.rae.crowns.content.thermodynamics.turbine.TurbineStageInstance;
+import com.rae.crowns.content.thermodynamics.compressor.CompressorStageBlockEntity;
+import com.rae.crowns.content.thermodynamics.compressor.CompressorStageInstance;
+import com.rae.crowns.content.thermodynamics.compressor.CompressorStageRenderer;
+import com.rae.crowns.content.thermodynamics.turbine.*;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerRenderer;
-import com.rae.crowns.content.thermodynamics.turbine.TurbineStageRenderer;
 import com.rae.crowns.content.nuclear.AssemblyBlockEntity;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlockEntity;
-import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlockEntity;
-import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlockEntity;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 
 import static com.rae.crowns.CROWNS.REGISTRATE;
@@ -23,6 +23,13 @@ public class BlockEntityInit {
             .instance(() -> TurbineStageInstance::new)//renderNormally to false to prevent block rendering
             .validBlock(BlockInit.TURBINE_STAGE)
             .renderer(() -> TurbineStageRenderer::new)
+            .register();
+
+    public static final BlockEntityEntry<CompressorStageBlockEntity> COMPRESSOR_STAGE = REGISTRATE
+            .blockEntity("compressor_stage", CompressorStageBlockEntity::new)
+            .instance(() -> CompressorStageInstance::new)//renderNormally to false to prevent block rendering
+            .validBlock(BlockInit.COMPRESSOR_STAGE)
+            .renderer(() -> CompressorStageRenderer::new)
             .register();
 
     public static final BlockEntityEntry<SteamInputBlockEntity> STEAM_INPUT = REGISTRATE.blockEntity(

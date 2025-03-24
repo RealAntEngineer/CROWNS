@@ -1,5 +1,6 @@
 package com.rae.crowns.config;
 
+import com.rae.crowns.CROWNSClient;
 import com.simibubi.create.content.kinetics.BlockStressValues;
 import com.simibubi.create.foundation.config.ConfigBase;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -23,6 +24,7 @@ public class CROWNSConfigs
     private static final Map<ModConfig.Type, ConfigBase> CONFIGS = new EnumMap(ModConfig.Type.class);
 
     public static CROWNSCfgServer SERVER;
+    public static CROWNSCfgClient CLIENT;
 
     public CROWNSConfigs() {
     }
@@ -44,14 +46,14 @@ public class CROWNSConfigs
     }
 
     public static void registerConfigs(ModLoadingContext context) {
-        //CLIENT = register(CSCfgClient::new, ModConfig.Type.CLIENT);
+        CLIENT = register(CROWNSCfgClient::new, ModConfig.Type.CLIENT);
         //COMMON = register(CSCfgCommon::new, ModConfig.Type.COMMON);
         SERVER = register(CROWNSCfgServer::new, ModConfig.Type.SERVER);
 
         for (Map.Entry<ModConfig.Type, ConfigBase> pair : CONFIGS.entrySet())
             context.registerConfig(pair.getKey(), pair.getValue().specification);
 
-        BlockStressValues.registerProvider(context.getActiveNamespace(), SERVER.kinetics.stressValues);
+        //BlockStressValues.registerProvider(context.getActiveNamespace(), SERVER.kinetics.stressValues);
     }
 
     @SubscribeEvent

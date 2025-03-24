@@ -19,5 +19,5 @@
   "crowns.ponder.nuclear_reactor.text_4": "fluid tank are used to merge the flow of vapor",
   "crowns.ponder.turbine.header": "Turbines",
   "crowns.ponder.turbine.text_1": "input vapor into the steam inputs",
-  "crowns.ponder.turbine.text_2": "if the vapor has sufficient quality (x > 0%) it will make the turbine turns"
+  "crowns.ponder.turbine.text_2": "if the vapor has sufficient quality (x > 0) it will make the turbine turns"
 }

@@ -1,6 +1,6 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
-public interface IPressureChange {
+public interface ISteamPressureChange {
 
     float pressureRatio();
 }

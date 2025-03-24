@@ -62,7 +62,7 @@ public class SteamCurrent extends Entity{
 		else
 			return null;*/
 	}
-	public float getPowerForStage(IPressureChange stage){
+	public float getPowerForStage(ISteamPressureChange stage){
 		calculateForStage(stage);
 		return powerForStage.get(((BlockEntity)stage).getBlockPos());
 
@@ -89,18 +89,18 @@ public class SteamCurrent extends Entity{
 			}
 		}
 	}
-	public void calculateForStage(IPressureChange addedStage){
+	public void calculateForStage(ISteamPressureChange addedStage){
 		if (!stagesPos.contains(((BlockEntity)addedStage).getBlockPos())) {//do the list of blockPos or relative distance to take care of..
 			stagesPos.add(((BlockEntity)addedStage).getBlockPos());
 			stagesPos = new ArrayList<>(stagesPos.stream().filter(
-					p -> level().getBlockEntity(p) instanceof IPressureChange).sorted(
+					p -> level().getBlockEntity(p) instanceof ISteamPressureChange).sorted(
 					(s1, s2)-> ((this. entityData.get(SYNCED_DIRECTION_ACCESSOR).getAxisDirection() == Direction.AxisDirection.POSITIVE) ? 1:-1)*
 							(Objects.requireNonNull(level().getBlockEntity(s1)).getBlockPos().get(this. entityData.get(SYNCED_DIRECTION_ACCESSOR).getAxis()) -
 									(Objects.requireNonNull(level().getBlockEntity(s2))).getBlockPos().get(this. entityData.get(SYNCED_DIRECTION_ACCESSOR).getAxis()))).toList());//sort by distance
 		}
-		ArrayList<IPressureChange> stages = new ArrayList<>(
+		ArrayList<ISteamPressureChange> stages = new ArrayList<>(
 				stagesPos.stream().filter(
-						p -> level().getBlockEntity(p) instanceof IPressureChange).map( p -> (IPressureChange)level().getBlockEntity(p)).toList());
+						p -> level().getBlockEntity(p) instanceof ISteamPressureChange).map(p -> (ISteamPressureChange)level().getBlockEntity(p)).toList());
 
 		//rebuild the map
 		powerForStage = new HashMap<>();
@@ -110,7 +110,7 @@ public class SteamCurrent extends Entity{
 		//System.out.println("start water : "+previousState);
 		//sorted to ensure correct thing
         int i = 0;
-		for (IPressureChange stage:stages) {
+		for (ISteamPressureChange stage:stages) {
 			i++;
 			SpecificRealGazState nextState = previousState;
 			if (stage != null) {

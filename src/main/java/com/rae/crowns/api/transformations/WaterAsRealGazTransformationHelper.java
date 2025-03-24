@@ -284,7 +284,7 @@ public class WaterAsRealGazTransformationHelper {
         return isobaricTransfert(revFluidState,-losth);
     }
 
-
+//TODO -> it seems to not be working when amount are too low -> protection against 0 values ?
     public static SpecificRealGazState mix(SpecificRealGazState first, float firstAmount, SpecificRealGazState second, float secondAmount){
         float P = first.pressure()*firstAmount/(firstAmount+ secondAmount) + second.pressure()*secondAmount/(firstAmount+ secondAmount);
         float h = first.specificEnthalpy()*firstAmount/(firstAmount+ secondAmount) + second.specificEnthalpy()*secondAmount/(firstAmount+ secondAmount);

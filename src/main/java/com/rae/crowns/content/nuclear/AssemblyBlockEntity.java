@@ -119,7 +119,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             //float thermal_loses = (temperature-300)*10;// ambient temperature = 300K make thermal loses in the conduct temperature
 
             float power = (float) (nbrOfFission*fissionEnergy *
-                    CROWNSConfigs.SERVER.constants.realismCoefficient.get());// - thermal_loses;
+                    CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
 
             temperature += power/C;
 
@@ -140,7 +140,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
                 }
             }
-            moreOptimizedImpactEnv(pos,level,CROWNSConfigs.SERVER.constants.assemblyRange.get());
+            moreOptimizedImpactEnv(pos,level,CROWNSConfigs.SERVER.nuclear.assemblyRange.get());
             conductTemperature(pos,level);
             notifyUpdate();
         }
