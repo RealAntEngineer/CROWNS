@@ -2,7 +2,6 @@ package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
-import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
 import com.rae.crowns.init.EntityInit;
 import com.simibubi.create.content.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -14,6 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -67,7 +67,6 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 		WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
 		flow = compound.getFloat("flow");
 		super.read(compound, clientPacket);
-
 	}
 
 	@Override
@@ -75,7 +74,6 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 		super.write(compound, clientPacket);
 		compound.put("water_tank",WATER_TANK.writeToNBT(new CompoundTag()));
 		compound.putFloat("flow", flow);
-
 	}
 	private static final int SYNC_RATE = 8;
 	protected int syncCooldown;
@@ -143,7 +141,7 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 	@Override
 	public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
 		if (cap == ForgeCapabilities.FLUID_HANDLER) {
-			Direction localDir = this.getBlockState().getValue(HeatExchangerBlock.FACING);
+			Direction localDir = this.getBlockState().getValue(DirectionalBlock.FACING);
 			if (side ==  localDir.getOpposite()){
 				return this.fluidCapability.cast();
 			}
@@ -165,6 +163,6 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 	}
 
 	public float getFlow() {
-		return flow * 20;
+		return flow;
 	}
 }

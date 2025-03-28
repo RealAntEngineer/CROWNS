@@ -17,9 +17,11 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     //the turbine add itself to the SteamCurrent
     protected List<SteamCurrent> flows = List.of();
     float power;
+    public int initialTicks;
     public TurbineStageBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         setLazyTickRate(10);
+        initialTicks = 3;
     }
 
     @SuppressWarnings("RedundantMethodOverride")
@@ -50,6 +52,12 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     }
 
     @Override
+    public void tick() {
+        super.tick();
+
+    }
+
+    @Override
     public void lazyTick() {
         assert level!=null;
         //update the List of currents
@@ -68,6 +76,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
         flows = level.getEntitiesOfClass(SteamCurrent.class, bound);
         power = 0;
         flows.forEach(f -> power += f.getPowerForStage(this));
+        if (level.isClientSide()) return;
         updateGeneratedRotation();
     }
 }

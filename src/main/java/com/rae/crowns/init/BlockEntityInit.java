@@ -1,6 +1,6 @@
 package com.rae.crowns.init;
 
-import com.rae.crowns.content.thermodynamics.compressor.CompressorStageBlockEntity;
+import com.rae.crowns.content.thermodynamics.compressor.CompressorBlockEntity;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorStageInstance;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorStageRenderer;
 import com.rae.crowns.content.thermodynamics.turbine.*;
@@ -25,10 +25,10 @@ public class BlockEntityInit {
             .renderer(() -> TurbineStageRenderer::new)
             .register();
 
-    public static final BlockEntityEntry<CompressorStageBlockEntity> COMPRESSOR_STAGE = REGISTRATE
-            .blockEntity("compressor_stage", CompressorStageBlockEntity::new)
+    public static final BlockEntityEntry<CompressorBlockEntity> COMPRESSOR = REGISTRATE
+            .blockEntity("compressor_stage", CompressorBlockEntity::new)
             .instance(() -> CompressorStageInstance::new)//renderNormally to false to prevent block rendering
-            .validBlock(BlockInit.COMPRESSOR_STAGE)
+            .validBlock(BlockInit.COMPRESSOR)
             .renderer(() -> CompressorStageRenderer::new)
             .register();
 
@@ -36,10 +36,10 @@ public class BlockEntityInit {
             "steam_input",SteamInputBlockEntity::new)
             .validBlock(BlockInit.STEAM_INPUT)
             .register();
-    /*public static final BlockEntityEntry<SteamCollectorBlockEntity> STEAM_COLLECTOR = REGISTRATE.blockEntity(
+    public static final BlockEntityEntry<SteamCollectorBlockEntity> STEAM_COLLECTOR = REGISTRATE.blockEntity(
                     "steam_collector", SteamCollectorBlockEntity::new)
             .validBlock(BlockInit.STEAM_COLLECTOR)
-            .register();*/
+            .register();
     public static final BlockEntityEntry<HeatExchangerBlockEntity> HEAT_EXCHANGER = REGISTRATE.blockEntity(
                     "heat_exchanger",HeatExchangerBlockEntity::new)
             .renderer(() -> HeatExchangerRenderer::new)

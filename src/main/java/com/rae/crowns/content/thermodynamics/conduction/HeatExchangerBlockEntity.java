@@ -18,6 +18,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
@@ -107,6 +108,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
     @Override
     public void lazyTick() {
+        //What the fuck is going on here ?
         super.lazyTick();
         conductTemperature(getBlockPos(),level, 0.5f);
 
@@ -180,7 +182,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.FLUID_HANDLER) {
-            Direction localDir = this.getBlockState().getValue(HeatExchangerBlock.FACING);
+            Direction localDir = this.getBlockState().getValue(DirectionalBlock.FACING);
             if (side == localDir){
                 return this.fluidCapability.cast();
             }

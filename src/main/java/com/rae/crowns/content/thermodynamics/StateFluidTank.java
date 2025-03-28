@@ -28,7 +28,23 @@ public class StateFluidTank extends SmartFluidTank {
                 oldState = DEFAULT_STATE;
             }
             SpecificRealGazState state = WaterAsRealGazTransformationHelper.isobaricTransfert(oldState, amount / getFluidAmount());
-            tag.put("realGazState", WaterAsRealGazTransformationHelper.isobaricTransfert(oldState, amount / getFluidAmount()).serialize());
+            tag.put("realGazState", state.serialize());
+            fluid.setTag(tag);
+        }
+    }
+    public void compress(float ratio){
+        if (fluid.getAmount() > 0) {
+
+            CompoundTag tag = new CompoundTag();
+            CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
+            SpecificRealGazState oldState;
+            if (oldStateNBT != null) {
+                oldState = new SpecificRealGazState(oldStateNBT);
+            } else {
+                oldState = DEFAULT_STATE;
+            }
+            SpecificRealGazState state = WaterAsRealGazTransformationHelper.standardCompression(oldState, ratio);
+            tag.put("realGazState", state.serialize());
             fluid.setTag(tag);
         }
     }

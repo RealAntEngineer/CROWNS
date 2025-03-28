@@ -3,7 +3,8 @@ package com.rae.crowns.init;
 import com.rae.crowns.content.nuclear.AssemblyBlock;
 import com.rae.crowns.content.nuclear.UraniumOreBlock;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
-import com.rae.crowns.content.thermodynamics.compressor.CompressorStageBlock;
+import com.rae.crowns.content.thermodynamics.compressor.CompressorBlock;
+import com.rae.crowns.content.thermodynamics.turbine.SteamCollectorBlock;
 import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlock;
 import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
 import com.simibubi.create.content.kinetics.BlockStressDefaults;
@@ -43,6 +44,14 @@ public class BlockInit {
             .build()
             .register();
 
+    public static final BlockEntry<SteamCollectorBlock> STEAM_COLLECTOR = REGISTRATE.block(
+                    "steam_collector", SteamCollectorBlock::new)
+            .initialProperties(SharedProperties::softMetal)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .item()
+            .build()
+            .register();
+
     public static final BlockEntry<TurbineStageBlock> TURBINE_STAGE =
             REGISTRATE.block("turbine_stage",TurbineStageBlock::new)
                     .initialProperties(SharedProperties::softMetal)
@@ -52,8 +61,8 @@ public class BlockInit {
                     .build()
                     .register();
 
-    public static final BlockEntry<CompressorStageBlock> COMPRESSOR_STAGE =
-            REGISTRATE.block("compressor_stage", CompressorStageBlock::new)
+    public static final BlockEntry<CompressorBlock> COMPRESSOR =
+            REGISTRATE.block("compressor_stage", CompressorBlock::new)
                     .initialProperties(SharedProperties::softMetal)
                     .properties(BlockBehaviour.Properties::noOcclusion)
                     .item()
