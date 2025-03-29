@@ -1,7 +1,7 @@
 package com.rae.crowns.api.math;
 
 
-import com.simibubi.create.foundation.utility.Couple;
+import net.createmod.catnip.data.Couple;
 import org.joml.Vector3d;
 
 public class DerivationHelper {

@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SteamCurrentRenderer extends EntityRenderer<SteamCurrent> {
 
@@ -26,7 +27,7 @@ public class SteamCurrentRenderer extends EntityRenderer<SteamCurrent> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(SteamCurrent atmosphere) {
-        return AllSpecialTextures.BLANK.getLocation();
+    public @Nullable ResourceLocation getTextureLocation(@NotNull SteamCurrent atmosphere) {
+        return null;
     }
 }

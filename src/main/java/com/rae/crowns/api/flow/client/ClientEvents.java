@@ -7,8 +7,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import static com.jozufozu.flywheel.backend.Backend.isGameActive;
-
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class ClientEvents {
 
@@ -30,4 +28,7 @@ public class ClientEvents {
                 .getPosition();
         FlowManager.getINSTANCE().renderFlow(ms, buffer, camera, partialTicks);
     }*/
+    protected static boolean isGameActive() {
+        return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
+    }
 }

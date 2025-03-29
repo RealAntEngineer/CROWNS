@@ -2,13 +2,11 @@ package com.rae.crowns.content.thermodynamics.conduction;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
-import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlockEntity;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
-import com.simibubi.create.foundation.render.CachedBufferer;
-import com.simibubi.create.foundation.render.SuperByteBuffer;
+import net.createmod.catnip.render.CachedBuffers;
+import net.createmod.catnip.render.SuperByteBuffer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -35,7 +33,7 @@ public class HeatExchangerRenderer extends SafeBlockEntityRenderer<HeatExchanger
             ms.pushPose();
             ms.translate(direction.getStepX()* 0.001f,direction.getStepY()*0.001f,direction.getStepZ()*0.001f);
             SuperByteBuffer outRim =
-                    CachedBufferer.partialFacing(AllPartialModels.PIPE_ATTACHMENTS.get(
+                    CachedBuffers.partialFacing(AllPartialModels.PIPE_ATTACHMENTS.get(
                             FluidTransportBehaviour.AttachmentTypes.ComponentPartials.RIM).get(direction), be.getBlockState(), Direction.SOUTH)
                             .light(light).overlay(overlay);
             outRim.renderInto(ms, vb);
@@ -48,7 +46,7 @@ public class HeatExchangerRenderer extends SafeBlockEntityRenderer<HeatExchanger
             ms.translate(direction.getOpposite().getStepX()* 0.001f,direction.getOpposite().getStepY()*0.001f,
                     direction.getOpposite().getStepZ()*0.001f);
             SuperByteBuffer inRim =
-                    CachedBufferer.partialFacing(AllPartialModels.PIPE_ATTACHMENTS.get(
+                    CachedBuffers.partialFacing(AllPartialModels.PIPE_ATTACHMENTS.get(
                                     FluidTransportBehaviour.AttachmentTypes.ComponentPartials.RIM).get(direction.getOpposite()), be.getBlockState(),
                             Direction.SOUTH).light(light).overlay(overlay);
             inRim.renderInto(ms, vb);

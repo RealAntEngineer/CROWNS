@@ -1,7 +1,7 @@
 package com.rae.crowns.init;
 
-import com.jozufozu.flywheel.core.PartialModel;
 import com.rae.crowns.CROWNS;
+import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 
 @SuppressWarnings("ALL")
 public class PartialModelInit {
@@ -10,7 +10,7 @@ public class PartialModelInit {
 
 
     private static PartialModel block(String path) {
-        return new PartialModel(CROWNS.resource("block/" + path));
+        return PartialModel.of(CROWNS.resource("block/" + path));
     }
 
     public static void init() {

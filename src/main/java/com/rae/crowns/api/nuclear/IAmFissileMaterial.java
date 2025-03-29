@@ -1,6 +1,7 @@
 package com.rae.crowns.api.nuclear;
 
-import com.simibubi.create.foundation.utility.Couple;
+
+import net.createmod.catnip.data.Couple;
 
 public interface IAmFissileMaterial {
     // change that to a couple -> get the flux of neutron (fast,slow)

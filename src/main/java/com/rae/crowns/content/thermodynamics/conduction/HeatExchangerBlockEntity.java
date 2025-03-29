@@ -2,16 +2,16 @@ package com.rae.crowns.content.thermodynamics.conduction;
 
 import com.rae.crowns.api.nuclear.IHaveTemperature;
 import com.rae.crowns.api.units.Temperature;
-import com.rae.crowns.config.CROWNSCfgClient;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.BlockInit;
-import com.simibubi.create.content.equipment.goggles.IHaveGoggleInformation;
+
+import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.fluids.transfer.FluidManipulationBehaviour;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-import com.simibubi.create.foundation.utility.Lang;
+import com.simibubi.create.foundation.utility.CreateLang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -170,7 +170,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 
         Temperature temperatureUnit = CROWNSConfigs.CLIENT.units.temperature.get();
-        Lang.builder().add(Component.literal("exchanger T = "+(int) temperatureUnit.convert(temperature)))
+        CreateLang.builder().add(Component.literal("exchanger T = "+(int) temperatureUnit.convert(temperature)))
                 .add(Component.literal(temperatureUnit.getSymbol()))
                 .style(ChatFormatting.DARK_RED)
                 .forGoggles(tooltip, 1);

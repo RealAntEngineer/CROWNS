@@ -1,6 +1,7 @@
 package com.rae.crowns.config;
 
-import com.simibubi.create.foundation.config.ConfigBase;
+
+import net.createmod.catnip.config.ConfigBase;
 
 public class CROWNSKinetics extends ConfigBase {
 

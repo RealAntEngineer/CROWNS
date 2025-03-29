@@ -1,7 +1,6 @@
 package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.init.BlockEntityInit;
-import com.rae.crowns.content.legacy.RealWorkingFluid;
 import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.Level;
@@ -16,14 +15,13 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
 
 public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlockEntity> {
-
-    public static final EnumProperty<RealWorkingFluid.Temperature> TEMPERATURE = EnumProperty.create("temperature", RealWorkingFluid.Temperature.class); //T*10
+    public static final EnumProperty<Temperature> TEMPERATURE = EnumProperty.create("temperature", Temperature.class); //T*10
     public static final EnumProperty<Activity> ACTIVITY = EnumProperty.create("activity", Activity.class);
 
     public AssemblyBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState()
-                .setValue(TEMPERATURE, RealWorkingFluid.Temperature.COLD)
+                .setValue(TEMPERATURE, Temperature.COLD)
                 .setValue(ACTIVITY,Activity.NONE));
     }
 

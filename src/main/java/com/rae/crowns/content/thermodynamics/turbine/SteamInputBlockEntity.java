@@ -3,7 +3,7 @@ package com.rae.crowns.content.thermodynamics.turbine;
 import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.EntityInit;
-import com.simibubi.create.content.equipment.goggles.IHaveGoggleInformation;
+import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.infrastructure.config.AllConfigs;

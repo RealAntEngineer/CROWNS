@@ -1,8 +1,6 @@
 package com.rae.crowns.config;
 
-import com.rae.crowns.CROWNSClient;
-import com.simibubi.create.content.kinetics.BlockStressValues;
-import com.simibubi.create.foundation.config.ConfigBase;
+import net.createmod.catnip.config.ConfigBase;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -21,7 +19,7 @@ import java.util.function.Supplier;
 
 public class CROWNSConfigs
 {
-    private static final Map<ModConfig.Type, ConfigBase> CONFIGS = new EnumMap(ModConfig.Type.class);
+    private static final Map<ModConfig.Type, ConfigBase> CONFIGS = new EnumMap<>(ModConfig.Type.class);
 
     public static CROWNSCfgServer SERVER;
     public static CROWNSCfgClient CLIENT;

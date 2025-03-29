@@ -1,8 +1,9 @@
 package com.rae.crowns.config;
 
-import com.simibubi.create.foundation.config.ConfigBase;
 
-public class CROWNSNuclear extends ConfigBase{
+import net.createmod.catnip.config.ConfigBase;
+
+public class CROWNSNuclear extends ConfigBase {
     public final ConfigBase.ConfigFloat realismCoefficient = f(5000000,0,"realismCoef", Comments.realismCoef);
     public final ConfigBase.ConfigFloat assemblyRange = f(3,0,"assemblyRange", Comments.assemblyRange);
 

@@ -2,7 +2,7 @@ package com.rae.crowns.init;
 
 import com.rae.crowns.CROWNS;
 import com.simibubi.create.AllTags;
-import com.simibubi.create.foundation.utility.Lang;
+import net.createmod.catnip.lang.Lang;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;

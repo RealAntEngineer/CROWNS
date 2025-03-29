@@ -7,7 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.rae.crowns.api.flow.commun.FlowLine;
 import com.rae.crowns.init.ParticleTypeInit;
 import com.simibubi.create.foundation.particle.ICustomParticleDataWithSprite;
-import com.simibubi.create.foundation.utility.Color;
+import net.createmod.catnip.theme.Color;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;

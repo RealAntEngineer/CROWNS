@@ -6,7 +6,7 @@ import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
 import com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper;
 import com.rae.crowns.init.BlockInit;
 import com.rae.crowns.init.EntityDataSerializersInit;
-import com.simibubi.create.foundation.utility.Color;
+import net.createmod.catnip.theme.Color;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;

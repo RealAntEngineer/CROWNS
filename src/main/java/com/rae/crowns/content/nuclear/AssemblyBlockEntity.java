@@ -5,17 +5,17 @@ import com.rae.crowns.api.nuclear.IAmFissileMaterial;
 import com.rae.crowns.api.nuclear.IAmRadioactiveSource;
 import com.rae.crowns.api.nuclear.IHaveTemperature;
 import com.rae.crowns.config.CROWNSConfigs;
-import com.simibubi.create.content.equipment.goggles.IHaveGoggleInformation;
+import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-import com.simibubi.create.foundation.utility.Couple;
-import com.simibubi.create.foundation.utility.Lang;
+
+import com.simibubi.create.foundation.utility.CreateLang;
+import net.createmod.catnip.data.Couple;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -68,7 +68,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     // 800 moles of uranium for pure metal *  the mass fraction define in radioactive elements ( fraction of the total mass of the assembly )
 
 
-    public static HashMap<ResourceLocation,Couple<Float>> fissileCrossSection = new HashMap<>(
+    public static HashMap<ResourceLocation, Couple<Float>> fissileCrossSection = new HashMap<>(
             Map.of(
                     CROWNS.resource("u235"),Couple.create(1f,583f), //cross-section in barn
                     CROWNS.resource("u238"),Couple.create(0.3f,0.0001f),
@@ -246,12 +246,12 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 
-        Lang.builder().add(Component.literal("activity : "+ (int)nbrOfFission*20))
+        CreateLang.builder().add(Component.literal("activity : "+ (int)nbrOfFission*20))
                 .add(Component.literal(" MBq"))
                 .style(ChatFormatting.DARK_GREEN)
                 .forGoggles(tooltip, 1);
 
-        Lang.builder().add(Component.literal("temperature : "+(int)temperature))
+        CreateLang.builder().add(Component.literal("temperature : "+(int)temperature))
                 .add(Component.literal("°K"))
                 .style(ChatFormatting.DARK_RED)
                 .forGoggles(tooltip, 1);
