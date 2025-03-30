@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "target=ceiling,facing=north": {
+      "model": "crowns:block/turbine/blade_vertical"
+    },
+    "target=ceiling,facing=south": {
+      "model": "crowns:block/turbine/blade_vertical",
+      "y": 180
+    },
+    "target=ceiling,facing=east": {
+      "model": "crowns:block/turbine/blade_vertical",
+      "y": 90
+    },
+    "target=ceiling,facing=west": {
+      "model": "crowns:block/turbine/blade_vertical",
+      "y": 270
+    },
+    "target=floor,facing=north": {
+      "model": "crowns:block/turbine/blade_vertical",
+      "y": 90
+    },
+    "target=floor,facing=south": {
+      "model": "crowns:block/turbine/blade_vertical",
+      "y": 270
+    },
+    "target=floor,facing=east": {
+      "model": "crowns:block/turbine/blade_vertical"
+    },
+    "target=floor,facing=west": {
+      "model": "crowns:block/turbine/blade_vertical",
+      "y":180
+    },
+    "target=wall,facing=east": {
+      "model": "crowns:block/turbine/blade"
+    },
+    "target=wall,facing=north": {
+      "model": "crowns:block/turbine/blade",
+      "y": 90
+    },
+    "target=wall,facing=south": {
+      "model": "crowns:block/turbine/blade",
+      "y": 270
+    },
+    "target=wall,facing=west": {
+      "model": "crowns:block/turbine/blade",
+      "y": 180
+    }
+  }
+}

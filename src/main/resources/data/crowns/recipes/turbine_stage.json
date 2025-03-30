@@ -1,0 +1,24 @@
+{
+  "type": "create:mechanical_crafting",
+  "pattern": [
+    "P P P",
+    " III ",
+    "PICIP",
+    " III ",
+    "P P P"
+  ],
+  "key": {
+    "P": {
+      "item": "create:iron_sheet"
+    },
+    "C": {
+      "item": "create:brass_casing"
+    },"I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "crowns:turbine_stage",
+    "count": 1
+  }
+}

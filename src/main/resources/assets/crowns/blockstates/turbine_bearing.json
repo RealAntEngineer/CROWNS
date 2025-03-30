@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "crowns:block/turbine/bearing",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "crowns:block/turbine/bearing",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north": {
+      "model": "crowns:block/turbine/bearing",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "crowns:block/turbine/bearing",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up": {
+      "model": "crowns:block/turbine/bearing"
+    },
+    "facing=west": {
+      "model": "crowns:block/turbine/bearing",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

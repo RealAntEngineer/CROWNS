@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "crowns:uranium_ore",
+    "crowns:deepslate_uranium_ore",
+    "crowns:fuel_assembly"
+  ]
+}

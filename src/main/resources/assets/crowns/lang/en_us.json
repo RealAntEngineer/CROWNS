@@ -1,0 +1,23 @@
+{
+  "block.crowns.heat_exchanger": "Heat Exchanger",
+  "block.crowns.steam_input": "Steam Input",
+  "block.crowns.fuel_assembly": "Fuel Assembly",
+  "block.crowns.uranium_ore": "Uranium Ore",
+  "block.crowns.deepslate_uranium_ore": "Deepslate Uranium Ore",
+  "block.crowns.turbine_stage": "Turbine Stage",
+
+  "item.crowns.uranium_ingot": "Uranium Ingot",
+  "item.crowns.raw_uranium": "Raw Uranium",
+
+  "itemGroup.crowns.nuclear": "CROWNS",
+
+
+  "crowns.ponder.nuclear_reactor.header": "Nuclear Reactors",
+  "crowns.ponder.nuclear_reactor.text_1": "pump water from one side",
+  "crowns.ponder.nuclear_reactor.text_2": "make column of heat exchanger to give time for the water to boil",
+  "crowns.ponder.nuclear_reactor.text_3": "build a chest board of fuel assembly and water or coal blocks to make the nuclear reaction occurs",
+  "crowns.ponder.nuclear_reactor.text_4": "fluid tank are used to merge the flow of vapor",
+  "crowns.ponder.turbine.header": "Turbines",
+  "crowns.ponder.turbine.text_1": "input vapor into the steam inputs",
+  "crowns.ponder.turbine.text_2": "if the vapor has sufficient quality (x > 0) it will make the turbine turns"
+}
