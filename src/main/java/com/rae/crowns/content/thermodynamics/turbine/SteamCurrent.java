@@ -1,7 +1,7 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
-import com.rae.colony_api.flow.client.FlowParticleData;
-import com.rae.colony_api.flow.commun.FlowLine;
+import com.rae.flow.client.FlowParticleData;
+import com.rae.flow.commun.FlowLine;
 import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
 import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
 import com.rae.crowns.init.BlockInit;

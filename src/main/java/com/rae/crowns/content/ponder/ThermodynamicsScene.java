@@ -1,7 +1,7 @@
 package com.rae.crowns.content.ponder;
 
-import com.rae.colony_api.flow.client.FlowParticleData;
-import com.rae.colony_api.flow.commun.FlowLine;
+import com.rae.flow.client.FlowParticleData;
+import com.rae.flow.commun.FlowLine;
 
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import net.createmod.catnip.theme.Color;

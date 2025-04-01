@@ -1,4 +1,4 @@
-package com.rae.colony_api.flow.commun;
+package com.rae.flow.commun;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;

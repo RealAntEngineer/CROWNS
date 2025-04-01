@@ -1,4 +1,4 @@
-package com.rae.colony_api.flow.commun;
+package com.rae.flow.commun;
 
 import org.joml.Vector3f;
 

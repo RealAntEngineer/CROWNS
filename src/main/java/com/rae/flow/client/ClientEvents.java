@@ -1,4 +1,4 @@
-package com.rae.colony_api.flow.client;
+package com.rae.flow.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
