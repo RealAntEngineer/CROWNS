@@ -1,5 +1,6 @@
 package com.rae.colony_api.data;
 
+import com.rae.colony_api.data.managers.FloatMapDataLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -14,7 +15,7 @@ import java.util.Objects;
 @Mod.EventBusSubscriber()
 public class Event {
     private static final Logger LOGGER = LogManager.getLogger();
-    public static RegistryAccess.Frozen registryAccess = null;
+    private static RegistryAccess.Frozen registryAccess = null;
 
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
@@ -22,6 +23,12 @@ public class Event {
         registryAccess = event.getServer().registryAccess();
     }
 
+    /**
+     *
+     * @param registryKey the registry you want to access
+     * @return the synced registry
+     * @param <T> the type of object the registry is for
+     */
     public static <T> Registry<T> getSideAwareRegistry(ResourceKey<Registry<T>> registryKey) {
         if (registryAccess != null) {
             return registryAccess.registryOrThrow(registryKey);

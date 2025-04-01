@@ -1,6 +1,5 @@
 package com.rae.crowns.content.thermodynamics.conduction;
 
-import com.rae.colony_api.thermal_utilities.IHaveTemperature;
 import com.rae.colony_api.units.Temperature;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;

@@ -1,4 +1,4 @@
-package com.rae.colony_api.thermal_utilities;
+package com.rae.crowns.content.thermodynamics.conduction;
 
 import com.rae.crowns.CROWNS;
 import net.minecraft.core.BlockPos;

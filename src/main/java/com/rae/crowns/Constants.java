@@ -1,4 +1,4 @@
-package com.rae.crowns.api;
+package com.rae.crowns;
 
 public class Constants {
 

@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-import static com.rae.crowns.api.Constants.whatSU;
+import static com.rae.crowns.Constants.whatSU;
 
 public class SteamCurrent extends Entity{
 	private static final EntityDataAccessor<AABB> SYNCED_BB_ACCESSOR = SynchedEntityData.defineId(SteamCurrent.class, EntityDataSerializersInit.BB_SERIALIZER);

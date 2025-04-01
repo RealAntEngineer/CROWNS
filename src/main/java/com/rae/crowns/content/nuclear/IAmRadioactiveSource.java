@@ -1,4 +1,4 @@
-package com.rae.crowns.api.nuclear;
+package com.rae.crowns.content.nuclear;
 
 import net.createmod.catnip.data.Couple;
 import net.minecraft.core.BlockPos;

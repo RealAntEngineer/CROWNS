@@ -1,6 +1,6 @@
 package com.rae.crowns.mixin;
 
-import com.rae.colony_api.thermal_utilities.IHaveTemperature;
+import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
