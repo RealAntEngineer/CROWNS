@@ -1,7 +1,7 @@
 package com.rae.crowns.content.thermodynamics.conduction;
 
-import com.rae.crowns.api.nuclear.IHaveTemperature;
-import com.rae.crowns.api.units.Temperature;
+import com.rae.colony_api.thermal_utilities.IHaveTemperature;
+import com.rae.colony_api.units.Temperature;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.BlockInit;
@@ -33,8 +33,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper.get_h;
 
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
     //transform the IHaveTemperature interface into a behavior

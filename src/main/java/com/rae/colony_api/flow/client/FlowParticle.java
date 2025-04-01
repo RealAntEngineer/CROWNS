@@ -1,6 +1,6 @@
-package com.rae.crowns.api.flow.client;
+package com.rae.colony_api.flow.client;
 
-import com.rae.crowns.api.flow.commun.FlowLine;
+import com.rae.colony_api.flow.commun.FlowLine;
 
 import net.createmod.catnip.theme.Color;
 import net.minecraft.client.multiplayer.ClientLevel;

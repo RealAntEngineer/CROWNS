@@ -1,10 +1,10 @@
-package com.rae.crowns.api.flow.client;
+package com.rae.colony_api.flow.client;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.rae.crowns.api.flow.commun.FlowLine;
+import com.rae.colony_api.flow.commun.FlowLine;
 import com.rae.crowns.init.ParticleTypeInit;
 import com.simibubi.create.foundation.particle.ICustomParticleDataWithSprite;
 import net.createmod.catnip.theme.Color;

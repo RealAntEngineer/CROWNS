@@ -1,7 +1,7 @@
 package com.rae.crowns.content.thermodynamics;
 
-import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
-import com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper;
+import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
+import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fluids.FluidStack;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-import static com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper.DEFAULT_STATE;
+import static com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper.DEFAULT_STATE;
 
 
 public class StateFluidTank extends SmartFluidTank {

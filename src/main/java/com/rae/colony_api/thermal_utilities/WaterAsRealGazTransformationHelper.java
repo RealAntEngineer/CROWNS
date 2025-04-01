@@ -1,6 +1,4 @@
-package com.rae.crowns.api.transformations;
-
-import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
+package com.rae.colony_api.thermal_utilities;
 
 
 public class WaterAsRealGazTransformationHelper {

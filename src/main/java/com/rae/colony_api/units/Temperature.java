@@ -1,4 +1,4 @@
-package com.rae.crowns.api.units;
+package com.rae.colony_api.units;
 
 public enum Temperature {
     KELVIN(1,0, "K"),

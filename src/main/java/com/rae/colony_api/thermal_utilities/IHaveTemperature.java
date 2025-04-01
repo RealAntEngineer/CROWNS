@@ -1,10 +1,9 @@
-package com.rae.crowns.api.nuclear;
+package com.rae.colony_api.thermal_utilities;
 
+import com.rae.crowns.CROWNS;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -24,25 +23,30 @@ public interface IHaveTemperature {
             BlockEntity be = level.getBlockEntity(pos.relative(direction));
 
             if (be instanceof IHaveTemperature iHaveTemperature) {
-                float transmittedPower = (iHaveTemperature.getTemperature() - this.getTemperature()) *
-                        (getThermalConductivity() + iHaveTemperature.getThermalConductivity()) / 2 *dt;
+                float transmittedPower;
+                if (iHaveTemperature.getThermalConductivity() == 0 && this.getThermalConductivity() == 0){
+                    transmittedPower = 0.0f;
+                }
+                else {
+                    transmittedPower = (iHaveTemperature.getTemperature() - this.getTemperature()) *
+                            (getThermalConductivity() * iHaveTemperature.getThermalConductivity()) /
+                            (getThermalConductivity() + iHaveTemperature.getThermalConductivity()) * dt;
+                }
                 this.addTemperature(
                         transmittedPower
                                 / this.getThermalCapacity());
                 //iHaveTemperature.addTemperature(-transmittedPower / iHaveTemperature.getThermalCapacity());
             } else {
                 FluidState fluidState = level.getFluidState(pos.relative(direction));
-                int T = 300;
-                if (state.is(Blocks.ICE)){
-                    T = 273;
+                float T;
+                if (fluidState.isEmpty()) {
+                    T = CROWNS.BLOCK_TEMPERATURES.getValue(state.getBlock(), 300f);
                 }
-                if (state.is(Blocks.PACKED_ICE)){
-                    T = 220;
+                else {
+                    T = CROWNS.FLUID_TEMPERATURES.getValue(fluidState.getType(), 300f);
+
                 }
-                if (!fluidState.isEmpty() && fluidState.is(FluidTags.LAVA)){
-                    T = 900;
-                }
-                addTemperature((T - getTemperature()) * this.getThermalConductivity() / getThermalCapacity());
+                addTemperature((T - getTemperature()) * this.getThermalConductivity() / this.getThermalCapacity());
             }
         }
     }
