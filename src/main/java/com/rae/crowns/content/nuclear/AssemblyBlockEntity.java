@@ -4,6 +4,7 @@ import com.rae.crowns.CROWNS;
 import com.rae.crowns.api.nuclear.IAmFissileMaterial;
 import com.rae.crowns.api.nuclear.IAmRadioactiveSource;
 import com.rae.crowns.api.nuclear.IHaveTemperature;
+import com.rae.crowns.api.units.Temperature;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -203,7 +204,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     //transmition coef
     @Override
     public float getThermalConductivity() {
-        return 10000;
+        return CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
     }
 
     @Override
@@ -251,8 +252,9 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 .style(ChatFormatting.DARK_GREEN)
                 .forGoggles(tooltip, 1);
 
-        CreateLang.builder().add(Component.literal("temperature : "+(int)temperature))
-                .add(Component.literal("°K"))
+        Temperature temperatureUnit = CROWNSConfigs.CLIENT.units.temperature.get();
+        CreateLang.builder().add(Component.literal("T = "+(int) temperatureUnit.convert(temperature)))
+                .add(Component.literal(temperatureUnit.getSymbol()))
                 .style(ChatFormatting.DARK_RED)
                 .forGoggles(tooltip, 1);
 

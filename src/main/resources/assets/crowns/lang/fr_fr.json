@@ -1,0 +1,25 @@
+{
+  "block.crowns.heat_exchanger": "Echanger thermique",
+  "block.crowns.steam_input": "Buse d'injection",
+  "block.crowns.steam_collector": "Collecteur de vapeur",
+
+  "block.crowns.fuel_assembly": "Assemblage d'uranium",
+  "block.crowns.uranium_ore": "Minerai d'uranium",
+  "block.crowns.deepslate_uranium_ore": "Minerai d'uranium des abîmes",
+  "block.crowns.turbine_stage": "Etage de turbine",
+
+  "item.crowns.uranium_ingot": "Lingot d'uranium",
+  "item.crowns.raw_uranium": "Uranium brut",
+
+  "itemGroup.crowns.nuclear": "CROWNS",
+
+
+  "crowns.ponder.nuclear_reactor.header": "Reacteur Nucleaire",
+  "crowns.ponder.nuclear_reactor.text_1": "Pomper de l'eau d'un coté",
+  "crowns.ponder.nuclear_reactor.text_2": "Faites une colonne pour laisser du temps a l'eau de bouilir",
+  "crowns.ponder.nuclear_reactor.text_3": "Faites une alternance d'assemblage d'uranium et d'eau ou du charbon pour avoir une reaction nucleaire",
+  "crowns.ponder.nuclear_reactor.text_4": "Des réservoirs à fluids sont utilisé pour mélanger les flux",
+  "crowns.ponder.turbine.header": "Turbines",
+  "crowns.ponder.turbine.text_1": "Injectez de la vapeur dans une buse d'injection",
+  "crowns.ponder.turbine.text_2": "Si la vapeur à une qualité suffisante (x > 0) la turbine tournera"
+}

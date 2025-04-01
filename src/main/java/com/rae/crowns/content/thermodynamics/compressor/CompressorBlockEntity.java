@@ -1,10 +1,16 @@
 package com.rae.crowns.content.thermodynamics.compressor;
 
+import com.rae.crowns.api.Constants;
 import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
 import com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper;
+import com.rae.crowns.api.units.Pressure;
+import com.rae.crowns.api.units.Temperature;
+import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
+import com.simibubi.create.content.kinetics.KineticNetwork;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import com.simibubi.create.foundation.utility.CreateLang;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -65,21 +71,43 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     //it's the base.
     private float getCombinedStress() {
         if (level == null) return 0;
-        return -power/speed;// ? it's weird to do that but...
+        return speed==0?0:power/speed;// ? it's weird to do that but...
     }
 
     public float pressureRatio() {
         //depend on speed ?
-        return 10;
+        return 8;
     }
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        containedFluidTooltip(tooltip, isPlayerSneaking, inputFluidCapability);
+        super.addToGoggleTooltip(tooltip,isPlayerSneaking);
+        Temperature temperatureUnit = CROWNSConfigs.CLIENT.units.temperature.get();
+        Pressure pressureUnit = CROWNSConfigs.CLIENT.units.pressure.get();
+        SpecificRealGazState inputState = INPUT_WATER_TANK.getState();
+        CreateLang.builder().add(
+                    Component.literal("input : ").append(
+                        Component.literal(" T = " + (int) temperatureUnit.convert(inputState.temperature()) + temperatureUnit.getSymbol()+ " | ").append(
+                                        Component.literal(String.format("P = %.2f %s | ", pressureUnit.convert(inputState.pressure()), pressureUnit.getSymbol()))                                )
+                                .append(
+                                        Component.literal("x = " +(int) (inputState.vaporQuality() *100) + "%")
+                                )))
+                .forGoggles(tooltip, 1);
+        SpecificRealGazState outputState = OUTPUT_WATER_TANK.getState();
+        CreateLang.builder().add(
+                Component.literal("output : ").append(
+
+                                Component.literal(" T = " + (int) temperatureUnit.convert(outputState.temperature()) + temperatureUnit.getSymbol()+ " | ").append(
+                                        Component.literal(String.format("P = %.2f %s | ", pressureUnit.convert(outputState.pressure()), pressureUnit.getSymbol()))                                )
+                                .append(
+                                        Component.literal("x = " +(int) (outputState.vaporQuality() *100) + "%")
+                                )))
+                .forGoggles(tooltip, 1);
         return true;
     }
     @Override
     protected void write(CompoundTag tag, boolean clientPacket) {
         super.write(tag, clientPacket);
+        tag.putFloat("power",power);
         tag.put("input_water_tank", INPUT_WATER_TANK.writeToNBT(new CompoundTag()));
         tag.put("output_water_tank", OUTPUT_WATER_TANK.writeToNBT(new CompoundTag()));
 
@@ -87,6 +115,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
 
     @Override
     protected void read(CompoundTag tag, boolean clientPacket) {
+        power = tag.getFloat("power");
         INPUT_WATER_TANK.readFromNBT((CompoundTag) tag.get("input_water_tank"));
         OUTPUT_WATER_TANK.readFromNBT((CompoundTag) tag.get("output_water_tank"));
 
@@ -137,13 +166,20 @@ public class CompressorBlockEntity extends KineticBlockEntity {
             SpecificRealGazState inputState =  INPUT_WATER_TANK.getState();
             FluidStack water = INPUT_WATER_TANK.drain((int) speed, IFluidHandler.FluidAction.SIMULATE);
             if(!water.isEmpty()) {
-                SpecificRealGazState outputState = WaterAsRealGazTransformationHelper.standardCompression(inputState, 10);
-                power = (outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount();
+                SpecificRealGazState outputState = WaterAsRealGazTransformationHelper.standardCompression(inputState, pressureRatio());
+                power = (int) (outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount()/ Constants.whatSU;
+
                 CompoundTag tag = new CompoundTag();
                 tag.put("realGazState", outputState.serialize());
                 water.setTag(tag);
                 INPUT_WATER_TANK.drain(Math.min((int) speed,OUTPUT_WATER_TANK.fill(water, IFluidHandler.FluidAction.EXECUTE)), IFluidHandler.FluidAction.EXECUTE);
-                sendData();
+                if (hasNetwork() && speed != 0) {
+
+                    KineticNetwork network = getOrCreateNetwork();
+                    network.updateStressFor(this, calculateStressApplied());
+                    network.updateStress();
+                }
+                notifyUpdate();
             }
         }
     }

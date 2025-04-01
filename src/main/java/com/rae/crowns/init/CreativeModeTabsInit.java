@@ -23,6 +23,7 @@ public class CreativeModeTabsInit {
                             .displayItems(($1,output)-> {
                                 output.accept(BlockInit.HEAT_EXCHANGER);
                                 output.accept(BlockInit.STEAM_INPUT);
+                                output.accept(BlockInit.STEAM_COLLECTOR);
                                 output.accept(BlockInit.TURBINE_STAGE);
                                 output.accept(BlockInit.COMPRESSOR);
                                 output.accept(BlockInit.FUEL_ASSEMBLY);

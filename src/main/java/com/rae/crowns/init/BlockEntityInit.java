@@ -1,7 +1,7 @@
 package com.rae.crowns.init;
 
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlockEntity;
-import com.rae.crowns.content.thermodynamics.compressor.CompressorStageRenderer;
+import com.rae.crowns.content.thermodynamics.compressor.CompressorRenderer;
 import com.rae.crowns.content.thermodynamics.turbine.*;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerRenderer;
 import com.rae.crowns.content.nuclear.AssemblyBlockEntity;
@@ -30,7 +30,7 @@ public class BlockEntityInit {
             .blockEntity("compressor_stage", CompressorBlockEntity::new)
             .visual(() -> SingleAxisRotatingVisual.ofZ(AllPartialModels.MECHANICAL_PUMP_COG))
             .validBlock(BlockInit.COMPRESSOR)
-            .renderer(() -> CompressorStageRenderer::new)
+            .renderer(() -> CompressorRenderer::new)
             .register();
 
     public static final BlockEntityEntry<SteamInputBlockEntity> STEAM_INPUT = REGISTRATE.blockEntity(

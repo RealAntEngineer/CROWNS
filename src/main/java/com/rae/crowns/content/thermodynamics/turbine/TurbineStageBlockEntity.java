@@ -31,6 +31,11 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     }
 
     @Override
+    public boolean isSource() {
+        return true;
+    }
+
+    @Override
     public float getGeneratedSpeed() {
         return flows.isEmpty()||power==0?0: CROWNSConfigs.SERVER.kinetics.turbineSpeed.get(); // * direction du flux
     }
@@ -43,7 +48,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     private float getCombinedCapacity() {
         if (level == null) return 0;
 
-        return getGeneratedSpeed()==0?power:power/getGeneratedSpeed();// capacity is
+        return getGeneratedSpeed()==0?power:power/Math.abs(getTheoreticalSpeed());// capacity is
     }
 
     @Override
@@ -76,6 +81,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
         flows = level.getEntitiesOfClass(SteamCurrent.class, bound);
         power = 0;
         flows.forEach(f -> power += f.getPowerForStage(this));
+
         if (level.isClientSide()) return;
         updateGeneratedRotation();
     }

@@ -20,7 +20,7 @@ description='''
 [[dependencies.crowns]]
 modId="create"
 mandatory=true
-versionRange="[0.5.1.a,)"
+versionRange="[0.6.0.2,)"
 ordering="NONE"
 side="BOTH"
 

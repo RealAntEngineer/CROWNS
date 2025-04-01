@@ -7,9 +7,9 @@ import net.createmod.catnip.render.SuperByteBuffer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class CompressorStageRenderer extends KineticBlockEntityRenderer<CompressorBlockEntity> {
+public class CompressorRenderer extends KineticBlockEntityRenderer<CompressorBlockEntity> {
 
-    public CompressorStageRenderer(BlockEntityRendererProvider.Context context) {
+    public CompressorRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
 

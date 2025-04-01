@@ -17,9 +17,9 @@ import static com.rae.crowns.api.transformations.WaterAsRealGazTransformationHel
 
 @Mixin(value = FluidTank.class)
 public abstract class FluidTankMixin {
-    @Shadow @NotNull protected FluidStack fluid;
+    @Shadow(remap = false) @NotNull protected FluidStack fluid;
 
-    @Shadow public abstract int getFluidAmount();
+    @Shadow(remap = false) public abstract int getFluidAmount();
 
     @Inject(method = "fill", at = @At(value = "HEAD"),remap = false)
     public void mergeStateNBT(FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {

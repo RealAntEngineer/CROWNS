@@ -12,7 +12,7 @@ public record SpecificRealGazState(Float temperature, Float pressure, Float spec
         this.pressure = Math.max(0,pressure);
         this.specificEnthalpy = specificEnthalpy;
         if (vaporQuality > 1){
-            System.out.println("vapor quality > 1 given, check your code");
+            //System.out.println("vapor quality > 1 given, check your code");
         }
         this.vaporQuality = Math.max(0,Math.min(vaporQuality,1));
     }

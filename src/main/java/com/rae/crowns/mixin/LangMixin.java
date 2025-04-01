@@ -25,8 +25,7 @@ public class LangMixin {
             Pressure pressureUnit = CROWNSConfigs.CLIENT.units.pressure.get();
             cir.setReturnValue(cir.getReturnValue().add(
                     Component.literal(" T = " + (int) temperatureUnit.convert(newState.temperature()) + temperatureUnit.getSymbol()+ " | ").append(
-                            Component.literal("P = " + (int)pressureUnit.convert( newState.pressure()) + pressureUnit.getSymbol() + " | ")
-                    )
+                            Component.literal(String.format("P = %.2f %s | ", pressureUnit.convert(newState.pressure()), pressureUnit.getSymbol()))                                )
                             .append(
                                     Component.literal("x = " +(int) (newState.vaporQuality() *100) + "%")
                             )));

@@ -60,7 +60,7 @@ public class BlockInit {
                     .register();
 
     public static final BlockEntry<CompressorBlock> COMPRESSOR =
-            REGISTRATE.block("compressor_stage", CompressorBlock::new)
+            REGISTRATE.block("compressor", CompressorBlock::new)
                     .initialProperties(SharedProperties::softMetal)
                     .properties(BlockBehaviour.Properties::noOcclusion)
                     .item()

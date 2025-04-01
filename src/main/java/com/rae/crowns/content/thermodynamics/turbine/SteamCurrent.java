@@ -174,7 +174,7 @@ public class SteamCurrent extends Entity{
                 break;
             BlockState state = world.getBlockState(currentPos);
 			if (!state.isAir()){
-				if (state.is(BlockInit.STEAM_COLLECTOR.get()) && state.getValue(DirectionalBlock.FACING) == getDirection().getOpposite()) collectorPos = currentPos;
+				if (state.is(BlockInit.STEAM_COLLECTOR.get()) && state.getValue(DirectionalBlock.FACING) == facing.getOpposite()) collectorPos = currentPos;
 				break;
 			}
 			distance++;
@@ -282,10 +282,10 @@ public class SteamCurrent extends Entity{
 				if (be instanceof SteamCollectorBlockEntity steamCollector){
 					try {
 						//cheating by getting the opposite side.
-						IFluidHandler fluidHandler = steamCollector.getCapability(ForgeCapabilities.FLUID_HANDLER, this.getDirection().getOpposite()).orElseThrow(() -> new RuntimeException("No FluidHandler found"));
+						IFluidHandler fluidHandler = steamCollector.getCapability(ForgeCapabilities.FLUID_HANDLER, this.entityData.get(SYNCED_DIRECTION_ACCESSOR)).orElseThrow(() -> new RuntimeException("No FluidHandler found"));
 						CompoundTag nbt = new CompoundTag();
 						nbt.put("realGazState", getOutputFluidState().serialize());
-						fluidHandler.fill(new FluidStack(Fluids.WATER, (int) getFlow(), new CompoundTag()), IFluidHandler.FluidAction.EXECUTE);
+						fluidHandler.fill(new FluidStack(Fluids.WATER, (int) getFlow(), nbt), IFluidHandler.FluidAction.EXECUTE);
 					}
 					catch (Exception ignored){}
 				}
