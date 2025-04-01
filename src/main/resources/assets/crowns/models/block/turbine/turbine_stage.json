@@ -1,6 +1,6 @@
 {
 	"credit": "Made with Blockbench",
-	"loader": "forge:obj",
+	"loader": "neoforge:obj",
 	"flip_v": true,
 	"model": "crowns:models/block/turbine/turbine_stage.obj",
 	"textures" : {

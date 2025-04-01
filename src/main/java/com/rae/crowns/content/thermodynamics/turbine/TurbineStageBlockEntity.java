@@ -31,6 +31,11 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     }
 
     @Override
+    public boolean isSource() {
+        return true;
+    }
+
+    @Override
     public float getGeneratedSpeed() {
         return flows.isEmpty()||power==0?0: CROWNSConfigs.SERVER.kinetics.turbineSpeed.get(); // * direction du flux
     }

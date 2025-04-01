@@ -128,10 +128,10 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
     @Override
     public float getThermalConductivity() {
-        return 10000;
+        return CROWNSConfigs.SERVER.conduction.heatExchangerExternal.getF();
     }
     public float getInternalConductivity() {
-        return 100000;
+        return CROWNSConfigs.SERVER.conduction.heatExchangerInternal.getF();
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.rae.crowns.content.thermodynamics.compressor.CompressorBlock;
 import com.rae.crowns.content.thermodynamics.turbine.SteamCollectorBlock;
 import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlock;
 import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
+import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import net.minecraft.world.level.block.Blocks;
@@ -20,6 +21,11 @@ import static com.rae.crowns.CROWNS.REGISTRATE;
 
 @SuppressWarnings("ALL")
 public class BlockInit {
+
+
+    static {
+        //REGISTRATE.setCreativeTab(CreativeModeTabsInit.NUCLEAR_TAB);
+    }
 
     //to do list -> uranium ore (enrichment ?) + plutonium (created from 235) + depletion of fuel
     // control bar
@@ -60,7 +66,7 @@ public class BlockInit {
                     .register();
 
     public static final BlockEntry<CompressorBlock> COMPRESSOR =
-            REGISTRATE.block("compressor_stage", CompressorBlock::new)
+            REGISTRATE.block("compressor", CompressorBlock::new)
                     .initialProperties(SharedProperties::softMetal)
                     .properties(BlockBehaviour.Properties::noOcclusion)
                     .item()

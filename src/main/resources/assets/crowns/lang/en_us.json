@@ -1,10 +1,13 @@
 {
   "block.crowns.heat_exchanger": "Heat Exchanger",
   "block.crowns.steam_input": "Steam Input",
+  "block.crowns.steam_collector": "Steam Collector",
+
   "block.crowns.fuel_assembly": "Fuel Assembly",
   "block.crowns.uranium_ore": "Uranium Ore",
   "block.crowns.deepslate_uranium_ore": "Deepslate Uranium Ore",
   "block.crowns.turbine_stage": "Turbine Stage",
+  "block.crowns.compressor": "Compressor",
 
   "item.crowns.uranium_ingot": "Uranium Ingot",
   "item.crowns.raw_uranium": "Raw Uranium",

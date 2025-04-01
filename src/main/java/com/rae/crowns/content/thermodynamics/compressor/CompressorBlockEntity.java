@@ -6,6 +6,7 @@ import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.BlockEntityInit;
 import com.rae.crowns.init.DataComponentsInit;
 import com.simibubi.create.AllBlockEntityTypes;
+import com.simibubi.create.content.kinetics.KineticNetwork;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.minecraft.core.BlockPos;
@@ -64,12 +65,12 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     //it's the base.
     private float getCombinedStress() {
         if (level == null) return 0;
-        return -power/speed;// ? it's weird to do that but...
+        return speed==0?0:power/speed;// ? it's weird to do that but...
     }
     //TODO use a config
     public float pressureRatio() {
         //depend on speed ?
-        return 10;
+        return 8;
     }
 
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
@@ -99,6 +100,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     @Override
     protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.write(tag,registries, clientPacket);
+        tag.putFloat("power",power);
         tag.put("input_water_tank", INPUT_WATER_TANK.writeToNBT(registries,new CompoundTag()));
         tag.put("output_water_tank", OUTPUT_WATER_TANK.writeToNBT(registries,new CompoundTag()));
 
@@ -106,6 +108,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
 
     @Override
     protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+        power = tag.getFloat("power");
         INPUT_WATER_TANK.readFromNBT(registries,(CompoundTag) tag.get("input_water_tank"));
         OUTPUT_WATER_TANK.readFromNBT(registries,(CompoundTag) tag.get("output_water_tank"));
 
@@ -144,11 +147,17 @@ public class CompressorBlockEntity extends KineticBlockEntity {
             SpecificRealGazState inputState =  INPUT_WATER_TANK.getState();
             FluidStack water = INPUT_WATER_TANK.drain((int) speed, IFluidHandler.FluidAction.SIMULATE);
             if(!water.isEmpty()) {
-                SpecificRealGazState outputState = WaterAsRealGazTransformationHelper.standardCompression(inputState, 10);
+                SpecificRealGazState outputState = WaterAsRealGazTransformationHelper.standardCompression(inputState, pressureRatio());
                 power = (outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount();
                 water.set(DataComponentsInit.REAL_GAZ_STATE, outputState);
                 INPUT_WATER_TANK.drain(Math.min((int) speed,OUTPUT_WATER_TANK.fill(water, IFluidHandler.FluidAction.EXECUTE)), IFluidHandler.FluidAction.EXECUTE);
-                sendData();
+                if (hasNetwork() && speed != 0) {
+
+                    KineticNetwork network = getOrCreateNetwork();
+                    network.updateStressFor(this, calculateStressApplied());
+                    network.updateStress();
+                }
+                notifyUpdate();
             }
         }
     }
