@@ -85,6 +85,7 @@ public class FloatMapDataLoader<T> extends SimpleJsonResourceReloadListener {
                     FLOAT_MAP.putIfAbsent(id, entry.getValue());
                 }
             }
+            tagLoaded = true;
         }
         if (registry != null) {
             ResourceLocation id = registry.getKey(registryEntry);
@@ -92,9 +93,6 @@ public class FloatMapDataLoader<T> extends SimpleJsonResourceReloadListener {
                 Float value = FLOAT_MAP.get(id);
                 if (value != null) {
                     return value;
-                }
-                else {
-
                 }
             }
         }
