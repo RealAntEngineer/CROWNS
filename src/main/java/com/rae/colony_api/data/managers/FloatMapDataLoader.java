@@ -32,7 +32,7 @@ public class FloatMapDataLoader<T> extends SimpleJsonResourceReloadListener {
     private boolean tagLoaded = false;
     public FloatMapDataLoader(String modId, String fileName, ResourceKey<Registry<T>> registryKey) {
         super(GSON, FOLDER);
-        FILE_NAME = new ResourceLocation(modId, fileName);
+        FILE_NAME = ResourceLocation.fromNamespaceAndPath(modId, fileName);
         this.registryKey = registryKey;
     }
 
@@ -56,11 +56,11 @@ public class FloatMapDataLoader<T> extends SimpleJsonResourceReloadListener {
 
                     if (key.startsWith("#")) {
                         // Handle tags
-                        ResourceLocation tagId = new ResourceLocation(key.substring(1)); // Remove '#'
+                        ResourceLocation tagId = ResourceLocation.parse(key.substring(1)); // Remove '#'
                         newTagValues.put(TagKey.create(registryKey, tagId), value);
                     } else {
                         // Handle normal entries
-                        newValues.put(new ResourceLocation(key), value);
+                        newValues.put(ResourceLocation.parse(key), value);
                     }
                 }
             } catch (Exception e) {
@@ -81,7 +81,7 @@ public class FloatMapDataLoader<T> extends SimpleJsonResourceReloadListener {
         if (!tagLoaded){
             for (Map.Entry<TagKey<T>, Float> entry : TAG_FLOAT_MAP.entrySet()){
                 for (Holder<T>holder : registry.getTagOrEmpty(entry.getKey())){
-                    ResourceLocation id = registry.getKey(holder.get());
+                    ResourceLocation id = registry.getKey(holder.value());
                     FLOAT_MAP.putIfAbsent(id, entry.getValue());
                 }
             }
