@@ -6,6 +6,7 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "crowns.refmap.json",
   "mixins": [
+    "BlazeBurnerMixin",
     "FluidStackMixin",
     "FluidTankMixin",
     "LangMixin"

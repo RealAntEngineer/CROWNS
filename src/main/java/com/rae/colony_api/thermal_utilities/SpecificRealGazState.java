@@ -1,4 +1,4 @@
-package com.rae.crowns.api.thermal_utilities;
+package com.rae.colony_api.thermal_utilities;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

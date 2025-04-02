@@ -1,10 +1,8 @@
 package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.CROWNS;
-import com.rae.crowns.api.nuclear.IAmFissileMaterial;
-import com.rae.crowns.api.nuclear.IAmRadioactiveSource;
-import com.rae.crowns.api.nuclear.IHaveTemperature;
-import com.rae.crowns.api.units.Temperature;
+import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
+import com.rae.colony_api.units.Temperature;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -27,8 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.rae.crowns.api.Constants.barnNa;
-import static com.rae.crowns.api.Constants.fissionEnergy;
+import static com.rae.crowns.Constants.barnNa;
+import static com.rae.crowns.Constants.fissionEnergy;
 
 public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
 

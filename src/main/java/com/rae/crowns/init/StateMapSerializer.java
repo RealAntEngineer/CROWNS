@@ -1,6 +1,6 @@
 package com.rae.crowns.init;
 
-import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
+import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

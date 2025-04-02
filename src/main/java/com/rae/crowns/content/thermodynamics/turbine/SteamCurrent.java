@@ -1,9 +1,9 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
-import com.rae.crowns.api.flow.client.FlowParticleData;
-import com.rae.crowns.api.flow.commun.FlowLine;
-import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
-import com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper;
+import com.rae.flow.client.FlowParticleData;
+import com.rae.flow.commun.FlowLine;
+import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
+import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
 import com.rae.crowns.init.BlockInit;
 import com.rae.crowns.init.DataComponentsInit;
 import com.rae.crowns.init.EntityDataSerializersInit;
@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-import static com.rae.crowns.api.Constants.whatSU;
+import static com.rae.crowns.Constants.whatSU;
 
 public class SteamCurrent extends Entity{
 	private static final EntityDataAccessor<AABB> SYNCED_BB_ACCESSOR = SynchedEntityData.defineId(SteamCurrent.class, EntityDataSerializersInit.BB_SERIALIZER);

@@ -1,4 +1,4 @@
-package com.rae.crowns.api.math;
+package com.rae.colony_api.math;
 
 
 import net.createmod.catnip.data.Couple;

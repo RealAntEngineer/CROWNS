@@ -1,7 +1,6 @@
 package com.rae.crowns.content.thermodynamics.conduction;
 
-import com.rae.crowns.api.nuclear.IHaveTemperature;
-import com.rae.crowns.api.units.Temperature;
+import com.rae.colony_api.units.Temperature;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.BlockEntityInit;
@@ -28,14 +27,10 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper.get_h;
 
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
     //transform the IHaveTemperature interface into a behavior

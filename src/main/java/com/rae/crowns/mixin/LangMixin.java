@@ -1,8 +1,8 @@
 package com.rae.crowns.mixin;
 
-import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
-import com.rae.crowns.api.units.Pressure;
-import com.rae.crowns.api.units.Temperature;
+import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
+import com.rae.colony_api.units.Pressure;
+import com.rae.colony_api.units.Temperature;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.init.DataComponentsInit;
 import com.simibubi.create.foundation.utility.CreateLang;

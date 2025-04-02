@@ -1,11 +1,9 @@
 package com.rae.crowns.init;
 
 import com.rae.crowns.CROWNS;
-import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
+import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.util.ExtraCodecs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.ApiStatus;

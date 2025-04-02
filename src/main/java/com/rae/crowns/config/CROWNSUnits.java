@@ -1,7 +1,7 @@
 package com.rae.crowns.config;
 
-import com.rae.crowns.api.units.Pressure;
-import com.rae.crowns.api.units.Temperature;
+import com.rae.colony_api.units.Pressure;
+import com.rae.colony_api.units.Temperature;
 import net.createmod.catnip.config.ConfigBase;
 
 public class CROWNSUnits extends ConfigBase {

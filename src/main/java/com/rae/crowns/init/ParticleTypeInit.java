@@ -1,7 +1,7 @@
 package com.rae.crowns.init;
 
 import com.rae.crowns.CROWNS;
-import com.rae.crowns.api.flow.client.FlowParticleData;
+import com.rae.flow.client.FlowParticleData;
 import com.simibubi.create.foundation.particle.ICustomParticleData;
 import net.createmod.catnip.lang.Lang;
 import net.minecraft.core.particles.ParticleOptions;

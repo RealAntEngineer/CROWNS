@@ -1,7 +1,7 @@
 package com.rae.crowns.content.thermodynamics.compressor;
 
-import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
-import com.rae.crowns.api.transformations.WaterAsRealGazTransformationHelper;
+import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
+import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.BlockEntityInit;
 import com.rae.crowns.init.DataComponentsInit;
@@ -18,13 +18,10 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 

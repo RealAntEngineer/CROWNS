@@ -1,10 +1,8 @@
-package com.rae.crowns.api.flow.commun;
+package com.rae.flow.commun;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.rae.crowns.api.flow.client.FlowParticleData;
-import com.rae.crowns.api.thermal_utilities.SpecificRealGazState;
 import io.netty.buffer.ByteBuf;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.createmod.catnip.theme.Color;
@@ -12,7 +10,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
