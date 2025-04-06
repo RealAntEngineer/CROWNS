@@ -1,14 +1,10 @@
 {
   "replace": false,
   "values": [
-    "crowns:uranium_ore",
-    "crowns:deepslate_uranium_ore",
-    "crowns:turbine_stage",
     "crowns:fuel_assembly",
     "crowns:heat_exchanger",
     "crowns:steam_input",
     "crowns:steam_collector",
     "crowns:compressor"
-
   ]
 }
