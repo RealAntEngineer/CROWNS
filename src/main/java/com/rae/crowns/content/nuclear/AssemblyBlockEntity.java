@@ -122,8 +122,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
             temperature += power/C;
 
-            if (temperature > 3000) {
-                if (power > 1000000) {
+            if (temperature > 3500) {
+                if (power > 100000000) {
                     explosion(pos);
                 } else {
                     meltdown(pos);

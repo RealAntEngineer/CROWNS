@@ -70,7 +70,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     //it's the base.
     private float getCombinedStress() {
         if (level == null) return 0;
-        return speed==0?0:power/speed;// ? it's weird to do that but...
+        return speed==0?0:Math.abs(power/speed);// ? it's weird to do that but...
     }
 
     public float pressureRatio() {
@@ -163,7 +163,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
                     sendData();
             }
             SpecificRealGazState inputState =  INPUT_WATER_TANK.getState();
-            FluidStack water = INPUT_WATER_TANK.drain((int) speed, IFluidHandler.FluidAction.SIMULATE);
+            FluidStack water = INPUT_WATER_TANK.drain((int) Math.abs(speed), IFluidHandler.FluidAction.SIMULATE);
             if(!water.isEmpty()) {
                 SpecificRealGazState outputState = WaterAsRealGazTransformationHelper.standardCompression(inputState, pressureRatio());
                 power = (int) (outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount()/ Constants.whatSU;
@@ -181,11 +181,6 @@ public class CompressorBlockEntity extends KineticBlockEntity {
                 notifyUpdate();
             }
         }
-    }
-    @Override
-    public void lazyTick() {
-        super.lazyTick();
-
     }
 
 }
