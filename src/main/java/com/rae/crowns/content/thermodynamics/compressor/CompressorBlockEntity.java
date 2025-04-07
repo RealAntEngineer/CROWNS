@@ -2,6 +2,9 @@ package com.rae.crowns.content.thermodynamics.compressor;
 
 import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
 import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
+import com.rae.colony_api.units.Pressure;
+import com.rae.colony_api.units.Temperature;
+import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.BlockEntityInit;
 import com.rae.crowns.init.DataComponentsInit;
@@ -9,6 +12,7 @@ import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.content.kinetics.KineticNetwork;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import com.simibubi.create.foundation.utility.CreateLang;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -62,7 +66,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     //it's the base.
     private float getCombinedStress() {
         if (level == null) return 0;
-        return speed==0?0:power/speed;// ? it's weird to do that but...
+        return speed==0?0:Math.abs(power/speed);// ? it's weird to do that but...
     }
     //TODO use a config
     public float pressureRatio() {
@@ -90,8 +94,28 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     }
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        containedFluidTooltip(tooltip, isPlayerSneaking, INPUT_WATER_TANK);
-        containedFluidTooltip(tooltip, isPlayerSneaking, OUTPUT_WATER_TANK);
+        super.addToGoggleTooltip(tooltip,isPlayerSneaking);
+        Temperature temperatureUnit = CROWNSConfigs.CLIENT.units.temperature.get();
+        Pressure pressureUnit = CROWNSConfigs.CLIENT.units.pressure.get();
+        SpecificRealGazState inputState = INPUT_WATER_TANK.getState();
+        CreateLang.builder().add(
+                    Component.literal("input : ").append(
+                        Component.literal(" T = " + (int) temperatureUnit.convert(inputState.temperature()) + temperatureUnit.getSymbol()+ " | ").append(
+                                        Component.literal(String.format("P = %.2f %s | ", pressureUnit.convert(inputState.pressure()), pressureUnit.getSymbol()))                                )
+                                .append(
+                                        Component.literal("x = " +(int) (inputState.vaporQuality() *100) + "%")
+                                )))
+                .forGoggles(tooltip, 1);
+        SpecificRealGazState outputState = OUTPUT_WATER_TANK.getState();
+        CreateLang.builder().add(
+                Component.literal("output : ").append(
+
+                                Component.literal(" T = " + (int) temperatureUnit.convert(outputState.temperature()) + temperatureUnit.getSymbol()+ " | ").append(
+                                        Component.literal(String.format("P = %.2f %s | ", pressureUnit.convert(outputState.pressure()), pressureUnit.getSymbol()))                                )
+                                .append(
+                                        Component.literal("x = " +(int) (outputState.vaporQuality() *100) + "%")
+                                )))
+                .forGoggles(tooltip, 1);
         return true;
     }
     @Override
@@ -142,7 +166,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
                     sendData();
             }
             SpecificRealGazState inputState =  INPUT_WATER_TANK.getState();
-            FluidStack water = INPUT_WATER_TANK.drain((int) speed, IFluidHandler.FluidAction.SIMULATE);
+            FluidStack water = INPUT_WATER_TANK.drain((int) Math.abs(speed), IFluidHandler.FluidAction.SIMULATE);
             if(!water.isEmpty()) {
                 SpecificRealGazState outputState = WaterAsRealGazTransformationHelper.standardCompression(inputState, pressureRatio());
                 power = (outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount();
@@ -157,11 +181,6 @@ public class CompressorBlockEntity extends KineticBlockEntity {
                 notifyUpdate();
             }
         }
-    }
-    @Override
-    public void lazyTick() {
-        super.lazyTick();
-
     }
 
 }

@@ -9,6 +9,7 @@
     "BlazeBurnerMixin",
     "FluidStackMixin",
     "FluidTankMixin",
+    "FluidTransportBehaviourMixin",
     "LangMixin"
   ],
   "client": [
