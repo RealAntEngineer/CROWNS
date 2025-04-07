@@ -5,9 +5,9 @@ import net.createmod.catnip.config.ConfigBase;
 import org.jetbrains.annotations.NotNull;
 
 public class CROWNSConduction extends ConfigBase {
-    public final ConfigFloat heatExchangerExternal = f(10000,0,"heatExchangerExternal", Comments.heatExchangerExternal);
-    public final ConfigFloat heatExchangerInternal = f(1000,0,"heatExchangerInternal", Comments.heatExchangerInternal);
-    public final ConfigFloat assemblyBlock = f(10000,0,"assemblyBlock", Comments.assemblyBlock);
+    public final ConfigFloat heatExchangerExternal = f(50000,0,"heatExchangerExternal", Comments.heatExchangerExternal);
+    public final ConfigFloat heatExchangerInternal = f(50000,0,"heatExchangerInternal", Comments.heatExchangerInternal);
+    public final ConfigFloat assemblyBlock = f(50000,0,"assemblyBlock", Comments.assemblyBlock);
     @Override
     public @NotNull String getName() {
         return "conduction";

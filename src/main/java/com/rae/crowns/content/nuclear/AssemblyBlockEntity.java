@@ -139,7 +139,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
                 }
             }
-            moreOptimizedImpactEnv(pos,level,CROWNSConfigs.SERVER.nuclear.assemblyRange.get());
+            moreOptimizedImpactEnv(pos,level,CROWNSConfigs.SERVER.nuclear.radiationRange.get());
             conductTemperature(pos,level);
             notifyUpdate();
         }

@@ -5,7 +5,7 @@ import net.createmod.catnip.config.ConfigBase;
 
 public class CROWNSNuclear extends ConfigBase {
     public final ConfigBase.ConfigFloat realismCoefficient = f(5000000,0,"realismCoef", Comments.realismCoef);
-    public final ConfigBase.ConfigFloat assemblyRange = f(3,0,"assemblyRange", Comments.assemblyRange);
+    public final ConfigBase.ConfigFloat radiationRange = f(4,0,"radiationRange", Comments.radiationRange);
 
     @Override
     public String getName() {
@@ -13,7 +13,7 @@ public class CROWNSNuclear extends ConfigBase {
     }
     private static class Comments {
         static String realismCoef ="make reactor be faster";
-        static String assemblyRange ="the maximum distance for radiation influence on fission, the bigger the range," +
+        static String radiationRange ="the maximum distance for radiation influence on fission, the bigger the range," +
                 "the better big reactor will perform. Huge performance impact don't make it higher than 10";
 
     }
