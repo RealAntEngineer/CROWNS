@@ -3,14 +3,16 @@
   "minVersion": "0.8",
   "priority": 900,
   "package": "com.rae.crowns.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "refmap": "crowns.refmap.json",
+  "plugin": "com.rae.crowns.mixin.CROWNSMixinPlugin",
   "mixins": [
     "BlazeBurnerMixin",
     "FluidStackMixin",
     "FluidTankMixin",
     "FluidTransportBehaviourMixin",
-    "LangMixin"
+    "LangMixin",
+    "ServerLevelMixin"
   ],
   "client": [
   ],

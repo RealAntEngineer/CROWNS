@@ -1,7 +1,7 @@
 package com.rae.crowns;
 
 import com.rae.crowns.content.ponder.CROWNSPonderPlugin;
-import com.rae.crowns.init.ParticleTypeInit;
+import com.rae.crowns.init.client.ParticleTypeInit;
 import net.createmod.ponder.foundation.PonderIndex;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;

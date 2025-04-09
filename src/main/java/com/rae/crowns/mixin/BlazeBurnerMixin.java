@@ -9,9 +9,9 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(BlazeBurnerBlockEntity.class)
 public abstract class BlazeBurnerMixin implements IHaveTemperature {
 
-    @Shadow protected abstract BlazeBurnerBlock.HeatLevel getHeatLevel();
+    @Shadow(remap = false) protected abstract BlazeBurnerBlock.HeatLevel getHeatLevel();
 
-    @Shadow public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
+    @Shadow(remap = false) public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
 
     @Override
     public float getThermalCapacity() {

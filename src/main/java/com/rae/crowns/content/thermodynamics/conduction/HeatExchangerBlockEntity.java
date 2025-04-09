@@ -3,8 +3,8 @@ package com.rae.crowns.content.thermodynamics.conduction;
 import com.rae.colony_api.units.Temperature;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
-import com.rae.crowns.init.BlockEntityInit;
-import com.rae.crowns.init.BlockInit;
+import com.rae.crowns.init.misc.BlockEntityInit;
+import com.rae.crowns.init.misc.BlockInit;
 
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.fluids.transfer.FluidManipulationBehaviour;

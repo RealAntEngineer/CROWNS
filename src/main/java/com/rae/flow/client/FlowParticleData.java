@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.rae.flow.commun.FlowLine;
-import com.rae.crowns.init.ParticleTypeInit;
+import com.rae.crowns.init.client.ParticleTypeInit;
 import com.simibubi.create.foundation.particle.ICustomParticleDataWithSprite;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.client.particle.ParticleEngine;

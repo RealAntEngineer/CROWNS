@@ -3,13 +3,18 @@ package com.rae.crowns;
 import com.mojang.logging.LogUtils;
 import com.rae.colony_api.data.managers.FloatMapDataLoader;
 import com.rae.crowns.config.CROWNSConfigs;
-import com.rae.crowns.init.*;
+import com.rae.crowns.init.data.AttachementTypeInit;
+import com.rae.crowns.init.data.EntityDataSerializersInit;
+import com.rae.crowns.init.client.PartialModelInit;
+import com.rae.crowns.init.client.ParticleTypeInit;
+import com.rae.crowns.init.misc.*;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.bus.api.IEventBus;
@@ -28,8 +33,15 @@ public class CROWNS {
     public static final CreateRegistrate REGISTRATE =
             CreateRegistrate.create(MODID)
             .defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
-    public static final FloatMapDataLoader<Block> BLOCK_TEMPERATURES = new FloatMapDataLoader<>(MODID,"block_temperatures", Registries.BLOCK);
-    public static final FloatMapDataLoader<Fluid> FLUID_TEMPERATURES = new FloatMapDataLoader<>(MODID,"fluid_temperatures", Registries.FLUID);
+    public static final FloatMapDataLoader<Block> BLOCK_TEMPERATURES = new FloatMapDataLoader<>(MODID,"blocks/temperatures", Registries.BLOCK);
+    public static final FloatMapDataLoader<Block> BLOCK_CONDUCTION = new FloatMapDataLoader<>(MODID,"blocks/conduction", Registries.BLOCK);
+    public static final FloatMapDataLoader<Block> BLOCK_CAPACITY = new FloatMapDataLoader<>(MODID,"blocks/capacity", Registries.BLOCK);
+    public static final FloatMapDataLoader<Fluid> FLUID_TEMPERATURES = new FloatMapDataLoader<>(MODID,"fluids/temperatures", Registries.FLUID);
+    public static final FloatMapDataLoader<Fluid> FLUID_CONDUCTION = new FloatMapDataLoader<>(MODID,"fluids/conduction", Registries.FLUID);
+    public static final FloatMapDataLoader<Fluid> FLUID_CAPACITY = new FloatMapDataLoader<>(MODID,"fluids/capacity", Registries.FLUID);
+
+
+    public static final FloatMapDataLoader<Biome> BIOME_TEMPERATURES = new FloatMapDataLoader<>(MODID,"biomes/temperatures", Registries.BIOME);
 
 
     public CROWNS(IEventBus modEventBus, ModContainer modContainer){
@@ -48,10 +60,12 @@ public class CROWNS {
         ParticleTypeInit.register(modEventBus);
         PartialModelInit.init();
         EntityDataSerializersInit.register(modEventBus);
+        AttachementTypeInit.register(modEventBus);
 
         CROWNSConfigs.registerConfigs(modLoadingContext,modContainer);
         CROWNSContraptionType.prepare();
         //CreativeModeTabsInit.init();
+
 
         forgeEventBus.addListener(CROWNS::onAddReloadListeners);
     }
@@ -59,7 +73,15 @@ public class CROWNS {
     public static void onAddReloadListeners(AddReloadListenerEvent event)
     {
         event.addListener(CROWNS.BLOCK_TEMPERATURES);
+        event.addListener(CROWNS.BLOCK_CAPACITY);
+        event.addListener(CROWNS.BLOCK_CONDUCTION);
+
         event.addListener(CROWNS.FLUID_TEMPERATURES);
+        event.addListener(CROWNS.FLUID_CAPACITY);
+        event.addListener(CROWNS.FLUID_CONDUCTION);
+
+        event.addListener(CROWNS.BIOME_TEMPERATURES);
+
     }
 
     public static ResourceLocation resource(String name) {

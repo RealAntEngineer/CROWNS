@@ -24,6 +24,7 @@ tasks.named('wrapper', Wrapper).configure {
 }
 
 version = mod_version
+
 group = mod_group_id
 
 
@@ -44,6 +45,8 @@ neoForge {
         mappingsVersion = project.parchment_mappings_version
         minecraftVersion = project.parchment_minecraft_version
     }
+
+    validateAccessTransformers = true
 
     // This line is optional. Access Transformers are automatically detected
     // accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
@@ -95,6 +98,14 @@ neoForge {
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             logLevel = org.slf4j.event.Level.WARN
+
+            systemProperty 'mixin.dumpTargetOnFailure', 'false'
+
+            systemProperty 'mixin.debug', 'false'
+            systemProperty 'mixin.debug.verify', 'false'
+            systemProperty 'mixin.debug.verbose', 'false'
+            systemProperty 'mixin.env.remapRefMap', 'true'
+
 
         }
     }
@@ -159,9 +170,6 @@ dependencies {
     compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_version}")
     runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}")
     implementation("com.tterrag.registrate:Registrate:${registrate_version}")
-
-    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
-    implementation("io.github.llamalad7:mixinextras-neoforge:0.4.1")
 
     // JEI
     compileOnly("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")

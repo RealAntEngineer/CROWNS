@@ -1,6 +1,6 @@
 package com.rae.crowns.content.nuclear;
 
-import com.rae.crowns.init.TagsInit;
+import com.rae.crowns.init.misc.TagsInit;
 import net.createmod.catnip.data.Couple;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
