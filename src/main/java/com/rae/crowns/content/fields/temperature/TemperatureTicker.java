@@ -1,103 +1,127 @@
 package com.rae.crowns.content.fields.temperature;
 
 import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
-import com.rae.crowns.init.data.AttachementTypeInit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.rae.crowns.content.fields.temperature.TemperatureManager.*;
+import java.util.Map;
+import java.util.Set;
 
 public class TemperatureTicker {
+    public static float DT = 0.25f;
 
-    public static void tick(ServerLevel level) {
-        TemperatureWorldData data = TemperatureManager.get(level);
-        for (ChunkPos chunkPos : data.getLoadedSections().stream()
-                .filter(pos -> level.isAreaLoaded(pos.getWorldPosition(),1))
-                .collect(Collectors.toSet())) {
-            List<TemperatureDataLayer> sections = data.getIfExists(chunkPos);
-            int minSection = level.getChunk(chunkPos.getWorldPosition()).getMinSection();
-            for (int y = minSection; y < level.getChunk(chunkPos.getWorldPosition()).getMaxSection(); y++) {
-                BlockPos base = SectionPos.of(chunkPos,y).origin();
-                TemperatureDataLayer sectionData = sections.get(y - minSection);
-                if (sectionData == null) continue;
 
-                for (int dx = 0; dx < 16; dx++) {
-                    for (int dy = 0; dy < 16; dy++) {
-                        for (int dz = 0; dz < 16; dz++) {
-                            BlockPos pos = base.offset(dx, dy, dz);
-                            BlockEntity selfBe = level.getBlockEntity(pos);
-                            float defaultTemp = getDefaultTemperature(level, pos);
-                            float selfTemp = sectionData.get(dx, dy, dz);
+    public static void tick(Set<SectionPos> loadedSections, TemperatureWorldData data) {
+        System.out.println("ticking for "+loadedSections.size()+" sections");
+        System.out.println("of "+data.getLoadedSections().size()+"in memory");
+        List<Vec3i> toDump = new ArrayList<>();
+        for (Map.Entry<Vec3i,IHaveTemperature> entries:data.getDynamicData().entrySet()){
+            Vec3i pos = entries.getKey();
+            IHaveTemperature value = entries.getValue();
+            if (value instanceof BlockEntity blockEntity){
+                if (blockEntity.isRemoved()){
+                    toDump.add(pos);
+                    continue;
+                }
+            }
 
-                            float selfCond;
-                            float selfCap;
+            SectionPos sectionPos = SectionPos.of((BlockPos) pos);
+            TemperatureDataLayer temperatureData = data.getTemperature(sectionPos);
+            ConductionDataLayer conductionData = data.getConduction(sectionPos);
+            ResilienceDataLayer resilienceData = data.getResilience(sectionPos);
 
-                            if (selfBe instanceof IHaveTemperature iSelf) {
-                                selfTemp = iSelf.getTemperature();
-                                selfCond = iSelf.getThermalConductivity();
-                                selfCap = iSelf.getThermalCapacity();
+            if (temperatureData == null || conductionData == null || resilienceData == null) continue;
+            temperatureData.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, value.getTemperature());
+            temperatureData.setDefault(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, value.getTemperature());
+
+            conductionData.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, value.getThermalConductivity());
+            data.setDirty(sectionPos);
+        }
+        for (Vec3i pos : toDump){
+            data.getDynamicData().remove(pos);
+        }
+        for (SectionPos sectionPos : loadedSections) {
+            BlockPos base = sectionPos.origin();
+            TemperatureDataLayer temperatureData = data.getTemperature(sectionPos);
+            ConductionDataLayer conductionData = data.getConduction(sectionPos);
+            ResilienceDataLayer resilienceData = data.getResilience(sectionPos);
+
+
+            if (temperatureData == null || conductionData == null || resilienceData == null) continue;
+            //TODO allow for conduction past the frontiers.
+            for (int x = 0; x < 16; x++) {
+                for (int y = 0; y < 16; y++) {
+                    for (int z = 0; z < 16; z++) {
+                        BlockPos pos = base.offset(x, y, z);
+                        float selfDefaultTemp = temperatureData.getDefault(x, y, z);
+                        float selfTemp = temperatureData.get(x, y, z);
+                        float selfCond = conductionData.get(x, y, z) * DT;//nope we are going to do it with omega.
+                        float weightedMean = 0;
+                        float weights = 0;
+                        float maxTemp = selfDefaultTemp;
+                        float minTemp = selfDefaultTemp;
+                        for (Direction dir : Direction.values()) {
+                            int dx = dir.getStepX(), dy = dir.getStepY(), dz = dir.getStepZ();
+                            if (0 < x + dx && x + dx < 16 && 0 < y + dy && y + dy < 16 && 0 < z + dz && z + dz < 16) {
+                                float neighborTemp = temperatureData.get(x + dx, y + dy, z + dz);
+                                float neighborDefaultTemp = temperatureData.getDefault(x + dx, y + dy, z + dz);
+                                maxTemp = Math.max(neighborDefaultTemp, maxTemp);
+                                minTemp = Math.min(neighborDefaultTemp, minTemp);
+                                float neighborCond = conductionData.get(x + dx, y + dy, z + dz) * DT;
+
+                                weightedMean += neighborTemp * (neighborCond * selfCond) / (neighborCond + selfCond);
+                                weights += (neighborCond * selfCond) / (neighborCond + selfCond);
                             } else {
-                                selfCond = getBlockConduction(level, pos);
-                                selfCap = getBlockCapacity(level, pos);
-                            }
-                            float transmited = 0;
-                            for (Direction dir : Direction.values()) {
+                                // Cross-section neighbor
                                 BlockPos neighborPos = pos.relative(dir);
-                                BlockEntity neighborBe = level.getBlockEntity(neighborPos);
+                                SectionPos neighborSection = SectionPos.of(neighborPos);
+                                TemperatureDataLayer neighborTempData = data.getTemperature(neighborSection);
+                                ConductionDataLayer neighborCondData = data.getConduction(neighborSection);
 
-                                float neighborTemp, neighborCond;
+                                if (neighborTempData != null && neighborCondData != null) {
+                                    int lx = neighborPos.getX() & 15;
+                                    int ly = neighborPos.getY() & 15;
+                                    int lz = neighborPos.getZ() & 15;
 
-                                if (neighborBe instanceof IHaveTemperature iNeighbor) {
-                                    neighborTemp = (short) iNeighbor.getTemperature();
-                                    neighborCond = iNeighbor.getThermalConductivity();
+                                    float neighborTemp = neighborTempData.get(lx, ly, lz);
+                                    float neighborCond = neighborCondData.get(lx, ly, lz) * DT;
 
-                                } else {
-                                    // Fallback conduction using float map
-                                    neighborTemp = sectionData.get(dx, dy, dz);  //todo set the fallback on load : getFallbackTemperature(level, neighborPos);
-                                    neighborCond = getBlockConduction(level, neighborPos);
-                                }
-                                if (neighborTemp != selfTemp) {
-                                    transmited += conductTemperature(neighborCond, selfCond, neighborTemp, selfTemp);
+                                    maxTemp = Math.max(neighborTemp, maxTemp);
+                                    minTemp = Math.min(neighborTemp, minTemp);
+                                    float blendWeight = (neighborCond * selfCond) / (neighborCond + selfCond);
+                                    weightedMean += neighborTemp * blendWeight;
+                                    weights += blendWeight;
                                 }
                             }
-                            float lossRate = 0.01f; // tweak this constant
-                            float totalPower = transmited - (float) ((Math.pow(selfTemp, 4) - Math.pow(defaultTemp, 4)) * lossRate);
-                            if (totalPower != 0) {
-                                if (selfBe instanceof IHaveTemperature iSelf) {
-                                    iSelf.addTemperature(totalPower / selfCap);
-                                }
-                                sectionData.set(dx, dy, dz, selfTemp - totalPower / selfCap);
 
+                        }
+                        float resilience = resilienceData.get(x, y, z);
+                        float newTemp = Math.clamp((selfDefaultTemp - selfTemp) * resilienceData.get(x, y, z) + weightedMean / weights, minTemp, maxTemp);
+                        if (newTemp != selfDefaultTemp) {
+                            if (data.dynamicContains(pos)) {
+                                IHaveTemperature be = data.getDynamic(pos);
+                                be.addTemperature(newTemp - selfTemp);
                             }
+                            temperatureData.set(x, y, z, newTemp);
+                            data.setDirty(sectionPos);
+
+                            if (x == 0) data.setDirty(SectionPos.of(pos.west()));
+                            if (x == 15) data.setDirty(SectionPos.of(pos.east()));
+                            if (y == 0) data.setDirty(SectionPos.of(pos.below()));
+                            if (y == 15) data.setDirty(SectionPos.of(pos.above()));
+                            if (z == 0) data.setDirty(SectionPos.of(pos.north()));
+                            if (z == 15) data.setDirty(SectionPos.of(pos.south()));
+                        } else {
+                            data.setClean(sectionPos);
                         }
                     }
                 }
             }
-            level.getChunk(chunkPos.getWorldPosition()).setData(AttachementTypeInit.CHUNK_TEMPERATURE.get(), sections);
-            level.getChunk(chunkPos.getWorldPosition()).setUnsaved(true);
         }
     }
-
-    private static float conductTemperature(float neighborCond, float selfCond, float neighborTemp, float selfTemp) {
-        float dt = 2f;
-        float transmitted = 0f;
-
-        if (neighborCond != 0 || selfCond != 0) {
-            transmitted = (neighborTemp - selfTemp)
-                    * (selfCond * neighborCond)
-                    / (selfCond + neighborCond) * dt;
-        }
-        return transmitted;
-    }
-
-
 }
-
-

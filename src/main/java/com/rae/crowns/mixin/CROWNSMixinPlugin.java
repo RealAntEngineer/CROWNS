@@ -36,9 +36,6 @@ public class CROWNSMixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-		System.out.println("managed to load CROWNS mixin");
-		System.out.println(targetClassName);
-		System.out.println(mixinClassName);
 	}
 
 }

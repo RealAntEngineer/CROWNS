@@ -11,9 +11,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value = FluidStack.class)
 public class FluidStackMixin {
 
-    @Inject(method = "matches", at = @At(value = "RETURN"),remap = false, cancellable = true)
-    private static void tagIsEqualForState(FluidStack first, FluidStack second, CallbackInfoReturnable<Boolean> cir){
-        if (!cir.getReturnValue()){
+
+    @Inject(method = "isSameFluidSameComponents", at = @At(value = "RETURN"),remap = false, cancellable = true)
+    private static void componentIsEqualForState(FluidStack first, FluidStack second, CallbackInfoReturnable<Boolean> cir) {
+        if (!cir.getReturnValue()) {
 
             // Get component patches
             DataComponentPatch firstPatch = first.copy().getComponentsPatch();
@@ -27,4 +28,5 @@ public class FluidStackMixin {
             cir.setReturnValue(firstPatch.equals(secondPatch));
         }
     }
+
 }

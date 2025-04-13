@@ -1,12 +1,4 @@
 
-buildscript {
-    repositories {
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public' }
-    }
-    dependencies {
-        classpath "org.spongepowered:mixingradle:${mixingradle_version}"
-    }
-}
 plugins {
     id 'idea'
     id 'java-library'
@@ -99,13 +91,6 @@ neoForge {
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             logLevel = org.slf4j.event.Level.WARN
 
-            systemProperty 'mixin.dumpTargetOnFailure', 'false'
-
-            systemProperty 'mixin.debug', 'false'
-            systemProperty 'mixin.debug.verify', 'false'
-            systemProperty 'mixin.debug.verbose', 'false'
-            systemProperty 'mixin.env.remapRefMap', 'true'
-
 
         }
     }
@@ -176,7 +161,6 @@ dependencies {
     compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
     runtimeOnly("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
 
-    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

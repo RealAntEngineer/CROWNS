@@ -1,6 +1,8 @@
 package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.CROWNS;
+import com.rae.crowns.content.fields.temperature.TemperatureManager;
+import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
 import com.rae.colony_api.units.Temperature;
 import com.rae.crowns.config.CROWNSConfigs;
@@ -16,6 +18,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -47,7 +50,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public float temperature = 300;
     public float backgroundActivity = 12*3;//In MBq ( giga becquerels ) uranium is 12 Mbq per tonnes
     public float nbrOfFission;//nbr of fission/t
-    public float C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
+    public int C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
 
     public float additionalNeutronsAbsorbed = 0;
     public HashMap<ResourceLocation,Float> radioactiveElements = new HashMap<>(
@@ -90,6 +93,16 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+    }
+    @Override
+    public void initialize() {
+        super.initialize();
+        if (level instanceof ServerLevel serverLevel) {
+            TemperatureWorldData data = TemperatureManager.get(serverLevel);
+            if (data != null) {
+                data.putDynamic(getBlockPos(), this);
+            }
+        }
     }
     @Override
     public void tick() {
@@ -141,7 +154,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 }
             }
             moreOptimizedImpactEnv(pos,level,CROWNSConfigs.SERVER.nuclear.radiationRange.get());
-            conductTemperature(pos,level);
+            //conductTemperature(pos,level);
             notifyUpdate();
         }
     }
@@ -197,13 +210,13 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     @Override
-    public float getThermalCapacity() {
+    public int getThermalCapacity() {
         return C;
     }
     //transmition coef
     @Override
-    public float getThermalConductivity() {
-        return CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
+    public int getThermalConductivity() {
+        return (int) CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
     }
 
     @Override
@@ -213,7 +226,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public void addTemperature(float dT) {
-        temperature += dT;
+        temperature = Math.max(temperature+dT,0);;
     }
 
     @Override

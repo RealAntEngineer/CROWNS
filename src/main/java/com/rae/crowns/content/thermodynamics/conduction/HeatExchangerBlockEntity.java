@@ -2,6 +2,8 @@ package com.rae.crowns.content.thermodynamics.conduction;
 
 import com.rae.colony_api.units.Temperature;
 import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.crowns.content.fields.temperature.TemperatureManager;
+import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.misc.BlockEntityInit;
 import com.rae.crowns.init.misc.BlockInit;
@@ -18,6 +20,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -35,7 +38,7 @@ import java.util.Set;
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
     //transform the IHaveTemperature interface into a behavior
     // for now if T > 373°K P = 20 bar.
-    public float C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
+    public int C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
     public float temperature = 300;
 
     //for later maybe ? to make the code simpler to understand
@@ -43,6 +46,12 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         @Override
         public boolean isFluidValid(FluidStack stack) {
             return stack.getFluid().is(FluidTags.WATER);
+        }
+
+        @Override
+        protected void onContentsChanged() {
+            super.onContentsChanged();
+            setChanged();
         }
     };
 
@@ -53,6 +62,18 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
     }
+
+    @Override
+    public void initialize() {
+        super.initialize();
+        if (level instanceof ServerLevel serverLevel) {
+            TemperatureWorldData data = TemperatureManager.get(serverLevel);
+            if (data != null) {
+                data.putDynamic(getBlockPos(), this);
+            }
+        }
+    }
+
     @Override
     public void sendData() {
         if (syncCooldown > 0) {
@@ -103,27 +124,32 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     public void lazyTick() {
         //What the fuck is going on here ?
         super.lazyTick();
-        conductTemperature(getBlockPos(),level, 0.5f);
+        //conductTemperature(getBlockPos(),level, 0.5f);
 
         //make the calculus, so it's the real nbr or make it in stage ( like ten stage )
-        float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) / 2;
-        WATER_TANK.heat(power);
-        this.addTemperature(
-                -power
-                        / this.getThermalCapacity());
+        //internal conduction
+        //TODO make this correctly, it's not
+        if (!WATER_TANK.isEmpty()) {
+            float dT = 0.5f;
+            float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature())*dT;
+            WATER_TANK.heat(power);
+            this.addTemperature(
+                    -power
+                            / this.getThermalCapacity());
+        }
         // the fact that it changes too often make it bugged ->
         // maybe if it's directly in  the fluidTransport behaviour
         sendData();
     }
 
     @Override
-    public float getThermalCapacity() {
+    public int getThermalCapacity() {
         return C;
     }
 
     @Override
-    public float getThermalConductivity() {
-        return CROWNSConfigs.SERVER.conduction.heatExchangerExternal.getF();
+    public int getThermalConductivity() {
+        return (int) CROWNSConfigs.SERVER.conduction.heatExchangerExternal.getF();
     }
     public float getInternalConductivity() {
         return CROWNSConfigs.SERVER.conduction.heatExchangerInternal.getF();
@@ -142,7 +168,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         if (Float.isNaN(temperature)){
             temperature = 300;
         }
-        temperature+=dT;
+        temperature=Math.max(temperature+dT,0);
     }
     @Override
     protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {

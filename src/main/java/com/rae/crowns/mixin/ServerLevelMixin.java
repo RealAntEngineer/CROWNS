@@ -29,11 +29,10 @@ public abstract class ServerLevelMixin extends Level {
         super(p_270739_, p_270683_, p_270200_, p_270240_, p_270692_, p_270904_, p_270470_, p_270248_, p_270466_);
     }
 
-    @Inject(method = "onBlockStateChange", at = @At("HEAD"),remap = false)
+    @Inject(method = "onBlockStateChange", at = @At("HEAD"))
     private void onSetBlockState(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo ci) {
-        System.out.println("hello guy ?");
-        if (!oldState.equals(newState)) {
+        /*if (!oldState.equals(newState)) {
             TemperatureManager.get(getLevel()).set(pos, TemperatureManager.getDefaultTemperature(getLevel(),pos));
-        }
+        }*/
     }
 }
