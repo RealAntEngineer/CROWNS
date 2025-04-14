@@ -106,10 +106,10 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                 HeatExchangerBlockEntity be = (HeatExchangerBlockEntity) level.getBlockEntity(outPos);
                 assert be != null;
                 FluidTank handler = (FluidTank)
-                        level.getCapability(Capabilities.FluidHandler.BLOCK,getBlockPos(),getBlockState().getValue(HeatExchangerBlock.FACING)
+                        level.getCapability(Capabilities.FluidHandler.BLOCK,outPos,getBlockState().getValue(HeatExchangerBlock.FACING)
                 );
                 if (handler == null) handler = new FluidTank(0);
-                if (handler.getFluidAmount()< (float) WATER_TANK.getFluidAmount()){//if input of following handler is smaller than ours
+                if (handler.getFluidAmount() < (float) WATER_TANK.getFluidAmount()){//if input of following handler is smaller than ours
                     FluidStack stack =  WATER_TANK.getFluid().copy();
                     stack.setAmount(WATER_TANK.getFluidAmount() - handler.getFluidAmount());
                     WATER_TANK.drain(handler.fill(stack, IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE);

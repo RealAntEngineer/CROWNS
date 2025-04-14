@@ -16,16 +16,14 @@ public class FluidStackMixin {
     private static void componentIsEqualForState(FluidStack first, FluidStack second, CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValue()) {
 
-            // Get component patches
-            DataComponentPatch firstPatch = first.copy().getComponentsPatch();
-            DataComponentPatch secondPatch = second.copy().getComponentsPatch();
+            // Get component patches without realGazState
+            DataComponentPatch firstPatch = first.copy().getComponentsPatch().forget((p) ->
+                    p.equals(DataComponentsInit.REAL_GAZ_STATE));
+            DataComponentPatch secondPatch = second.copy().getComponentsPatch().forget((p) ->
+                    p.equals(DataComponentsInit.REAL_GAZ_STATE));
 
-            // Remove the realGazState component
-            firstPatch.forget((p) -> p.equals(DataComponentsInit.REAL_GAZ_STATE));
-            secondPatch.forget((p) -> p.equals(DataComponentsInit.REAL_GAZ_STATE));
-
-
-            cir.setReturnValue(firstPatch.equals(secondPatch));
+            boolean flag = firstPatch.equals(secondPatch);
+            cir.setReturnValue(flag && first.is(second.getFluid()));
         }
     }
 

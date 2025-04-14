@@ -17,8 +17,8 @@ public class TemperatureTicker {
 
 
     public static void tick(Set<SectionPos> loadedSections, TemperatureWorldData data) {
-        System.out.println("ticking for "+loadedSections.size()+" sections");
-        System.out.println("of "+data.getLoadedSections().size()+"in memory");
+        //System.out.println("ticking for "+loadedSections.size()+" sections");
+        //System.out.println("of "+data.getLoadedSections().size()+"in memory");
         List<Vec3i> toDump = new ArrayList<>();
         for (Map.Entry<Vec3i,IHaveTemperature> entries:data.getDynamicData().entrySet()){
             Vec3i pos = entries.getKey();

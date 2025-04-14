@@ -18,11 +18,11 @@ import static com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationH
 
 @Mixin(value = FluidTank.class)
 public abstract class FluidTankMixin {
-    @Shadow(remap = false) @NotNull protected FluidStack fluid;
+    @Shadow @NotNull protected FluidStack fluid;
 
-    @Shadow(remap = false) public abstract int getFluidAmount();
+    @Shadow public abstract int getFluidAmount();
 
-    @Inject(method = "fill", at = @At(value = "HEAD"),remap = false)
+    @Inject(method = "fill", at = @At(value = "RETURN"))
     public void mergeStateNBT(FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
         if (!fluid.isEmpty()) {
             SpecificRealGazState newState = resource.get(DataComponentsInit.REAL_GAZ_STATE);

@@ -52,12 +52,12 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
         // Do not provide a lone pipe connection with its own flow input
         PipeConnection singleSource = null;
 
-//		if (onClient) {
-//			connections.forEach(connection -> {
-//				connection.visualizeFlow(pos);
-//				connection.visualizePressure(pos);
-//			});
-//		}
+        //if (!onServer) {
+		//	connections.forEach(connection -> {
+		//		connection.visualizeFlow(pos);
+		//		connection.visualizePressure(pos);
+		//	});
+		//}
 
         if (phase == FluidTransportBehaviour.UpdatePhase.WAIT_FOR_PUMPS) {
             phase = FluidTransportBehaviour.UpdatePhase.FLIP_FLOWS;
