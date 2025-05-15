@@ -19,6 +19,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import java.util.Arrays;
 import java.util.List;
 
 @MethodsReturnNonnullByDefault
@@ -109,4 +110,7 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
 	}
 
 
+	public StateFluidTank getTank() {
+		return WATER_TANK;
+	}
 }

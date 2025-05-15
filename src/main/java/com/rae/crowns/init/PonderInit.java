@@ -17,7 +17,7 @@ public class PonderInit {
 
 
 		HELPER.forComponents(BlockInit.FUEL_ASSEMBLY,BlockInit.HEAT_EXCHANGER).addStoryBoard("nuclear/reactor", NuclearScene::reactor);
-		HELPER.forComponents(BlockInit.STEAM_INPUT,BlockInit.TURBINE_STAGE).addStoryBoard("thermal/turbine", ThermodynamicsScene::turbine);
+		HELPER.forComponents(BlockInit.STEAM_INPUT, BlockInit.STEAM_COLLECTOR,BlockInit.TURBINE_STAGE).addStoryBoard("thermal/turbine", ThermodynamicsScene::turbine);
 
 	}
 }

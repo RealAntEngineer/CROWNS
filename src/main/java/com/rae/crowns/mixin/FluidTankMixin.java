@@ -3,6 +3,8 @@ package com.rae.crowns.mixin;
 import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
 import com.rae.crowns.init.DataComponentsInit;
 
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
@@ -18,23 +20,22 @@ import static com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationH
 
 @Mixin(value = FluidTank.class)
 public abstract class FluidTankMixin {
-    @Shadow(remap = false) @NotNull protected FluidStack fluid;
+    @Shadow @NotNull protected FluidStack fluid;
 
-    @Shadow(remap = false) public abstract int getFluidAmount();
+    @Shadow public abstract int getFluidAmount();
 
-    @Inject(method = "fill", at = @At(value = "HEAD"),remap = false)
+    @Inject(method = "fill", at = @At(value = "RETURN"))
     public void mergeStateNBT(FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
-        if (!fluid.isEmpty()) {
-            SpecificRealGazState newState = resource.get(DataComponentsInit.REAL_GAZ_STATE);
-            if (newState == null) {
-                newState = DEFAULT_STATE;
-            }
-            SpecificRealGazState oldState= fluid.get(DataComponentsInit.REAL_GAZ_STATE);
-            if (oldState == null) {
-                oldState = DEFAULT_STATE;
-            }
-
-            fluid.set(DataComponentsInit.REAL_GAZ_STATE, mix(newState, resource.getAmount(), oldState, getFluidAmount()));
-        }
+           if (resource.is(FluidTags.WATER)) {
+               SpecificRealGazState newState = resource.get(DataComponentsInit.REAL_GAZ_STATE);
+               if (newState == null) {
+                   newState = DEFAULT_STATE;
+               }
+               SpecificRealGazState oldState = fluid.isEmpty()?DEFAULT_STATE:fluid.get(DataComponentsInit.REAL_GAZ_STATE);
+               if (oldState == null) {
+                   oldState = DEFAULT_STATE;
+               }
+               fluid.set(DataComponentsInit.REAL_GAZ_STATE, mix(newState, resource.getAmount(), oldState, getFluidAmount()));
+           }
     }
 }

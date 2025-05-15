@@ -160,15 +160,10 @@ dependencies {
     runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}")
     implementation("com.tterrag.registrate:Registrate:${registrate_version}")
 
-    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
-    implementation("io.github.llamalad7:mixinextras-neoforge:0.4.1")
-
     // JEI
     compileOnly("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
     runtimeOnly("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
-
-    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
@@ -223,4 +218,36 @@ idea {
         downloadSources = true
         downloadJavadoc = true
     }
+}
+
+tasks.register("generateTodoReport") {
+    description = "Scans source files and generates a TODO.md file."
+    group = "documentation"
+}.configure {
+        def sourceDirs = [
+                file("src/main/java"),
+                file("src/main/resources"),
+                file("src/main/kotlin")
+        ]
+
+        def outputFile = file("TODO.md")
+        outputFile.parentFile.mkdirs()
+        outputFile.text = "# TODO Report\n\n"
+
+        sourceDirs.each { dir ->
+            if (!dir.exists()) return
+            fileTree(dir).matching {
+                include '**/*.java', '**/*.kt', '**/*.scala', '**/*.txt', '**/*.mcfunction'
+            }.each { file ->
+                def lines = file.readLines()
+                lines.eachWithIndex { line, i ->
+                    if (line.contains("TODO")) {
+                        def relativePath = file.path.replaceFirst(/^.*[\\\/]src[\\\/]main/, 'src/main')
+                        outputFile.append("- [${relativePath}:${i + 1}] ${line.trim()}\n")                    }
+                }
+            }
+        }
+
+        println "Generated ${outputFile.path} with collected TODOs."
+
 }

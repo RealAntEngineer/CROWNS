@@ -11,20 +11,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value = FluidStack.class)
 public class FluidStackMixin {
 
-    @Inject(method = "matches", at = @At(value = "RETURN"),remap = false, cancellable = true)
-    private static void tagIsEqualForState(FluidStack first, FluidStack second, CallbackInfoReturnable<Boolean> cir){
-        if (!cir.getReturnValue()){
 
-            // Get component patches
-            DataComponentPatch firstPatch = first.copy().getComponentsPatch();
-            DataComponentPatch secondPatch = second.copy().getComponentsPatch();
+    @Inject(method = "isSameFluidSameComponents", at = @At(value = "RETURN"),remap = false, cancellable = true)
+    private static void componentIsEqualForState(FluidStack first, FluidStack second, CallbackInfoReturnable<Boolean> cir) {
+        if (!cir.getReturnValue()) {
 
-            // Remove the realGazState component
-            firstPatch.forget((p) -> p.equals(DataComponentsInit.REAL_GAZ_STATE));
-            secondPatch.forget((p) -> p.equals(DataComponentsInit.REAL_GAZ_STATE));
-
-
-            cir.setReturnValue(firstPatch.equals(secondPatch));
+            // Get component patches without realGazState
+            DataComponentPatch firstPatch = first.copy().getComponentsPatch().forget((p) ->
+                    p.equals(DataComponentsInit.REAL_GAZ_STATE));
+            DataComponentPatch secondPatch = second.copy().getComponentsPatch().forget((p) ->
+                    p.equals(DataComponentsInit.REAL_GAZ_STATE));
+            boolean flag = firstPatch.equals(secondPatch);
+            cir.setReturnValue(flag && first.is(second.getFluid()));
         }
     }
 }

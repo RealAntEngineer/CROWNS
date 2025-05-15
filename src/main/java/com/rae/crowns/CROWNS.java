@@ -46,6 +46,7 @@ public class CROWNS {
 
         CreativeModeTabsInit.register(modEventBus);
         ParticleTypeInit.register(modEventBus);
+        DataComponentsInit.register(modEventBus);
         PartialModelInit.init();
         EntityDataSerializersInit.register(modEventBus);
 
