@@ -1,6 +1,6 @@
 package com.rae.crowns.content.nuclear;
 
-import com.rae.crowns.init.TagsInit;
+import com.rae.crowns.init.misc.TagsInit;
 import net.createmod.catnip.data.Couple;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -10,7 +10,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.data.internal.NeoForgeBlockTagsProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +22,33 @@ public interface IAmRadioactiveSource {
      */
     float getRadioactiveActivity();
 
+    double BETA = 0.0065;         // effective delayed neutron fraction
+    double LAMBDA = 0.08;         // decay constant of delayed neutron precursors (1/s)
+    double PROMPT_LIFETIME = 2e-5; // prompt neutron lifetime (s)
+
+    /**
+     * Calculates reactivity (in Δk/k) from two fission count values.
+     *
+     * @param oldFissionCount previous fission count (proportional to n(t))
+     * @param newFissionCount current fission count (proportional to n(t+dt))
+     * @param deltaTime time between the two measurements (in seconds)
+     * @return reactivity in Δk/k
+     */
+    static double computeReactivity(double oldFissionCount, double newFissionCount, double deltaTime) {
+        if (oldFissionCount <= 0 || deltaTime <= 0) {
+            throw new IllegalArgumentException("Fission count and deltaTime must be positive.");
+        }
+
+        // Normalize population
+        double n = newFissionCount;
+        double dn = (newFissionCount - oldFissionCount) / deltaTime;
+
+        // Inverse kinetics (1 delayed neutron group)
+        double reactivity = PROMPT_LIFETIME * (dn / n) +
+                BETA * (1 - 1 / (1 + (1.0 / LAMBDA) * (dn / n)));
+
+        return reactivity;
+    }
     /**
      * make radiation impact the environment
      * @param pos : the center of a block

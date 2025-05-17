@@ -1,10 +1,9 @@
 package com.rae.crowns.mixin;
 
 import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
-import com.rae.crowns.init.DataComponentsInit;
+import com.rae.crowns.init.data.DataComponentsInit;
 
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;

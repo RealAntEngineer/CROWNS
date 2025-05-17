@@ -1,4 +1,4 @@
-package com.rae.crowns.init;
+package com.rae.crowns.init.misc;
 
 import com.rae.crowns.CROWNS;
 import com.simibubi.create.AllTags;

@@ -2,7 +2,7 @@ package com.rae.crowns.content.thermodynamics;
 
 import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
 import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
-import com.rae.crowns.init.DataComponentsInit;
+import com.rae.crowns.init.data.DataComponentsInit;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 
 import net.neoforged.neoforge.fluids.FluidStack;

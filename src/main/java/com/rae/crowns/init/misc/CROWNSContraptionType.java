@@ -1,4 +1,4 @@
-package com.rae.crowns.init;
+package com.rae.crowns.init.misc;
 
 @SuppressWarnings("ALL")
 public class CROWNSContraptionType {

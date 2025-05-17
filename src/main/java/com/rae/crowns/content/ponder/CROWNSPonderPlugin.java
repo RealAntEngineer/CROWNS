@@ -2,7 +2,7 @@ package com.rae.crowns.content.ponder;
 
 
 import com.rae.crowns.CROWNS;
-import com.rae.crowns.init.PonderInit;
+import com.rae.crowns.init.client.PonderInit;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.kinetics.crank.ValveHandleBlock;
 import com.simibubi.create.content.logistics.packagePort.postbox.PostboxBlock;

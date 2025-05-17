@@ -1,6 +1,6 @@
 package com.rae.crowns.content.thermodynamics.compressor;
 
-import com.rae.crowns.init.BlockEntityInit;
+import com.rae.crowns.init.misc.BlockEntityInit;
 import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
 import com.simibubi.create.content.kinetics.simpleRelays.ICogWheel;
 import com.simibubi.create.foundation.block.IBE;

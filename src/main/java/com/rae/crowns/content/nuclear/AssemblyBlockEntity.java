@@ -1,6 +1,7 @@
 package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.CROWNS;
+import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
 import com.rae.colony_api.units.Temperature;
 import com.rae.crowns.config.CROWNSConfigs;
@@ -33,7 +34,7 @@ import java.util.Map;
 import static com.rae.crowns.Constants.barnNa;
 import static com.rae.crowns.Constants.fissionEnergy;
 
-public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
+public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmFissileMaterial, IHaveGoggleInformation {
 
     @Override
     public void sendData() {
@@ -51,6 +52,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     public float temperature = 300;
     public float backgroundActivity = 12*3;//In MBq ( giga becquerels ) uranium is 12 Mbq per tonnes
+    public float oldNbrOfFission;
     public float nbrOfFission;//nbr of fission/t
     public float C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
 
@@ -116,6 +118,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public void lazyTick(){
         if (!level.isClientSide()) {
+            oldNbrOfFission = nbrOfFission;
             nbrOfFission = additionalNeutronsAbsorbed+backgroundActivity; //for now a 100% change of fission : no absorption
             if (Float.isNaN(nbrOfFission)){
                 nbrOfFission = backgroundActivity;
@@ -259,7 +262,10 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         float easeCoef = 1f;//TODO config
         return backgroundActivity+nbrOfFission * 2.5f*easeCoef;
     }
-
+    @Override
+    public float getEffectiveK() {
+        return nbrOfFission/oldNbrOfFission;
+    }
     //to optimise, cost too much on the server
 
     @Override
@@ -289,9 +295,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 .style(ChatFormatting.DARK_GREEN)
                 .forGoggles(tooltip, 1);
 
-        Temperature temperatureUnit = CROWNSConfigs.CLIENT.units.temperature.get();
-        CreateLang.builder().add(Component.literal("T = "+(int) temperatureUnit.convert(temperature)))
-                .add(Component.literal(temperatureUnit.getSymbol()))
+        CROWNSLang.formatTemperature(temperature)
                 .style(ChatFormatting.DARK_RED)
                 .forGoggles(tooltip, 1);
 
@@ -321,4 +325,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         additionalNeutronsAbsorbed += fastAbsorbed + slowAbsorbed;
         return Couple.create(radiationFlux.getFirst()-fastAbsorbed,radiationFlux.getSecond()-slowAbsorbed);
     }
+
+
 }

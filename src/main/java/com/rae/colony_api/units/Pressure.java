@@ -1,26 +1,27 @@
 package com.rae.colony_api.units;
 
-public enum Pressure {
-    PASCALS(1,0, "Pa"),
-    BAR(1f/100000,0,"bar"),
-    ATMOSPHERES(1f/101300,0,"atm"),
-    PSI(1f/6895, 0, "psi");
+import com.rae.crowns.CROWNSLang;
+import net.minecraft.network.chat.Component;
+
+public enum Pressure implements IUnit {
+    PASCALS(1),
+    BAR(1f/100000),
+    ATMOSPHERES(1f/101300),
+    PSI(1f/6895);
 
     private final float a;
-    private final float b;
-    final String symbol;
+    final Component symbol;
 
-    Pressure(float a, float b, String symbol) {
+    Pressure(float a) {
         this.a = a;
-        this.b = b;
-        this.symbol = symbol;
+        this.symbol = CROWNSLang.translate("crowns.units.pressure.symbol"+name().toLowerCase()).component();
     }
 
     public float convert(float pascal) {
-        return pascal * a + b;
+        return pascal * a;
     }
 
-    public String getSymbol() {
+    public Component getSymbol() {
         return symbol;
     }
 }

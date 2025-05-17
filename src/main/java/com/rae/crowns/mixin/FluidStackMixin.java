@@ -1,6 +1,6 @@
 package com.rae.crowns.mixin;
 
-import com.rae.crowns.init.DataComponentsInit;
+import com.rae.crowns.init.data.DataComponentsInit;
 import net.minecraft.core.component.DataComponentPatch;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.spongepowered.asm.mixin.Mixin;

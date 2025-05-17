@@ -1,7 +1,8 @@
-package com.rae.crowns.init;
+package com.rae.crowns.init.client;
 
 import com.rae.crowns.content.ponder.NuclearScene;
 import com.rae.crowns.content.ponder.ThermodynamicsScene;
+import com.rae.crowns.init.misc.BlockInit;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;

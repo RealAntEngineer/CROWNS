@@ -1,7 +1,7 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
-import com.rae.crowns.init.BlockEntityInit;
+import com.rae.crowns.init.misc.BlockEntityInit;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -19,7 +19,6 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import java.util.Arrays;
 import java.util.List;
 
 @MethodsReturnNonnullByDefault

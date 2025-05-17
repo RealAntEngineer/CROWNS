@@ -1,14 +1,12 @@
-package com.rae.crowns.init;
+package com.rae.crowns.init.data;
 
-import com.mojang.serialization.Codec;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
-
+// TODO put this in the formic API
 public class AABBSerializer implements EntityDataSerializer<AABB> {
 
     StreamCodec<RegistryFriendlyByteBuf, AABB> CODEC = StreamCodec.composite(

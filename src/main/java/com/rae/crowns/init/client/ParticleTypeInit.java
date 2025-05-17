@@ -1,4 +1,4 @@
-package com.rae.crowns.init;
+package com.rae.crowns.init.client;
 
 import com.rae.crowns.CROWNS;
 import com.rae.flow.client.FlowParticleData;

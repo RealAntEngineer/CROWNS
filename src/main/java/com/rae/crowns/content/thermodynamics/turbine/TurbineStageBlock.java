@@ -1,6 +1,6 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
-import com.rae.crowns.init.BlockEntityInit;
+import com.rae.crowns.init.misc.BlockEntityInit;
 import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
 import com.simibubi.create.foundation.block.IBE;
 import net.createmod.catnip.data.Couple;

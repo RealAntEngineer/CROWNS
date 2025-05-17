@@ -2,7 +2,7 @@ package com.rae.crowns.mixin;
 
 import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
 import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
-import com.rae.crowns.init.DataComponentsInit;
+import com.rae.crowns.init.data.DataComponentsInit;
 import com.simibubi.create.content.fluids.FluidReactions;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
 import com.simibubi.create.content.fluids.PipeConnection;

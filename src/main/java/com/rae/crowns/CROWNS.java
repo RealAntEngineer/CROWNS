@@ -3,7 +3,11 @@ package com.rae.crowns;
 import com.mojang.logging.LogUtils;
 import com.rae.colony_api.data.managers.FloatMapDataLoader;
 import com.rae.crowns.config.CROWNSConfigs;
-import com.rae.crowns.init.*;
+import com.rae.crowns.init.client.PartialModelInit;
+import com.rae.crowns.init.client.ParticleTypeInit;
+import com.rae.crowns.init.data.DataComponentsInit;
+import com.rae.crowns.init.data.EntityDataSerializersInit;
+import com.rae.crowns.init.misc.*;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -44,6 +48,7 @@ public class CROWNS {
         BlockEntityInit.register();
         EntityInit.register();
 
+        DisplaySourceInit.register();
         CreativeModeTabsInit.register(modEventBus);
         ParticleTypeInit.register(modEventBus);
         DataComponentsInit.register(modEventBus);

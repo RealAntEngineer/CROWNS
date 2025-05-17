@@ -1,4 +1,4 @@
-package com.rae.crowns.init;
+package com.rae.crowns.init.data;
 
 import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
 import net.minecraft.core.BlockPos;
@@ -8,7 +8,7 @@ import net.minecraft.network.syncher.EntityDataSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
-
+// TODO put this in the formic API
 public class StateMapSerializer implements EntityDataSerializer<HashMap<BlockPos, SpecificRealGazState>> {
     public StateMapSerializer() {
     }

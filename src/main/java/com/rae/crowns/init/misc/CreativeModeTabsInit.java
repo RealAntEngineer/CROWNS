@@ -1,4 +1,4 @@
-package com.rae.crowns.init;
+package com.rae.crowns.init.misc;
 
 import com.rae.crowns.CROWNS;
 import com.simibubi.create.*;
@@ -9,7 +9,6 @@ import com.simibubi.create.content.kinetics.crank.ValveHandleBlock;
 import com.simibubi.create.content.logistics.box.PackageStyles;
 import com.simibubi.create.content.logistics.packagePort.postbox.PostboxBlock;
 import com.simibubi.create.content.logistics.tableCloth.TableClothBlock;
-import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.TagDependentIngredientItem;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.entry.ItemEntry;
