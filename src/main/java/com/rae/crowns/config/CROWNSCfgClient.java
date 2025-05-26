@@ -3,6 +3,8 @@ package com.rae.crowns.config;
 import com.rae.crowns.CROWNS;
 import net.createmod.catnip.config.ConfigBase;
 
+import static net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack.FLUID_NBT_KEY;
+
 public class CROWNSCfgClient extends ConfigBase {
 
 
