@@ -77,18 +77,21 @@ public class CROWNSLang extends Lang {
         Temperature unit = CROWNSConfigs.CLIENT.units.temperature.get();
         return CreateLang.builder().add(Component.literal("T = "))
                 .add(number(unit.convert(temperature)))
+                .text(" ")
                 .add(unit.getSymbol());
     }
     public static LangBuilder formatPressure(float pressure) {
         Pressure unit = CROWNSConfigs.CLIENT.units.pressure.get();
         return CreateLang.builder().add(Component.literal("P = "))
                 .add(number(unit.convert(pressure)))
+                .text(" ")
                 .add(unit.getSymbol());
     }
     public static LangBuilder formatRadiationFlux(float radiationFlux) {
         RadiationFlux unit = CROWNSConfigs.CLIENT.units.radiationFlux.get();
-        return CreateLang.builder().add(Component.literal("activity"))
+        return CreateLang.builder().add(Component.literal("activity : "))
                 .add(number(unit.convert(radiationFlux)))
+                .text(" ")
                 .add(unit.getSymbol());
     }
 

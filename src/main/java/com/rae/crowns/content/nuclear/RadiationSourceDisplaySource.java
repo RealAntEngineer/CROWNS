@@ -39,6 +39,11 @@ public class RadiationSourceDisplaySource extends DisplaySource {
     }
 
     @Override
+    public int getPassiveRefreshTicks() {
+        return 5;
+    }
+
+    @Override
     public List<List<MutableComponent>> provideFlapDisplayText(DisplayLinkContext context, DisplayTargetStats stats) {
         return super.provideFlapDisplayText(context, stats);
     }
@@ -51,7 +56,7 @@ public class RadiationSourceDisplaySource extends DisplaySource {
             return Stream.empty();
 
         List<MutableComponent> values = new ArrayList<>();
-        values.add(CROWNSLang.formatRadiationFlux(radioactiveSource.getRadioactiveActivity()).component());
+        values.add(CROWNSLang.formatRadiationFlux(radioactiveSource.getRadioactiveActivity()*20).component());//the radiation flux is in /ticks and we are displaying per sec
         if (sourceBE instanceof IAmFissileMaterial fissileMaterial) {
             values.add(CROWNSLang.translateDirect("display_source.radiation_source.k_eff").append(String.valueOf(fissileMaterial.getEffectiveK())));
         }

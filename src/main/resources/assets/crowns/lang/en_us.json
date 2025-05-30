@@ -39,9 +39,9 @@
   "crowns.units.pressure.symbol.bar": "bar",
   "crowns.units.pressure.symbol.atmospheres" : "atm",
   "crowns.units.pressure.symbol.psi": "psi",
-  "crowns.units.temperature.symbol.kelvin": "psi",
-  "crowns.units.temperature.symbol.celsius": "psi",
-  "crowns.units.temperature.symbol.fahrenheit": "psi",
+  "crowns.units.temperature.symbol.kelvin": "K",
+  "crowns.units.temperature.symbol.celsius": "°C",
+  "crowns.units.temperature.symbol.fahrenheit": "°F",
 
   "crowns.units.radiation_flux.symbol.mega_becquerels": "MBq",
   "crowns.units.radiation_flux.symbol.curies": "Ci",

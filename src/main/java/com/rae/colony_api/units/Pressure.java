@@ -14,7 +14,7 @@ public enum Pressure implements IUnit {
 
     Pressure(float a) {
         this.a = a;
-        this.symbol = CROWNSLang.translate("crowns.units.pressure.symbol"+name().toLowerCase()).component();
+        this.symbol = CROWNSLang.translate("units.pressure.symbol."+name().toLowerCase()).component();
     }
 
     public float convert(float pascal) {

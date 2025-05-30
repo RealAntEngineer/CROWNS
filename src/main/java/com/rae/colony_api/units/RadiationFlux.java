@@ -17,7 +17,7 @@ public enum RadiationFlux implements IUnit{
 
     RadiationFlux(float a) {
         this.a = a;
-        this.symbol = CROWNSLang.translate("crowns.units.radiation_flux.symbol"+name().toLowerCase()).component();
+        this.symbol = CROWNSLang.translate("units.radiation_flux.symbol."+name().toLowerCase()).component();
 
     }
 

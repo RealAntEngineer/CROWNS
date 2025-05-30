@@ -15,7 +15,7 @@ public enum Temperature implements IUnit{
     Temperature(float a, float b, String symbol) {
         this.a = a;
         this.b = b;
-        this.symbol = CROWNSLang.translate("crowns.units.temperature.symbol"+name().toLowerCase()).component();
+        this.symbol = CROWNSLang.translate("units.temperature.symbol."+name().toLowerCase()).component();
     }
 
     public float convert(float kelvin) {

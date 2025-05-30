@@ -3,17 +3,13 @@ package com.rae.crowns.content.nuclear;
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
-import com.rae.colony_api.units.Temperature;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
-import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.data.Couple;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.ParticleStatus;
-import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
@@ -108,7 +104,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                     sendData();
             }
 
-            spawnRadiationParticles(level,getBlockPos(),nbrOfFission);
+            if (CROWNSConfigs.CLIENT.nuclearParticle.get())
+                spawnRadiationParticles(level,getBlockPos(),nbrOfFission);
         }
         if (Float.isNaN(temperature)){
             temperature = 300;
@@ -259,12 +256,13 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public float getRadioactiveActivity() {
-        float easeCoef = 1f;//TODO config
+        float easeCoef = 1f; //TODO config
         return backgroundActivity+nbrOfFission * 2.5f*easeCoef;
     }
     @Override
     public float getEffectiveK() {
-        return nbrOfFission/oldNbrOfFission;
+        float easeCoef = 1f; //TODO config
+        return (backgroundActivity + nbrOfFission * 2.5f * easeCoef)/(backgroundActivity + oldNbrOfFission * 2.5f * easeCoef);
     }
     //to optimise, cost too much on the server
 
@@ -290,8 +288,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 
-        CreateLang.builder().add(Component.literal("activity : "+ (int)nbrOfFission*20))
-                .add(Component.literal(" MBq"))
+        CROWNSLang.formatRadiationFlux(getRadioactiveActivity()*20)
                 .style(ChatFormatting.DARK_GREEN)
                 .forGoggles(tooltip, 1);
 
@@ -325,6 +322,4 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         additionalNeutronsAbsorbed += fastAbsorbed + slowAbsorbed;
         return Couple.create(radiationFlux.getFirst()-fastAbsorbed,radiationFlux.getSecond()-slowAbsorbed);
     }
-
-
 }

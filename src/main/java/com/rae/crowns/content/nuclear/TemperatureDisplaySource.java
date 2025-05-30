@@ -28,6 +28,10 @@ public class TemperatureDisplaySource extends DisplaySource {
     }
 
     static final int ENTRIES_PER_PAGE = 8;
+    @Override
+    public int getPassiveRefreshTicks() {
+        return 5;
+    }
 
     protected Stream<MutableComponent> provideEntries(DisplayLinkContext context, int maxRows) {
         BlockEntity sourceBE = context.getSourceBlockEntity();
