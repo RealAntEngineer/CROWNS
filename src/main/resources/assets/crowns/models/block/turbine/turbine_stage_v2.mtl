@@ -1,0 +1,4 @@
+# Made in Blockbench 4.12.4
+newmtl turbine
+map_Kd #turbine
+newmtl none
