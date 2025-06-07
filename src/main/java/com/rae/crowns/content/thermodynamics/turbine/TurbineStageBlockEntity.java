@@ -1,10 +1,12 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.config.CROWNSConfigs;
+import com.simibubi.create.content.kinetics.KineticNetwork;
 import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -37,7 +39,9 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
 
     @Override
     public float getGeneratedSpeed() {
-        return flows.isEmpty()||power==0?0: CROWNSConfigs.SERVER.kinetics.turbineSpeed.get(); // * direction du flux
+        //if flows is empty and power!=0 it means that the BE is being loaded, we need to trust only the power in that case
+        //so there is no need to check for the flows.
+        return power==0?0: CROWNSConfigs.SERVER.kinetics.turbineSpeed.get(); // * direction du flux
     }
     @Override
     public float calculateAddedStressCapacity() {//it's the stress base not the real stress
@@ -48,7 +52,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     private float getCombinedCapacity() {
         if (level == null) return 0;
 
-        return getGeneratedSpeed()==0?power:power/Math.abs(getTheoreticalSpeed());// capacity is
+        return getGeneratedSpeed()==0?power:power/getGeneratedSpeed();// capacity is
     }
 
     @Override
@@ -84,5 +88,17 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
 
         if (level.isClientSide()) return;
         updateGeneratedRotation();
+    }
+
+    @Override
+    protected void write(CompoundTag compound, boolean clientPacket) {
+        compound.putFloat("power", power);
+        super.write(compound, clientPacket);
+    }
+
+    @Override
+    protected void read(CompoundTag compound, boolean clientPacket) {
+        super.read(compound, clientPacket);
+        power = compound.getFloat("power");
     }
 }
