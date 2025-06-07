@@ -1,6 +1,7 @@
 package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.CROWNS;
+import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
@@ -49,6 +50,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     public float temperature = 300;
     public float backgroundActivity = 12*3;//In MBq ( giga becquerels ) uranium is 12 Mbq per tonnes
+    public float oldNbrOfFission;
     public float nbrOfFission;//nbr of fission/t
     public int C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
 
@@ -122,7 +124,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public void lazyTick(){
         if (!level.isClientSide()) {
-            nbrOfFission = additionalNeutronsAbsorbed+backgroundActivity; //for now a 100% change of fission
+            oldNbrOfFission = nbrOfFission;
+            nbrOfFission = additionalNeutronsAbsorbed+backgroundActivity; //for now a 100% change of fission : no absorption
             if (Float.isNaN(nbrOfFission)){
                 nbrOfFission = backgroundActivity;
             }
@@ -231,10 +234,14 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public float getRadioactiveActivity() {
-        float easeCoef = 1f;//TODO config
+        float easeCoef = 1f; //TODO config
         return backgroundActivity+nbrOfFission * 2.5f*easeCoef;
     }
-
+    @Override
+    public float getEffectiveK() {
+        float easeCoef = 1f; //TODO config
+        return (backgroundActivity + nbrOfFission * 2.5f * easeCoef)/(backgroundActivity + oldNbrOfFission * 2.5f * easeCoef);
+    }
     //to optimise, cost too much on the server
 
     @Override
@@ -259,14 +266,11 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 
-        CreateLang.builder().add(Component.literal("activity : "+ (int)nbrOfFission*20))
-                .add(Component.literal(" MBq"))
+        CROWNSLang.formatRadiationFlux(getRadioactiveActivity()*20)
                 .style(ChatFormatting.DARK_GREEN)
                 .forGoggles(tooltip, 1);
 
-        Temperature temperatureUnit = CROWNSConfigs.CLIENT.units.temperature.get();
-        CreateLang.builder().add(Component.literal("T = "+(int) temperatureUnit.convert(temperature)))
-                .add(Component.literal(temperatureUnit.getSymbol()))
+        CROWNSLang.formatTemperature(temperature)
                 .style(ChatFormatting.DARK_RED)
                 .forGoggles(tooltip, 1);
 

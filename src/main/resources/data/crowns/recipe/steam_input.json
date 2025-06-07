@@ -1,20 +1,20 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " S ",
-    "SPS",
-    " S "
+    " P ",
+    "PCP",
+    " P "
   ],
   "key": {
-    "S": {
-      "item": "create:copper_sheet"
+    "C": {
+      "item": "create:copper_casing"
     },
     "P": {
       "item": "create:fluid_pipe"
     }
   },
   "result": {
-    "item": "crowns:heat_exchanger",
+    "id": "crowns:steam_input",
     "count": 1
   }
 }

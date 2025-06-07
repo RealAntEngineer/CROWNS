@@ -14,7 +14,7 @@
     }
   },
   "result": {
-    "item": "crowns:steam_collector",
+    "id": "crowns:steam_collector",
     "count": 1
   }
 }

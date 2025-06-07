@@ -4,6 +4,7 @@ import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
 import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
 import com.rae.colony_api.units.Pressure;
 import com.rae.colony_api.units.Temperature;
+import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.misc.BlockEntityInit;
@@ -94,13 +95,14 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
         super.addToGoggleTooltip(tooltip,isPlayerSneaking);
-        Temperature temperatureUnit = CROWNSConfigs.CLIENT.units.temperature.get();
-        Pressure pressureUnit = CROWNSConfigs.CLIENT.units.pressure.get();
         SpecificRealGazState inputState = INPUT_WATER_TANK.getState();
         CreateLang.builder().add(
-                    Component.literal("input : ").append(
-                        Component.literal(" T = " + (int) temperatureUnit.convert(inputState.temperature()) + temperatureUnit.getSymbol()+ " | ").append(
-                                        Component.literal(String.format("P = %.2f %s | ", pressureUnit.convert(inputState.pressure()), pressureUnit.getSymbol()))                                )
+                    Component.literal("input : ")
+                            .append(
+                        CROWNSLang.formatTemperature(inputState.temperature()).component()
+                                .append( " | ")
+                                .append(CROWNSLang.formatPressure(inputState.pressure()).component())
+                                .append(" | ")
                                 .append(
                                         Component.literal("x = " +(int) (inputState.vaporQuality() *100) + "%")
                                 )))
@@ -108,9 +110,10 @@ public class CompressorBlockEntity extends KineticBlockEntity {
         SpecificRealGazState outputState = OUTPUT_WATER_TANK.getState();
         CreateLang.builder().add(
                 Component.literal("output : ").append(
-
-                                Component.literal(" T = " + (int) temperatureUnit.convert(outputState.temperature()) + temperatureUnit.getSymbol()+ " | ").append(
-                                        Component.literal(String.format("P = %.2f %s | ", pressureUnit.convert(outputState.pressure()), pressureUnit.getSymbol()))                                )
+                        CROWNSLang.formatTemperature(outputState.temperature()).component()
+                                .append( " | ")
+                                .append(CROWNSLang.formatPressure(outputState.pressure()).component())
+                                .append(" | ")
                                 .append(
                                         Component.literal("x = " +(int) (outputState.vaporQuality() *100) + "%")
                                 )))

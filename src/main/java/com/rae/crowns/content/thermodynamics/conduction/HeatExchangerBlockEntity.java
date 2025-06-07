@@ -1,6 +1,7 @@
 package com.rae.crowns.content.thermodynamics.conduction;
 
 import com.rae.colony_api.units.Temperature;
+import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
@@ -187,10 +188,8 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-
-        Temperature temperatureUnit = CROWNSConfigs.CLIENT.units.temperature.get();
-        CreateLang.builder().add(Component.literal("exchanger T = "+(int) temperatureUnit.convert(temperature)))
-                .add(Component.literal(temperatureUnit.getSymbol()))
+        CreateLang.builder().add(Component.literal("exchanger "))
+                .add(CROWNSLang.formatTemperature(temperature))
                 .style(ChatFormatting.DARK_RED)
                 .forGoggles(tooltip, 1);
         containedFluidTooltip(tooltip, isPlayerSneaking, WATER_TANK);

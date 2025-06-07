@@ -29,6 +29,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -283,10 +284,11 @@ public class SteamCurrent extends Entity{
 				if (be instanceof SteamCollectorBlockEntity steamCollector){
 					try {
 						//cheating by getting the opposite side.
-						IFluidHandler fluidHandler = level().getCapability(Capabilities.FluidHandler.BLOCK,collectorPos, this.getDirection().getOpposite());
-						FluidStack output = new FluidStack(Fluids.WATER, (int) getFlow());
-						output.set(DataComponentsInit.REAL_GAZ_STATE, getOutputFluidState());
-						fluidHandler.fill(output, IFluidHandler.FluidAction.EXECUTE);
+						if (getDirection().getOpposite() == steamCollector.getBlockState().getValue(SteamCollectorBlock.FACING)) {
+							FluidStack output = new FluidStack(Fluids.WATER, (int) getFlow());
+							output.set(DataComponentsInit.REAL_GAZ_STATE, getOutputFluidState());
+							steamCollector.getTank().fill(output, IFluidHandler.FluidAction.EXECUTE);
+						}
 					}
 					catch (Exception ignored){}
 				}
@@ -295,7 +297,12 @@ public class SteamCurrent extends Entity{
 	}
 
 	@Override
-	public Packet<ClientGamePacketListener> getAddEntityPacket(ServerEntity entity) {
+	public Direction getDirection() {
+		return entityData.get(SYNCED_DIRECTION_ACCESSOR);
+	}
+
+	@Override
+	public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket(ServerEntity entity) {
 		return super.getAddEntityPacket(entity);
 	}
 	public static EntityType.Builder<?> build(EntityType.Builder<SteamCurrent> currentEntityBuilder) {

@@ -1,5 +1,17 @@
 {
   "type": "create:mechanical_crafting",
+  "accept_mirrored": false,
+  "key": {
+    "P": {
+      "item": "create:iron_sheet"
+    },
+    "C": {
+      "item": "create:brass_casing"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
   "pattern": [
     "P P P",
     " III ",
@@ -7,18 +19,9 @@
     " III ",
     "P P P"
   ],
-  "key": {
-    "P": {
-      "item": "create:iron_sheet"
-    },
-    "C": {
-      "item": "create:brass_casing"
-    },"I": {
-      "item": "minecraft:iron_ingot"
-    }
-  },
+
   "result": {
-    "item": "crowns:turbine_stage",
+    "id": "crowns:turbine_stage",
     "count": 1
   }
 }
