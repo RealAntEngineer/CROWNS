@@ -1,9 +1,10 @@
 package com.rae.crowns.content.thermodynamics.conduction;
 
 import com.rae.colony_api.units.Temperature;
+import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
-import com.rae.crowns.init.BlockInit;
+import com.rae.crowns.init.misc.BlockInit;
 
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.fluids.transfer.FluidManipulationBehaviour;
@@ -94,8 +95,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                 if (handler.getFluidAmount()< (float) WATER_TANK.getFluidAmount()){//if input of following handler is smaller than ours
                     FluidStack stack =  WATER_TANK.getFluid().copy();
                     stack.setAmount(WATER_TANK.getFluidAmount() - handler.getFluidAmount());
-                    this.fluidCapability.orElse(new FluidTank(0))
-                                .drain(handler.fill(stack, IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE);
+                    WATER_TANK.drain(handler.fill(stack, IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE);
                 }
             }
         }
@@ -165,10 +165,8 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-
-        Temperature temperatureUnit = CROWNSConfigs.CLIENT.units.temperature.get();
-        CreateLang.builder().add(Component.literal("exchanger T = "+(int) temperatureUnit.convert(temperature)))
-                .add(Component.literal(temperatureUnit.getSymbol()))
+        CreateLang.builder().add(Component.literal("exchanger "))
+                .add(CROWNSLang.formatTemperature(temperature))
                 .style(ChatFormatting.DARK_RED)
                 .forGoggles(tooltip, 1);
         containedFluidTooltip(tooltip, isPlayerSneaking, fluidCapability);

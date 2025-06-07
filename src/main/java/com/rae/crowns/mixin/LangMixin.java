@@ -3,6 +3,7 @@ package com.rae.crowns.mixin;
 import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
 import com.rae.colony_api.units.Pressure;
 import com.rae.colony_api.units.Temperature;
+import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.lang.LangBuilder;
@@ -21,11 +22,11 @@ public class LangMixin {
         CompoundTag newStateNBT = stack.getChildTag("realGazState");
         if (newStateNBT != null) {
             SpecificRealGazState newState = new SpecificRealGazState(newStateNBT);
-            Temperature temperatureUnit = CROWNSConfigs.CLIENT.units.temperature.get();
-            Pressure pressureUnit = CROWNSConfigs.CLIENT.units.pressure.get();
             cir.setReturnValue(cir.getReturnValue().add(
-                    Component.literal(" T = " + (int) temperatureUnit.convert(newState.temperature()) + temperatureUnit.getSymbol()+ " | ").append(
-                            Component.literal(String.format("P = %.2f %s | ", pressureUnit.convert(newState.pressure()), pressureUnit.getSymbol()))                                )
+                    CROWNSLang.formatTemperature(newState.temperature()).component()
+                            .append( " | ")
+                            .append(CROWNSLang.formatPressure(newState.pressure()).component())
+                            .append(" | ")
                             .append(
                                     Component.literal("x = " +(int) (newState.vaporQuality() *100) + "%")
                             )));

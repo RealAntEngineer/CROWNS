@@ -1,7 +1,7 @@
 package com.rae.crowns.content.thermodynamics.conduction;
 
-import com.rae.crowns.init.BlockEntityInit;
-import com.rae.crowns.init.BlockInit;
+import com.rae.crowns.init.misc.BlockEntityInit;
+import com.rae.crowns.init.misc.BlockInit;
 import com.simibubi.create.AllShapes;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;

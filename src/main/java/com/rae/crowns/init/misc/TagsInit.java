@@ -1,9 +1,8 @@
-package com.rae.crowns.init;
+package com.rae.crowns.init.misc;
 
 import com.rae.crowns.CROWNS;
 import com.simibubi.create.AllTags;
 import net.createmod.catnip.lang.Lang;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -46,7 +45,7 @@ public class TagsInit extends AllTags {
         }
     }
     public enum CustomBlockTags {
-        TURBINE_BLADE();
+        TURBINE_BLADE(),GOLD_BLOCK(CustomNameSpace.FORGE,"storage_blocks/gold"),COAL_BLOCK(CustomNameSpace.FORGE,"storage_blocks/coal");
 
         public final TagKey<Block> tag;
         public final boolean alwaysDatagen;
