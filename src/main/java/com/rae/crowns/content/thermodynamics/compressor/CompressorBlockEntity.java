@@ -81,10 +81,10 @@ public class CompressorBlockEntity extends KineticBlockEntity {
                 (be, context) -> {
                     Direction localDir = be.getBlockState().getValue(DirectionalBlock.FACING);
                     if (context != null) {
-                        if (localDir == context) {
+                        if (localDir == context.getOpposite()) {
                             return be.INPUT_WATER_TANK;
                         }
-                        if (localDir == context.getOpposite()) {
+                        if (localDir == context) {
                             return be.OUTPUT_WATER_TANK;
                         }
                     }

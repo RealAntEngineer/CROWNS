@@ -251,7 +251,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public void addTemperature(float dT) {
-        temperature += dT;
+        temperature = Math.max(temperature+dT,0);;
     }
 
     @Override
