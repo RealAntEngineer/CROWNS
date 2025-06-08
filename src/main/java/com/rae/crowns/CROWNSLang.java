@@ -51,7 +51,7 @@ public class CROWNSLang extends Lang {
     }
 
     public static LangBuilder fluidName(FluidStack stack) {
-        return builder().add(stack.getHoverName()
+        return builder().add(stack.getDisplayName()
                 .copy());
     }
 
