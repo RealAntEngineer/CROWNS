@@ -1,6 +1,6 @@
 package com.rae.crowns.content.nuclear;
 
-import com.rae.crowns.init.BlockEntityInit;
+import com.rae.crowns.init.misc.BlockEntityInit;
 import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.Level;

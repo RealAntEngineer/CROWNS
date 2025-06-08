@@ -4,8 +4,8 @@ import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
 import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
 import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
-import com.rae.crowns.init.BlockInit;
-import com.rae.crowns.init.EntityDataSerializersInit;
+import com.rae.crowns.init.misc.BlockInit;
+import com.rae.crowns.init.data.EntityDataSerializersInit;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,7 +24,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.network.NetworkHooks;
@@ -173,7 +172,7 @@ public class SteamCurrent extends Entity{
                 break;
             BlockState state = world.getBlockState(currentPos);
 			if (!state.isAir()){
-				if (state.is(BlockInit.STEAM_COLLECTOR.get()) && state.getValue(DirectionalBlock.FACING) == facing.getOpposite()) collectorPos = currentPos;
+				if (state.is(BlockInit.STEAM_COLLECTOR.get()) && state.getValue(DirectionalBlock.FACING) == getDirection().getOpposite()) collectorPos = currentPos;
 				break;
 			}
 			distance++;
@@ -281,17 +280,21 @@ public class SteamCurrent extends Entity{
 				if (be instanceof SteamCollectorBlockEntity steamCollector){
 					try {
 						//cheating by getting the opposite side.
-						IFluidHandler fluidHandler = steamCollector.getCapability(ForgeCapabilities.FLUID_HANDLER, this.entityData.get(SYNCED_DIRECTION_ACCESSOR)).orElseThrow(() -> new RuntimeException("No FluidHandler found"));
-						CompoundTag nbt = new CompoundTag();
-						nbt.put("realGazState", getOutputFluidState().serialize());
-						fluidHandler.fill(new FluidStack(Fluids.WATER, (int) getFlow(), nbt), IFluidHandler.FluidAction.EXECUTE);
+						if (getDirection().getOpposite() == steamCollector.getBlockState().getValue(SteamCollectorBlock.FACING)) {
+							CompoundTag nbt = new CompoundTag();
+							nbt.put("realGazState", getOutputFluidState().serialize());
+							steamCollector.getTank().fill(new FluidStack(Fluids.WATER, (int) getFlow(), nbt), IFluidHandler.FluidAction.EXECUTE);
+						}
 					}
 					catch (Exception ignored){}
 				}
 			}
 		}
 	}
-
+	@Override
+	public Direction getDirection() {
+		return entityData.get(SYNCED_DIRECTION_ACCESSOR);
+	}
 	@Override
 	public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
 		return NetworkHooks.getEntitySpawningPacket(this);

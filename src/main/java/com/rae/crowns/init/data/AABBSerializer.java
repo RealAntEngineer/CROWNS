@@ -1,4 +1,4 @@
-package com.rae.crowns.init;
+package com.rae.crowns.init.data;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializer;

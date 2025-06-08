@@ -1,4 +1,4 @@
-package com.rae.crowns.init;
+package com.rae.crowns.init.misc;
 
 import com.rae.crowns.content.nuclear.AssemblyBlock;
 import com.rae.crowns.content.nuclear.UraniumOreBlock;
@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import java.util.function.ToIntFunction;
 
 import static com.rae.crowns.CROWNS.REGISTRATE;
+import static com.simibubi.create.api.behaviour.display.DisplaySource.displaySource;
 
 @SuppressWarnings("ALL")
 public class BlockInit {
@@ -84,6 +85,8 @@ public class BlockInit {
                 }
                 return 0;
             }))
+            .transform(displaySource(DisplaySourceInit.ACTIVITY))
+            .transform(displaySource(DisplaySourceInit.TEMPERATURE))
             .item()
             .build()
             .register();

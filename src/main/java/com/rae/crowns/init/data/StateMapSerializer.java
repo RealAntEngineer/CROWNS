@@ -1,4 +1,4 @@
-package com.rae.crowns.init;
+package com.rae.crowns.init.data;
 
 import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
 import net.minecraft.core.BlockPos;

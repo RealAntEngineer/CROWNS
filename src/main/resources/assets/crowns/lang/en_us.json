@@ -16,11 +16,36 @@
 
 
   "crowns.ponder.nuclear_reactor.header": "Nuclear Reactors",
-  "crowns.ponder.nuclear_reactor.text_1": "pump water from one side",
-  "crowns.ponder.nuclear_reactor.text_2": "make column of heat exchanger to give time for the water to boil",
-  "crowns.ponder.nuclear_reactor.text_3": "build a chest board of fuel assembly and water or coal blocks to make the nuclear reaction occurs",
-  "crowns.ponder.nuclear_reactor.text_4": "fluid tank are used to merge the flow of vapor",
+  "crowns.ponder.nuclear_reactor.text_1": "nuclear fuel naturally produce fast neutrons",
+  "crowns.ponder.nuclear_reactor.text_2": "fast neutrons are unlikely to induce fission",
+  "crowns.ponder.nuclear_reactor.text_3": "add moderator to transform them into thermal neutrons that can induce fission and produce more neutrons",
+  "crowns.ponder.nuclear_reactor.text_4": "70%% efficiency for coal",
+  "crowns.ponder.nuclear_reactor.text_5": "50%% efficiency for water",
+  "crowns.ponder.nuclear_reactor.text_6": "when enough fuel block are in one place with a moderator, the reaction will sky rocket",
+  "crowns.ponder.nuclear_reactor.text_7" : "like every hot blocks, you can use hot nuclear fuel to heat water",
+  "crowns.ponder.nuclear_reactor.text_8": "build a chest board of fuel and water to optimise the use of the moderator",
+  "crowns.ponder.nuclear_reactor.text_9": "the higher the reactor, the more time the water will have to boil",
+  "crowns.ponder.nuclear_reactor.text_10": "fuel becomes red when it's hotter than 3000 degrees Kelvin, it explodes at 3500",
   "crowns.ponder.turbine.header": "Turbines",
   "crowns.ponder.turbine.text_1": "input vapor into the steam inputs",
-  "crowns.ponder.turbine.text_2": "if the vapor has sufficient quality (x > 0) it will make the turbine turns"
+  "crowns.ponder.turbine.text_2": "if the vapor has sufficient quality (x > 0) it will make the turbine turns",
+
+  "crowns.display_source.radiation_source.activity": "Radiation : ",
+  "crowns.display_source.radiation_source.k_eff": "Effective Factor : ",
+  "crowns.display_source.radiation_source": "Radiation Source",
+  "crowns.display_source.temperature": "Temperature",
+
+  "crowns.units.pressure.symbol.pascals": "Pa",
+  "crowns.units.pressure.symbol.bar": "bar",
+  "crowns.units.pressure.symbol.atmospheres" : "atm",
+  "crowns.units.pressure.symbol.psi": "psi",
+  "crowns.units.temperature.symbol.kelvin": "K",
+  "crowns.units.temperature.symbol.celsius": "°C",
+  "crowns.units.temperature.symbol.fahrenheit": "°F",
+
+  "crowns.units.radiation_flux.symbol.mega_becquerels": "MBq",
+  "crowns.units.radiation_flux.symbol.curies": "Ci",
+  "crowns.units.radiation_flux.symbol.gray_per_seconds": "Gray/s",
+  "crowns.units.radiation_flux.symbol.rad_per_seconds": "Rad/s",
+  "crowns.units.radiation_flux.symbol.sievert_per_seconds": "Sv/s"
 }

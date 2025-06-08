@@ -1,11 +1,9 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
-import com.rae.colony_api.units.Pressure;
-import com.rae.colony_api.units.Temperature;
-import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
-import com.rae.crowns.init.EntityInit;
+import com.rae.crowns.init.misc.EntityInit;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -162,15 +160,13 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 	@Override
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 		SpecificRealGazState newState = getState();
-		Temperature temperatureUnit = CROWNSConfigs.CLIENT.units.temperature.get();
-		Pressure pressureUnit = CROWNSConfigs.CLIENT.units.pressure.get();
-		CreateLang.builder().add(
-				Component.literal(" T = " + (int) temperatureUnit.convert(newState.temperature()) + temperatureUnit.getSymbol()+ " | ").append(
-								Component.literal("P = " + (int)pressureUnit.convert( newState.pressure()) + pressureUnit.getSymbol() + " | ")
-						)
-						.append(
-								Component.literal("x = " +(int) (newState.vaporQuality() *100) + "%")
-						))
+		CROWNSLang.formatTemperature(newState.temperature())
+				.text( " | ")
+				.add(CROWNSLang.formatPressure(newState.pressure()).component())
+				.text(" | ")
+				.add(
+						Component.literal("x = " +(int) (newState.vaporQuality() *100) + "%")
+				)
 				.forGoggles(tooltip, 1);
 		CreateLang.builder().add(
 				Component.literal(" Flow = "+ flow + "/ 1000")
