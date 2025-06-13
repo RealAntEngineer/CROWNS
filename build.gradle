@@ -15,7 +15,7 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-version = mod_version
+version = minecraft_version + "_" + mod_version
 
 group = mod_group_id
 
@@ -175,7 +175,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             mod_id                 : mod_id,
             mod_name               : mod_name,
             mod_license            : mod_license,
-            mod_version            : mod_version,
+            mod_version            : minecraft_version + "_"+ mod_version,
             mod_authors            : mod_authors,
             mod_description        : mod_description
     ]
