@@ -3,7 +3,7 @@ package com.rae.crowns.content.thermodynamics.turbine;
 import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
 import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
-import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
+import com.rae.colony_api.thermal_utilities.WaterCubicEOSTransformationHelper;
 import com.rae.crowns.init.misc.BlockInit;
 import com.rae.crowns.init.data.DataComponentsInit;
 import com.rae.crowns.init.data.EntityDataSerializersInit;
@@ -26,7 +26,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
@@ -127,9 +126,9 @@ public class SteamCurrent extends Entity{
             if (stage != null) {
 				float pressureRatio = stage.pressureRatio();
 				if (pressureRatio < 1) {
-					nextState = WaterAsRealGazTransformationHelper.standardExpansion(previousState, 1 / pressureRatio);
+					nextState = WaterCubicEOSTransformationHelper.standardExpansion(previousState, 1 / pressureRatio);
 				} else if (pressureRatio > 1) {
-					nextState = WaterAsRealGazTransformationHelper.standardCompression(previousState, pressureRatio);
+					nextState = WaterCubicEOSTransformationHelper.standardCompression(previousState, pressureRatio);
 				}
 				//need to ensure that it's empty before end
 				//.get(this.direction.getAxis()
@@ -154,7 +153,7 @@ public class SteamCurrent extends Entity{
             inputFluidState = ((SteamInputBlockEntity) be).getState();
         }
         if (inputFluidState==null){
-			inputFluidState = WaterAsRealGazTransformationHelper.DEFAULT_STATE;
+			inputFluidState = WaterCubicEOSTransformationHelper.DEFAULT_STATE;
 		}
         return inputFluidState;
 	}

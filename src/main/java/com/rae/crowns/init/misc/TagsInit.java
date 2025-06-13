@@ -26,7 +26,7 @@ public class TagsInit extends AllTags {
     public enum CustomNameSpace {
 
         MOD(CROWNS.MODID, false, true),
-        FORGE("forge"),
+        COMMUN("c"),
         TIC("tconstruct"),
         QUARK("quark");
 
@@ -45,7 +45,7 @@ public class TagsInit extends AllTags {
         }
     }
     public enum CustomBlockTags {
-        TURBINE_BLADE(),GOLD_BLOCK(CustomNameSpace.FORGE),COAL_BLOCK(CustomNameSpace.FORGE);
+        TURBINE_BLADE(),GOLD_BLOCK(CustomNameSpace.COMMUN,"storage_blocks/gold"),COAL_BLOCK(CustomNameSpace.COMMUN,"storage_blocks/coal");
 
         public final TagKey<Block> tag;
         public final boolean alwaysDatagen;

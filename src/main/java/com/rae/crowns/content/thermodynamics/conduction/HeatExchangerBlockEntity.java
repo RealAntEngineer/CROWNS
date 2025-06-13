@@ -128,16 +128,11 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         //conductTemperature(getBlockPos(),level, 0.5f);
 
         //make the calculus, so it's the real nbr or make it in stage ( like ten stage )
-        //internal conduction
-        //TODO make this correctly, it's not
-        if (!WATER_TANK.isEmpty()) {
-            float dT = 0.5f;
-            float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature())*dT;
-            WATER_TANK.heat(power);
-            this.addTemperature(
-                    -power
-                            / this.getThermalCapacity());
-        }
+        float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) / 2;
+        WATER_TANK.heat(power);
+        this.addTemperature(
+                -power
+                        / this.getThermalCapacity());
         // the fact that it changes too often make it bugged ->
         // maybe if it's directly in  the fluidTransport behaviour
         sendData();

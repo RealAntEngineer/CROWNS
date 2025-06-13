@@ -1,7 +1,7 @@
 package com.rae.crowns.content.thermodynamics;
 
 import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
-import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
+import com.rae.colony_api.thermal_utilities.WaterCubicEOSTransformationHelper;
 import com.rae.crowns.init.data.DataComponentsInit;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-import static com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper.DEFAULT_STATE;
+import static com.rae.colony_api.thermal_utilities.WaterCubicEOSTransformationHelper.DEFAULT_STATE;
 
 
 public class StateFluidTank extends SmartFluidTank {
@@ -24,7 +24,7 @@ public class StateFluidTank extends SmartFluidTank {
             if (oldState == null) {
                 oldState = DEFAULT_STATE;
             }
-            SpecificRealGazState state = WaterAsRealGazTransformationHelper.isobaricTransfert(oldState, amount / getFluidAmount());
+            SpecificRealGazState state = WaterCubicEOSTransformationHelper.isobaricTransfert(oldState, amount / getFluidAmount());
             fluid.set(DataComponentsInit.REAL_GAZ_STATE, state);
         }
     }

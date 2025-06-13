@@ -16,10 +16,12 @@ import net.createmod.catnip.data.Couple;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -115,6 +117,9 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 if (syncCooldown == 0 && queuedSync)
                     sendData();
             }
+
+            if (CROWNSConfigs.CLIENT.nuclearParticle.get())
+                spawnRadiationParticles(level,getBlockPos(),nbrOfFission);
         }
         if (Float.isNaN(temperature)){
             temperature = 300;
@@ -147,9 +152,9 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 }
             }
             else {
-                if (nbrOfFission < 10 * backgroundActivity) {
+                if (nbrOfFission < 300 * backgroundActivity) {
                     level.setBlock(pos, getBlockState().setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.NONE), 3);
-                } else if (nbrOfFission < 100 * backgroundActivity) {
+                } else if (temperature < 3000) {
                     level.setBlock(pos, getBlockState().setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), 3);
                 } else {
                     level.setBlock(pos, getBlockState().setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.HIGH), 3);
@@ -159,6 +164,36 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             moreOptimizedImpactEnv(pos,level,CROWNSConfigs.SERVER.nuclear.radiationRange.get());
             //conductTemperature(pos,level);
             notifyUpdate();
+
+        }
+    }
+    public void spawnRadiationParticles(Level level, BlockPos pos, float nbrOfFission) {
+        if (!(level instanceof ServerLevel serverLevel)) return; // Only spawn particles on server side
+
+        float nbrOfParticles = (float) (Math.log10(nbrOfFission * 20 / 5000f)) * 3f/20f;
+        int wholeParticles = Mth.floor(nbrOfParticles);
+        float fractional = nbrOfParticles - wholeParticles;
+
+        if (level.random.nextFloat() < fractional) {
+            wholeParticles += 1; // probabilistically add one extra
+        }
+
+        for (int i = 0; i < wholeParticles; i++) {
+            double x = pos.getX() + 0.5;
+            double y = pos.getY() + 0.5;
+            double z = pos.getZ() + 0.5;
+
+            // Random spherical direction using spherical coordinates
+            double theta = level.random.nextDouble() * 2 * Math.PI; // azimuthal angle
+            double phi = Math.acos(2 * level.random.nextDouble() - 1); // polar angle
+
+            double speed = 1f; // small random speed
+            double dx = speed * Math.sin(phi) * Math.cos(theta);
+            double dy = speed * Math.sin(phi) * Math.sin(theta);
+            double dz = speed * Math.cos(phi);
+
+            // Use any existing particle type here (e.g., SMOKE)
+            serverLevel.sendParticles(ParticleTypes.DUST_PLUME, x, y, z, 1, dx, dy, dz, speed);// You can replace ParticleTypes.SMOKE with your custom particle
         }
     }
 

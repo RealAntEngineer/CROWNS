@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import java.util.function.ToIntFunction;
 
 import static com.rae.crowns.CROWNS.REGISTRATE;
+import static com.simibubi.create.api.behaviour.display.DisplaySource.displaySource;
 
 @SuppressWarnings("ALL")
 public class BlockInit {
@@ -36,6 +37,7 @@ public class BlockInit {
     public static final BlockEntry<HeatExchangerBlock> HEAT_EXCHANGER = REGISTRATE
             .block("heat_exchanger", HeatExchangerBlock::new)
             .initialProperties(SharedProperties::softMetal)
+            .transform(displaySource(DisplaySourceInit.TEMPERATURE))
             .properties(BlockBehaviour.Properties::noOcclusion)
             .item()
             .build()
@@ -89,6 +91,8 @@ public class BlockInit {
                 }
                 return 0;
             }))
+            .transform(displaySource(DisplaySourceInit.ACTIVITY))
+            .transform(displaySource(DisplaySourceInit.TEMPERATURE))
             .item()
             .build()
             .register();
