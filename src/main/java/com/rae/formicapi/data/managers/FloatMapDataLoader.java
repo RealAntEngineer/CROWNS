@@ -1,4 +1,4 @@
-package com.rae.colony_api.data.managers;
+package com.rae.formicapi.data.managers;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.rae.colony_api.data.Event.getSideAwareRegistry;
+import static com.rae.formicapi.data.Event.getSideAwareRegistry;
 
 public class FloatMapDataLoader<T> extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new Gson();

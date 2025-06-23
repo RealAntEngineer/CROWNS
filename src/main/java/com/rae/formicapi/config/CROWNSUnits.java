@@ -1,4 +1,4 @@
-package com.rae.crowns.config;
+package com.rae.formicapi.config;
 
 import com.rae.formicapi.units.Pressure;
 import com.rae.formicapi.units.RadiationFlux;

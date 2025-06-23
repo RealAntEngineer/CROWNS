@@ -1,9 +1,9 @@
-package com.rae.crowns;
+package com.rae.formicapi;
 
 import com.rae.formicapi.units.Pressure;
 import com.rae.formicapi.units.RadiationFlux;
 import com.rae.formicapi.units.Temperature;
-import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.formicapi.config.FormicAPIConfigs;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.lang.Lang;
 import net.createmod.catnip.lang.LangBuilder;
@@ -17,14 +17,14 @@ import net.minecraftforge.fluids.FluidStack;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CROWNSLang extends Lang {
+public class FormicApiLang extends Lang {
     //blatant copy of CreateLang
     /**
      * legacy-ish. Use CROWNSLang.translate and other builder methods where possible
      */
     public static MutableComponent translateDirect(String key, Object... args) {
         Object[] args1 = LangBuilder.resolveBuilders(args);
-        return Component.translatable(CROWNS.MODID + "." + key, args1);
+        return Component.translatable(FormicAPI.MODID + "." + key, args1);
     }
 
     public static List<Component> translatedOptions(String prefix, String... keys) {
@@ -37,7 +37,7 @@ public class CROWNSLang extends Lang {
 //
 
     public static LangBuilder builder() {
-        return new LangBuilder(CROWNS.MODID);
+        return new LangBuilder(FormicAPI.MODID);
     }
 
     public static LangBuilder blockName(BlockState state) {
@@ -73,21 +73,21 @@ public class CROWNSLang extends Lang {
     }
 
     public static LangBuilder formatTemperature(float temperature) {
-        Temperature unit = CROWNSConfigs.CLIENT.units.temperature.get();
+        Temperature unit = FormicAPIConfigs.CLIENT.units.temperature.get();
         return CreateLang.builder().add(Component.literal("T = "))
                 .add(number(unit.convert(temperature)))
                 .text(" ")
                 .add(unit.getSymbol());
     }
     public static LangBuilder formatPressure(float pressure) {
-        Pressure unit = CROWNSConfigs.CLIENT.units.pressure.get();
+        Pressure unit = FormicAPIConfigs.CLIENT.units.pressure.get();
         return CreateLang.builder().add(Component.literal("P = "))
                 .add(number(unit.convert(pressure)))
                 .text(" ")
                 .add(unit.getSymbol());
     }
     public static LangBuilder formatRadiationFlux(float radiationFlux) {
-        RadiationFlux unit = CROWNSConfigs.CLIENT.units.radiationFlux.get();
+        RadiationFlux unit = FormicAPIConfigs.CLIENT.units.radiationFlux.get();
         return CreateLang.builder().add(Component.literal("activity : "))
                 .add(number(unit.convert(radiationFlux)))
                 .text(" ")

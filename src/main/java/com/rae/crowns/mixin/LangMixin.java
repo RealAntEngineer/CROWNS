@@ -1,10 +1,7 @@
 package com.rae.crowns.mixin;
 
-import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
-import com.rae.colony_api.units.Pressure;
-import com.rae.colony_api.units.Temperature;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.rae.crowns.CROWNSLang;
-import com.rae.crowns.config.CROWNSConfigs;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.lang.LangBuilder;
 import net.minecraft.nbt.CompoundTag;

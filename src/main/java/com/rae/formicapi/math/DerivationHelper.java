@@ -1,4 +1,4 @@
-package com.rae.colony_api.math;
+package com.rae.formicapi.math;
 
 
 import net.createmod.catnip.data.Couple;

@@ -1,4 +1,4 @@
-package com.rae.colony_api.thermal_utilities;
+package com.rae.formicapi.thermal_utilities;
 
 import net.minecraft.nbt.CompoundTag;
 

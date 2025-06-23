@@ -1,7 +1,6 @@
-package com.rae.colony_api.units;
+package com.rae.formicapi.units;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
 /**
  * this is an interface meant as a template for Enums representing units

@@ -1,6 +1,6 @@
 package com.rae.crowns.mixin;
 
-import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper.DEFAULT_STATE;
-import static com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper.mix;
+import static com.rae.formicapi.thermal_utilities.helper.WaterCubicEOS.DEFAULT_STATE;
+import static com.rae.formicapi.thermal_utilities.helper.WaterCubicEOS.mix;
 
 @Mixin(value = FluidTank.class)
 public abstract class FluidTankMixin {

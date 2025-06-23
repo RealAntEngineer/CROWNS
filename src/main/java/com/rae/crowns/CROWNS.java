@@ -1,7 +1,7 @@
 package com.rae.crowns;
 
 import com.mojang.logging.LogUtils;
-import com.rae.colony_api.data.managers.FloatMapDataLoader;
+import com.rae.formicapi.data.managers.FloatMapDataLoader;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.init.client.PartialModelInit;
 import com.rae.crowns.init.client.ParticleTypeInit;

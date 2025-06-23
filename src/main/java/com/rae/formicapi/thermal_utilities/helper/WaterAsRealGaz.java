@@ -1,7 +1,9 @@
-package com.rae.colony_api.thermal_utilities;
+package com.rae.formicapi.thermal_utilities.helper;
 
 
-public class WaterAsRealGazTransformationHelper {
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
+
+public class WaterAsRealGaz {
 
     //terrible approximation just to get started
 
@@ -25,7 +27,7 @@ public class WaterAsRealGazTransformationHelper {
         return TPSat * pressure + T0;// take the 0 in account
     }
 
-    public static SpecificRealGazState isobaricTransfert(SpecificRealGazState fluidState, float specific_heat) {
+    public static SpecificRealGazState isobaricTransfer(SpecificRealGazState fluidState, float specific_heat) {
         if (specific_heat == 0) {
             return fluidState;
         }
@@ -105,7 +107,7 @@ public class WaterAsRealGazTransformationHelper {
             float Tf_g = (float) (Math.pow(fluidState.pressure() / Pf,(1 - gamma) / gamma) * fluidState.temperature());
             float dT_g = Tf_g - fluidState.temperature();
             float dh_g = (dT_g * Cp + dhVap()) * fluidState.vaporQuality();
-            return isobaricTransfert(new SpecificRealGazState(fluidState.temperature(),
+            return isobaricTransfer(new SpecificRealGazState(fluidState.temperature(),
                     Pf, get_h(0, fluidState.temperature(), Pf), 0f), dh_g);
         }
         else {
@@ -139,7 +141,7 @@ public class WaterAsRealGazTransformationHelper {
         SpecificRealGazState revFluidState = standardExpansion(fluidState,expansionCoef);
         float reversibleDh = revFluidState.specificEnthalpy()- fluidState.specificEnthalpy();
         float losth = reversibleDh*(1-isentropicYield);
-        return isobaricTransfert(revFluidState,-losth);
+        return isobaricTransfer(revFluidState,-losth);
     }
     /**
      * adiabatic reversible compression
@@ -175,7 +177,7 @@ public class WaterAsRealGazTransformationHelper {
             float dT_g = Tf_g - fluidState.temperature();
             float dh_g = (dT_g * Cp + dhVap()) * fluidState.vaporQuality();
 
-            return isobaricTransfert(new SpecificRealGazState(fluidState.temperature(), Pf, get_h(0, fluidState.temperature(), Pf), 0f), dh_g);
+            return isobaricTransfer(new SpecificRealGazState(fluidState.temperature(), Pf, get_h(0, fluidState.temperature(), Pf), 0f), dh_g);
         }
         return new SpecificRealGazState(
                 fluidState.temperature() + dT,
@@ -194,7 +196,7 @@ public class WaterAsRealGazTransformationHelper {
         SpecificRealGazState revFluidState = standardCompression(fluidState,compressionCoef);
         float reversibleDh = revFluidState.specificEnthalpy()- fluidState.specificEnthalpy();
         float losth = reversibleDh*(1-yield);
-        return isobaricTransfert(revFluidState,-losth);
+        return isobaricTransfer(revFluidState,-losth);
     }
 
 //TODO -> it seems to not be working when amount are too low -> protection against 0 values ?

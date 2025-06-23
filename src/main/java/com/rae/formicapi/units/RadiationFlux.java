@@ -1,6 +1,6 @@
-package com.rae.colony_api.units;
+package com.rae.formicapi.units;
 
-import com.rae.crowns.CROWNSLang;
+import com.rae.formicapi.FormicApiLang;
 import net.minecraft.network.chat.Component;
 
 public enum RadiationFlux implements IUnit{
@@ -17,7 +17,7 @@ public enum RadiationFlux implements IUnit{
 
     RadiationFlux(float a) {
         this.a = a;
-        this.symbol = CROWNSLang.translate("units.radiation_flux.symbol."+name().toLowerCase()).component();
+        this.symbol = FormicApiLang.translate("units.radiation_flux.symbol."+name().toLowerCase()).component();
 
     }
 

@@ -1,6 +1,6 @@
 package com.rae.crowns.init.data;
 
-import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializer;
