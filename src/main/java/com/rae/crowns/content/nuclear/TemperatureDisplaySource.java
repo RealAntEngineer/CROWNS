@@ -2,6 +2,7 @@ package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
+import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.behaviour.display.DisplaySource;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkContext;
 import com.simibubi.create.content.redstone.displayLink.target.DisplayTargetStats;
@@ -39,7 +40,7 @@ public class TemperatureDisplaySource extends DisplaySource {
             return Stream.empty();
 
         List<MutableComponent> values = new ArrayList<>();
-        values.add(CROWNSLang.formatTemperature(temperature.getTemperature()).component());
+        values.add(FormicApiLang.formatTemperature(temperature.getTemperature()).component());
 
 
 

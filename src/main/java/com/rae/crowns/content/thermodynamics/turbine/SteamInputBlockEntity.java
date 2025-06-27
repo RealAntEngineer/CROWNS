@@ -1,5 +1,6 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
+import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
@@ -160,9 +161,9 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 	@Override
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 		SpecificRealGazState newState = getState();
-		CROWNSLang.formatTemperature(newState.temperature())
+		FormicApiLang.formatTemperature(newState.temperature())
 				.text( " | ")
-				.add(CROWNSLang.formatPressure(newState.pressure()).component())
+				.add(FormicApiLang.formatPressure(newState.pressure()).component())
 				.text(" | ")
 				.add(
 						Component.literal("x = " +(int) (newState.vaporQuality() *100) + "%")

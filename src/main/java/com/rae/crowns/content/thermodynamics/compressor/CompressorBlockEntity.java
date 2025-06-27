@@ -1,6 +1,7 @@
 package com.rae.crowns.content.thermodynamics.compressor;
 
 import com.rae.crowns.Constants;
+import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.rae.formicapi.thermal_utilities.helper.WaterCubicEOS;
 import com.rae.crowns.CROWNSLang;
@@ -82,9 +83,9 @@ public class CompressorBlockEntity extends KineticBlockEntity {
         CreateLang.builder().add(
                     Component.literal("input : ")
                             .append(
-                        CROWNSLang.formatTemperature(inputState.temperature()).component()
+                                    FormicApiLang.formatTemperature(inputState.temperature()).component()
                                 .append( " | ")
-                                .append(CROWNSLang.formatPressure(inputState.pressure()).component())
+                                .append(FormicApiLang.formatPressure(inputState.pressure()).component())
                                 .append(" | ")
                                 .append(
                                         Component.literal("x = " +(int) (inputState.vaporQuality() *100) + "%")
@@ -93,9 +94,9 @@ public class CompressorBlockEntity extends KineticBlockEntity {
         SpecificRealGazState outputState = OUTPUT_WATER_TANK.getState();
         CreateLang.builder().add(
                 Component.literal("output : ").append(
-                        CROWNSLang.formatTemperature(outputState.temperature()).component()
+                        FormicApiLang.formatTemperature(outputState.temperature()).component()
                                 .append( " | ")
-                                .append(CROWNSLang.formatPressure(outputState.pressure()).component())
+                                .append(FormicApiLang.formatPressure(outputState.pressure()).component())
                                 .append(" | ")
                                 .append(
                                         Component.literal("x = " +(int) (outputState.vaporQuality() *100) + "%")

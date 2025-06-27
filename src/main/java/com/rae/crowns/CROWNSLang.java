@@ -1,10 +1,5 @@
 package com.rae.crowns;
 
-import com.rae.formicapi.units.Pressure;
-import com.rae.formicapi.units.RadiationFlux;
-import com.rae.formicapi.units.Temperature;
-import com.rae.crowns.config.CROWNSConfigs;
-import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.lang.Lang;
 import net.createmod.catnip.lang.LangBuilder;
 import net.createmod.catnip.lang.LangNumberFormat;
@@ -72,26 +67,5 @@ public class CROWNSLang extends Lang {
         return builder().text(text);
     }
 
-    public static LangBuilder formatTemperature(float temperature) {
-        Temperature unit = CROWNSConfigs.CLIENT.units.temperature.get();
-        return CreateLang.builder().add(Component.literal("T = "))
-                .add(number(unit.convert(temperature)))
-                .text(" ")
-                .add(unit.getSymbol());
-    }
-    public static LangBuilder formatPressure(float pressure) {
-        Pressure unit = CROWNSConfigs.CLIENT.units.pressure.get();
-        return CreateLang.builder().add(Component.literal("P = "))
-                .add(number(unit.convert(pressure)))
-                .text(" ")
-                .add(unit.getSymbol());
-    }
-    public static LangBuilder formatRadiationFlux(float radiationFlux) {
-        RadiationFlux unit = CROWNSConfigs.CLIENT.units.radiationFlux.get();
-        return CreateLang.builder().add(Component.literal("activity : "))
-                .add(number(unit.convert(radiationFlux)))
-                .text(" ")
-                .add(unit.getSymbol());
-    }
 
 }

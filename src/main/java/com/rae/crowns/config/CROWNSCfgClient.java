@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 public class CROWNSCfgClient extends ConfigBase {
 
 
-    public final CROWNSUnits units = nested(0, CROWNSUnits::new, Comments.units);
     public final ConfigGroup nuclear = new ConfigGroup("nuclear",0, Comments.nuclear);
     public final ConfigBool nuclearParticle = b(true, "nuclear_particle",Comments.nuclearParticle);
     @Override

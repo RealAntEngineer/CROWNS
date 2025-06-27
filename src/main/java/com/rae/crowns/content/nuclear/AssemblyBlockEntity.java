@@ -4,6 +4,7 @@ import com.rae.crowns.CROWNS;
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
 import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -289,11 +290,11 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 
-        CROWNSLang.formatRadiationFlux(getRadioactiveActivity()*20)
+        FormicApiLang.formatRadiationFlux(getRadioactiveActivity()*20)
                 .style(ChatFormatting.DARK_GREEN)
                 .forGoggles(tooltip, 1);
 
-        CROWNSLang.formatTemperature(temperature)
+        FormicApiLang.formatTemperature(temperature)
                 .style(ChatFormatting.DARK_RED)
                 .forGoggles(tooltip, 1);
 
