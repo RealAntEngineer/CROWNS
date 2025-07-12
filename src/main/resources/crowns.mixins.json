@@ -7,10 +7,12 @@
   "refmap": "crowns.refmap.json",
   "mixins": [
     "BlazeBurnerMixin",
+    "ChunkSerializerMixin",
     "FluidStackMixin",
     "FluidTankMixin",
     "FluidTransportBehaviourMixin",
-    "LangMixin"
+    "LangMixin",
+    "ServerLevelMixin"
   ],
   "client": [
   ],

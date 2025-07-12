@@ -3,7 +3,7 @@ package com.rae.crowns.content.thermodynamics.compressor;
 import com.rae.crowns.Constants;
 import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
-import com.rae.formicapi.thermal_utilities.helper.WaterCubicEOS;
+import com.rae.formicapi.thermal_utilities.helper.WaterTableBased;
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.simibubi.create.content.kinetics.KineticNetwork;
@@ -166,7 +166,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
             SpecificRealGazState inputState =  INPUT_WATER_TANK.getState();
             FluidStack water = INPUT_WATER_TANK.drain((int) Math.abs(speed), IFluidHandler.FluidAction.SIMULATE);
             if(!water.isEmpty()) {
-                SpecificRealGazState outputState = WaterCubicEOS.isentropicCompression(inputState, pressureRatio());
+                SpecificRealGazState outputState = WaterTableBased.isentropicCompression(inputState, pressureRatio());
                 power = (int) (outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount()/ Constants.whatSU;
 
                 CompoundTag tag = new CompoundTag();

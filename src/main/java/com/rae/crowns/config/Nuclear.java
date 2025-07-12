@@ -3,7 +3,7 @@ package com.rae.crowns.config;
 
 import net.createmod.catnip.config.ConfigBase;
 
-public class CROWNSNuclear extends ConfigBase {
+public class Nuclear extends ConfigBase {
     public final ConfigBase.ConfigFloat realismCoefficient = f(5000000,0,"realismCoef", Comments.realismCoef);
     public final ConfigBase.ConfigFloat radiationRange = f(4,0,"radiationRange", Comments.radiationRange);
 

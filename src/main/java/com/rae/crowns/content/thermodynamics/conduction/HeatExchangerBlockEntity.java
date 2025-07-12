@@ -1,7 +1,8 @@
 package com.rae.crowns.content.thermodynamics.conduction;
 
-import com.rae.crowns.CROWNSLang;
-import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.crowns.config.Configs;
+import com.rae.crowns.content.fields.temperature.TemperatureManager;
+import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.misc.BlockInit;
 
@@ -17,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -101,7 +103,16 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         }
     }
 
-
+    @Override
+    public void initialize() {
+        super.initialize();
+        if (level instanceof ServerLevel serverLevel) {
+            TemperatureWorldData data = TemperatureManager.get(serverLevel);
+            if (data != null) {
+                data.putDynamic(getBlockPos(), this);
+            }
+        }
+    }
 
     @Override
     public void lazyTick() {
@@ -127,10 +138,10 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
     @Override
     public float getThermalConductivity() {
-        return CROWNSConfigs.SERVER.conduction.heatExchangerExternal.getF();
+        return Configs.SERVER.conduction.heatExchangerExternal.getF();
     }
     public float getInternalConductivity() {
-        return CROWNSConfigs.SERVER.conduction.heatExchangerInternal.getF();
+        return Configs.SERVER.conduction.heatExchangerInternal.getF();
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.rae.crowns.CROWNS;
 import net.createmod.catnip.config.ConfigBase;
 import org.jetbrains.annotations.NotNull;
 
-public class CROWNSCfgClient extends ConfigBase {
+public class CfgClient extends ConfigBase {
 
 
     public final ConfigGroup nuclear = new ConfigGroup("nuclear",0, Comments.nuclear);

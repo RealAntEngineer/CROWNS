@@ -2,13 +2,18 @@ package com.rae.crowns;
 
 import com.mojang.logging.LogUtils;
 import com.rae.formicapi.data.managers.FloatMapDataLoader;
-import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.crowns.config.Configs;
 import com.rae.crowns.init.client.PartialModelInit;
 import com.rae.crowns.init.client.ParticleTypeInit;
 import com.rae.crowns.init.data.EntityDataSerializersInit;
 import com.rae.crowns.init.misc.*;
 import com.simibubi.create.foundation.data.CreateRegistrate;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,7 +24,6 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.slf4j.Logger;
 
 @SuppressWarnings("ALL")
@@ -27,9 +31,17 @@ import org.slf4j.Logger;
 public class CROWNS {
     public static final String MODID = "crowns";
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static final CreateRegistrate REGISTRATE = CreateRegistrate.create(MODID);
-    public static final FloatMapDataLoader<Block> BLOCK_TEMPERATURES = new FloatMapDataLoader<>(MODID,"block_temperatures", ForgeRegistries.BLOCKS.getRegistryKey());
-    public static final FloatMapDataLoader<Fluid> FLUID_TEMPERATURES = new FloatMapDataLoader<>(MODID,"fluid_temperatures", ForgeRegistries.FLUIDS.getRegistryKey());
+    public static final CreateRegistrate REGISTRATE =
+            CreateRegistrate.create(MODID)
+            .defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
+    public static final FloatMapDataLoader<Block> BLOCK_TEMPERATURES = new FloatMapDataLoader<>(MODID,"blocks/temperatures", Registries.BLOCK);
+    public static final FloatMapDataLoader<Block> BLOCK_CONDUCTION = new FloatMapDataLoader<>(MODID,"blocks/conduction", Registries.BLOCK);
+    public static final FloatMapDataLoader<Block> BLOCK_RESILIENCE = new FloatMapDataLoader<>(MODID,"blocks/capacity", Registries.BLOCK);
+    public static final FloatMapDataLoader<Fluid> FLUID_TEMPERATURES = new FloatMapDataLoader<>(MODID,"fluids/temperatures", Registries.FLUID);
+    public static final FloatMapDataLoader<Fluid> FLUID_CONDUCTION = new FloatMapDataLoader<>(MODID,"fluids/conduction", Registries.FLUID);
+    public static final FloatMapDataLoader<Fluid> FLUID_RESILIENCE = new FloatMapDataLoader<>(MODID,"fluids/capacity", Registries.FLUID);
+
+    public static final FloatMapDataLoader<Biome> BIOME_TEMPERATURES = new FloatMapDataLoader<>(MODID,"biomes/temperatures", Registries.BIOME);
 
     public CROWNS(){
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -44,12 +56,13 @@ public class CROWNS {
         BlockEntityInit.register();
         EntityInit.register();
 
+        DisplaySourceInit.register();
         CreativeModeTabsInit.register(modEventBus);
         ParticleTypeInit.register(modEventBus);
         PartialModelInit.init();
         EntityDataSerializersInit.register(modEventBus);
 
-        CROWNSConfigs.registerConfigs(modLoadingContext);
+        Configs.registerConfigs(modLoadingContext);
         CROWNSContraptionType.prepare();
         //CreativeModeTabsInit.init();
 
@@ -61,7 +74,15 @@ public class CROWNS {
     public static void onAddReloadListeners(AddReloadListenerEvent event)
     {
         event.addListener(CROWNS.BLOCK_TEMPERATURES);
+        event.addListener(CROWNS.BLOCK_RESILIENCE);
+        event.addListener(CROWNS.BLOCK_CONDUCTION);
+
         event.addListener(CROWNS.FLUID_TEMPERATURES);
+        event.addListener(CROWNS.FLUID_RESILIENCE);
+        event.addListener(CROWNS.FLUID_CONDUCTION);
+
+        event.addListener(CROWNS.BIOME_TEMPERATURES);
+
     }
 
     public static ResourceLocation resource(String name) {

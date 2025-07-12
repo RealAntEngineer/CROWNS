@@ -4,7 +4,7 @@ package com.rae.crowns.config;
 import net.createmod.catnip.config.ConfigBase;
 import org.jetbrains.annotations.NotNull;
 
-public class CROWNSConduction extends ConfigBase {
+public class Conduction extends ConfigBase {
     public final ConfigFloat heatExchangerExternal = f(50000,0,"heatExchangerExternal", Comments.heatExchangerExternal);
     public final ConfigFloat heatExchangerInternal = f(50000,0,"heatExchangerInternal", Comments.heatExchangerInternal);
     public final ConfigFloat assemblyBlock = f(50000,0,"assemblyBlock", Comments.assemblyBlock);

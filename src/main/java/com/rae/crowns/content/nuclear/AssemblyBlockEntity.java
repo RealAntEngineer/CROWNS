@@ -1,9 +1,10 @@
 package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.CROWNS;
-import com.rae.crowns.CROWNSLang;
+import com.rae.crowns.content.fields.temperature.TemperatureManager;
+import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
-import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.crowns.config.Configs;
 import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -94,6 +95,17 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     @Override
+    public void initialize() {
+        super.initialize();
+        if (level instanceof ServerLevel serverLevel) {
+            TemperatureWorldData data = TemperatureManager.get(serverLevel);
+            if (data != null) {
+                data.putDynamic(getBlockPos(), this);
+            }
+        }
+    }
+
+    @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
     }
     @Override
@@ -106,7 +118,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                     sendData();
             }
 
-            if (CROWNSConfigs.CLIENT.nuclearParticle.get())
+            if (Configs.CLIENT.nuclearParticle.get())
                 spawnRadiationParticles(level,getBlockPos(),nbrOfFission);
         }
         if (Float.isNaN(temperature)){
@@ -128,7 +140,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             //float thermal_loses = (temperature-300)*10;// ambient temperature = 300K make thermal loses in the conduct temperature
 
             float power = (float) (nbrOfFission*fissionEnergy *
-                    CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
+                    Configs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
 
             temperature += power/C;
             conductTemperature(pos,level);
@@ -150,7 +162,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
                 }
             }
-            moreOptimizedImpactEnv(pos,level,CROWNSConfigs.SERVER.nuclear.radiationRange.get());
+            moreOptimizedImpactEnv(pos,level, Configs.SERVER.nuclear.radiationRange.get());
 
             notifyUpdate();
 
@@ -186,41 +198,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         }
     }
 
-    /*private void initialisePosGraph() {
-        BlockPos pos = getBlockPos();
-        // parent/children
-        posGraph = new ArrayList<>();
-        posGraph.add(new HashMap<>());
-        posGraph.get(0).put(pos, List.of(pos.above(),pos.below(),pos.north(),pos.south(),pos.east(),pos.west()));
-
-        ArrayList<BlockPos> listOfComputedParents = new ArrayList<>();
-        listOfComputedParents.add(pos);
-
-        for (int i = 1; i < range; i++) {
-
-            HashMap<BlockPos,List<BlockPos>> currentMap = new HashMap<>();
-            HashMap<BlockPos,List<BlockPos>> prevMap = posGraph.get(i-1);
-            ArrayList<BlockPos> parents = new ArrayList<>();
-            //prevent doubles + unordered for performance -> check utility + if the doubles are needed
-            for (List<BlockPos> prevChildren: prevMap.values().stream().unordered().distinct().toList()) {
-                parents.addAll(prevChildren);
-            }
-            listOfComputedParents.addAll(parents);
-            ArrayList<BlockPos> children = new ArrayList<>();
-            for (BlockPos parentPos :
-                    parents) {
-                for (Direction dir:
-                        Direction.values()) {
-                    if (!listOfComputedParents.contains(parentPos.relative(dir))) {
-                        children.add(parentPos.relative(dir));
-                    }
-                }
-                currentMap.put(parentPos,children);
-            }
-            posGraph.add(currentMap);
-        }
-    }*/
-
     private void meltdown(BlockPos pos) {
         assert level != null;
         level.setBlockAndUpdate(pos, Blocks.LAVA.defaultBlockState());
@@ -243,7 +220,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     //transmition coef
     @Override
     public float getThermalConductivity() {
-        return CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
+        return Configs.SERVER.conduction.assemblyBlock.getF();
     }
 
     @Override

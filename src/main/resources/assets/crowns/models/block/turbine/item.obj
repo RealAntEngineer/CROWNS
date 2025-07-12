@@ -1,6 +1,6 @@
 # Blender 4.2.3 LTS
 # www.blender.org
-mtllib turbine.mtl
+mtllib item.mtl
 o blade.1.1
 v -0.493485 -0.935427 1.000000
 v -0.493485 -0.935427 0.000000

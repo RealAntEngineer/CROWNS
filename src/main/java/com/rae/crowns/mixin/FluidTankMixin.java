@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.rae.formicapi.thermal_utilities.helper.WaterCubicEOS.DEFAULT_STATE;
-import static com.rae.formicapi.thermal_utilities.helper.WaterCubicEOS.mix;
+import static com.rae.formicapi.thermal_utilities.helper.WaterTableBased.DEFAULT_STATE;
+import static com.rae.formicapi.thermal_utilities.helper.WaterTableBased.mix;
 
 @Mixin(value = FluidTank.class)
 public abstract class FluidTankMixin {

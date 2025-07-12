@@ -3,7 +3,7 @@ package com.rae.crowns.content.thermodynamics.turbine;
 import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
-import com.rae.formicapi.thermal_utilities.helper.WaterCubicEOS;
+import com.rae.formicapi.thermal_utilities.helper.WaterTableBased;
 import com.rae.crowns.init.misc.BlockInit;
 import com.rae.crowns.init.data.EntityDataSerializersInit;
 import net.createmod.catnip.theme.Color;
@@ -125,9 +125,9 @@ public class SteamCurrent extends Entity{
             if (stage != null) {
 				float pressureRatio = stage.pressureRatio();
 				if (pressureRatio < 1) {
-					nextState = WaterCubicEOS.isentropicExpansion(previousState, 1 / pressureRatio);
+					nextState = WaterTableBased.isentropicExpansion(previousState, 1 / pressureRatio);
 				} else if (pressureRatio > 1) {
-					nextState = WaterCubicEOS.isentropicCompression(previousState, pressureRatio);
+					nextState = WaterTableBased.isentropicCompression(previousState, pressureRatio);
 				}
 				//need to ensure that it's empty before end
 				//.get(this.direction.getAxis()
@@ -152,7 +152,7 @@ public class SteamCurrent extends Entity{
             inputFluidState = ((SteamInputBlockEntity) be).getState();
         }
         if (inputFluidState==null){
-			inputFluidState = WaterCubicEOS.DEFAULT_STATE;
+			inputFluidState = WaterTableBased.DEFAULT_STATE;
 		}
         return inputFluidState;
 	}

@@ -17,14 +17,14 @@ import java.util.function.Supplier;
 // Demonstrates how to use Forge's config APIs
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 
-public class CROWNSConfigs
+public class Configs
 {
     private static final Map<ModConfig.Type, ConfigBase> CONFIGS = new EnumMap<>(ModConfig.Type.class);
 
-    public static CROWNSCfgServer SERVER;
-    public static CROWNSCfgClient CLIENT;
+    public static CfgServer SERVER;
+    public static CfgClient CLIENT;
 
-    public CROWNSConfigs() {
+    public Configs() {
     }
 
     public static ConfigBase byType(ModConfig.Type type) {
@@ -44,9 +44,9 @@ public class CROWNSConfigs
     }
 
     public static void registerConfigs(ModLoadingContext context) {
-        CLIENT = register(CROWNSCfgClient::new, ModConfig.Type.CLIENT);
+        CLIENT = register(CfgClient::new, ModConfig.Type.CLIENT);
         //COMMON = register(CSCfgCommon::new, ModConfig.Type.COMMON);
-        SERVER = register(CROWNSCfgServer::new, ModConfig.Type.SERVER);
+        SERVER = register(CfgServer::new, ModConfig.Type.SERVER);
 
         for (Map.Entry<ModConfig.Type, ConfigBase> pair : CONFIGS.entrySet())
             context.registerConfig(pair.getKey(), pair.getValue().specification);
