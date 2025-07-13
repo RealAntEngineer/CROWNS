@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 
 import java.util.Map;
@@ -23,7 +24,8 @@ public class TemperatureManager {
         //TODO : A mix bwn the 2 ?
         //Priority: Fluid > Block >  Biome
         if (fluid.isEmpty()) {
-            return CROWNS.BLOCK_TEMPERATURES.getValue(level.getBlockState(pos).getBlock(), defaultT);
+            BlockState blockState = level.getBlockState(pos);
+            return CROWNS.BLOCK_TEMPERATURES.getValue(blockState.getBlock(), defaultT);
         } else {
             return CROWNS.FLUID_TEMPERATURES.getValue(fluid.getType(), defaultT);
 

@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": {
+    "minecraft:frozen_ocean": 273,
+    "minecraft:desert": 320
+  }
+}

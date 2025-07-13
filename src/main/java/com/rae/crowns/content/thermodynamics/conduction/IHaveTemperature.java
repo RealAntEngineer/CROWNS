@@ -14,6 +14,7 @@ public interface IHaveTemperature {
     float getThermalConductivity();
     float getTemperature();
     void addTemperature(float dT);
+    /*
     default void conductTemperature(BlockPos pos, Level level){
         conductTemperature(pos, level, 1);
     }
@@ -49,5 +50,5 @@ public interface IHaveTemperature {
                 addTemperature((T - getTemperature()) * this.getThermalConductivity() / this.getThermalCapacity());
             }
         }
-    }
+    }*/
 }

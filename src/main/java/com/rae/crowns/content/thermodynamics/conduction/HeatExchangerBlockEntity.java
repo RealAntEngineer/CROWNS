@@ -1,6 +1,6 @@
 package com.rae.crowns.content.thermodynamics.conduction;
 
-import com.rae.crowns.config.Configs;
+import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
@@ -118,7 +118,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     public void lazyTick() {
         //What the fuck is going on here ?
         super.lazyTick();
-        conductTemperature(getBlockPos(),level, 0.5f);
+        //conductTemperature(getBlockPos(),level, 0.5f);
 
         //make the calculus, so it's the real nbr or make it in stage ( like ten stage )
         float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) / 2;
@@ -138,10 +138,10 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
     @Override
     public float getThermalConductivity() {
-        return Configs.SERVER.conduction.heatExchangerExternal.getF();
+        return CROWNSConfigs.SERVER.conduction.heatExchangerExternal.getF();
     }
     public float getInternalConductivity() {
-        return Configs.SERVER.conduction.heatExchangerInternal.getF();
+        return CROWNSConfigs.SERVER.conduction.heatExchangerInternal.getF();
     }
 
     @Override

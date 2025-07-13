@@ -84,7 +84,7 @@ public class ChunkSerializerMixin {
             if (sectionTag.contains("TemperatureDirty") && sectionTag.getBoolean("TemperatureDirty")){
                 worldData.setDirty(sectionPos);
             } else {
-                worldData.setDirty(sectionPos);
+                worldData.setClean(sectionPos);
             }
         }
     }

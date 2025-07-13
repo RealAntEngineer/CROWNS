@@ -4,7 +4,7 @@ import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
-import com.rae.crowns.config.Configs;
+import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -118,7 +118,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                     sendData();
             }
 
-            if (Configs.CLIENT.nuclearParticle.get())
+            if (CROWNSConfigs.CLIENT.nuclearParticle.get())
                 spawnRadiationParticles(level,getBlockPos(),nbrOfFission);
         }
         if (Float.isNaN(temperature)){
@@ -140,10 +140,10 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             //float thermal_loses = (temperature-300)*10;// ambient temperature = 300K make thermal loses in the conduct temperature
 
             float power = (float) (nbrOfFission*fissionEnergy *
-                    Configs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
+                    CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
 
             temperature += power/C;
-            conductTemperature(pos,level);
+            //conductTemperature(pos,level);
 
             if (temperature > 3500) {
                 if (power > 100000000) {
@@ -162,7 +162,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
                 }
             }
-            moreOptimizedImpactEnv(pos,level, Configs.SERVER.nuclear.radiationRange.get());
+            moreOptimizedImpactEnv(pos,level, CROWNSConfigs.SERVER.nuclear.radiationRange.get());
 
             notifyUpdate();
 
@@ -220,7 +220,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     //transmition coef
     @Override
     public float getThermalConductivity() {
-        return Configs.SERVER.conduction.assemblyBlock.getF();
+        return CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
     }
 
     @Override

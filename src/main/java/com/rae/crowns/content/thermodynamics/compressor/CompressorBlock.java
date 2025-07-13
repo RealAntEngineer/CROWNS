@@ -26,7 +26,7 @@ public class CompressorBlock extends DirectionalKineticBlock implements IBE<Comp
     }
     @Override
     public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
-        return face.getAxis() == state.getValue(FACING).getAxis();
+        return false;//face.getAxis() == state.getValue(FACING).getAxis();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
-import com.rae.crowns.config.Configs;
+import com.rae.crowns.config.CROWNSConfigs;
 import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.minecraft.core.BlockPos;
@@ -40,11 +40,11 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     public float getGeneratedSpeed() {
         //if flows is empty and power!=0 it means that the BE is being loaded, we need to trust only the power in that case
         //so there is no need to check for the flows.
-        return power==0?0: Configs.SERVER.kinetics.turbineSpeed.get(); // * direction du flux
+        return power==0?0: CROWNSConfigs.SERVER.kinetics.turbineSpeed.get(); // * direction du flux
     }
     @Override
     public float calculateAddedStressCapacity() {//it's the stress base not the real stress
-        float capacity = (float) (getCombinedCapacity() * Configs.SERVER.kinetics.turbineCoefficient.get());
+        float capacity = (float) (getCombinedCapacity() * CROWNSConfigs.SERVER.kinetics.turbineCoefficient.get());
         this.lastCapacityProvided = capacity;
         return capacity;
     }

@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": {
+    "minecraft:copper_block": 0.05,
+    "minecraft:magma_block": 1,
+    "crowns:heat_exchanger": 0.05
+  }
+}

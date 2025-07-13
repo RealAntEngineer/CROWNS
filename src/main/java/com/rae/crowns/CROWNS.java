@@ -2,7 +2,7 @@ package com.rae.crowns;
 
 import com.mojang.logging.LogUtils;
 import com.rae.formicapi.data.managers.FloatMapDataLoader;
-import com.rae.crowns.config.Configs;
+import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.init.client.PartialModelInit;
 import com.rae.crowns.init.client.ParticleTypeInit;
 import com.rae.crowns.init.data.EntityDataSerializersInit;
@@ -62,7 +62,7 @@ public class CROWNS {
         PartialModelInit.init();
         EntityDataSerializersInit.register(modEventBus);
 
-        Configs.registerConfigs(modLoadingContext);
+        CROWNSConfigs.registerConfigs(modLoadingContext);
         CROWNSContraptionType.prepare();
         //CreativeModeTabsInit.init();
 
