@@ -1,4 +1,4 @@
-package com.rae.crowns.content.thermodynamics.turbine;
+package com.rae.crowns.content.thermodynamics;
 
 public interface ISteamPressureChange {
 

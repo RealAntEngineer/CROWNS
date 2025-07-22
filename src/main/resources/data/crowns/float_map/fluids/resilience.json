@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": {
+    "minecraft:water": 0.1,
+    "minecraft:flowing_water": 0.1
+  }
+}

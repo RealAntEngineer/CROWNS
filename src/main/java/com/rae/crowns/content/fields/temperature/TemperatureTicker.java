@@ -1,7 +1,7 @@
 package com.rae.crowns.content.fields.temperature;
 
 import com.rae.crowns.config.CROWNSConfigs;
-import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
+import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import net.minecraft.core.*;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class TemperatureTicker {
-    public static float DT = 0.25f;
+    public static float DT = 1/10f;
 
 
     public static void tick(Set<SectionPos> loadedSections, TemperatureWorldData data) {
@@ -109,8 +109,11 @@ public class TemperatureTicker {
                             }
 
                         }
-                        float resilience = resilienceData.get(x, y, z);//just to have access to the value in debug mode
-                        float newTemp = Mth.clamp((selfDefaultTemp - selfTemp) * resilienceData.get(x, y, z) + weightedMean / weights, minTemp, maxTemp);
+                        //just to have access to the value in debug mode
+                        float newTemp = Mth.clamp(
+                                Mth.clamp((selfDefaultTemp - selfTemp)
+                                        * resilienceData.get(x, y, z) + weightedMean / weights, minTemp, maxTemp),
+                                TemperatureDataLayer.MIN_TEMPERATURE, TemperatureDataLayer.MAX_TEMPERATURE);
                         newTemp = (newTemp * 0.9f + selfTemp * 0.1f);//here to dampen oscillations
                         if (newTemp != selfDefaultTemp && Mth.abs(selfTemp - newTemp) > 0.5f) {
                             if (data.dynamicContains(pos)) {

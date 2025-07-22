@@ -13,6 +13,8 @@ public class TemperatureDataLayer {
     private static final int SHORT_SIZE  = 256 * 256;
     private final short[] data;
     private final short[] defaultData;
+    public static final int MIN_TEMPERATURE = 0;
+    public static final int MAX_TEMPERATURE = 6553;
 
 
     public TemperatureDataLayer() {
@@ -55,7 +57,7 @@ public class TemperatureDataLayer {
 
 
     public void set(int x, int y, int z, float temperature) {//map
-        data[y << 8 | z << 4 | x] = (short) ((int) Mth.clamp(temperature,0,6553) * 10 - SHORT_SIZE/2);
+        data[y << 8 | z << 4 | x] = (short) ((int) Mth.clamp(temperature, MIN_TEMPERATURE, MAX_TEMPERATURE) * 10 - SHORT_SIZE/2);
     }
     public void setDefault(int x, int y, int z, float temperature) {//map
         defaultData[y << 8 | z << 4 | x] = (short) ((int)Mth.clamp(temperature,0,6553) * 10 - SHORT_SIZE/2);

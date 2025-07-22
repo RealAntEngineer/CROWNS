@@ -5,6 +5,8 @@ import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -15,13 +17,14 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlockEntity> {
+public class FuelAssemblyBlock extends RotatedPillarBlock implements IBE<FuelAssemblyBlockEntity> {
     public static final EnumProperty<Temperature> TEMPERATURE = EnumProperty.create("temperature", Temperature.class); //T*10
     public static final EnumProperty<Activity> ACTIVITY = EnumProperty.create("activity", Activity.class);
 
-    public AssemblyBlock(Properties properties) {
+    public FuelAssemblyBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(TEMPERATURE, Temperature.COLD)
@@ -35,12 +38,12 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
     }
 
     @Override
-    public Class<AssemblyBlockEntity> getBlockEntityClass() {
-        return AssemblyBlockEntity.class;
+    public Class<FuelAssemblyBlockEntity> getBlockEntityClass() {
+        return FuelAssemblyBlockEntity.class;
     }
 
     @Override
-    public BlockEntityType<? extends AssemblyBlockEntity> getBlockEntityType() {
+    public BlockEntityType<? extends FuelAssemblyBlockEntity> getBlockEntityType() {
         return BlockEntityInit.FUEL_ASSEMBLY.get();
     }
 
@@ -48,7 +51,7 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return level.isClientSide() ? null : ($0,pos,$1,blockEntity) -> {
-            if(blockEntity instanceof AssemblyBlockEntity assemblyBlockEntity) {
+            if(blockEntity instanceof FuelAssemblyBlockEntity assemblyBlockEntity) {
                 assemblyBlockEntity.tick();
             }
         };
@@ -57,7 +60,7 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
     public enum Activity implements StringRepresentable {
         NONE,LOW,HIGH;
         @Override
-        public String getSerializedName() {
+        public @NotNull String getSerializedName() {
             return this.name().toLowerCase();
         }
     }
@@ -65,16 +68,27 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
         COLD,WARM,HOT;
 
         @Override
-        public String getSerializedName() {
+        public @NotNull String getSerializedName() {
             return this.name().toLowerCase();
         }
     }
 
     @Override
-    public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        if (level.getBlockEntity(pos) instanceof AssemblyBlockEntity assemblyBlockEntity) {
+    @SuppressWarnings("deprecated")
+    public int getSignal(@NotNull BlockState state, BlockGetter level, @NotNull BlockPos pos, @NotNull Direction direction) {
+        if (level.getBlockEntity(pos) instanceof FuelAssemblyBlockEntity assemblyBlockEntity) {
             return (int) (assemblyBlockEntity.getTemperature()/3500f * 16f);
         }
         return super.getSignal(state, level, pos, direction);
+    }
+
+    @Override
+    public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity player, @NotNull ItemStack itemStack) {
+        super.setPlacedBy(level, pos, state, player, itemStack);
+        if (level.isClientSide)
+            return;
+        withBlockEntityDo(level, pos, be -> {
+            be.setComposition(itemStack.getOrCreateTag().getCompound("composition"));
+        });
     }
 }

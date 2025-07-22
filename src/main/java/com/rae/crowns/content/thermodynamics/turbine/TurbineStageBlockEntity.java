@@ -1,15 +1,20 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.crowns.content.sound.CrownsSoundScapes;
+import com.rae.crowns.content.thermodynamics.ISteamPressureChange;
 import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,8 +65,12 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     }
 
     @Override
-    public void tick() {
-        super.tick();
+    @OnlyIn(Dist.CLIENT)
+    public void tickAudio() {
+        super.tickAudio();
+        if (Math.abs(speed) > 0) {
+            CrownsSoundScapes.play(CrownsSoundScapes.AmbienceGroup.TURBINE, worldPosition, Mth.lerp(Math.abs(speed)/256,0.25f, 1));
+        }
 
     }
 
@@ -87,6 +96,11 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
 
         if (level.isClientSide()) return;
         updateGeneratedRotation();
+    }
+
+    @Override
+    protected boolean isNoisy() {
+        return true;
     }
 
     @Override

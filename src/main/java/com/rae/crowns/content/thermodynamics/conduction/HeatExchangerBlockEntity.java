@@ -3,6 +3,7 @@ package com.rae.crowns.content.thermodynamics.conduction;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
+import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.misc.BlockInit;
 
@@ -100,6 +101,22 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                     WATER_TANK.drain(handler.fill(stack, IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE);
                 }
             }
+
+            //internal conduction
+
+            float deltaT = this.getTemperature() - WATER_TANK.getState().temperature();
+            float k = this.getInternalConductivity();
+            float dt = 0.05F; // time step duration in seconds
+
+            float C_pipe = this.getThermalCapacity();
+
+            // Calculate the heat transfer using exponential decay for stability
+            float factor = 1 - (float)Math.exp(-k * dt / C_pipe);
+            float heatTransfer = deltaT * factor;
+
+            // Transfer heat to water
+            WATER_TANK.heat(heatTransfer);
+            temperature -= heatTransfer/C_pipe;
         }
     }
 
@@ -120,12 +137,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         super.lazyTick();
         //conductTemperature(getBlockPos(),level, 0.5f);
 
-        //make the calculus, so it's the real nbr or make it in stage ( like ten stage )
-        float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) / 2;
-        WATER_TANK.heat(power);
-        this.addTemperature(
-                -power
-                        / this.getThermalCapacity());
+
         // the fact that it changes too often make it bugged ->
         // maybe if it's directly in  the fluidTransport behaviour
         sendData();

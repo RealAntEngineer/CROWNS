@@ -1,6 +1,6 @@
 package com.rae.crowns.content.fields.temperature;
 
-import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
+import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;

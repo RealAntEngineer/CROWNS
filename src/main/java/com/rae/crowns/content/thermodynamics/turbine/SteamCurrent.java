@@ -1,5 +1,6 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
+import com.rae.crowns.content.thermodynamics.ISteamPressureChange;
 import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
