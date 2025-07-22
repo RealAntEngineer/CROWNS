@@ -3,7 +3,7 @@
 	"parent": "minecraft:block/block",
 	"textures": {
 		"0": "create:block/pipes",
-		"1": "create:block/copper_plating",
+		"1": "crowns:block/pipe/copper_plating",
 		"2": "create:block/pump",
 		"particle": "create:block/pipes"
 	},

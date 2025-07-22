@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": {
+    "minecraft:fire": 700,
+    "minecraft:magma_block": 600,
+    "minecraft:ice": 273,
+    "minecraft:packed_ice": 220
+  }
+}
