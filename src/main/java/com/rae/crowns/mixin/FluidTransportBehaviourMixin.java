@@ -20,6 +20,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.lang.reflect.Method;
+import java.nio.channels.Pipe;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -68,7 +70,15 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
             boolean sendUpdate = false;
             for (PipeConnection connection : connections) {
                 sendUpdate |= connection.flipFlowsIfPressureReversed();
-                connection.manageSource(world, pos, blockEntity);
+                //dirty hack to make it work for 6.0.4
+                try {
+                    Method m = PipeConnection.class.getMethod("manageSource", Level.class, BlockPos.class, SmartBlockEntity.class);
+                    m.invoke(connection, world, pos, blockEntity);
+                } catch (NoSuchMethodException e) {
+                    connection.manageSource(world, pos);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
             if (sendUpdate)
                 blockEntity.notifyUpdate();

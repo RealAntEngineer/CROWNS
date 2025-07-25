@@ -15,8 +15,6 @@ public class CROWNSCfgClient extends ConfigBase {
 
     private static class Comments {
         static String units = "Units used";
-        static String nuclear = "Graphic config for nuclear";
-        static String nuclearParticle = "Radiation Particles";
 
     }
 
