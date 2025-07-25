@@ -4,20 +4,18 @@ import com.rae.crowns.CROWNS;
 import net.createmod.catnip.config.ConfigBase;
 import org.jetbrains.annotations.NotNull;
 
-public class CROWNSCfgClient extends ConfigBase {
+public class CROWNSCfgCommon extends ConfigBase  {
+    //yes it needs to be on the common side...
+    public final ConfigBase.ConfigGroup nuclear = new ConfigBase.ConfigGroup("nuclear",0, Comments.nuclear);
+    public final ConfigBase.ConfigBool nuclearParticle = b(true, "nuclear_particle", Comments.nuclearParticle);
 
-
-    public final CROWNSUnits units = nested(0, CROWNSUnits::new, Comments.units);
-    @Override
     public @NotNull String getName() {
-        return CROWNS.MODID +".client";
+        return CROWNS.MODID +".common";
     }
 
     private static class Comments {
-        static String units = "Units used";
         static String nuclear = "Graphic config for nuclear";
         static String nuclearParticle = "Radiation Particles";
 
     }
-
 }
