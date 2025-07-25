@@ -100,7 +100,7 @@ public class TemperatureTicker {
                             }
 
                         }
-                        float resilience = resilienceData.get(x, y, z);
+                        float resilience = resilienceData.get(x, y, z);//just to have access to the value in debug mode
                         float newTemp = Math.clamp((selfDefaultTemp - selfTemp) * resilienceData.get(x, y, z) + weightedMean / weights, minTemp, maxTemp);
                         if (newTemp != selfDefaultTemp) {
                             if (data.dynamicContains(pos)) {

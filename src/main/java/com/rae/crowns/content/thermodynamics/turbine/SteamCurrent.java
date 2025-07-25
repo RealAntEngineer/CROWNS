@@ -126,9 +126,9 @@ public class SteamCurrent extends Entity{
             if (stage != null) {
 				float pressureRatio = stage.pressureRatio();
 				if (pressureRatio < 1) {
-					nextState = WaterCubicEOSTransformationHelper.standardExpansion(previousState, 1 / pressureRatio);
+					nextState = WaterCubicEOSTransformationHelper.isentropicExpansion(previousState, 1 / pressureRatio);
 				} else if (pressureRatio > 1) {
-					nextState = WaterCubicEOSTransformationHelper.standardCompression(previousState, pressureRatio);
+					nextState = WaterCubicEOSTransformationHelper.isentropicCompression(previousState, pressureRatio);
 				}
 				//need to ensure that it's empty before end
 				//.get(this.direction.getAxis()

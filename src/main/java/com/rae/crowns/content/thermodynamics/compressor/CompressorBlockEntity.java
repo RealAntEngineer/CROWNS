@@ -135,10 +135,6 @@ public class CompressorBlockEntity extends KineticBlockEntity {
         super.read(tag,registries, clientPacket);
     }
 
-
-    //nope -> we're gonna do that an other way : speed will fix flow and pressure is fixed
-    // it's directional
-
     @Override
     public void sendData() {
         if (syncCooldown > 0) {
@@ -167,7 +163,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
             SpecificRealGazState inputState =  INPUT_WATER_TANK.getState();
             FluidStack water = INPUT_WATER_TANK.drain((int) Math.abs(speed), IFluidHandler.FluidAction.SIMULATE);
             if(!water.isEmpty()) {
-                SpecificRealGazState outputState = WaterCubicEOSTransformationHelper.standardCompression(inputState, pressureRatio());
+                SpecificRealGazState outputState = WaterCubicEOSTransformationHelper.isentropicCompression(inputState, pressureRatio());
                 power = (outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount();
                 water.set(DataComponentsInit.REAL_GAZ_STATE, outputState);
                 INPUT_WATER_TANK.drain(Math.min((int) speed,OUTPUT_WATER_TANK.fill(water, IFluidHandler.FluidAction.EXECUTE)), IFluidHandler.FluidAction.EXECUTE);

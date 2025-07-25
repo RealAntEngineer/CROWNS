@@ -129,6 +129,8 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
         //make the calculus, so it's the real nbr or make it in stage ( like ten stage )
         float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) / 2;
+        System.out.println("power: " + power);
+        System.out.println("state: " + WATER_TANK.getState());
         WATER_TANK.heat(power);
         this.addTemperature(
                 -power

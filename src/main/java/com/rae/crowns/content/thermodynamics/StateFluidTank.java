@@ -24,7 +24,7 @@ public class StateFluidTank extends SmartFluidTank {
             if (oldState == null) {
                 oldState = DEFAULT_STATE;
             }
-            SpecificRealGazState state = WaterCubicEOSTransformationHelper.isobaricTransfert(oldState, amount / getFluidAmount());
+            SpecificRealGazState state = WaterCubicEOSTransformationHelper.isobaricTransfer(oldState, amount / getFluidAmount());
             fluid.set(DataComponentsInit.REAL_GAZ_STATE, state);
         }
     }
