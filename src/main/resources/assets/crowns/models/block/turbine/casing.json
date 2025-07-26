@@ -1,0 +1,13 @@
+{
+  "parent": "crowns:block/turbine/turbine",
+  "loader": "neoforge:obj",
+  "flip_v": true,
+  "textures" : {
+    "casing":"crowns:block/turbine/casing",
+    "core":"crowns:block/turbine/core",
+    "blade":"crowns:block/turbine/blade",
+    "particle": "minecraft:block/copper_block"
+
+  },
+  "model": "crowns:models/block/turbine/casing.obj"
+}

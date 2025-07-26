@@ -15,7 +15,9 @@ public class DataComponentsInit {
 
     public static final DataComponentType<SpecificRealGazState> REAL_GAZ_STATE = register(
             "real_gaz_state",
-            builder -> builder.persistent(SpecificRealGazState.CODEC).networkSynchronized(SpecificRealGazState.STREAM_CODEC)
+            builder ->
+                    builder.persistent(SpecificRealGazState.CODEC)
+                    .networkSynchronized(SpecificRealGazState.STREAM_CODEC)
     );
 
     private static <T> DataComponentType<T> register(String name, UnaryOperator<DataComponentType.Builder<T>> builder) {

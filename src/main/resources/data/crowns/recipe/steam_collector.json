@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " C ",
+    "CPC",
+    " C "
+  ],
+  "key": {
+    "C": {
+      "item": "create:copper_casing"
+    },
+    "P": {
+      "item": "create:fluid_pipe"
+    }
+  },
+  "result": {
+    "id": "crowns:steam_collector",
+    "count": 1
+  }
+}

@@ -144,7 +144,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         if (Float.isNaN(temperature)){
             temperature = 300;
         }
-        temperature+=dT;
+        temperature=Math.max(temperature+dT,0);
     }
     @Override
     protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {

@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.channels.Pipe;
 import java.util.Collection;
@@ -41,7 +42,7 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
     }
 
     @Inject(method = "tick", at = @At("HEAD"),cancellable = true, remap = false)
-    public void replaceTick(CallbackInfo ci){
+    public void replaceTick(CallbackInfo ci) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         super.tick();
         Level world = getWorld();
         BlockPos pos = getPos();
@@ -75,10 +76,9 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
                     Method m = PipeConnection.class.getMethod("manageSource", Level.class, BlockPos.class, SmartBlockEntity.class);
                     m.invoke(connection, world, pos, blockEntity);
                 } catch (NoSuchMethodException e) {
-                    connection.manageSource(world, pos);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                    Method m = PipeConnection.class.getMethod("manageSource", Level.class, BlockPos.class);
+                    m.invoke(connection, world, pos);
+                }//if this does work we crash
             }
             if (sendUpdate)
                 blockEntity.notifyUpdate();

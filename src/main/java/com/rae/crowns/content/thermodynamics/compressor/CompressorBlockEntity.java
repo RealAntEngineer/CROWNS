@@ -5,6 +5,7 @@ import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
 import com.rae.colony_api.units.Pressure;
 import com.rae.colony_api.units.Temperature;
 import com.rae.crowns.CROWNSLang;
+import com.rae.crowns.Constants;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.misc.BlockEntityInit;
@@ -171,9 +172,9 @@ public class CompressorBlockEntity extends KineticBlockEntity {
             FluidStack water = INPUT_WATER_TANK.drain((int) Math.abs(speed), IFluidHandler.FluidAction.SIMULATE);
             if(!water.isEmpty()) {
                 SpecificRealGazState outputState = WaterAsRealGazTransformationHelper.standardCompression(inputState, pressureRatio());
-                power = (outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount();
+                power = (outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount()/ Constants.whatSU;
                 water.set(DataComponentsInit.REAL_GAZ_STATE, outputState);
-                INPUT_WATER_TANK.drain(Math.min((int) speed,OUTPUT_WATER_TANK.fill(water, IFluidHandler.FluidAction.EXECUTE)), IFluidHandler.FluidAction.EXECUTE);
+                INPUT_WATER_TANK.drain(Math.min((int) Math.abs(speed),OUTPUT_WATER_TANK.fill(water, IFluidHandler.FluidAction.EXECUTE)), IFluidHandler.FluidAction.EXECUTE);
                 if (hasNetwork() && speed != 0) {
 
                     KineticNetwork network = getOrCreateNetwork();

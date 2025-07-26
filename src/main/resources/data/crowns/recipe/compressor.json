@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " C ",
+    "PPP",
+    " C "
+  ],
+  "key": {
+    "P": {
+      "item": "create:mechanical_pump"
+    },
+    "C": {
+      "item": "create:brass_casing"
+    }
+  },
+  "result": {
+    "id": "crowns:compressor",
+    "count": 1
+  }
+}

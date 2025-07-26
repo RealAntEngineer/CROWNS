@@ -2,7 +2,10 @@ package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.init.misc.BlockEntityInit;
 import com.simibubi.create.foundation.block.IBE;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
@@ -67,4 +70,11 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
         }
     }
 
+    @Override
+    protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        if (level.getBlockEntity(pos) instanceof AssemblyBlockEntity assemblyBlockEntity) {
+            return (int) (assemblyBlockEntity.getTemperature()/3500f * 16f);
+        }
+        return super.getSignal(state, level, pos, direction);
+    }
 }
