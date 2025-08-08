@@ -106,6 +106,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
             if (CROWNSConfigs.COMMON.nuclearParticle.get())
                 spawnRadiationParticles(level,getBlockPos(),nbrOfFission);
+
+            conductTemperature(getBlockPos(),level, 1/20f);
         }
         if (Float.isNaN(temperature)){
             temperature = 300;
@@ -129,7 +131,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                     CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
 
             temperature += power/C;
-            conductTemperature(pos,level);
+
 
             if (temperature > 3500) {
                 if (power > 100000000) {
