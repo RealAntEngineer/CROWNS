@@ -1,9 +1,7 @@
-
 {
   "type": "minecraft:block",
   "pools": [
     {
-      "rolls": 1,
       "bonus_rolls": 0,
       "entries": [
         {
@@ -11,41 +9,43 @@
           "children": [
             {
               "type": "minecraft:item",
-              "name": "crowns:deepslate_uranium_ore",
               "conditions": [
                 {
                   "condition": "minecraft:match_tool",
                   "predicate": {
-                    "enchantments": [
-                      {
-                        "enchantment": "minecraft:silk_touch",
-                        "levels": {
-                          "min": 1
+                    "predicates": {
+                      "minecraft:enchantments": [
+                        {
+                          "enchantments": "minecraft:silk_touch",
+                          "levels": {
+                            "min": 1
+                          }
                         }
-                      }
-                    ]
+                      ]
+                    }
                   }
                 }
-              ]
+              ],
+              "name": "crowns:deepslate_uranium_ore"
             },
             {
               "type": "minecraft:item",
-              "name": "crowns:raw_uranium",
               "functions": [
                 {
-                  "function": "minecraft:apply_bonus",
                   "enchantment": "minecraft:fortune",
-                  "formula": "minecraft:ore_drops"
+                  "formula": "minecraft:ore_drops",
+                  "function": "minecraft:apply_bonus"
                 },
                 {
                   "function": "minecraft:explosion_decay"
                 }
-              ]
+              ],
+              "name": "crowns:raw_uranium"
             }
           ]
         }
-      ]
+      ],
+      "rolls": 1
     }
-  ],
-  "random_sequence": "crowns:blocks/deepslate_uranium_ore"
+  ]
 }
