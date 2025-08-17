@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -73,12 +74,12 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
                 sendUpdate |= connection.flipFlowsIfPressureReversed();
                 //dirty hack to make it work for 6.0.4
                 try {
-                    Method m = PipeConnection.class.getMethod("manageSource", Level.class, BlockPos.class, SmartBlockEntity.class);
+                    Method m = PipeConnection.class.getMethod("manageSource", Level.class, BlockPos.class, BlockEntity.class);
                     m.invoke(connection, world, pos, blockEntity);
                 } catch (NoSuchMethodException e) {
                     Method m = PipeConnection.class.getMethod("manageSource", Level.class, BlockPos.class);
                     m.invoke(connection, world, pos);
-                }//if this does work we crash
+                }//if this doesn't work we crash
             }
             if (sendUpdate)
                 blockEntity.notifyUpdate();

@@ -72,11 +72,11 @@ public class TurbineStageBlock extends MBKineticController implements IBE<Turbin
 
     @Override
     public Vec3i getDefaultOffset() {
-        return new Vec3i(0,1,1);
+        return new Vec3i(0,0,0);
     }
 
     @Override
     public Vec3i getDefaultSize() {
-        return new Vec3i(1,3,3);
+        return new Vec3i(1,1,1);
     }
 }
