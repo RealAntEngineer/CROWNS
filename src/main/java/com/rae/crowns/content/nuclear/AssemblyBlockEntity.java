@@ -42,7 +42,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         queuedSync = false;
         syncCooldown = SYNC_RATE;
     }
-    private static final int SYNC_RATE = 8;
+    private static final int SYNC_RATE = 2;
     protected int syncCooldown;
     protected boolean queuedSync;
 
@@ -273,7 +273,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public Couple<Float> absorbNeutrons(Couple<Float> radiationFlux) {
-        Float temperatureCoef = 1/Math.max(1,(temperature-500)*CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF());
+        Float temperatureCoef = 1/Math.max(1,(temperature-200)*CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF());
         //System.out.println("temperature coef "+ temperatureCoef);
         float fastAbsorbed = 0f;
         float slowAbsorbed = 0f;
