@@ -1,15 +1,18 @@
 package com.rae.crowns.content.thermodynamics.conduction;
 
-import com.rae.colony_api.units.Temperature;
+import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
+import com.rae.colony_api.thermal_utilities.WaterCubicEOSTransformationHelper;
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
+import com.rae.crowns.init.data.DataComponentsInit;
 import com.rae.crowns.init.misc.BlockEntityInit;
-import com.rae.crowns.init.misc.BlockInit;
 
+import com.rae.crowns.init.misc.BlockInit;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
+import com.simibubi.create.content.fluids.PipeConnection;
 import com.simibubi.create.content.fluids.pipes.*;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -30,10 +33,11 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import static com.rae.colony_api.thermal_utilities.WaterCubicEOSTransformationHelper.DEFAULT_STATE;
 
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
     //transform the IHaveTemperature interface into a behavior
@@ -61,6 +65,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+        //behaviours.add(new FluidThermalConduction(this));
     }
 
     @Override
@@ -99,6 +104,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                     sendData();
             }
             //transmission logic
+
             BlockPos outPos = getBlockPos().relative(
                     getBlockState().getValue(HeatExchangerBlock.FACING));
             BlockState outState = level.getBlockState(outPos);
@@ -117,25 +123,27 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                 }
             }
             float dt = 1/20f;
-            conductTemperature(getBlockPos(),level, dt);
-            double k =getInternalConductivity()/getThermalCapacity();
-            if (!WATER_TANK.isEmpty()) {//we don't heat it if empty
-                int iteration = Math.max(1,(int) k);
-                for (int i = 0; i < iteration; i++) {
-                    float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) * dt / iteration;
-                    WATER_TANK.heat(power);
-                    this.addTemperature(
-                            -power
-                                    / this.getThermalCapacity());
-                }
-            }
+            //conductTemperature(getBlockPos(),level, dt);
+            double k = getInternalConductivity()/getThermalCapacity();
+            heatWaterTank((int) k, dt);
 
-            // the fact that it changes too often make it bugged ->
-            // maybe if it's directly in  the fluidTransport behaviour
             sendData();
+
         }
     }
 
+    private void heatWaterTank(int k, float dt) {
+        if (!WATER_TANK.isEmpty()) {//we don't heat it if empty
+            int iteration = Math.max(1, k);
+            for (int i = 0; i < iteration; i++) {
+                float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) * dt / iteration;
+                WATER_TANK.heat(power);
+                this.addTemperature(
+                        -power
+                                / this.getThermalCapacity());
+            }
+        }
+    }
 
 
     @Override
@@ -215,17 +223,73 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                 }
         );
     }
-    // an entity that is responsible for searching an linking blocks that have fluid between them ?
+    // TODO find why it doesn't work.
     public static class FluidThermalConduction  extends StraightPipeBlockEntity.StraightPipeFluidTransportBehaviour {
 
         public FluidThermalConduction(SmartBlockEntity be) {
             super(be);
         }
+        @Override
+        public boolean canHaveFlowToward(BlockState state, Direction direction) {
+            return state.getValue(DirectionalBlock.FACING).getAxis() == direction.getAxis();
+        }
+
+        @Override
+        public @Nullable PipeConnection.Flow getFlow(Direction side) {
+            PipeConnection.Flow flow = super.getFlow(side);
+            assert flow != null;
+            FluidStack stack = flow.fluid.copy();
+            float dt = 1/20f;
+            double k =((HeatExchangerBlockEntity) blockEntity).getInternalConductivity()/((HeatExchangerBlockEntity) blockEntity).getThermalCapacity();
+            if (!stack.isEmpty()) {//we don't heat it if empty
+                int iteration = (int) Math.max(1, k);
+                for (int i = 0; i < iteration; i++) {
+                    float power = ((HeatExchangerBlockEntity) blockEntity).getInternalConductivity() *
+                            (((HeatExchangerBlockEntity) blockEntity).getTemperature() - getState(stack).temperature()) * dt / iteration;
+                    heat(stack, power);
+                    ((HeatExchangerBlockEntity) blockEntity).addTemperature(
+                            -power
+                                    / ((HeatExchangerBlockEntity) blockEntity).getThermalCapacity());
+                }
+            }
+            ((HeatExchangerBlockEntity) blockEntity).WATER_TANK.setFluid(stack);
+            flow.fluid = stack;
+            return flow;
+        }
 
         @Override
         public FluidStack getProvidedOutwardFluid(Direction side) {
             //we have a
-            return super.getProvidedOutwardFluid(side);
+            FluidStack stack = super.getProvidedOutwardFluid(side).copy();
+            float dt = 1/20f;
+            double k =((HeatExchangerBlockEntity) blockEntity).getInternalConductivity()/((HeatExchangerBlockEntity) blockEntity).getThermalCapacity();
+            if (!stack.isEmpty()) {//we don't heat it if empty
+                int iteration = (int) Math.max(1, k);
+                for (int i = 0; i < iteration; i++) {
+                    float power = ((HeatExchangerBlockEntity) blockEntity).getInternalConductivity() *
+                            (((HeatExchangerBlockEntity) blockEntity).getTemperature() - getState(stack).temperature()) * dt / iteration;
+                    heat(stack, power);
+                    ((HeatExchangerBlockEntity) blockEntity).addTemperature(
+                            -power
+                                    / ((HeatExchangerBlockEntity) blockEntity).getThermalCapacity());
+                }
+            }
+            ((HeatExchangerBlockEntity) blockEntity).WATER_TANK.setFluid(stack);
+            return stack;
+        }
+        private SpecificRealGazState getState(FluidStack fluid){
+            SpecificRealGazState state = fluid.get(DataComponentsInit.REAL_GAZ_STATE);
+
+            if (state == null) {
+                state = DEFAULT_STATE;
+            }
+            return state;
+        }
+        private void heat(FluidStack fluid, float amount){
+            if (fluid.getAmount() > 0) {
+                SpecificRealGazState state = WaterCubicEOSTransformationHelper.isobaricTransfer(getState(fluid), amount / fluid.getAmount());
+                fluid.set(DataComponentsInit.REAL_GAZ_STATE, state);
+            }
         }
     }
 }

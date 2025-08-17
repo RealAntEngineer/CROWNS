@@ -319,7 +319,7 @@ public class WaterCubicEOSTransformationHelper {
 
     //TODO -> it seems to not be working when amount are too low -> protection against 0 values ?
     public static SpecificRealGazState mix(SpecificRealGazState first, float firstAmount, SpecificRealGazState second, float secondAmount){
-        System.out.println("first "+first+ " second"+second);
+
         if (firstAmount == 0) return second;
         if (secondAmount == 0) return first;
         float P = first.pressure()*firstAmount/(firstAmount+ secondAmount) + second.pressure()*secondAmount/(firstAmount+ secondAmount);
