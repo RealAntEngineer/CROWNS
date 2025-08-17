@@ -10,9 +10,8 @@ import com.rae.crowns.init.misc.BlockEntityInit;
 import com.rae.crowns.init.misc.BlockInit;
 
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
-import com.simibubi.create.content.fluids.transfer.FluidManipulationBehaviour;
+import com.simibubi.create.content.fluids.pipes.*;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
-import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.minecraft.ChatFormatting;
@@ -110,12 +109,30 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                         level.getCapability(Capabilities.FluidHandler.BLOCK,outPos,getBlockState().getValue(HeatExchangerBlock.FACING)
                 );
                 if (handler == null) handler = new FluidTank(0);
-                if (handler.getFluidAmount() < (float) WATER_TANK.getFluidAmount()){//if input of following handler is smaller than ours
+
+                if (handler.getFluidAmount()< (float) WATER_TANK.getFluidAmount()){//if input of following handler is smaller than ours
                     FluidStack stack =  WATER_TANK.getFluid().copy();
                     stack.setAmount(WATER_TANK.getFluidAmount() - handler.getFluidAmount());
                     WATER_TANK.drain(handler.fill(stack, IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE);
                 }
             }
+            float dt = 1/20f;
+            conductTemperature(getBlockPos(),level, dt);
+            double k =getInternalConductivity()/getThermalCapacity();
+            if (!WATER_TANK.isEmpty()) {//we don't heat it if empty
+                int iteration = Math.max(1,(int) k);
+                for (int i = 0; i < iteration; i++) {
+                    float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) * dt / iteration;
+                    WATER_TANK.heat(power);
+                    this.addTemperature(
+                            -power
+                                    / this.getThermalCapacity());
+                }
+            }
+
+            // the fact that it changes too often make it bugged ->
+            // maybe if it's directly in  the fluidTransport behaviour
+            sendData();
         }
     }
 
@@ -125,19 +142,6 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     public void lazyTick() {
         //What the fuck is going on here ?
         super.lazyTick();
-        //conductTemperature(getBlockPos(),level, 0.5f);
-
-        //make the calculus, so it's the real nbr or make it in stage ( like ten stage )
-        float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) / 2;
-        System.out.println("power: " + power);
-        System.out.println("state: " + WATER_TANK.getState());
-        WATER_TANK.heat(power);
-        this.addTemperature(
-                -power
-                        / this.getThermalCapacity());
-        // the fact that it changes too often make it bugged ->
-        // maybe if it's directly in  the fluidTransport behaviour
-        sendData();
     }
 
     @Override
@@ -212,29 +216,16 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         );
     }
     // an entity that is responsible for searching an linking blocks that have fluid between them ?
-    private static class FluidThermalConduction extends FluidManipulationBehaviour {
+    public static class FluidThermalConduction  extends StraightPipeBlockEntity.StraightPipeFluidTransportBehaviour {
 
-        public static final BehaviourType<FluidThermalConduction> TYPE = new BehaviourType<>();
-        private Set<BlockPos> inContactBlocks;
         public FluidThermalConduction(SmartBlockEntity be) {
             super(be);
-            inContactBlocks = new HashSet<>();
         }
 
         @Override
-        public void tick() {
-            super.tick();
-        }
-
-        @Override
-        public BehaviourType<?> getType() {
-            return TYPE;
-        }
-        public void findInContactBlocks(){
-            reset();
-        }
-        public Set<BlockPos> getInContactBlocks() {
-            return inContactBlocks;
+        public FluidStack getProvidedOutwardFluid(Direction side) {
+            //we have a
+            return super.getProvidedOutwardFluid(side);
         }
     }
 }

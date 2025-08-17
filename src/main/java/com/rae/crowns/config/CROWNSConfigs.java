@@ -25,6 +25,8 @@ public class CROWNSConfigs
     private static final Map<ModConfig.Type, ConfigBase> CONFIGS = new EnumMap<>(ModConfig.Type.class);
 
     public static CROWNSCfgServer SERVER;
+    public static CROWNSCfgCommon COMMON;
+
     public static CROWNSCfgClient CLIENT;
 
     public CROWNSConfigs() {
@@ -48,7 +50,7 @@ public class CROWNSConfigs
 
     public static void registerConfigs(ModLoadingContext context, ModContainer container) {
         CLIENT = register(CROWNSCfgClient::new, ModConfig.Type.CLIENT);
-        //COMMON = register(CSCfgCommon::new, ModConfig.Type.COMMON);
+        COMMON = register(CROWNSCfgCommon::new, ModConfig.Type.COMMON);
         SERVER = register(CROWNSCfgServer::new, ModConfig.Type.SERVER);
 
         for (Map.Entry<ModConfig.Type, ConfigBase> pair : CONFIGS.entrySet())

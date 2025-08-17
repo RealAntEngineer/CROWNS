@@ -118,7 +118,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                     sendData();
             }
 
-            if (CROWNSConfigs.CLIENT.nuclearParticle.get())
+            if (CROWNSConfigs.COMMON.nuclearParticle.get())
                 spawnRadiationParticles(level,getBlockPos(),nbrOfFission);
         }
         if (Float.isNaN(temperature)){
@@ -196,41 +196,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             serverLevel.sendParticles(ParticleTypes.DUST_PLUME, x, y, z, 1, dx, dy, dz, speed);// You can replace ParticleTypes.SMOKE with your custom particle
         }
     }
-
-    /*private void initialisePosGraph() {
-        BlockPos pos = getBlockPos();
-        // parent/children
-        posGraph = new ArrayList<>();
-        posGraph.add(new HashMap<>());
-        posGraph.get(0).put(pos, List.of(pos.above(),pos.below(),pos.north(),pos.south(),pos.east(),pos.west()));
-
-        ArrayList<BlockPos> listOfComputedParents = new ArrayList<>();
-        listOfComputedParents.add(pos);
-
-        for (int i = 1; i < range; i++) {
-
-            HashMap<BlockPos,List<BlockPos>> currentMap = new HashMap<>();
-            HashMap<BlockPos,List<BlockPos>> prevMap = posGraph.get(i-1);
-            ArrayList<BlockPos> parents = new ArrayList<>();
-            //prevent doubles + unordered for performance -> check utility + if the doubles are needed
-            for (List<BlockPos> prevChildren: prevMap.values().stream().unordered().distinct().toList()) {
-                parents.addAll(prevChildren);
-            }
-            listOfComputedParents.addAll(parents);
-            ArrayList<BlockPos> children = new ArrayList<>();
-            for (BlockPos parentPos :
-                    parents) {
-                for (Direction dir:
-                        Direction.values()) {
-                    if (!listOfComputedParents.contains(parentPos.relative(dir))) {
-                        children.add(parentPos.relative(dir));
-                    }
-                }
-                currentMap.put(parentPos,children);
-            }
-            posGraph.add(currentMap);
-        }
-    }*/
 
     private void meltdown(BlockPos pos) {
         assert level != null;
