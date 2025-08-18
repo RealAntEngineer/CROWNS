@@ -2,8 +2,8 @@
 
 - [src/main\java\com\rae\colony_api\multiblock\MBStructureBlock.java:141] //TODO rewrite this
 - [src/main\java\com\rae\colony_api\thermal_utilities\WaterAsRealGazTransformationHelper.java:200] //TODO -> it seems to not be working when amount are too low -> protection against 0 values ?
-- [src/main\java\com\rae\crowns\content\nuclear\AssemblyBlockEntity.java:226] float easeCoef = 1f; //TODO config
-- [src/main\java\com\rae\crowns\content\nuclear\AssemblyBlockEntity.java:231] float easeCoef = 1f; //TODO config
+- [src/main\java\com\rae\crowns\content\nuclear\AssemblyBlockEntity.java:228] float easeCoef = CROWNSConfigs.SERVER.nuclear.easeCoef.getF(); //TODO config
+- [src/main\java\com\rae\crowns\content\nuclear\AssemblyBlockEntity.java:233] float easeCoef = 1f; //TODO config
 - [src/main\java\com\rae\crowns\content\nuclear\IAmRadioactiveSource.java:61] //TODO make the surface a variable
 - [src/main\java\com\rae\crowns\content\thermodynamics\compressor\CompressorBlockEntity.java:72] //TODO use a config
 - [src/main\java\com\rae\crowns\content\thermodynamics\conduction\HeatExchangerBlock.java:43] //TODO replace this with a
