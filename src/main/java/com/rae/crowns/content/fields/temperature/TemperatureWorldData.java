@@ -46,29 +46,42 @@ public class TemperatureWorldData  {//Only for the server
         setDirty(section);
     }
     public void initialise(ServerLevel level) {
+        // do the break with a timer.
+        float initialTimeMS = System.currentTimeMillis();
         for (int i = 0; i < 10000 && !toInitialise.isEmpty();i++) {
             SectionPos sectionPos  = toInitialise.poll();
             if (!level.isLoaded(sectionPos.origin())) continue;
             TemperatureDataLayer temperatureDataLayer = new TemperatureDataLayer();
             ConductionDataLayer conductionDataLayer = new ConductionDataLayer();
             ResilienceDataLayer resilienceDataLayer = new ResilienceDataLayer();
-
-                BlockPos base = sectionPos.origin();
-                for (int dx = 0; dx < 16; dx++) {
-                    for (int dy = 0; dy < 16; dy++) {
-                        for (int dz = 0; dz < 16; dz++) {
-                            BlockPos pos = base.offset(dx, dy, dz);
-                            float defaultTemp = TemperatureManager.getDefaultTemperature(level,pos);
-                            temperatureDataLayer.set(dx, dy, dz, defaultTemp);
-                            temperatureDataLayer.setDefault(dx, dy, dz, defaultTemp);
-                            conductionDataLayer.set(dx, dy, dz, TemperatureManager.getDefaultConduction(level, pos));
-                            resilienceDataLayer.set(dx, dy, dz, TemperatureManager.getDefaultResilience(level, pos));
+            BlockPos base = sectionPos.origin();
+            boolean canBeDirty = false;
+            float defaultTemp = -1;
+            for (int dx = 0; dx < 16; dx++) {
+                for (int dy = 0; dy < 16; dy++) {
+                    for (int dz = 0; dz < 16; dz++) {
+                        BlockPos pos = base.offset(dx, dy, dz);
+                        float oldTemp = defaultTemp;
+                        defaultTemp = TemperatureManager.getDefaultTemperature(level,pos);
+                        temperatureDataLayer.set(dx, dy, dz, defaultTemp);
+                        temperatureDataLayer.setDefault(dx, dy, dz, defaultTemp);
+                        conductionDataLayer.set(dx, dy, dz, TemperatureManager.getDefaultConduction(level, pos));
+                        resilienceDataLayer.set(dx, dy, dz, TemperatureManager.getDefaultResilience(level, pos));
+                        if (oldTemp != -1 && oldTemp != defaultTemp) {
+                            canBeDirty = true;
                         }
                     }
                 }
+            }
             temperatureMap.put(sectionPos, temperatureDataLayer);
             conductionMap.put(sectionPos, conductionDataLayer);
             resilienceMap.put(sectionPos,resilienceDataLayer);
+            if (!canBeDirty){
+                setClean(sectionPos);
+            }
+            if (System.currentTimeMillis() - initialTimeMS > 20) {
+                break;
+            }
         }
     }
 

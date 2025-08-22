@@ -1,16 +1,13 @@
 package com.rae.crowns.content.fields.temperature;
 
+import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.SectionPos;
-import net.minecraft.core.Vec3i;
+import net.minecraft.core.*;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TemperatureTicker {
     public static float DT = 0.25f;
@@ -20,6 +17,9 @@ public class TemperatureTicker {
         //System.out.println("ticking for "+loadedSections.size()+" sections");
         //System.out.println("of "+data.getLoadedSections().size()+"in memory");
         List<Vec3i> toDump = new ArrayList<>();
+        int range = CROWNSConfigs.SERVER.conduction.conductionLimitDistance.get();
+        boolean shouldLimit = CROWNSConfigs.SERVER.conduction.limitConduction.get();
+        Set<SectionPos> sectionAccumulator = new HashSet<>();
         for (Map.Entry<Vec3i,IHaveTemperature> entries:data.getDynamicData().entrySet()){
             Vec3i pos = entries.getKey();
             IHaveTemperature value = entries.getValue();
@@ -40,11 +40,20 @@ public class TemperatureTicker {
             temperatureData.setDefault(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, value.getTemperature());
 
             conductionData.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, value.getThermalConductivity());
+            if (shouldLimit){
+                sectionAccumulator.addAll(loadedSections.stream().filter(p -> p.center().distSqr(pos) < range*range * 16*16).collect(Collectors.toSet()));
+            }
             data.setDirty(sectionPos);
         }
+
         for (Vec3i pos : toDump){
             data.getDynamicData().remove(pos);
         }
+        if (shouldLimit){
+            //System.out.println("limiting the originally loaded "+ loadedSections.size()+ " to only "+ sectionAccumulator.size()+ " sections");
+            loadedSections = sectionAccumulator;
+        }
+        //we should only tick this if we are allowed by the config.
         for (SectionPos sectionPos : loadedSections) {
             BlockPos base = sectionPos.origin();
             TemperatureDataLayer temperatureData = data.getTemperature(sectionPos);
@@ -101,8 +110,9 @@ public class TemperatureTicker {
 
                         }
                         float resilience = resilienceData.get(x, y, z);//just to have access to the value in debug mode
-                        float newTemp = Math.clamp((selfDefaultTemp - selfTemp) * resilienceData.get(x, y, z) + weightedMean / weights, minTemp, maxTemp);
-                        if (newTemp != selfDefaultTemp) {
+                        float newTemp = Mth.clamp((selfDefaultTemp - selfTemp) * resilienceData.get(x, y, z) + weightedMean / weights, minTemp, maxTemp);
+                        newTemp = (newTemp * 0.9f + selfTemp * 0.1f);//here to dampen oscillations
+                        if (newTemp != selfDefaultTemp && Mth.abs(selfTemp - newTemp) > 0.5f) {
                             if (data.dynamicContains(pos)) {
                                 IHaveTemperature be = data.getDynamic(pos);
                                 be.addTemperature(newTemp - selfTemp);

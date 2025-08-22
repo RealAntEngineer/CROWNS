@@ -5,13 +5,11 @@ import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
-import com.rae.colony_api.units.Temperature;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
-import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.data.Couple;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -21,11 +19,15 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.event.EventHooks;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +35,7 @@ import java.util.Map;
 
 import static com.rae.crowns.Constants.barnNa;
 import static com.rae.crowns.Constants.fissionEnergy;
+import static com.rae.crowns.content.nuclear.NuclearExplosion.nuclearExplosion;
 
 public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
 
@@ -146,7 +149,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
             if (temperature > 3500) {
                 if (power > 100000000) {
-                    explosion(pos);
+                    standardExplosion(pos, 50);
                 } else {
                     meltdown(pos);
                 }
@@ -203,14 +206,14 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         //level.removeBlockEntity(pos);
     }
 
-    private void explosion(BlockPos pos) {
-        float power = 50f;
-        assert level != null;
-        level.explode(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, power, Level.ExplosionInteraction.BLOCK);
-
+    private void standardExplosion(BlockPos pos, float power) {
+        assert this.level != null;
+        nuclearExplosion(this.level, pos, power);
         // Remove the block after the explosion
         level.setBlock(worldPosition, Blocks.AIR.defaultBlockState(), 3);
     }
+
+
 
     @Override
     public int getThermalCapacity() {

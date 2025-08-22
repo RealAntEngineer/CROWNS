@@ -8,10 +8,13 @@ import com.rae.crowns.content.thermodynamics.compressor.CompressorBlockEntity;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlockEntity;
 import com.rae.crowns.content.thermodynamics.turbine.SteamCollectorBlockEntity;
 import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlockEntity;
+import com.rae.crowns.init.misc.CommandsInit;
+import com.simibubi.create.infrastructure.command.AllCommands;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 import java.util.stream.Collectors;
@@ -37,6 +40,10 @@ public class CommonEvents {
         tickCounter++;
     }
 
+    @SubscribeEvent
+    public static void registerCommands(RegisterCommandsEvent event) {
+        CommandsInit.register(event.getDispatcher());
+    }
     @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
     public static class ModBusEvents {
         @SubscribeEvent

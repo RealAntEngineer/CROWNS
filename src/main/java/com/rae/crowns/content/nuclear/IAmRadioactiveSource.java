@@ -1,5 +1,6 @@
 package com.rae.crowns.content.nuclear;
 
+import com.rae.crowns.content.RayTraceUtil;
 import com.rae.crowns.init.misc.TagsInit;
 import net.createmod.catnip.data.Couple;
 import net.minecraft.core.BlockPos;
@@ -11,7 +12,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface IAmRadioactiveSource {
@@ -59,7 +59,7 @@ public interface IAmRadioactiveSource {
         Vec3 newVec = vec.scale((double) 1 / range);
         //the surface isn't really a constant so a bit wrong
         //TODO make the surface a variable
-        Couple<Float> radiationFlux = Couple.create((float) (50*fastNeutrons /(4*Math.PI* range * range)),0f);
+        Couple<Float> radiationFlux = Couple.create((float) (50*fastNeutrons /(4*Math.PI* range * range)),0f);//what are those magic numbers
         for (int i = 1; i <= range; i++) {
             Vec3i partialVec = new Vec3i((int) (newVec.x()* i+0.5f), (int) (newVec.y()* i+0.5f), (int) (newVec.z()* i+0.5f));
             BlockPos child = pos.offset(partialVec);
@@ -91,31 +91,12 @@ public interface IAmRadioactiveSource {
         Float fastNeutrons = getRadioactiveActivity();
         Float slowNeutrons = 0f;
         //should impact itself
-        List<BlockPos> frontier = getSphere(BlockPos.ZERO,range.intValue(),true);
+        List<BlockPos> frontier = RayTraceUtil.getSphereSurface(BlockPos.ZERO,range.intValue(),true);
         for (BlockPos frontierPos : frontier){
 
                 Vec3 vec = new Vec3(frontierPos.getX(), frontierPos.getY(), frontierPos.getZ());
                 traceNeutron(pos, level, range, vec, fastNeutrons);
 
         }
-    }
-    private List<BlockPos> getSphere(BlockPos center, int radius, boolean empty) {
-        List<BlockPos> blocks = new ArrayList<>();
-
-        int bx = center.getX();
-        int by = center.getY();
-        int bz = center.getZ();
-
-        for (int x = bx - radius; x <= bx + radius; x++) {
-            for (int y = by - radius; y <= by + radius; y++) {
-                for (int z = bz - radius; z <= bz + radius; z++) {
-                    double distance = ((bx - x) * (bx - x) + (bz - z) * (bz - z) + (by - y) * (by - y));
-                    if (distance < radius * radius && (!empty || distance >= (radius - 1) * (radius - 1))) {
-                        blocks.add(new BlockPos( x, y, z));
-                    }
-                }
-            }
-        }
-        return blocks;
     }
 }
