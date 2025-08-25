@@ -151,7 +151,7 @@ public class NuclearExplosion extends Explosion {
 
         for (Vec3 pos: surface) {//pos : maximal position on the direction (absolute)
 
-            float f = this.radius * (0.7F );//+ this.level.random.nextFloat() * 0.3F);//explosion strengh on the direction
+            float f = this.radius * (0.2F );//+ this.level.random.nextFloat() * 0.3F);//explosion strengh on the direction
 
             for (int i = 0; i < radius; i++) {
                 BlockPos blockpos = BlockPos.containing(center().add(pos.subtract(center()).scale(i/radius)));//linear interpolation
