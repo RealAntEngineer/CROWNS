@@ -2,14 +2,14 @@ package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.CROWNSLang;
+import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
-import com.rae.crowns.config.CROWNSConfigs;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
-import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
+import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-
+import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.data.Couple;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -33,8 +33,10 @@ import static com.rae.crowns.Constants.barnNa;
 import static com.rae.crowns.Constants.fissionEnergy;
 import static com.rae.crowns.content.nuclear.NuclearExplosion.nuclearExplosion;
 
-public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
-
+public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
+    public ControlledAssemblyBE(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
+        super(blockEntityType, blockPos, state);
+    }
     @Override
     public void sendData() {
         if (syncCooldown > 0) {
@@ -50,9 +52,9 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     protected boolean queuedSync;
 
     public float temperature = 300;
-    public float backgroundActivity = 12*3;//In MBq ( giga becquerels ) uranium is 12 Mbq per tonnes
+    public float backgroundActivity = 12*3;//In MBq ( mega becquerels ) uranium is 12 Mbq per tonnes
     public float oldNbrOfFission;
-    public float nbrOfFission;//nbr of fission/t
+    public float nbrOfFission = backgroundActivity;//nbr of fission/t
     public int C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
 
     public float additionalNeutronsAbsorbed = 0;
@@ -61,12 +63,20 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                     CROWNS.resource("u235"),0.014f*0.2f,
                     CROWNS.resource("u238"),0.986f*0.2f,
                     CROWNS.resource("p239"),0.00f*0.2f
-                    ));//for U235,U358 and Plutonium -> percentage of total mass
+            ));//for U235,U358 and Plutonium -> percentage of total mass
 
+    LerpedFloat pointer;
 
-    public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
-        super(blockEntityType, blockPos, state);
-        nbrOfFission = backgroundActivity;
+    private float getChaseSpeed() {
+        return Mth.clamp(Math.abs(getSpeed()) / 16 / 20, 0, 1);
+    }
+
+    @Override
+    public void onSpeedChanged(float previousSpeed) {
+        super.onSpeedChanged(previousSpeed);
+        float speed = getSpeed();
+        pointer.chase(speed > 0 ? 1 : 0, getChaseSpeed(), LerpedFloat.Chaser.LINEAR);
+        sendData();
     }
 
     @Override
@@ -85,6 +95,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public void tick() {
         super.tick();
+        pointer.tickChaser();
         if (!level.isClientSide()) {
             if (syncCooldown > 0) {
                 syncCooldown--;
@@ -219,7 +230,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     //to optimise, cost too much on the server
 
     @Override
-    protected void write(CompoundTag tag,  HolderLookup.Provider registries,boolean clientPacket) {
+    protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.write(tag, registries,clientPacket);
 
         tag.putFloat("nbrOfFission", nbrOfFission);
