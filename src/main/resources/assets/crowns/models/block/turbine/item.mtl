@@ -1,0 +1,7 @@
+# Made in Blockbench 4.12.4
+newmtl casing
+map_Kd #casing
+newmtl blade
+map_Kd #blade
+newmtl core
+map_Kd #core

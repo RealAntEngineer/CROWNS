@@ -1,7 +1,27 @@
 {
   "variants": {
-    "": {
-      "model": "crowns:block/turbine/turbine_stage_block"
+    "facing=down": {
+      "model": "crowns:block/turbine/casing",
+      "x": 90
+    },
+    "facing=east": {
+      "model": "crowns:block/turbine/casing",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "crowns:block/turbine/casing"
+    },
+    "facing=south": {
+      "model": "crowns:block/turbine/casing",
+      "y": 180
+    },
+    "facing=up": {
+      "model": "crowns:block/turbine/casing",
+      "x": 270
+    },
+    "facing=west": {
+      "model": "crowns:block/turbine/casing",
+      "y": 270
     }
   }
 }
