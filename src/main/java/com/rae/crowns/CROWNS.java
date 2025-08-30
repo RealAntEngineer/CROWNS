@@ -44,6 +44,7 @@ public class CROWNS {
         BlockEntityInit.register();
         EntityInit.register();
 
+        DisplaySourceInit.register();
         CreativeModeTabsInit.register(modEventBus);
         ParticleTypeInit.register(modEventBus);
         PartialModelInit.init();

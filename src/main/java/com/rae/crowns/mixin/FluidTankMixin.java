@@ -23,7 +23,7 @@ public abstract class FluidTankMixin {
 
     @Inject(method = "fill", at = @At(value = "HEAD"),remap = false)
     public void mergeStateNBT(FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
-        if (!fluid.isEmpty()) {
+        if (!fluid.isEmpty() && fluid.isFluidEqual(resource)) {
             CompoundTag newStateNBT = resource.getChildTag("realGazState");
             SpecificRealGazState newState;
             if (newStateNBT != null) {
@@ -38,7 +38,7 @@ public abstract class FluidTankMixin {
             } else {
                 oldState = DEFAULT_STATE;
             }
-            CompoundTag mergedTag = new CompoundTag();
+            CompoundTag mergedTag = fluid.getOrCreateTag();
 
             mergedTag.put("realGazState",
                     mix(newState, resource.getAmount(), oldState, getFluidAmount()).serialize()

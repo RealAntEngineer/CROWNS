@@ -98,6 +98,21 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                     WATER_TANK.drain(handler.fill(stack, IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE);
                 }
             }
+            float dt = 1/20f;
+            conductTemperature(getBlockPos(),level, dt);
+            double k = getInternalConductivity()/getThermalCapacity();
+            if (!WATER_TANK.isEmpty()) {//we don't heat it if empty
+                int iteration = Math.max(1,(int) k);
+                for (int i = 0; i < iteration; i++) {
+                    float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) * dt / iteration;
+                    WATER_TANK.heat(power);
+                    this.addTemperature( -power / this.getThermalCapacity());
+                }
+            }
+
+            // the fact that it changes too often make it bugged ->
+            // maybe if it's directly in  the fluidTransport behaviour
+            sendData();
         }
     }
 
@@ -105,19 +120,8 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
     @Override
     public void lazyTick() {
-        //What the fuck is going on here ?
         super.lazyTick();
-        conductTemperature(getBlockPos(),level, 0.5f);
 
-        //make the calculus, so it's the real nbr or make it in stage ( like ten stage )
-        float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) / 2;
-        WATER_TANK.heat(power);
-        this.addTemperature(
-                -power
-                        / this.getThermalCapacity());
-        // the fact that it changes too often make it bugged ->
-        // maybe if it's directly in  the fluidTransport behaviour
-        sendData();
     }
 
     @Override
@@ -146,7 +150,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         if (Float.isNaN(temperature)){
             temperature = 300;
         }
-        temperature+=dT;
+        temperature=Math.max(temperature+dT,0);
     }
     @Override
     protected void write(CompoundTag tag, boolean clientPacket) {
@@ -186,32 +190,5 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             }
         }
         return super.getCapability(cap, side);
-    }
-
-    // an entity that is responsible for searching an linking blocks that have fluid between them ?
-    private static class FluidThermalConduction extends FluidManipulationBehaviour {
-
-        public static final BehaviourType<FluidThermalConduction> TYPE = new BehaviourType<>();
-        private Set<BlockPos> inContactBlocks;
-        public FluidThermalConduction(SmartBlockEntity be) {
-            super(be);
-            inContactBlocks = new HashSet<>();
-        }
-
-        @Override
-        public void tick() {
-            super.tick();
-        }
-
-        @Override
-        public BehaviourType<?> getType() {
-            return TYPE;
-        }
-        public void findInContactBlocks(){
-            reset();
-        }
-        public Set<BlockPos> getInContactBlocks() {
-            return inContactBlocks;
-        }
     }
 }

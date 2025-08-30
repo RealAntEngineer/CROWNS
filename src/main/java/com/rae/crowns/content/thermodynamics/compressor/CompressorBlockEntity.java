@@ -171,7 +171,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
                 SpecificRealGazState outputState = WaterAsRealGazTransformationHelper.standardCompression(inputState, pressureRatio());
                 power = (int) (outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount()/ Constants.whatSU;
 
-                CompoundTag tag = new CompoundTag();
+                CompoundTag tag = water.getOrCreateTag();
                 tag.put("realGazState", outputState.serialize());
                 water.setTag(tag);
                 INPUT_WATER_TANK.drain(Math.min((int) speed,OUTPUT_WATER_TANK.fill(water, IFluidHandler.FluidAction.EXECUTE)), IFluidHandler.FluidAction.EXECUTE);

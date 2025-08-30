@@ -281,6 +281,7 @@ public class SteamCurrent extends Entity{
 					try {
 						//cheating by getting the opposite side.
 						if (getDirection().getOpposite() == steamCollector.getBlockState().getValue(SteamCollectorBlock.FACING)) {
+							//TODO if the input is potion, this will transform it in water
 							CompoundTag nbt = new CompoundTag();
 							nbt.put("realGazState", getOutputFluidState().serialize());
 							steamCollector.getTank().fill(new FluidStack(Fluids.WATER, (int) getFlow(), nbt), IFluidHandler.FluidAction.EXECUTE);

@@ -19,7 +19,7 @@ public class StateFluidTank extends SmartFluidTank {
     public void heat(float amount){
         if (fluid.getAmount() > 0) {
 
-            CompoundTag tag = new CompoundTag();
+            CompoundTag tag = fluid.getOrCreateTag();
             CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
             SpecificRealGazState oldState;
             if (oldStateNBT != null) {
