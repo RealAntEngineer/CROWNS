@@ -9,9 +9,9 @@ import com.rae.crowns.init.misc.BlockInit;
 
 import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
-import com.simibubi.create.content.fluids.transfer.FluidManipulationBehaviour;
+import com.simibubi.create.content.fluids.PipeConnection;
+import com.simibubi.create.content.fluids.pipes.StraightPipeBlockEntity;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
-import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.minecraft.ChatFormatting;
@@ -33,9 +33,7 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
     //transform the IHaveTemperature interface into a behavior
@@ -103,20 +101,20 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             }
 
             //internal conduction
+            if (WATER_TANK.getFluidAmount() > 0) {
+                int steps = 10;
+                for (int i = 0; i < steps; i++) {
+                    float dt = 0.05F / steps; // time step duration in seconds
+                    float deltaT = temperature - WATER_TANK.getState().temperature();
 
-            float deltaT = this.getTemperature() - WATER_TANK.getState().temperature();
-            float k = this.getInternalConductivity();
-            float dt = 0.05F; // time step duration in seconds
+                    // Calculate the heat transfer using exponential decay for stability
+                    float heatTransfer = deltaT * this.getInternalConductivity() * dt;
 
-            float C_pipe = this.getThermalCapacity();
-
-            // Calculate the heat transfer using exponential decay for stability
-            float factor = 1 - (float)Math.exp(-k * dt / C_pipe);
-            float heatTransfer = deltaT * factor;
-
-            // Transfer heat to water
-            WATER_TANK.heat(heatTransfer);
-            temperature -= heatTransfer/C_pipe;
+                    // Transfer heat to water
+                    WATER_TANK.heat(heatTransfer);
+                    temperature -= heatTransfer / this.getThermalCapacity();
+                }
+            }
         }
     }
 
@@ -212,29 +210,15 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     }
 
     // an entity that is responsible for searching an linking blocks that have fluid between them ?
-    private static class FluidThermalConduction extends FluidManipulationBehaviour {
+    private static class HeatTransfertBehaviour extends StraightPipeBlockEntity.StraightPipeFluidTransportBehaviour {
 
-        public static final BehaviourType<FluidThermalConduction> TYPE = new BehaviourType<>();
-        private Set<BlockPos> inContactBlocks;
-        public FluidThermalConduction(SmartBlockEntity be) {
+        public HeatTransfertBehaviour(SmartBlockEntity be) {
             super(be);
-            inContactBlocks = new HashSet<>();
         }
 
         @Override
-        public void tick() {
-            super.tick();
-        }
-
-        @Override
-        public BehaviourType<?> getType() {
-            return TYPE;
-        }
-        public void findInContactBlocks(){
-            reset();
-        }
-        public Set<BlockPos> getInContactBlocks() {
-            return inContactBlocks;
+        public @Nullable PipeConnection.Flow getFlow(Direction side) {
+            return super.getFlow(side);
         }
     }
 }
