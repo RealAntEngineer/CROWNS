@@ -3,20 +3,17 @@ package com.rae.crowns.content.nuclear;
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
-import com.rae.colony_api.units.Temperature;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
-import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 
 import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -74,21 +71,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     // this should work only if r N is small ( here we are considering a huge volume of 1 cubic meter )
     // 800 moles of uranium for pure metal *  the mass fraction define in radioactive elements ( fraction of the total mass of the assembly )
 
-
-    public static HashMap<ResourceLocation, Couple<Float>> fissileCrossSection = new HashMap<>(
-            Map.of(
-                    CROWNS.resource("u235"),Couple.create(1f,583f), //cross-section in barn
-                    CROWNS.resource("u238"),Couple.create(0.3f,0.0001f),
-                    CROWNS.resource("p239"),Couple.create(2f,748f)
-
-            ));//for U235,U358 and Plutonium -> percentage of total mass
-    public static HashMap<ResourceLocation,Float> molarConcentration = new HashMap<>(
-            Map.of(
-                    CROWNS.resource("u235"),19/235f*10000, //amount of moles in a cubic meter of pure metal
-                    CROWNS.resource("u238"),19/238f*10000,
-                    CROWNS.resource("p239"),19/239f*10000
-
-            ));//for U235,U358 and Plutonium -> percentage of total mass
 
     public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
@@ -310,12 +292,12 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         Float slowAbsorbed = 0f;
         for (ResourceLocation resourceLocation: radioactiveElements.keySet()) {
             Float massFrac  = radioactiveElements.get(resourceLocation);
-            Float cm = AssemblyBlockEntity.molarConcentration.get(resourceLocation);
+            Float cm = IAmFissileMaterial.molarConcentration.get(resourceLocation);
             Float fastAbsorptionChance = Math.min(1,
-                    AssemblyBlockEntity.fissileCrossSection.get(resourceLocation).getFirst()
+                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getFirst()
                             *massFrac*cm*barnNa);
             Float slowAbsorptionChance = Math.min(1,
-                    AssemblyBlockEntity.fissileCrossSection.get(resourceLocation).getSecond()
+                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getSecond()
                             *massFrac*cm*barnNa);
             //System.out.println(resourceLocation);
             //System.out.println("fastC : "+ fastAbsorptionChance);
