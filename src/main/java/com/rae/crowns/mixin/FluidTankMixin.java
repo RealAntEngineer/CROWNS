@@ -26,14 +26,14 @@ public abstract class FluidTankMixin {
         if (!fluid.isEmpty() && fluid.isFluidEqual(resource)) {
             CompoundTag newStateNBT = resource.getChildTag("realGazState");
             SpecificRealGazState newState;
-            if (newStateNBT != null) {
+            if (newStateNBT != null && !newStateNBT.isEmpty()) {
                 newState = new SpecificRealGazState(newStateNBT);
             } else {
                 newState = DEFAULT_STATE;
             }
             CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
             SpecificRealGazState oldState;
-            if (oldStateNBT != null) {
+            if (oldStateNBT != null && !oldStateNBT.isEmpty()) {
                 oldState = new SpecificRealGazState(oldStateNBT);
             } else {
                 oldState = DEFAULT_STATE;
@@ -43,9 +43,6 @@ public abstract class FluidTankMixin {
             mergedTag.put("realGazState",
                     mix(newState, resource.getAmount(), oldState, getFluidAmount()).serialize()
             );
-            if (oldStateNBT == null && newStateNBT == null){
-                return;
-            }
             fluid.setTag(mergedTag);
 
             resource.setTag(fluid.getTag());//to ensure correct merge
