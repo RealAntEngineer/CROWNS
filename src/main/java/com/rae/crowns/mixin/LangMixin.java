@@ -20,9 +20,9 @@ public class LangMixin {
     @Inject(method = "fluidName",at = @At(value = "RETURN" ),cancellable = true, remap = false)
     private static void addWaterStateInfo(FluidStack stack, CallbackInfoReturnable<LangBuilder> cir){
         CompoundTag newStateNBT = stack.getChildTag("realGazState");
-        if (newStateNBT != null) {
+        if (newStateNBT != null && !newStateNBT.isEmpty()) {
             SpecificRealGazState newState = new SpecificRealGazState(newStateNBT);
-            cir.setReturnValue(cir.getReturnValue().add(
+            cir.setReturnValue(cir.getReturnValue().add(Component.literal(" ")).add(
                     CROWNSLang.formatTemperature(newState.temperature()).component()
                             .append( " | ")
                             .append(CROWNSLang.formatPressure(newState.pressure()).component())

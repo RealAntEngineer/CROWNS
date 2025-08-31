@@ -52,6 +52,7 @@ public class CROWNS {
 
         CROWNSConfigs.registerConfigs(modLoadingContext);
         CROWNSContraptionType.prepare();
+        MovementCheckInit.register();
         //CreativeModeTabsInit.init();
 
         forgeEventBus.addListener(CROWNS::onAddReloadListeners);

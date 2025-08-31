@@ -2,6 +2,7 @@ package com.rae.crowns.mixin;
 
 import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.tags.FluidTags;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
@@ -23,7 +24,7 @@ public abstract class FluidTankMixin {
 
     @Inject(method = "fill", at = @At(value = "HEAD"),remap = false)
     public void mergeStateNBT(FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
-        if (!fluid.isEmpty() && fluid.isFluidEqual(resource)) {
+        if (!fluid.isEmpty() && fluid.isFluidEqual(resource) && fluid.getFluid().is(FluidTags.WATER)) {
             CompoundTag newStateNBT = resource.getChildTag("realGazState");
             SpecificRealGazState newState;
             if (newStateNBT != null && !newStateNBT.isEmpty()) {
