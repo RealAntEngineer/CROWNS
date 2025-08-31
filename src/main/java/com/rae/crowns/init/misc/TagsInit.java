@@ -45,7 +45,11 @@ public class TagsInit extends AllTags {
         }
     }
     public enum CustomBlockTags {
-        TURBINE_BLADE(),GOLD_BLOCK(CustomNameSpace.FORGE,"storage_blocks/gold"),COAL_BLOCK(CustomNameSpace.FORGE,"storage_blocks/coal");
+        TURBINE_BLADE(),
+        GOLD_BLOCK(CustomNameSpace.FORGE,"storage_blocks/gold"),
+        COAL_BLOCK(CustomNameSpace.FORGE,"storage_blocks/coal"),
+        REFACTORY_BLOCK(CustomNameSpace.MOD, "nuclear/refactory"),
+        UNDESTRUCTABLE(CustomNameSpace.MOD, "nuclear/undestructable");
 
         public final TagKey<Block> tag;
         public final boolean alwaysDatagen;

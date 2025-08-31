@@ -20,11 +20,11 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FuelAssemblyBlock extends RotatedPillarBlock implements IBE<FuelAssemblyBlockEntity> {
+public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlockEntity> {
     public static final EnumProperty<Temperature> TEMPERATURE = EnumProperty.create("temperature", Temperature.class); //T*10
     public static final EnumProperty<Activity> ACTIVITY = EnumProperty.create("activity", Activity.class);
 
-    public FuelAssemblyBlock(Properties properties) {
+    public AssemblyBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(TEMPERATURE, Temperature.COLD)
@@ -38,12 +38,12 @@ public class FuelAssemblyBlock extends RotatedPillarBlock implements IBE<FuelAss
     }
 
     @Override
-    public Class<FuelAssemblyBlockEntity> getBlockEntityClass() {
-        return FuelAssemblyBlockEntity.class;
+    public Class<AssemblyBlockEntity> getBlockEntityClass() {
+        return AssemblyBlockEntity.class;
     }
 
     @Override
-    public BlockEntityType<? extends FuelAssemblyBlockEntity> getBlockEntityType() {
+    public BlockEntityType<? extends AssemblyBlockEntity> getBlockEntityType() {
         return BlockEntityInit.FUEL_ASSEMBLY.get();
     }
 
@@ -51,7 +51,7 @@ public class FuelAssemblyBlock extends RotatedPillarBlock implements IBE<FuelAss
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return level.isClientSide() ? null : ($0,pos,$1,blockEntity) -> {
-            if(blockEntity instanceof FuelAssemblyBlockEntity assemblyBlockEntity) {
+            if(blockEntity instanceof AssemblyBlockEntity assemblyBlockEntity) {
                 assemblyBlockEntity.tick();
             }
         };
@@ -76,7 +76,7 @@ public class FuelAssemblyBlock extends RotatedPillarBlock implements IBE<FuelAss
     @Override
     @SuppressWarnings("deprecated")
     public int getSignal(@NotNull BlockState state, BlockGetter level, @NotNull BlockPos pos, @NotNull Direction direction) {
-        if (level.getBlockEntity(pos) instanceof FuelAssemblyBlockEntity assemblyBlockEntity) {
+        if (level.getBlockEntity(pos) instanceof AssemblyBlockEntity assemblyBlockEntity) {
             return (int) (assemblyBlockEntity.getTemperature()/3500f * 16f);
         }
         return super.getSignal(state, level, pos, direction);

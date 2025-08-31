@@ -1,6 +1,6 @@
 package com.rae.crowns.init.misc;
 
-import com.rae.crowns.content.nuclear.FuelAssemblyBlock;
+import com.rae.crowns.content.nuclear.AssemblyBlock;
 import com.rae.crowns.content.nuclear.UraniumOreBlock;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlock;
@@ -68,11 +68,11 @@ public class BlockInit {
                     .build()
                     .register();
 
-    public static final BlockEntry<FuelAssemblyBlock> FUEL_ASSEMBLY = REGISTRATE
-            .block("fuel_assembly", FuelAssemblyBlock::new)
+    public static final BlockEntry<AssemblyBlock> FUEL_ASSEMBLY = REGISTRATE
+            .block("fuel_assembly", AssemblyBlock::new)
             .initialProperties(SharedProperties::softMetal)
             .properties(p-> p.lightLevel((s)-> {
-                switch (s.getValue(FuelAssemblyBlock.ACTIVITY)) {
+                switch (s.getValue(AssemblyBlock.ACTIVITY)) {
                     case NONE -> {
                         return 0;
                     }

@@ -91,7 +91,7 @@ public interface IAmRadioactiveSource {
         Float fastNeutrons = getRadioactiveActivity();
         Float slowNeutrons = 0f;
         //should impact itself
-        List<BlockPos> frontier = getSphere(BlockPos.ZERO,range.intValue(),true);
+        List<BlockPos> frontier = RayTraceUtil.getSphereSurface(BlockPos.ZERO,range.intValue(),true);
         for (BlockPos frontierPos : frontier){
 
                 Vec3 vec = new Vec3(frontierPos.getX(), frontierPos.getY(), frontierPos.getZ());

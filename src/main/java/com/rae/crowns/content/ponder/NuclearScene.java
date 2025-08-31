@@ -1,6 +1,6 @@
 package com.rae.crowns.content.ponder;
 
-import com.rae.crowns.content.nuclear.FuelAssemblyBlock;
+import com.rae.crowns.content.nuclear.AssemblyBlock;
 import com.rae.crowns.init.misc.BlockInit;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
@@ -66,10 +66,10 @@ public class NuclearScene {
         scene.world().showSection(fc4, Direction.UP);
         scene.overlay().showOutlineWithText(bb, 80).text("when enough fuel are close to each other with a moderator");
         scene.idleSeconds(2);
-        scene.world().modifyBlocks(fc1, blockState -> blockState.setValue(FuelAssemblyBlock.ACTIVITY, FuelAssemblyBlock.Activity.LOW), false);
-        scene.world().modifyBlocks(fc2, blockState -> blockState.setValue(FuelAssemblyBlock.ACTIVITY, FuelAssemblyBlock.Activity.LOW), false);
-        scene.world().modifyBlocks(fc3, blockState -> blockState.setValue(FuelAssemblyBlock.ACTIVITY, FuelAssemblyBlock.Activity.LOW), false);
-        scene.world().modifyBlocks(fc4, blockState -> blockState.setValue(FuelAssemblyBlock.ACTIVITY, FuelAssemblyBlock.Activity.LOW), false);
+        scene.world().modifyBlocks(fc1, blockState -> blockState.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
+        scene.world().modifyBlocks(fc2, blockState -> blockState.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
+        scene.world().modifyBlocks(fc3, blockState -> blockState.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
+        scene.world().modifyBlocks(fc4, blockState -> blockState.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
         scene.idleSeconds(2);
         scene.addKeyframe();
 

@@ -54,6 +54,7 @@ public class CROWNS {
 
         BlockInit.register();
         ItemInit.register();
+        FluidInit.register();
         BlockEntityInit.register();
         EntityInit.register();
         SoundInit.register();

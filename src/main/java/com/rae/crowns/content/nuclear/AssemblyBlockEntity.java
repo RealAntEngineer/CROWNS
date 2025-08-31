@@ -5,6 +5,7 @@ import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.crowns.init.misc.FluidInit;
 import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -33,7 +34,7 @@ import java.util.Map;
 import static com.rae.crowns.Constants.barnNa;
 import static com.rae.crowns.Constants.fissionEnergy;
 
-public class FuelAssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
+public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
 
     @Override
     public void sendData() {
@@ -63,22 +64,16 @@ public class FuelAssemblyBlockEntity extends SmartBlockEntity implements IHaveTe
                     CROWNS.resource("p239"),0.00f*0.2f
                     ));//for U235,U358 and Plutonium -> percentage of total mass
 
-    //calculate from cross-section (barn), depth (1 meter) and concentration ( as mox fuel isn't a 1m by 1m block of uranium)
-    // Absorption law :
-    // I = I0* exp(-ln ( dx * c * PI/4 +1 )/dx*L)
-    // ( dx = 2*sqrt(sigma/pi) the diameter of a circle of cross-section sigma, c the concentration in mol.m-3 and L the length in m)
 
-    //According to the wikipedia page : https://en.wikipedia.org/wiki/Neutron_cross_section
-    // the correct formula is r = N * Flux * sigma
-    // this should work only if r N is small ( here we are considering a huge volume of 1 cubic meter )
-    // 800 moles of uranium for pure metal *  the mass fraction define in radioactive elements ( fraction of the total mass of the assembly )
-
-
-    public FuelAssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
+    public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
         nbrOfFission = backgroundActivity;
     }
 
+    @Override
+    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+    }
+    float power = 0;
     @Override
     public void initialize() {
         super.initialize();
@@ -88,10 +83,6 @@ public class FuelAssemblyBlockEntity extends SmartBlockEntity implements IHaveTe
                 data.putDynamic(getBlockPos(), this);
             }
         }
-    }
-
-    @Override
-    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
     }
     @Override
     public void tick() {
@@ -103,13 +94,9 @@ public class FuelAssemblyBlockEntity extends SmartBlockEntity implements IHaveTe
                     sendData();
             }
 
-            if (CROWNSConfigs.CLIENT.nuclearParticle.get())
+            if (CROWNSConfigs.COMMON.nuclearParticle.get())
                 spawnRadiationParticles(level,getBlockPos(),nbrOfFission);
-
-            float power = (float) (nbrOfFission*fissionEnergy *
-                    CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
-
-            temperature += power/C/20;
+            temperature += power/C * 1/20f;
         }
         if (Float.isNaN(temperature)){
             temperature = 300;
@@ -129,26 +116,26 @@ public class FuelAssemblyBlockEntity extends SmartBlockEntity implements IHaveTe
 
             //float thermal_loses = (temperature-300)*10;// ambient temperature = 300K make thermal loses in the conduct temperature
 
-            float power = (float) (nbrOfFission*fissionEnergy *
+            power = (float) (nbrOfFission*fissionEnergy *
                     CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
 
             //temperature += power/C;
-            //conductTemperature(pos,level);
+
 
             if (temperature > 3500) {
-                if (power > 100000000) {
-                    explosion(pos);
+                if (power > 1e9) {
+                    standardExplosion(pos, 10);
                 } else {
                     meltdown(pos);
                 }
             }
             else {
                 if (nbrOfFission < 300 * backgroundActivity) {
-                    level.setBlock(pos, getBlockState().setValue(FuelAssemblyBlock.ACTIVITY, FuelAssemblyBlock.Activity.NONE), 3);
+                    level.setBlock(pos, getBlockState().setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.NONE), 3);
                 } else if (temperature < 3000) {
-                    level.setBlock(pos, getBlockState().setValue(FuelAssemblyBlock.ACTIVITY, FuelAssemblyBlock.Activity.LOW), 3);
+                    level.setBlock(pos, getBlockState().setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), 3);
                 } else {
-                    level.setBlock(pos, getBlockState().setValue(FuelAssemblyBlock.ACTIVITY, FuelAssemblyBlock.Activity.HIGH), 3);
+                    level.setBlock(pos, getBlockState().setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.HIGH), 3);
 
                 }
             }
@@ -190,17 +177,15 @@ public class FuelAssemblyBlockEntity extends SmartBlockEntity implements IHaveTe
 
     private void meltdown(BlockPos pos) {
         assert level != null;
-        level.setBlockAndUpdate(pos, Blocks.LAVA.defaultBlockState());
+        level.setBlockAndUpdate(pos, FluidInit.CORIUM.get().getFlowing(8, 15, false).createLegacyBlock());
         //level.removeBlockEntity(pos);
     }
 
-    private void explosion(BlockPos pos) {
-        float power = 50f;
-        assert level != null;
-        level.explode(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, power, Level.ExplosionInteraction.BLOCK);
-
+    private void standardExplosion(BlockPos pos, float power) {
+        assert this.level != null;
+        nuclearExplosion(this.level, pos, power);
         // Remove the block after the explosion
-        level.setBlock(worldPosition, Blocks.AIR.defaultBlockState(), 3);
+        level.setBlockAndUpdate(pos, FluidInit.CORIUM.get().getFlowing(8, 15, false).createLegacyBlock());
     }
 
     @Override
@@ -220,12 +205,12 @@ public class FuelAssemblyBlockEntity extends SmartBlockEntity implements IHaveTe
 
     @Override
     public void addTemperature(float dT) {
-        temperature += dT;
+        temperature = Math.max(temperature+dT,0);;
     }
 
     @Override
     public float getRadioactiveActivity() {
-        float easeCoef = 1f;//TODO config
+        float easeCoef = CROWNSConfigs.SERVER.nuclear.easeCoef.getF(); //TODO config
         return backgroundActivity+nbrOfFission * 2.5f*easeCoef;
     }
     @Override
@@ -241,6 +226,7 @@ public class FuelAssemblyBlockEntity extends SmartBlockEntity implements IHaveTe
         tag.putFloat("nbrOfFission", nbrOfFission);
         tag.putFloat("additionalNeutrons",additionalNeutronsAbsorbed);
         tag.putFloat("temperature",temperature);
+        tag.putFloat("power",power);
 
     }
 
@@ -250,6 +236,7 @@ public class FuelAssemblyBlockEntity extends SmartBlockEntity implements IHaveTe
         nbrOfFission = tag.getFloat("nbrOfFission");
         additionalNeutronsAbsorbed = tag.getFloat("additionalNeutrons");
         temperature = tag.getFloat("temperature");
+        power = tag.getFloat("power");
         super.read(tag, clientPacket);
     }
 
@@ -269,7 +256,8 @@ public class FuelAssemblyBlockEntity extends SmartBlockEntity implements IHaveTe
 
     @Override
     public Couple<Float> absorbNeutrons(Couple<Float> radiationFlux) {
-        Float temperatureCoef = 1/Math.max(1,(temperature-300)/600);
+        Float temperatureCoef = 1/Math.max(1,(temperature-200)*CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF());
+        //System.out.println("temperature coef "+ temperatureCoef);
         float fastAbsorbed = 0f;
         float slowAbsorbed = 0f;
         for (ResourceLocation resourceLocation: radioactiveElements.keySet()) {
