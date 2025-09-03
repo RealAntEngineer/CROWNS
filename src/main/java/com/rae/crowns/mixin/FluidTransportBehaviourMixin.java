@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fluids.FluidStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,6 +20,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.channels.Pipe;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -38,7 +42,7 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
     }
 
     @Inject(method = "tick", at = @At("HEAD"),cancellable = true, remap = false)
-    public void replaceTick(CallbackInfo ci){
+    public void replaceTick(CallbackInfo ci) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         super.tick();
         Level world = getWorld();
         BlockPos pos = getPos();
@@ -67,7 +71,14 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
             boolean sendUpdate = false;
             for (PipeConnection connection : connections) {
                 sendUpdate |= connection.flipFlowsIfPressureReversed();
-                connection.manageSource(world, pos);
+                //dirty hack to make it work for 6.0.4
+                try {
+                    Method m = PipeConnection.class.getMethod("manageSource", Level.class, BlockPos.class, BlockEntity.class);
+                    m.invoke(connection, world, pos, blockEntity);
+                } catch (NoSuchMethodException e) {
+                    Method m = PipeConnection.class.getMethod("manageSource", Level.class, BlockPos.class);
+                    m.invoke(connection, world, pos);
+                }//if this doesn't work we crash
             }
             if (sendUpdate)
                 blockEntity.notifyUpdate();
