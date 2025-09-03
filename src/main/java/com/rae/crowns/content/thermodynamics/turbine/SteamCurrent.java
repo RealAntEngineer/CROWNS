@@ -2,8 +2,8 @@ package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
-import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
-import com.rae.colony_api.thermal_utilities.WaterCubicEOSTransformationHelper;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.thermal_utilities.helper.WaterAsRealGaz;
 import com.rae.crowns.init.misc.BlockInit;
 import com.rae.crowns.init.data.DataComponentsInit;
 import com.rae.crowns.init.data.EntityDataSerializersInit;
@@ -126,9 +126,9 @@ public class SteamCurrent extends Entity{
             if (stage != null) {
 				float pressureRatio = stage.pressureRatio();
 				if (pressureRatio < 1) {
-					nextState = WaterCubicEOSTransformationHelper.isentropicExpansion(previousState, 1 / pressureRatio);
+					nextState = WaterAsRealGaz.isentropicExpansion(previousState, 1 / pressureRatio);
 				} else if (pressureRatio > 1) {
-					nextState = WaterCubicEOSTransformationHelper.isentropicCompression(previousState, pressureRatio);
+					nextState = WaterAsRealGaz.isentropicCompression(previousState, pressureRatio);
 				}
 				//need to ensure that it's empty before end
 				//.get(this.direction.getAxis()
@@ -153,7 +153,7 @@ public class SteamCurrent extends Entity{
             inputFluidState = ((SteamInputBlockEntity) be).getState();
         }
         if (inputFluidState==null){
-			inputFluidState = WaterCubicEOSTransformationHelper.DEFAULT_STATE;
+			inputFluidState = WaterAsRealGaz.DEFAULT_STATE;
 		}
         return inputFluidState;
 	}

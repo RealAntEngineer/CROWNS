@@ -1,7 +1,7 @@
 package com.rae.crowns.content.thermodynamics.compressor;
 
-import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
-import com.rae.colony_api.thermal_utilities.WaterCubicEOSTransformationHelper;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.thermal_utilities.helper.WaterAsRealGaz;
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.Constants;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
@@ -164,7 +164,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
             SpecificRealGazState inputState =  INPUT_WATER_TANK.getState();
             FluidStack water = INPUT_WATER_TANK.drain((int) Math.abs(speed), IFluidHandler.FluidAction.SIMULATE);
             if(!water.isEmpty()) {
-                SpecificRealGazState outputState = WaterCubicEOSTransformationHelper.isentropicCompression(inputState, pressureRatio());
+                SpecificRealGazState outputState = WaterAsRealGaz.isentropicCompression(inputState, pressureRatio());
                 power = (outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount() / Constants.whatSU;
                 water.set(DataComponentsInit.REAL_GAZ_STATE, outputState);
                 INPUT_WATER_TANK.drain(Math.min((int) Math.abs(speed),OUTPUT_WATER_TANK.fill(water, IFluidHandler.FluidAction.EXECUTE)), IFluidHandler.FluidAction.EXECUTE);

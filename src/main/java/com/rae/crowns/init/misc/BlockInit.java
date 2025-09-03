@@ -1,6 +1,6 @@
 package com.rae.crowns.init.misc;
 
-import com.rae.colony_api.multiblock.MBStructureBlock;
+import com.rae.formicapi.multiblock.MBStructureBlock;
 import com.rae.crowns.content.nuclear.AssemblyBlock;
 import com.rae.crowns.content.nuclear.UraniumOreBlock;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;

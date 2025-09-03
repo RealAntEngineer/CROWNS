@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "minecraft:bedrock"
+    "minecraft:bedrock",
+    "minecraft:magma_block"
   ]
 }

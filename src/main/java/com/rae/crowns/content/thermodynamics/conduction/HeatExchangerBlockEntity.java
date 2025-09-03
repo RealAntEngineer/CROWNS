@@ -1,7 +1,7 @@
 package com.rae.crowns.content.thermodynamics.conduction;
 
-import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
-import com.rae.colony_api.thermal_utilities.WaterCubicEOSTransformationHelper;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.thermal_utilities.helper.WaterAsRealGaz;
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static com.rae.colony_api.thermal_utilities.WaterCubicEOSTransformationHelper.DEFAULT_STATE;
+import static com.rae.formicapi.thermal_utilities.helper.WaterAsRealGaz.DEFAULT_STATE;
 
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
     //transform the IHaveTemperature interface into a behavior
@@ -287,7 +287,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         }
         private void heat(FluidStack fluid, float amount){
             if (fluid.getAmount() > 0) {
-                SpecificRealGazState state = WaterCubicEOSTransformationHelper.isobaricTransfer(getState(fluid), amount / fluid.getAmount());
+                SpecificRealGazState state = WaterAsRealGaz.isobaricTransfer(getState(fluid), amount / fluid.getAmount());
                 fluid.set(DataComponentsInit.REAL_GAZ_STATE, state);
             }
         }

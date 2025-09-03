@@ -1,10 +1,7 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
-import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
-import com.rae.colony_api.units.Pressure;
-import com.rae.colony_api.units.Temperature;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.rae.crowns.CROWNSLang;
-import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.misc.BlockEntityInit;
 import com.rae.crowns.init.misc.EntityInit;

@@ -30,7 +30,7 @@ public class CommonEvents {
             TemperatureWorldData data = TemperatureManager.get(serverLevel);
             data.initialise(serverLevel);
         }
-        if (tickCounter % (int)(20) == 0) {
+        if (tickCounter % (int)(20*TemperatureTicker.DT) == 0) {
             //lazy ticking
             TemperatureWorldData data = TemperatureManager.get(serverLevel);
             TemperatureTicker.tick(data.getLoadedSections().stream()

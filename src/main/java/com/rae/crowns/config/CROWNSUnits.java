@@ -1,8 +1,8 @@
 package com.rae.crowns.config;
 
-import com.rae.colony_api.units.Pressure;
-import com.rae.colony_api.units.RadiationFlux;
-import com.rae.colony_api.units.Temperature;
+import com.rae.formicapi.units.Pressure;
+import com.rae.formicapi.units.RadiationFlux;
+import com.rae.formicapi.units.Temperature;
 import net.createmod.catnip.config.ConfigBase;
 
 public class CROWNSUnits extends ConfigBase {

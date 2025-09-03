@@ -1,0 +1,7 @@
+{
+  "parent":"crowns:block/controlled_cell/block",
+  "textures": {
+    "0": "crowns:block/controlled_cell/high",
+    "particle": "crowns:block/controlled_cell/high"
+  }
+}

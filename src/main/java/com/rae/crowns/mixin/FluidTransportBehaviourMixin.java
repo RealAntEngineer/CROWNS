@@ -1,7 +1,7 @@
 package com.rae.crowns.mixin;
 
-import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
-import com.rae.colony_api.thermal_utilities.WaterCubicEOSTransformationHelper;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.thermal_utilities.helper.WaterAsRealGaz;
 import com.rae.crowns.init.data.DataComponentsInit;
 import com.simibubi.create.content.fluids.FluidReactions;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
@@ -23,7 +23,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.channels.Pipe;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -110,10 +109,10 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
                     //modified part
                     singleSource = null;
                     PatchedDataComponentMap inFlowTag = fluidInFlow.getComponents();
-                    SpecificRealGazState inFlowState = inFlowTag.getOrDefault(DataComponentsInit.REAL_GAZ_STATE, WaterCubicEOSTransformationHelper.DEFAULT_STATE);
+                    SpecificRealGazState inFlowState = inFlowTag.getOrDefault(DataComponentsInit.REAL_GAZ_STATE, WaterAsRealGaz.DEFAULT_STATE);
                     PatchedDataComponentMap availableTag = availableFlow.getComponents();
-                    SpecificRealGazState availableState = availableTag.getOrDefault(DataComponentsInit.REAL_GAZ_STATE, WaterCubicEOSTransformationHelper.DEFAULT_STATE);
-                    SpecificRealGazState mixedState = WaterCubicEOSTransformationHelper.mix(availableState, availableFlow.getAmount(),
+                    SpecificRealGazState availableState = availableTag.getOrDefault(DataComponentsInit.REAL_GAZ_STATE, WaterAsRealGaz.DEFAULT_STATE);
+                    SpecificRealGazState mixedState = WaterAsRealGaz.mix(availableState, availableFlow.getAmount(),
                             inFlowState,fluidInFlow.getAmount());
 
                     availableFlow = fluidInFlow;

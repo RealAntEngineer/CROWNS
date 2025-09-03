@@ -1,0 +1,11 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "crowns:fluid/corium_flowing"
+    },{
+      "type": "single",
+      "resource": "crowns:fluid/corium_still"
+    }
+  ]
+}
