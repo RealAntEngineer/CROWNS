@@ -1,22 +1,20 @@
 package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.CROWNS;
+import com.rae.crowns.CROWNSLang;
+import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
-import com.rae.crowns.content.thermodynamics.IHaveTemperature;
-import com.rae.crowns.config.CROWNSConfigs;
-import com.rae.crowns.init.misc.FluidInit;
-import com.rae.formicapi.FormicApiLang;
+import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
-import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
+import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-
+import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.theme.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-
-import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -35,8 +33,10 @@ import static com.rae.crowns.Constants.barnNa;
 import static com.rae.crowns.Constants.fissionEnergy;
 import static com.rae.crowns.content.nuclear.NuclearExplosion.nuclearExplosion;
 
-public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
-
+public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
+    public ControlledAssemblyBE(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
+        super(blockEntityType, blockPos, state);
+    }
     @Override
     public void sendData() {
         if (syncCooldown > 0) {
@@ -52,10 +52,10 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     protected boolean queuedSync;
 
     public float temperature = 300;
-    public float backgroundActivity = 12*3;//In MBq ( giga becquerels ) uranium is 12 Mbq per tonnes
+    public float backgroundActivity = 12*3;//In MBq ( mega becquerels ) uranium is 12 Mbq per tonnes
     public float oldNbrOfFission;
-    public float nbrOfFission;//nbr of fission/t
-    public float C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
+    public float nbrOfFission = backgroundActivity;//nbr of fission/t
+    public int C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
 
     public float additionalNeutronsAbsorbed = 0;
     public HashMap<ResourceLocation,Float> radioactiveElements = new HashMap<>(
@@ -63,18 +63,25 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                     CROWNS.resource("u235"),0.014f*0.2f,
                     CROWNS.resource("u238"),0.986f*0.2f,
                     CROWNS.resource("p239"),0.00f*0.2f
-                    ));//for U235,U358 and Plutonium -> percentage of total mass
+            ));//for U235,U358 and Plutonium -> percentage of total mass
 
+    LerpedFloat pointer;
 
-    public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
-        super(blockEntityType, blockPos, state);
-        nbrOfFission = backgroundActivity;
+    private float getChaseSpeed() {
+        return Mth.clamp(Math.abs(getSpeed()) / 16 / 20, 0, 1);
+    }
+
+    @Override
+    public void onSpeedChanged(float previousSpeed) {
+        super.onSpeedChanged(previousSpeed);
+        float speed = getSpeed();
+        pointer.chase(speed > 0 ? 1 : 0, getChaseSpeed(), LerpedFloat.Chaser.LINEAR);
+        sendData();
     }
 
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
     }
-    float power = 0;
     @Override
     public void initialize() {
         super.initialize();
@@ -88,6 +95,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public void tick() {
         super.tick();
+        pointer.tickChaser();
         if (!level.isClientSide()) {
             if (syncCooldown > 0) {
                 syncCooldown--;
@@ -97,7 +105,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
             if (CROWNSConfigs.COMMON.nuclearParticle.get())
                 spawnRadiationParticles(level,getBlockPos(),nbrOfFission);
-            temperature += power/C * 1/20f;
         }
         if (Float.isNaN(temperature)){
             temperature = 300;
@@ -117,15 +124,14 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
             //float thermal_loses = (temperature-300)*10;// ambient temperature = 300K make thermal loses in the conduct temperature
 
-            power = (float) (nbrOfFission*fissionEnergy *
+            float power = (float) (nbrOfFission*fissionEnergy *
                     CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
 
-            //temperature += power/C;
-
+            temperature += power/C;
 
             if (temperature > 3500) {
-                if (power > 1e9) {
-                    standardExplosion(pos, 10);
+                if (power > 100000000) {
+                    standardExplosion(pos, 50);
                 } else {
                     meltdown(pos);
                 }
@@ -140,8 +146,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
                 }
             }
-            moreOptimizedImpactEnv(pos,level, CROWNSConfigs.SERVER.nuclear.radiationRange.get());
-
+            moreOptimizedImpactEnv(pos,level,CROWNSConfigs.SERVER.nuclear.radiationRange.get());
+            //conductTemperature(pos,level);
             notifyUpdate();
 
         }
@@ -172,13 +178,13 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             double dz = speed * Math.cos(phi);
 
             // Use any existing particle type here (e.g., SMOKE)
-            serverLevel.sendParticles(new DustParticleOptions(Color.WHITE.asVectorF(),1), x, y, z, 1, dx, dy, dz, speed);// You can replace ParticleTypes.SMOKE with your custom particle
+            serverLevel.sendParticles(ParticleTypes.DUST_PLUME, x, y, z, 1, dx, dy, dz, speed);// You can replace ParticleTypes.SMOKE with your custom particle
         }
     }
 
     private void meltdown(BlockPos pos) {
         assert level != null;
-        level.setBlockAndUpdate(pos, FluidInit.CORIUM.get().getFlowing(8, 15, false).createLegacyBlock());
+        level.setBlockAndUpdate(pos, Blocks.LAVA.defaultBlockState());
         //level.removeBlockEntity(pos);
     }
 
@@ -186,17 +192,19 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         assert this.level != null;
         nuclearExplosion(this.level, pos, power);
         // Remove the block after the explosion
-        level.setBlockAndUpdate(pos, FluidInit.CORIUM.get().getFlowing(8, 15, false).createLegacyBlock());
+        level.setBlock(worldPosition, Blocks.AIR.defaultBlockState(), 3);
     }
 
+
+
     @Override
-    public float getThermalCapacity() {
+    public int getThermalCapacity() {
         return C;
     }
     //transmition coef
     @Override
-    public float getThermalConductivity() {
-        return CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
+    public int getThermalConductivity() {
+        return (int) CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
     }
 
     @Override
@@ -211,7 +219,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public float getRadioactiveActivity() {
-        float easeCoef = CROWNSConfigs.SERVER.nuclear.easeCoef.getF(); //TODO config
+        float easeCoef = 1f; //TODO config
         return backgroundActivity+nbrOfFission * 2.5f*easeCoef;
     }
     @Override
@@ -219,36 +227,35 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         float easeCoef = 1f; //TODO config
         return (backgroundActivity + nbrOfFission * 2.5f * easeCoef)/(backgroundActivity + oldNbrOfFission * 2.5f * easeCoef);
     }
+    //to optimise, cost too much on the server
 
     @Override
-    protected void write(CompoundTag tag, boolean clientPacket) {
-        super.write(tag, clientPacket);
+    protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+        super.write(tag, registries,clientPacket);
 
         tag.putFloat("nbrOfFission", nbrOfFission);
         tag.putFloat("additionalNeutrons",additionalNeutronsAbsorbed);
         tag.putFloat("temperature",temperature);
-        tag.putFloat("power",power);
 
     }
 
     @Override
-    protected void read(CompoundTag tag, boolean clientPacket) {
+    protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
 
         nbrOfFission = tag.getFloat("nbrOfFission");
         additionalNeutronsAbsorbed = tag.getFloat("additionalNeutrons");
         temperature = tag.getFloat("temperature");
-        power = tag.getFloat("power");
-        super.read(tag, clientPacket);
+        super.read(tag,registries, clientPacket);
     }
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 
-        FormicApiLang.formatRadiationFlux(getRadioactiveActivity()*20)
+        CROWNSLang.formatRadiationFlux(getRadioactiveActivity()*20)
                 .style(ChatFormatting.DARK_GREEN)
                 .forGoggles(tooltip, 1);
 
-        FormicApiLang.formatTemperature(temperature)
+        CROWNSLang.formatTemperature(temperature)
                 .style(ChatFormatting.DARK_RED)
                 .forGoggles(tooltip, 1);
 
@@ -257,10 +264,9 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public Couple<Float> absorbNeutrons(Couple<Float> radiationFlux) {
-        Float temperatureCoef = 1/Math.max(1,(temperature-200)*CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF());
-        //System.out.println("temperature coef "+ temperatureCoef);
-        float fastAbsorbed = 0f;
-        float slowAbsorbed = 0f;
+        Float temperatureCoef = 1/Math.max(1,(temperature-300)/600);
+        Float fastAbsorbed = 0f;
+        Float slowAbsorbed = 0f;
         for (ResourceLocation resourceLocation: radioactiveElements.keySet()) {
             Float massFrac  = radioactiveElements.get(resourceLocation);
             Float cm = IAmFissileMaterial.molarConcentration.get(resourceLocation);
@@ -278,17 +284,5 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         }
         additionalNeutronsAbsorbed += fastAbsorbed + slowAbsorbed;
         return Couple.create(radiationFlux.getFirst()-fastAbsorbed,radiationFlux.getSecond()-slowAbsorbed);
-    }
-
-    public void setComposition(CompoundTag composition) {
-        radioactiveElements = new HashMap<>();
-        if (composition != null) {
-            for (ResourceLocation resourceLocation: IAmFissileMaterial.fissileCrossSection.keySet()) {
-                if (composition.contains(resourceLocation.toString())) {
-                    float concentration = composition.getFloat(resourceLocation.toString());
-                    radioactiveElements.put(resourceLocation, concentration);
-                }
-            }
-        }
     }
 }
