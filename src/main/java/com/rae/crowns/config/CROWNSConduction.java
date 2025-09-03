@@ -4,7 +4,7 @@ package com.rae.crowns.config;
 import net.createmod.catnip.config.ConfigBase;
 import org.jetbrains.annotations.NotNull;
 
-public class Conduction extends ConfigBase {
+public class CROWNSConduction extends ConfigBase {
     public final ConfigBool limitConduction = b(true, "limitConduction", Comments.limitConduction);
     public final ConfigInt conductionLimitDistance = i(2, 1, "conductionLimit", Comments.conductionLimitDistance);
     public final ConfigFloat heatExchangerExternal = f(50000,0,"heatExchangerExternal", Comments.heatExchangerExternal);

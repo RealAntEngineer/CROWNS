@@ -3,7 +3,7 @@ package com.rae.crowns.config;
 
 import net.createmod.catnip.config.ConfigBase;
 
-public class Kinetics extends ConfigBase {
+public class CROWNSKinetics extends ConfigBase {
 
     //public CROWNSStress stressValues  = nested(0, CROWNSStress::new, Comments.stress);
     public final ConfigBase.ConfigGroup turbineValues = group(0,"turbineValues",Comments.turbineStage);

@@ -1,20 +1,20 @@
 package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.CROWNS;
-import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
-import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
+import com.rae.crowns.content.thermodynamics.IHaveTemperature;
+import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.data.Couple;
+import net.createmod.catnip.theme.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -178,7 +178,7 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
             double dz = speed * Math.cos(phi);
 
             // Use any existing particle type here (e.g., SMOKE)
-            serverLevel.sendParticles(ParticleTypes.DUST_PLUME, x, y, z, 1, dx, dy, dz, speed);// You can replace ParticleTypes.SMOKE with your custom particle
+            serverLevel.sendParticles(new DustParticleOptions(Color.WHITE.asVectorF(),1), x, y, z, 1, dx, dy, dz, speed);// You can replace ParticleTypes.SMOKE with your custom particle
         }
     }
 
@@ -198,12 +198,12 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
 
 
     @Override
-    public int getThermalCapacity() {
+    public float getThermalCapacity() {
         return C;
     }
     //transmition coef
     @Override
-    public int getThermalConductivity() {
+    public float getThermalConductivity() {
         return (int) CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
     }
 
@@ -230,8 +230,8 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
     //to optimise, cost too much on the server
 
     @Override
-    protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
-        super.write(tag, registries,clientPacket);
+    protected void write(CompoundTag tag, boolean clientPacket) {
+        super.write(tag,clientPacket);
 
         tag.putFloat("nbrOfFission", nbrOfFission);
         tag.putFloat("additionalNeutrons",additionalNeutronsAbsorbed);
@@ -240,22 +240,22 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
     }
 
     @Override
-    protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+    protected void read(CompoundTag tag, boolean clientPacket) {
 
         nbrOfFission = tag.getFloat("nbrOfFission");
         additionalNeutronsAbsorbed = tag.getFloat("additionalNeutrons");
         temperature = tag.getFloat("temperature");
-        super.read(tag,registries, clientPacket);
+        super.read(tag, clientPacket);
     }
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 
-        CROWNSLang.formatRadiationFlux(getRadioactiveActivity()*20)
+        FormicApiLang.formatRadiationFlux(getRadioactiveActivity()*20)
                 .style(ChatFormatting.DARK_GREEN)
                 .forGoggles(tooltip, 1);
 
-        CROWNSLang.formatTemperature(temperature)
+        FormicApiLang.formatTemperature(temperature)
                 .style(ChatFormatting.DARK_RED)
                 .forGoggles(tooltip, 1);
 

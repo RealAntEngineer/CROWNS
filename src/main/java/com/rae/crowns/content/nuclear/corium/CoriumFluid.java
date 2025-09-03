@@ -4,6 +4,7 @@ package com.rae.crowns.content.nuclear.corium;
 import com.rae.crowns.init.misc.TagsInit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -115,11 +116,11 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
                     this.canSpreadTo(level, pos, currentState, Direction.DOWN, bellowPos, bellowState, bellowFluid , originalFluid.getType())) {
                 //we try to fill completely the block bellow us.
 
-                int newBellowAmount = Math.clamp(oldBellowAmount + originalFluid.getAmount(), 1, 8);
+                int newBellowAmount = Mth.clamp(oldBellowAmount + originalFluid.getAmount(), 1, 8);
                 int transmittedAmount = newBellowAmount - oldBellowAmount;
                 int bellowPower = bellowFluid.isEmpty() ? originalPower :  bellowFluid.getValue(POWER);
                 this.spreadTo(level, bellowPos, bellowState, Direction.DOWN,
-                        this.getFlowing(newBellowAmount,Math.clamp(((long) transmittedAmount * originalPower + (long) bellowPower * oldBellowAmount) /newBellowAmount, 0, 15), false));
+                        this.getFlowing(newBellowAmount,Mth.clamp(( transmittedAmount * originalPower +  bellowPower * oldBellowAmount) /newBellowAmount, 0, 15), false));
 
                 if (newBellowAmount - oldBellowAmount >= originalFluid.getAmount()) {
                     amountAvailable = 0;
@@ -152,11 +153,11 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
                             BlockState blockstate = level.getBlockState(blockpos);
                             FluidState fluidPresent = level.getFluidState(blockpos);
                             int presentPower = fluidPresent.isEmpty() ? originalPower : fluidPresent.getValue(POWER);
-                            int newAmount = Math.clamp(spreadAmount + fluidPresent.getAmount(), 1, 8);
+                            int newAmount = Mth.clamp(spreadAmount + fluidPresent.getAmount(), 1, 8);
                             FluidState spreadState =
                                     this.getFlowing(newAmount,
-                                            Math.clamp(((long) presentPower * fluidPresent.getAmount()
-                                                    + (long) spreadAmount * originalPower)/newAmount,0,15), false);
+                                            Mth.clamp(( presentPower * fluidPresent.getAmount()
+                                                    +  spreadAmount * originalPower)/newAmount,0,15), false);
 
                             if (spreadState.getAmount() > fluidPresent.getAmount() && amountAvailable > spreadAmount) {
                                 amountAvailable -= spreadAmount;
