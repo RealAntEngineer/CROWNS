@@ -1,0 +1,32 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"texture_size": [32, 32],
+	"textures": {
+		"0": "crowns:block/controlled_cell/none",
+		"particle": "crowns:block/controlled_cell/none"
+	},
+	"elements": [
+		{
+			"from": [8, 0, 0],
+			"to": [13, 16, 1],
+			"rotation": {"angle": 0, "axis": "y", "origin": [13, 0, 0]},
+			"faces": {
+				"north": {"uv": [8, 8, 10.5, 16], "texture": "#0"},
+				"east": {"uv": [8, 8, 8.5, 16], "texture": "#0"},
+				"south": {"uv": [8, 8, 10.5, 16], "texture": "#0"},
+				"west": {"uv": [8, 8, 8.5, 16], "texture": "#0"},
+				"up": {"uv": [8, 15.5, 10.5, 16], "rotation": 180, "texture": "#0"},
+				"down": {"uv": [8, 15.5, 10.5, 16], "rotation": 180, "texture": "#0"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "NorthDoor",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0]
+		}
+	]
+}

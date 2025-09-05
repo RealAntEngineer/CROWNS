@@ -1,0 +1,18 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "crowns:fluid/corium_flowing"
+    },{
+      "type": "single",
+      "resource": "crowns:fluid/corium_still"
+    },
+    {
+      "type": "single",
+      "resource": "crowns:fluid/uranium_hexafluoride_flowing"
+    },{
+      "type": "single",
+      "resource": "crowns:fluid/uranium_hexafluoride_still"
+    }
+  ]
+}
