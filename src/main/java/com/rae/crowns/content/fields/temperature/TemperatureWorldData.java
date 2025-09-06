@@ -5,8 +5,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.ticks.TickAccess;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class TemperatureWorldData  {//Only for the server
     private final Map<SectionPos, TemperatureDataLayer> temperatureMap = new HashMap<>();
@@ -15,6 +18,8 @@ public class TemperatureWorldData  {//Only for the server
 
     private final Map<Vec3i, IHaveTemperature> dynamicData = new HashMap<>();
     private final Queue<SectionPos> toInitialise = new ArrayDeque<>();
+    //use to store changed positions so we don't encounter a deadlock
+    private final Queue<BlockPos> changedBlocks = new ConcurrentLinkedQueue<>();
     private final Set<SectionPos> dirty = new HashSet<>();
     //TODO hook onto chunk serializer and do a packet for client server sync (always for server to client)
 
@@ -49,8 +54,9 @@ public class TemperatureWorldData  {//Only for the server
         // do the break with a timer.
         float initialTimeMS = System.currentTimeMillis();
         for (int i = 0; i < 10000 && !toInitialise.isEmpty();i++) {
-            SectionPos sectionPos  = toInitialise.poll();
+            SectionPos sectionPos  = toInitialise.peek();
             if (!level.isLoaded(sectionPos.origin())) continue;
+            toInitialise.poll();
             TemperatureDataLayer temperatureDataLayer = new TemperatureDataLayer();
             ConductionDataLayer conductionDataLayer = new ConductionDataLayer();
             ResilienceDataLayer resilienceDataLayer = new ResilienceDataLayer();
@@ -84,7 +90,20 @@ public class TemperatureWorldData  {//Only for the server
             }
         }
     }
+    public void updateChangedBlocks(ServerLevel level) {
+        float initialTimeMS = System.currentTimeMillis();
+        for (int i = 0; i < 10000 && !changedBlocks.isEmpty();i++) {
+            BlockPos sectionPos  = changedBlocks.poll();
+            set(sectionPos,
+                    TemperatureManager.getDefaultTemperature(level, sectionPos),
+                    TemperatureManager.getDefaultConduction(level, sectionPos),
+                    TemperatureManager.getDefaultResilience(level, sectionPos));
 
+            if (System.currentTimeMillis() - initialTimeMS > 20) {
+                break;
+            }
+        }
+    }
     public void set(BlockPos pos, float temperature, float conduction, float resilience) {
         SectionPos sectionPos = SectionPos.of(pos);
         TemperatureDataLayer temperatureDataLayer = getTemperature(sectionPos);
@@ -130,4 +149,11 @@ public class TemperatureWorldData  {//Only for the server
     public void setClean(SectionPos sectionPos) {
         dirty.remove(sectionPos);
     }
+
+    public void registerChanged(BlockPos immutable) {
+        if (temperatureMap.containsKey(SectionPos.of(immutable))) {
+            changedBlocks.add(immutable);
+        }
+    }
+
 }

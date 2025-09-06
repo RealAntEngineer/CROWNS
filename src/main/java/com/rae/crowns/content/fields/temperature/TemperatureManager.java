@@ -32,6 +32,26 @@ public class TemperatureManager {
         }
     }
 
+    /**
+     * lock safe version.
+     * @param level the level, doesn't make sens for non server level
+     * @param pos position
+     * @param blockState blockstate at said position
+     * @return the default temperature at the position.
+     */
+    public static float getDefaultTemperature(Level level, BlockPos pos, BlockState blockState) {
+        FluidState fluid = blockState.getFluidState();
+        float defaultT = CROWNS.BIOME_TEMPERATURES.getValue(level.getBiome(pos).value(), 300f);
+        //TODO : A mix bwn the 2 ?
+        //Priority: Fluid > Block >  Biome
+        if (fluid.isEmpty()) {
+            return CROWNS.BLOCK_TEMPERATURES.getValue(blockState.getBlock(), defaultT);
+        } else {
+            return CROWNS.FLUID_TEMPERATURES.getValue(fluid.getType(), defaultT);
+
+        }
+    }
+
     public static float getDefaultConduction(Level level, Vec3i pos) {
         FluidState fluid = level.getFluidState((BlockPos) pos);
         // Priority: Fluid > Block

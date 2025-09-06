@@ -32,11 +32,7 @@ public abstract class ServerLevelMixin extends Level {
     @Inject(method = "onBlockStateChange", at = @At("HEAD"))
     private void onSetBlockState(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo ci) {
         if (!oldState.equals(newState)) {
-            TemperatureManager.get(getLevel()).set(pos,
-                    TemperatureManager.getDefaultTemperature(getLevel(),pos),
-                    TemperatureManager.getDefaultConduction(getLevel(), pos),
-                    TemperatureManager.getDefaultResilience(getLevel(), pos)
-            );
+            TemperatureManager.get(getLevel()).registerChanged(pos.immutable());
         }
     }
 }
