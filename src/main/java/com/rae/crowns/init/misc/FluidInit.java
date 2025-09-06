@@ -37,8 +37,8 @@ public class FluidInit {
                     .register();
 
     public static final FluidEntry<ForgeFlowingFluid.Flowing> URANIUM_HEXAFLUOR =
-            CROWNS.REGISTRATE.fluid("uranium_hexafluor" ,CROWNS.resource("fluid/uranium_hexafluoride_still"), CROWNS.resource("fluid/uranium_hexafluoride_flowing"))
-                    .lang("URANIUM_HEXAFLUOR")
+            CROWNS.REGISTRATE.fluid("uranium_hexafluoride" ,CROWNS.resource("fluid/uranium_hexafluoride_still"), CROWNS.resource("fluid/uranium_hexafluoride_flowing"))
+                    .lang("Uranium_Hexafluoride")
                     .properties(b -> b.viscosity(2000)
                             .density(1400))
                     .fluidProperties(p -> p.levelDecreasePerBlock(2)

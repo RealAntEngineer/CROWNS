@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class TemperatureTicker {
-    public static float DT = 1/10f;
+    public static float DT = 1/5f;
 
 
     public static void tick(Set<SectionPos> loadedSections, TemperatureWorldData data) {

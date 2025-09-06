@@ -42,9 +42,13 @@ public class CreativeModeTabsInit {
                                 output.acceptAll(makeFuelAssembly().apply(BlockInit.FUEL_ASSEMBLY.asItem()));
                                 output.accept(BlockInit.DEEP_URANIUM_ORE);
                                 output.accept(BlockInit.URANIUM_ORE);
-                                output.accept(ItemInit.URANIUM_INGOT);
                                 output.accept(ItemInit.RAW_URANIUM);
-
+                                output.accept(ItemInit.URANIUM_INGOT);
+                                output.accept(ItemInit.DEPLETED_URANIUM_INGOT);
+                                output.accept(ItemInit.DEPLETED_URANIUM_NUGGET);
+                                output.accept(ItemInit.ENRICHED_URANIUM_INGOT);
+                                output.accept(ItemInit.ENRICHED_URANIUM_NUGGET);
+                                output.accept(ItemInit.FUEL_ROD);
                             })
                             .build());
     private static Function<Item, Collection<ItemStack>> makeFuelAssembly() {

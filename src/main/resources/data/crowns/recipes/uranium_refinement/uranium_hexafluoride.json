@@ -1,0 +1,22 @@
+{
+  "type": "create:mixing",
+  "ingredients": [
+    {
+      "fluid": "minecraft:water",
+      "amount": 100
+    },
+    {
+      "item": "minecraft:glowstone_dust"
+    },
+    {
+      "item": "crowns:uranium_ingot"
+    }
+  ],
+  "results": [
+    {
+      "fluid": "crowns:uranium_hexafluoride",
+      "amount": 100
+    }
+  ],
+  "heatRequirement": "heated"
+}
