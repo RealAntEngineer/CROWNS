@@ -59,23 +59,24 @@ public interface IAmRadioactiveSource {
         Vec3 newVec = vec.scale((double) 1 / range);
         //the surface isn't really a constant so a bit wrong
         //TODO make the surface a variable
+        //why 50 time ? and why 0.5 ?
         Couple<Float> radiationFlux = Couple.create((float) (50*fastNeutrons /(4*Math.PI* range * range)),0f);
         for (int i = 1; i <= range; i++) {
-            Vec3i partialVec = new Vec3i((int) (newVec.x()* i+0.5f), (int) (newVec.y()* i+0.5f), (int) (newVec.z()* i+0.5f));
+            Vec3i partialVec = new Vec3i((int) (newVec.x()* i), (int) (newVec.y()* i), (int) (newVec.z()* i));//
             BlockPos child = pos.offset(partialVec);
             BlockEntity childBE = level.getBlockEntity(child);
             if (childBE instanceof IAmFissileMaterial fissileMaterial){
                 radiationFlux = fissileMaterial.absorbNeutrons(radiationFlux);
-
             }
             BlockState state = level.getBlockState(child);
 
             if (TagsInit.CustomBlockTags.COAL_BLOCK.matches(state)){
                 radiationFlux = Couple.create(radiationFlux.getFirst()*(1- 0.7f), radiationFlux.getSecond()+ radiationFlux.getFirst()* (Float) 0.7f);
+                continue;
             }
             if (TagsInit.CustomBlockTags.GOLD_BLOCK.matches(state)){
-                radiationFlux = Couple.create(0f,0f)//Couple.create(radiationFlux.getFirst()*0.5f, radiationFlux.getSecond()*0.5f);
-                ;
+                //radiationFlux = Couple.create(0f,0f);//Couple.create(radiationFlux.getFirst()*0.5f, radiationFlux.getSecond()*0.5f);
+                break;
             }
             FluidState fluidState = level.getFluidState(child);
             if (!fluidState.isEmpty()) {

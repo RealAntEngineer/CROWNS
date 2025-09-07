@@ -7,7 +7,6 @@
     "core":"crowns:block/turbine/core",
     "blade":"crowns:block/turbine/blade",
     "particle": "minecraft:block/copper_block"
-
   },
   "model": "crowns:models/block/turbine/casing.obj"
 }
