@@ -20,7 +20,7 @@ public class ServerEvents {
         TemperatureWorldData data = TemperatureManager.get(serverLevel);
         data.initialise(serverLevel);
         data.updateChangedBlocks(serverLevel);
-        if (tickCounter % (20*TemperatureTicker.DT) == 0) {
+        if (tickCounter % (TemperatureTicker.TICK_PERIOD) == 0) {
             //lazy ticking
             TemperatureTicker.tick(data.getLoadedSections().stream()
                     .filter(pos -> serverLevel.isAreaLoaded(pos.origin(),1) && data.isDirty(pos))
