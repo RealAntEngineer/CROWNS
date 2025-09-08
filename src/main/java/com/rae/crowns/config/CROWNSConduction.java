@@ -14,7 +14,8 @@ public class CROWNSConduction extends ConfigBase {
     }
     private static class Comments {
         static String heatExchangerExternal ="conduction coefficient between the heat exchanger and the exterior";
-        static String heatExchangerInternal ="conduction coefficient between the heat exchanger and the water flowing through it, if you have oscilations ";
+        static String heatExchangerInternal ="conduction coefficient between the heat exchanger and the water flowing through it, " +
+                "if you have temperature oscillations decrease it";
         static String assemblyBlock = "conduction coefficient between the assembly block and the exterior";
     }
 }

@@ -4,6 +4,7 @@ import com.rae.colony_api.multiblock.MBKineticController;
 import com.rae.colony_api.multiblock.MBStructureBlock;
 import com.rae.crowns.init.client.ShapesInit;
 import com.rae.crowns.init.misc.BlockEntityInit;
+import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
 import com.simibubi.create.foundation.block.IBE;
 import net.createmod.catnip.data.Couple;
 import net.minecraft.core.BlockPos;
@@ -19,9 +20,9 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-public class TurbineStageBlock extends MBKineticController implements IBE<TurbineStageBlockEntity> {
-    public TurbineStageBlock(Properties pProperties, MBStructureBlock structure) {
-        super(pProperties, structure);
+public class TurbineStageBlock extends DirectionalKineticBlock implements IBE<TurbineStageBlockEntity> {
+    public TurbineStageBlock(Properties pProperties) {
+        super(pProperties);
     }
 
     @Override
@@ -63,20 +64,5 @@ public class TurbineStageBlock extends MBKineticController implements IBE<Turbin
     }
     public static Couple<Integer> getSpeedRange() {
         return Couple.create(1, 16);
-    }
-
-    @Override
-    public VoxelShape getGlobalShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
-        return ShapesInit.TURBINE.get(state.getValue(FACING));
-    }
-
-    @Override
-    public Vec3i getDefaultOffset() {
-        return new Vec3i(0,0,0);
-    }
-
-    @Override
-    public Vec3i getDefaultSize() {
-        return new Vec3i(1,1,1);
     }
 }
