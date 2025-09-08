@@ -1,7 +1,5 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
-import com.rae.colony_api.multiblock.MBKineticController;
-import com.rae.colony_api.multiblock.MBStructureBlock;
 import com.rae.crowns.init.client.ShapesInit;
 import com.rae.crowns.init.misc.BlockEntityInit;
 import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
@@ -9,7 +7,6 @@ import com.simibubi.create.foundation.block.IBE;
 import net.createmod.catnip.data.Couple;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntityType;
