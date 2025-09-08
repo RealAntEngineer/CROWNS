@@ -1,5 +1,6 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
+import com.rae.crowns.init.client.ShapesInit;
 import com.rae.crowns.init.misc.BlockEntityInit;
 import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
 import com.simibubi.create.foundation.block.IBE;
@@ -10,11 +11,22 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 public class TurbineStageBlock extends DirectionalKineticBlock implements IBE<TurbineStageBlockEntity> {
     public TurbineStageBlock(Properties pProperties) {
         super(pProperties);
     }
+
+    @Override
+    public @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+        return  Shapes.join(ShapesInit.TURBINE.get(state.getValue(FACING)), Shapes.block(), BooleanOp.AND);
+    }
+
     @Override
     public float getShadeBrightness(BlockState pState, BlockGetter pLevel, BlockPos pPos) {
         return 1.0F;

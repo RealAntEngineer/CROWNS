@@ -174,7 +174,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
                 CompoundTag tag = water.getOrCreateTag();
                 tag.put("realGazState", outputState.serialize());
                 water.setTag(tag);
-                INPUT_WATER_TANK.drain(Math.min((int) speed,OUTPUT_WATER_TANK.fill(water, IFluidHandler.FluidAction.EXECUTE)), IFluidHandler.FluidAction.EXECUTE);
+                INPUT_WATER_TANK.drain(Math.min((int) Math.abs(speed),OUTPUT_WATER_TANK.fill(water, IFluidHandler.FluidAction.EXECUTE)), IFluidHandler.FluidAction.EXECUTE);
                 if (hasNetwork() && speed != 0) {
 
                     KineticNetwork network = getOrCreateNetwork();

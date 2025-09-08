@@ -43,7 +43,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         queuedSync = false;
         syncCooldown = SYNC_RATE;
     }
-    private static final int SYNC_RATE = 8;
+    private static final int SYNC_RATE = 2;
     protected int syncCooldown;
     protected boolean queuedSync;
 
