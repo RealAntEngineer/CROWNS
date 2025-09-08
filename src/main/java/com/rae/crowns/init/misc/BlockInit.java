@@ -63,7 +63,7 @@ public class BlockInit {
             REGISTRATE.block("turbine_stage",(p) -> new TurbineStageBlock(p))
                     .initialProperties(SharedProperties::softMetal)
                     .properties(BlockBehaviour.Properties::noOcclusion)
-                    .item(TurbineStageItem::new)
+                    .item()
                     .build()
                     .register();
 
