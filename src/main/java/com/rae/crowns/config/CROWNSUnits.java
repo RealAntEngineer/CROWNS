@@ -4,6 +4,7 @@ import com.rae.colony_api.units.Pressure;
 import com.rae.colony_api.units.RadiationFlux;
 import com.rae.colony_api.units.Temperature;
 import net.createmod.catnip.config.ConfigBase;
+import org.jetbrains.annotations.NotNull;
 
 public class CROWNSUnits extends ConfigBase {
     public final ConfigEnum<Temperature> temperature = e(Temperature.CELSIUS,"temperature", Comments.temperature);
@@ -12,7 +13,7 @@ public class CROWNSUnits extends ConfigBase {
 
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return "units";
     }
     private static class Comments {

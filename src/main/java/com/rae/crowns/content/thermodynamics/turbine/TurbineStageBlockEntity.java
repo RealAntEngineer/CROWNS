@@ -83,6 +83,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
         flows = level.getEntitiesOfClass(SteamCurrent.class, bound);
         power = 0;
         flows.forEach(f -> power += f.getPowerForStage(this));
+
         if (level.isClientSide()) return;
         updateGeneratedRotation();
     }

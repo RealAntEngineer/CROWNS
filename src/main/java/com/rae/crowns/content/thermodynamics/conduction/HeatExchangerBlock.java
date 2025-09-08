@@ -40,7 +40,6 @@ public class HeatExchangerBlock extends WrenchableDirectionalBlock implements Pr
     }
     @Override
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-        //TODO replace this with a
         BlockState state = withWater(this.defaultBlockState().setValue(FACING, context.getClickedFace()), context);
         BlockState clickedState = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace(), -1));
         BlockState oppositeState = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace(), 1));

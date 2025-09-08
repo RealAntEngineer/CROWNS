@@ -71,21 +71,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     // 800 moles of uranium for pure metal *  the mass fraction define in radioactive elements ( fraction of the total mass of the assembly )
 
 
-    public static HashMap<ResourceLocation, Couple<Float>> fissileCrossSection = new HashMap<>(
-            Map.of(
-                    CROWNS.resource("u235"),Couple.create(1f,583f), //cross-section in barn
-                    CROWNS.resource("u238"),Couple.create(0.3f,0.0001f),
-                    CROWNS.resource("p239"),Couple.create(2f,748f)
-
-            ));//for U235,U358 and Plutonium -> percentage of total mass
-    public static HashMap<ResourceLocation,Float> molarConcentration = new HashMap<>(
-            Map.of(
-                    CROWNS.resource("u235"),19/235f*10000, //amount of moles in a cubic meter of pure metal
-                    CROWNS.resource("u238"),19/238f*10000,
-                    CROWNS.resource("p239"),19/239f*10000
-
-            ));//for U235,U358 and Plutonium -> percentage of total mass
-
     public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
         nbrOfFission = backgroundActivity;
@@ -279,12 +264,12 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         float slowAbsorbed = 0f;
         for (ResourceLocation resourceLocation: radioactiveElements.keySet()) {
             Float massFrac  = radioactiveElements.get(resourceLocation);
-            Float cm = AssemblyBlockEntity.molarConcentration.get(resourceLocation);
+            Float cm = IAmFissileMaterial.molarConcentration.get(resourceLocation);
             Float fastAbsorptionChance = Math.min(1,
-                    AssemblyBlockEntity.fissileCrossSection.get(resourceLocation).getFirst()
+                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getFirst()
                             *massFrac*cm*barnNa);
             Float slowAbsorptionChance = Math.min(1,
-                    AssemblyBlockEntity.fissileCrossSection.get(resourceLocation).getSecond()
+                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getSecond()
                             *massFrac*cm*barnNa);
             //System.out.println(resourceLocation);
             //System.out.println("fastC : "+ fastAbsorptionChance);
