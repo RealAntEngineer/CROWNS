@@ -30,7 +30,7 @@ import java.util.Map;
 import static com.rae.crowns.Constants.barnNa;
 import static com.rae.crowns.Constants.fissionEnergy;
 
-public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmFissileMaterial, IHaveGoggleInformation {
+public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature,IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
 
     @Override
     public void sendData() {
