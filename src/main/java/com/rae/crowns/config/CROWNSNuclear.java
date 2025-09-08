@@ -5,7 +5,7 @@ import net.createmod.catnip.config.ConfigBase;
 import org.jetbrains.annotations.NotNull;
 
 public class CROWNSNuclear extends ConfigBase {
-    public final ConfigBase.ConfigFloat realismCoefficient = f(5e9f,0,"realismCoef", Comments.realismCoef);
+    public final ConfigBase.ConfigFloat realismCoefficient = f(5e6f,0,"realismCoef", Comments.realismCoef);
     public final ConfigBase.ConfigFloat radiationRange = f(4,0,"radiationRange", Comments.radiationRange);
     public final ConfigBase.ConfigFloat easeCoef = f(0.8f,0,"easeCoef", Comments.easeCoef);
     public final ConfigBase.ConfigFloat negativeThermalCoef = f(0.0075f,0,"negativeThermalCoef", Comments.negativeThermalCoef);
