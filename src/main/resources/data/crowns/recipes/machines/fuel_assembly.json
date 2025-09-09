@@ -15,6 +15,13 @@
   },
   "result": {
     "item": "crowns:fuel_assembly",
+    "type": "forge:partial_nbt",
+    "nbt": {
+      "composition": {
+        "crowns:u235": 0.5,
+        "crowns:u238": 0.5
+      }
+    },
     "count": 1
   }
 }

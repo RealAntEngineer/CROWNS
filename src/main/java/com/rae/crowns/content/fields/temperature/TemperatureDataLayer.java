@@ -60,6 +60,6 @@ public class TemperatureDataLayer {
         data[y << 8 | z << 4 | x] = (short) ((int) Mth.clamp(temperature, MIN_TEMPERATURE, MAX_TEMPERATURE) * 10 - SHORT_SIZE/2);
     }
     public void setDefault(int x, int y, int z, float temperature) {//map
-        defaultData[y << 8 | z << 4 | x] = (short) ((int)Mth.clamp(temperature,0,6553) * 10 - SHORT_SIZE/2);
+        defaultData[y << 8 | z << 4 | x] = (short) ((int)Mth.clamp(temperature,MIN_TEMPERATURE,MAX_TEMPERATURE) * 10 - SHORT_SIZE/2);
     }
 }

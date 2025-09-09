@@ -4,8 +4,11 @@ import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureTicker;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
+import net.minecraft.client.telemetry.events.WorldLoadEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -25,6 +28,10 @@ public class ServerEvents {
             TemperatureTicker.tick(data.getLoadedSections().stream()
                     .filter(pos -> serverLevel.isAreaLoaded(pos.origin(),1) && data.isDirty(pos))
                     .collect(Collectors.toSet()), data);
+        }
+
+        if (tickCounter % (20) == 0) {
+            TemperatureManager.sendUpdate(serverLevel);
         }
         tickCounter++;
     }

@@ -13,6 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -33,6 +34,9 @@ public class ClientEvents {
 
         CrownsSoundScapes.tick();
     }
+
+
+
 
     @SubscribeEvent
     public static void addToItemTooltip(ItemTooltipEvent event) {

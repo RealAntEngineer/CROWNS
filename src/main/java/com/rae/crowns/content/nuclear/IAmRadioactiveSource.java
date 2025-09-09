@@ -62,7 +62,7 @@ public interface IAmRadioactiveSource {
         //TODO make the surface a variable
         Couple<Float> radiationFlux = Couple.create((float) (50*fastNeutrons /(4*Math.PI* range * range)),0f);
         for (int i = 1; i <= range; i++) {
-            Vec3i partialVec = new Vec3i((int) (newVec.x()* i+0.5f), (int) (newVec.y()* i+0.5f), (int) (newVec.z()* i+0.5f));
+            Vec3i partialVec = new Vec3i((int) (newVec.x()* i), (int) (newVec.y()* i), (int) (newVec.z()* i));
             BlockPos child = pos.offset(partialVec);
             BlockEntity childBE = level.getBlockEntity(child);
             if (childBE instanceof IAmFissileMaterial fissileMaterial){

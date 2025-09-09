@@ -59,6 +59,8 @@ public class CROWNS {
         EntityInit.register();
         SoundInit.register();
 
+        PacketInit.registerPackets();
+
         DisplaySourceInit.register();
         CreativeModeTabsInit.register(modEventBus);
         ParticleTypeInit.register(modEventBus);

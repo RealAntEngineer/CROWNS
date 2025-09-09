@@ -1,22 +1,24 @@
 package com.rae.crowns.content.fields.temperature;
 
 import com.rae.crowns.CROWNS;
+import com.rae.crowns.init.misc.PacketInit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraftforge.network.PacketDistributor;
 
 import java.util.Map;
 import java.util.WeakHashMap;
 
 public class TemperatureManager {
     private static final Map<ServerLevel, TemperatureWorldData> worldDataMap = new WeakHashMap<>();
-
     public static TemperatureWorldData get(ServerLevel level) {
         return worldDataMap.computeIfAbsent(level, k -> new TemperatureWorldData());
     }
+
 
     public static float getDefaultTemperature(Level level, BlockPos pos) {
         FluidState fluid = level.getFluidState(pos);
@@ -71,5 +73,10 @@ public class TemperatureManager {
             return CROWNS.FLUID_RESILIENCE.getValue(fluid.getType(), 0.5f);
 
         }
+    }
+
+
+    public static void sendUpdate(ServerLevel level) {
+        get(level).syncWithPlayers(level.getPlayers(serverPlayer -> serverPlayer.level().dimension().equals(level.dimension())));
     }
 }
