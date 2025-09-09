@@ -1,4 +1,4 @@
-package com.rae.crowns.content.thermodynamics.conduction;
+package com.rae.crowns.content.thermodynamics;
 
 public interface IHaveTemperature {
     //put the initialise here ?

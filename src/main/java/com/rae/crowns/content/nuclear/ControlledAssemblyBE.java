@@ -5,7 +5,7 @@ import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
-import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
+import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;

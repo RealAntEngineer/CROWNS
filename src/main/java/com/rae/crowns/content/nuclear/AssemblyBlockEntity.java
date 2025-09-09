@@ -4,7 +4,7 @@ import com.rae.crowns.CROWNS;
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
-import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
+import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.init.misc.FluidInit;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
@@ -22,9 +22,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -283,7 +283,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         return Couple.create(radiationFlux.getFirst()-fastAbsorbed,radiationFlux.getSecond()-slowAbsorbed);
     }
 
-    public void setComposition(CompoundTag composition) {
+    public void setComposition(@Nullable CompoundTag composition) {
         radioactiveElements = new HashMap<>();
         if (composition != null) {
             for (ResourceLocation resourceLocation: IAmFissileMaterial.fissileCrossSection.keySet()) {

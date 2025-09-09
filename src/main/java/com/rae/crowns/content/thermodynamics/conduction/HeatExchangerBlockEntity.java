@@ -1,5 +1,6 @@
 package com.rae.crowns.content.thermodynamics.conduction;
 
+import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.rae.formicapi.thermal_utilities.helper.WaterAsRealGaz;
 import com.rae.crowns.CROWNSLang;
@@ -122,13 +123,22 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                     WATER_TANK.drain(handler.fill(stack, IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE);
                 }
             }
-            float dt = 1/20f;
-            //conductTemperature(getBlockPos(),level, dt);
-            double k = getInternalConductivity()/getThermalCapacity();
-            heatWaterTank((int) k, dt);
 
-            sendData();
+            //internal conduction
+            if (WATER_TANK.getFluidAmount() > 0) {
+                int steps = 10;
+                for (int i = 0; i < steps; i++) {
+                    float dt = 0.05F / steps; // time step duration in seconds
+                    float deltaT = temperature - WATER_TANK.getState().temperature();
 
+                    // Calculate the heat transfer using exponential decay for stability
+                    float heatTransfer = deltaT * this.getInternalConductivity() * dt;
+
+                    // Transfer heat to water
+                    WATER_TANK.heat(heatTransfer);
+                    temperature -= heatTransfer / this.getThermalCapacity();
+                }
+            }
         }
     }
 

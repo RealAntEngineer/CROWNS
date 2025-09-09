@@ -1,6 +1,7 @@
 package com.rae.crowns;
 
 import com.mojang.logging.LogUtils;
+import com.rae.crowns.init.client.SoundInit;
 import com.rae.formicapi.data.managers.FloatMapDataLoader;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.init.data.DataComponentsInit;
@@ -56,6 +57,9 @@ public class CROWNS {
         FluidInit.register();
         BlockEntityInit.register();
         EntityInit.register();
+        SoundInit.register(modEventBus);
+
+        PacketInit.register();
 
         DisplaySourceInit.register();
         CreativeModeTabsInit.register(modEventBus);
@@ -66,6 +70,7 @@ public class CROWNS {
 
         CROWNSConfigs.registerConfigs(modLoadingContext,modContainer);
         CROWNSContraptionType.prepare();
+        MovementCheckInit.register();
         //CreativeModeTabsInit.init();
 
 

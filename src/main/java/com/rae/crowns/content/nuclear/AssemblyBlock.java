@@ -4,9 +4,11 @@ import com.rae.crowns.init.misc.BlockEntityInit;
 import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -82,13 +84,16 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
         return super.getSignal(state, level, pos, direction);
     }
 
-    /*@Override
+    @Override
     public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity player, @NotNull ItemStack itemStack) {
         super.setPlacedBy(level, pos, state, player, itemStack);
         if (level.isClientSide)
             return;
         withBlockEntityDo(level, pos, be -> {
-            be.setComposition(itemStack.getOrCreateTag().getCompound("composition"));
+            CustomData data = itemStack.get(DataComponents.CUSTOM_DATA);
+            if (data != null) {
+                be.setComposition(data.copyTag().getCompound("composition"));
+            }
         });
-    }*/
+    }
 }

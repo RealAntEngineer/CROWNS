@@ -2,7 +2,7 @@ package com.rae.crowns.mixin;
 
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
-import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
+import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
