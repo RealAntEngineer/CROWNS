@@ -2,6 +2,7 @@ package com.rae.crowns.init.misc;
 
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.nuclear.corium.CoriumFluid;
+import com.rae.crowns.content.nuclear.corium.CoriumFluidType;
 import com.rae.crowns.content.nuclear.corium.CoriumLiquidBlock;
 import com.tterrag.registrate.util.entry.FluidEntry;
 import net.minecraft.core.registries.Registries;
@@ -20,7 +21,7 @@ public class FluidInit {
             DeferredRegister.create(Registries.FLUID, CROWNS.MODID);
     public static final FluidEntry<CoriumFluid.Flowing> CORIUM =
             CROWNS.REGISTRATE.fluid("corium" ,CROWNS.resource("fluid/corium_still"), CROWNS.resource("fluid/corium_flowing"),
-                    FluidInit::defaultFluidType,
+                            CoriumFluidType::new,
                             CoriumFluid.Flowing::new)
                     .lang("Corium")
                     .properties(b -> b.viscosity(2000)
@@ -52,20 +53,7 @@ public class FluidInit {
 
     private static FluidType defaultFluidType(FluidType.Properties properties, ResourceLocation stillTexture, ResourceLocation flowingTexture) {
         return new FluidType(properties) {
-            @Override
-            public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
-                consumer.accept(new IClientFluidTypeExtensions() {
-                    @Override
-                    public ResourceLocation getStillTexture() {
-                        return stillTexture;
-                    }
 
-                    @Override
-                    public ResourceLocation getFlowingTexture() {
-                        return flowingTexture;
-                    }
-                });
-            }
         };
     }
     public static void register() {
