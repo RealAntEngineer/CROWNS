@@ -6,13 +6,9 @@ import com.rae.crowns.content.nuclear.corium.CoriumFluidType;
 import com.rae.crowns.content.nuclear.corium.CoriumLiquidBlock;
 import com.tterrag.registrate.util.entry.FluidEntry;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.BaseFlowingFluid;
 import net.neoforged.neoforge.registries.DeferredRegister;
-
-import java.util.function.Consumer;
 
 public class FluidInit {
     private static final DeferredRegister<Fluid> FLUID_REGISTER =
@@ -35,26 +31,20 @@ public class FluidInit {
                     .build()
                     .register();
 
+    public static final FluidEntry<BaseFlowingFluid.Flowing> URANIUM_HEXAFLUOR =
+            CROWNS.REGISTRATE.fluid("uranium_hexafluoride" ,CROWNS.resource("fluid/uranium_hexafluoride_still"), CROWNS.resource("fluid/uranium_hexafluoride_flowing"))
+                    .lang("Uranium_Hexafluoride")
+                    .properties(b -> b.viscosity(2000)
+                            .density(1400))
+                    .fluidProperties(p -> p.levelDecreasePerBlock(2)
+                            .tickRate(25)
+                            .slopeFindDistance(3)
+                            .explosionResistance(100f))
+                    .source(BaseFlowingFluid.Source::new) // TODO: remove when Registrate fixes FluidBuilder
+                    .bucket()
+                    .build()
+                    .register();
 
-
-    private static FluidType defaultFluidType(FluidType.Properties properties, ResourceLocation stillTexture, ResourceLocation flowingTexture) {
-        return new FluidType(properties) {
-            @Override
-            public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer) {
-                consumer.accept(new IClientFluidTypeExtensions() {
-                    @Override
-                    public ResourceLocation getStillTexture() {
-                        return stillTexture;
-                    }
-
-                    @Override
-                    public ResourceLocation getFlowingTexture() {
-                        return flowingTexture;
-                    }
-                });
-            }
-        };
-    }
     public static void register() {
 
     }
