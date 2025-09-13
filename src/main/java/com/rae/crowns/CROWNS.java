@@ -6,6 +6,7 @@ import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.init.client.PartialModelInit;
 import com.rae.crowns.init.client.ParticleTypeInit;
 import com.rae.crowns.init.data.EntityDataSerializersInit;
+import com.rae.crowns.init.data.PacketInit;
 import com.rae.crowns.init.misc.*;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import net.minecraft.resources.ResourceLocation;
@@ -45,6 +46,7 @@ public class CROWNS {
         EntityInit.register();
 
         DisplaySourceInit.register();
+        PacketInit.registerPackets();
         CreativeModeTabsInit.register(modEventBus);
         ParticleTypeInit.register(modEventBus);
         PartialModelInit.init();

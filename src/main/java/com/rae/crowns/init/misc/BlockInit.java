@@ -1,5 +1,7 @@
 package com.rae.crowns.init.misc;
 
+import com.rae.colony_api.multiblock.MBItem;
+import com.rae.colony_api.multiblock.MBStructureBlock;
 import com.rae.crowns.content.nuclear.AssemblyBlock;
 import com.rae.crowns.content.nuclear.UraniumOreBlock;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
@@ -51,12 +53,18 @@ public class BlockInit {
             .item()
             .build()
             .register();
-
-    public static final BlockEntry<TurbineStageBlock> TURBINE_STAGE =
-            REGISTRATE.block("turbine_stage",TurbineStageBlock::new)
+    public static final BlockEntry<MBStructureBlock> TURBINE_STAGE_STRUCTURE =
+            REGISTRATE.block("turbine_stage_structure", MBStructureBlock::new)
                     .initialProperties(SharedProperties::softMetal)
                     .properties(BlockBehaviour.Properties::noOcclusion)
                     .item()
+                    .build()
+                    .register();
+    public static final BlockEntry<TurbineStageBlock> TURBINE_STAGE =
+            REGISTRATE.block("turbine_stage",(p) -> new TurbineStageBlock(p, TURBINE_STAGE_STRUCTURE.get()))
+                    .initialProperties(SharedProperties::softMetal)
+                    .properties(BlockBehaviour.Properties::noOcclusion)
+                    .item(MBItem::new)
                     .build()
                     .register();
 

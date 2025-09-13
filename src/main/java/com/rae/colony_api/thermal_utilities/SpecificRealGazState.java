@@ -1,11 +1,20 @@
 package com.rae.colony_api.thermal_utilities;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.CompoundTag;
 
 public record SpecificRealGazState(Float temperature, Float pressure, Float specificEnthalpy, Float vaporQuality) {
-    /*public Codec<SpecificRealGazState> CODEC = RecordCodecBuilder.create(
+    public static Codec<SpecificRealGazState> CODEC = RecordCodecBuilder.create(i ->
+            i.group(
+                            Codec.FLOAT.fieldOf("temperature").forGetter(p -> p.temperature),
+                            Codec.FLOAT.fieldOf("pressure").forGetter(p -> p.pressure),
+                            Codec.FLOAT.fieldOf("specific_enthalpy").forGetter(p -> p.specificEnthalpy),
+                            Codec.FLOAT.fieldOf("vapor_quality").forGetter(p -> p.vaporQuality)
+                    )
+                    .apply(i, SpecificRealGazState::new));
 
-    );*/
+
 
     public SpecificRealGazState(Float temperature, Float pressure, Float specificEnthalpy, Float vaporQuality){
         this.temperature = Math.max(0,temperature);

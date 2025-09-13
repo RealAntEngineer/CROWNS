@@ -82,7 +82,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
         bound = bound.expandTowards(Vec3.atLowerCornerOf(Direction.get(Direction.AxisDirection.POSITIVE,plane.get(1))
                 .getNormal()));
 
-        flows = level.getEntitiesOfClass(SteamCurrent.class, bound);
+        flows = SteamFlowManager.getCurrentsInBounds(level.dimension().location(), bound);//level.getEntitiesOfClass(SteamCurrent.class, bound);
         power = 0;
         flows.forEach(f -> power += f.getPowerForStage(this));
 
