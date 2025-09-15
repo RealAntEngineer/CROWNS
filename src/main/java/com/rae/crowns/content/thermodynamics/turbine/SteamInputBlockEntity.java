@@ -66,7 +66,8 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 	}
 	@Override
 	protected void read(CompoundTag compound, boolean clientPacket) {
-		WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
+		if (compound.contains("water_tank"))
+			WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
 		flow = compound.getFloat("flow");
 		super.read(compound, clientPacket);
 	}

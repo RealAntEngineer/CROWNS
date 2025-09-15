@@ -66,7 +66,8 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
 	}
 	@Override
 	protected void read(CompoundTag compound, boolean clientPacket) {
-		WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
+		if (compound.contains("water_tank"))
+			WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
 		super.read(compound, clientPacket);
 	}
 

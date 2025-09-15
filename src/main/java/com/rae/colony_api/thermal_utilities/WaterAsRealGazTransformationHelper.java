@@ -199,6 +199,8 @@ public class WaterAsRealGazTransformationHelper {
 
 //TODO -> it seems to not be working when amount are too low -> protection against 0 values ?
     public static SpecificRealGazState mix(SpecificRealGazState first, float firstAmount, SpecificRealGazState second, float secondAmount){
+        if (firstAmount <= 0) return second;
+        if (secondAmount <= 0) return first;
         float P = first.pressure()*firstAmount/(firstAmount+ secondAmount) + second.pressure()*secondAmount/(firstAmount+ secondAmount);
         float h = first.specificEnthalpy()*firstAmount/(firstAmount+ secondAmount) + second.specificEnthalpy()*secondAmount/(firstAmount+ secondAmount);
         //float x = first.vaporQuality()*firstAmount/(firstAmount+ secondAmount) + second.vaporQuality()*secondAmount/(firstAmount+ secondAmount);

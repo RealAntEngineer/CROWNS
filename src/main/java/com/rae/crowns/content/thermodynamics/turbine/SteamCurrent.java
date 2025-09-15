@@ -143,11 +143,11 @@ public class SteamCurrent {
 
 	public void rebuild(Level level) {
 
-		maxDistance = explore(level, injectorPos, maxDistance, direction);
+		float distance = explore(level, injectorPos, maxDistance, direction);
 		if (maxDistance < 0.25f)
 			setBoundingBox(new AABB(0, 0, 0, 0, 0, 0));
 		else {
-			float factor = maxDistance - 1;
+			float factor = distance - 1;
 			Vec3 scale = Vec3.atLowerCornerOf( direction.getNormal()).scale(factor);
 			if (factor > 0) {
 				//AABB bound = new AABB(injectorPos.relative(direction)).expandTowards(scale);
@@ -201,7 +201,8 @@ public class SteamCurrent {
 				}
 				//need to ensure that it's empty before end
 				//.get(this.direction.getAxis()
-				powerForStage.put(((BlockEntity) stage).getBlockPos(), (previousState.specificEnthalpy() - nextState.specificEnthalpy()) * getFlow(level) * 20 / whatSU);
+				float power =  (previousState.specificEnthalpy() - nextState.specificEnthalpy()) * getFlow(level) * 20 / whatSU;
+				powerForStage.put(((BlockEntity) stage).getBlockPos(),Float.isNaN(power) ? 0 : power);
 				//System.out.println("stage : "+i+" | "+nextState + "power : "+(previousState.specificEnthalpy() - nextState.specificEnthalpy()) * getFlow());
 				previousState = nextState;
 				stateMap.put(((BlockEntity) stage).getBlockPos(), nextState);
@@ -244,7 +245,9 @@ public class SteamCurrent {
             BlockState state = world.getBlockState(currentPos);
 			if (!state.isAir()){
 				if (state.is(BlockInit.STEAM_COLLECTOR.get()) && state.getValue(DirectionalBlock.FACING) == getDirection().getOpposite()) collectorPos = currentPos;
-				break;
+				if (!state.is(BlockInit.TURBINE_STAGE_STRUCTURE.get())) {
+					break;
+				}
 			}
 			distance++;
         }

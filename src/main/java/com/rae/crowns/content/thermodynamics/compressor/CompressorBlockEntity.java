@@ -118,9 +118,10 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     @Override
     protected void read(CompoundTag tag, boolean clientPacket) {
         power = tag.getFloat("power");
-        INPUT_WATER_TANK.readFromNBT((CompoundTag) tag.get("input_water_tank"));
-        OUTPUT_WATER_TANK.readFromNBT((CompoundTag) tag.get("output_water_tank"));
-
+        if (tag.contains("input_water_tank"))
+            INPUT_WATER_TANK.readFromNBT((CompoundTag) tag.get("input_water_tank"));
+        if (tag.contains("output_water_tank"))
+            OUTPUT_WATER_TANK.readFromNBT((CompoundTag) tag.get("output_water_tank"));
         super.read(tag, clientPacket);
     }
     @Override

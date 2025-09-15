@@ -12,6 +12,7 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.utility.CreateLang;
+import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -102,7 +103,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             conductTemperature(getBlockPos(),level, dt);
             double k = getInternalConductivity()/getThermalCapacity();
             if (!WATER_TANK.isEmpty()) {//we don't heat it if empty
-                int iteration = Math.max(1,(int) k);
+                int iteration = Math.max(1,(int) k * 1000/WATER_TANK.getFluidAmount());
                 for (int i = 0; i < iteration; i++) {
                     float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) * dt / iteration;
                     WATER_TANK.heat(power);
@@ -163,7 +164,8 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     @Override
     protected void read(CompoundTag tag, boolean clientPacket) {
         temperature = tag.getFloat("temperature");
-        WATER_TANK.readFromNBT((CompoundTag) tag.get("water_tank"));
+        if (tag.contains("water_tank"))
+            WATER_TANK.readFromNBT((CompoundTag) tag.get("water_tank"));
         super.read(tag, clientPacket);
     }
 
