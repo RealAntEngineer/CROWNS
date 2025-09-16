@@ -3,7 +3,6 @@ package com.rae.crowns;
 import com.mojang.logging.LogUtils;
 import com.rae.colony_api.data.managers.FloatMapDataLoader;
 import com.rae.crowns.config.CROWNSConfigs;
-import com.rae.crowns.init.client.PartialModelInit;
 import com.rae.crowns.init.client.ParticleTypeInit;
 import com.rae.crowns.init.data.EntityDataSerializersInit;
 import com.rae.crowns.init.data.PacketInit;
@@ -49,15 +48,14 @@ public class CROWNS {
         PacketInit.registerPackets();
         CreativeModeTabsInit.register(modEventBus);
         ParticleTypeInit.register(modEventBus);
-        PartialModelInit.init();
         EntityDataSerializersInit.register(modEventBus);
 
         CROWNSConfigs.registerConfigs(modLoadingContext);
         CROWNSContraptionType.prepare();
         MovementCheckInit.register();
-        //CreativeModeTabsInit.init();
 
         forgeEventBus.addListener(CROWNS::onAddReloadListeners);
+        System.out.println("where do you crash bro ?");
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->  CROWNSClient.clientRegister(modEventBus));
 
     }

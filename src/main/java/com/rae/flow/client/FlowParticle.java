@@ -1,7 +1,6 @@
 package com.rae.flow.client;
 
 import com.rae.flow.commun.FlowLine;
-
 import net.createmod.catnip.theme.Color;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;

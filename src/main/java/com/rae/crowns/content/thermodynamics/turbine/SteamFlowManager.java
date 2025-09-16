@@ -1,18 +1,16 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.init.data.PacketInit;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.PacketDistributor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SteamFlowManager {
 
@@ -58,10 +56,10 @@ public class SteamFlowManager {
         return collector;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    /*@OnlyIn(Dist.CLIENT)
     public static void render(ClientLevel level) {
 
-    }
+    }*/
 
     public static void serverStarted(MinecraftServer server) {
         if (server == null)

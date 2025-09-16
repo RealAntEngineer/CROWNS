@@ -1,7 +1,6 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.config.CROWNSConfigs;
-import com.simibubi.create.content.kinetics.KineticNetwork;
 import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.minecraft.core.BlockPos;

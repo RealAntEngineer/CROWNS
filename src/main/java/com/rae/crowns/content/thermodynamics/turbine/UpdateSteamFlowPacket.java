@@ -5,8 +5,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.Objects;
-
 public class UpdateSteamFlowPacket extends SimplePacketBase {
 
     private final CompoundTag tag;

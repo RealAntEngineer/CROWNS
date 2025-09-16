@@ -7,8 +7,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.stream.Collectors;
-
 @Mod.EventBusSubscriber(modid = CROWNS.MODID)
 public class ServerEvents {
     @SubscribeEvent

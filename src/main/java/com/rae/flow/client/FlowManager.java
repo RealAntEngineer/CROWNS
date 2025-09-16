@@ -2,7 +2,6 @@ package com.rae.flow.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.rae.flow.commun.FlowLine;
-
 import net.createmod.catnip.outliner.Outliner;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.createmod.catnip.theme.Color;

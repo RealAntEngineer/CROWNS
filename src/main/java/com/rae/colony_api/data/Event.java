@@ -1,6 +1,5 @@
 package com.rae.colony_api.data;
 
-import com.rae.colony_api.data.managers.FloatMapDataLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;

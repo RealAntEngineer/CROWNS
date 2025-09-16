@@ -50,14 +50,12 @@ public class MBStructureBlock extends DirectionalBlock implements IWrenchable, I
     @Override
     @NonnullDefault
     public @NotNull VoxelShape getShape(BlockState state, BlockGetter getter, BlockPos pos, CollisionContext context) {
-        if (!(getter instanceof ClientLevel)) return Shapes.empty();
+        if (!(getter instanceof Level level && level.isClientSide)) return Shapes.empty();
         BlockPos masterPos = getMaster(getter, pos);
         BlockState masterState =  getter.getBlockState(masterPos);
         if (masterState.getBlock() instanceof IMBController masterBlock) {
             VoxelShape shape = masterBlock.getGlobalShape(masterState,getter, masterPos, context);
             return Shapes.join(shape.move( masterPos.getX()- pos.getX(),  masterPos.getY() - pos.getY(), masterPos.getZ() - pos.getZ()), Shapes.block(), BooleanOp.AND);
-
-
         }
         return Shapes.block();
         //need to be intersected with a box.
@@ -185,6 +183,7 @@ public class MBStructureBlock extends DirectionalBlock implements IWrenchable, I
                                      LivingEntity entity, int numberOfParticles) {
         return true;
     }
+
 
     public static class RenderProperties implements IClientBlockExtensions, MultiPosDestructionHandler {
 
