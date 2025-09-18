@@ -18,8 +18,6 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.function.Supplier;
 
 public enum ParticleTypeInit {
-
-    STEAM_FLOW(SteamFlowParticleData::new),
     FLOW_PARTICLE(FlowParticleData::new);
 
     private final ParticleEntry<?> entry;

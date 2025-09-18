@@ -67,7 +67,8 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 	}
 	@Override
 	protected void read(CompoundTag compound, boolean clientPacket) {
-		WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
+		if (compound.contains("water_tank"))
+			WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
 		flow = compound.getFloat("flow");
 		super.read(compound, clientPacket);
 	}
@@ -107,30 +108,30 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 			}
 			if (updateSteamFlow) {
 				updateSteamFlow = false;
-				if (steamCurrent != null && !steamCurrent.isAlive()) {
-					steamCurrent = null;
-				}
-				else if (steamCurrent != null && steamCurrent.isAlive()){
+
+				if (steamCurrent != null){
 					Direction facing = getBlockState().getValue(SteamInputBlock.FACING);
-					steamCurrent.setPos(worldPosition.relative(facing).getX(), worldPosition.relative(facing).getY(), worldPosition.relative(facing).getZ());
+					steamCurrent.setDirection(facing);
 					steamCurrent.setInputFluidState(WATER_TANK.getState());
-					steamCurrent.initialize(worldPosition, facing, 16);
+					steamCurrent.rebuild(level);
+					//steamCurrent.initialize(worldPosition, facing, 16);
 				}
 				if (steamCurrent == null) {
 					Direction facing = getBlockState().getValue(SteamInputBlock.FACING);
-					List<SteamCurrent> currents = level.getEntitiesOfClass(SteamCurrent.class, new AABB(getBlockPos().relative(facing)));
+					List<SteamCurrent> currents = SteamFlowManager.getCurrentsInBounds(level.dimension().location(), new AABB(worldPosition.relative(facing)));
 					if (currents.isEmpty()) {
-						steamCurrent = new SteamCurrent(EntityInit.CURRENT_ENTITY.get(), level);
-						steamCurrent.setPos(worldPosition.relative(facing).getX(), worldPosition.relative(facing).getY(), worldPosition.relative(facing).getZ());
+						steamCurrent = new SteamCurrent(worldPosition, facing, 16);
+						//steamCurrent.setPos(worldPosition.relative(facing).getX(), worldPosition.relative(facing).getY(), worldPosition.relative(facing).getZ());
 						steamCurrent.setInputFluidState(WATER_TANK.getState());
-						level.addFreshEntity(steamCurrent);
-						steamCurrent.initialize(worldPosition, facing, 16);
+						steamCurrent.rebuild(level);
+						SteamFlowManager.addSteamCurrent(level.dimension().location(), steamCurrent);//level.addFreshEntity(steamCurrent);
+						//steamCurrent.initialize(worldPosition, facing, 16);
 					} else {
 						steamCurrent = currents.get(0);
 					}
 				}
 			}
-			if (steamCurrent != null && steamCurrent.isAlive()) {
+			if (steamCurrent != null) {
 				steamCurrent.setInputFluidState(WATER_TANK.getState());
 				flow  = WATER_TANK.drain((int) flow, IFluidHandler.FluidAction.EXECUTE).getAmount();
 				sendData();
@@ -153,9 +154,6 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
 	}
 	@Override
 	public void destroy() {
-		if (steamCurrent != null && steamCurrent.isAlive()){
-			steamCurrent.kill();
-		}
 		super.destroy();
 	}
 	@Override
