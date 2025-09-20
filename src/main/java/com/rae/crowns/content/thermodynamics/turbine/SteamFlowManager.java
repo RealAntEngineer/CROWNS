@@ -38,7 +38,7 @@ public class SteamFlowManager {
         if (world instanceof ServerLevel serverLevel) {
             for (ServerPlayer player : serverLevel.players()) {
                CatnipServices.NETWORK.sendToClientsTrackingAndSelf(player,
-                                new UpdateSteamFlowPacket(storage));
+                                new UpdateSteamFlowPacket(storage, world.registryAccess()));
             }
         }
 

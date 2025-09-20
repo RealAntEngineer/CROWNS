@@ -1,6 +1,8 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.mojang.serialization.Codec;
+import com.simibubi.create.content.trains.RailwaySavedData;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
@@ -20,7 +22,7 @@ public class SteamFlowData  extends SavedData {
     Map<ResourceLocation,List<SteamCurrent>> steamCurrents = new HashMap<>();
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag nbt) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag nbt,@NotNull  HolderLookup.Provider provider) {
         nbt.put("dimensions",KEYS_CODEC.encodeStart(NbtOps.INSTANCE, steamCurrents.keySet().stream().toList()).result().orElse(new CompoundTag()));
         for (Map.Entry<ResourceLocation,List<SteamCurrent>> entry : steamCurrents.entrySet()) {
 
@@ -36,7 +38,7 @@ public class SteamFlowData  extends SavedData {
         return nbt;
     }
 
-    public static SteamFlowData load(CompoundTag nbt) {
+    public static SteamFlowData load(CompoundTag nbt, HolderLookup.Provider provider) {
         SteamFlowData savedData = new SteamFlowData();
         List<ResourceLocation> dimensionKeys = KEYS_CODEC.parse(NbtOps.INSTANCE, nbt.get("dimensions")).result().orElse(List.of());
 
@@ -53,9 +55,13 @@ public class SteamFlowData  extends SavedData {
         return savedData;
     }
 
+    public static SavedData.Factory<SteamFlowData> factory() {
+        return new SavedData.Factory<>(SteamFlowData::new, SteamFlowData::load);
+    }
     public static SteamFlowData loadData(MinecraftServer server) {
         return server.overworld()
                 .getDataStorage()
-                .computeIfAbsent(SteamFlowData::load, SteamFlowData::new, "steam_currents");
+                .computeIfAbsent(factory(), "steam_currents");
     }
+
 }
