@@ -7,6 +7,7 @@ import com.rae.crowns.init.client.PartialModelInit;
 import com.rae.crowns.init.client.ParticleTypeInit;
 import com.rae.crowns.init.data.DataComponentsInit;
 import com.rae.crowns.init.data.EntityDataSerializersInit;
+import com.rae.crowns.init.data.PacketInit;
 import com.rae.crowns.init.misc.*;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import net.minecraft.core.registries.Registries;
@@ -48,11 +49,12 @@ public class CROWNS {
         BlockEntityInit.register();
         EntityInit.register();
 
+        PacketInit.register();
         DisplaySourceInit.register();
         CreativeModeTabsInit.register(modEventBus);
         ParticleTypeInit.register(modEventBus);
         DataComponentsInit.register(modEventBus);
-        PartialModelInit.init();
+
         EntityDataSerializersInit.register(modEventBus);
 
         CROWNSConfigs.registerConfigs(modLoadingContext,modContainer);

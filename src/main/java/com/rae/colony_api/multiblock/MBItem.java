@@ -1,15 +1,31 @@
-package com.rae.crowns.content.thermodynamics.turbine;
+package com.rae.colony_api.multiblock;
 
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
-public class TurbineStageItem  extends BlockItem {
-    public TurbineStageItem(Block block, Properties properties) {
+import java.util.Objects;
+
+public class MBItem extends BlockItem {
+    public MBItem(Block block, Properties properties) {
         super(block, properties);
+        if(!(block instanceof IMBController)){
+            throw new IllegalArgumentException("block must be an instance of IMBController for a MBItem");
+        }
     }
-    /*@Override
+    @Override
     protected boolean canPlace(BlockPlaceContext pContext, @NotNull BlockState pState) {
-        TurbineStageBlock main = (TurbineStageBlock) getBlock();
+        IMBController main = (IMBController) getBlock();
         Level lvl = pContext.getLevel();
         Direction facing = pContext.getClickedFace();
         Vec3i offset = main.getOffset(facing, false);//nope this isn't the correct offset to know where to verify the blocks
@@ -37,10 +53,10 @@ public class TurbineStageItem  extends BlockItem {
 
     @Override
     protected boolean placeBlock(BlockPlaceContext pContext, @NotNull BlockState pState) {
-        TurbineStageBlock main = (TurbineStageBlock) getBlock();
+        Block main = getBlock();
         Level lvl = pContext.getLevel();
         BlockPos mainPos = pContext.getClickedPos();
-        lvl.setBlockAndUpdate(mainPos, main.getStateForPlacement(pContext));
+        lvl.setBlockAndUpdate(mainPos, Objects.requireNonNull(main.getStateForPlacement(pContext)));
 
         Player player = pContext.getPlayer();
         ItemStack itemstack = pContext.getItemInHand();
@@ -52,5 +68,4 @@ public class TurbineStageItem  extends BlockItem {
 
         return true;
     }
-     */
 }

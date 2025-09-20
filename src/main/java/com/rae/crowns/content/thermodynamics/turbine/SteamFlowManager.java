@@ -1,0 +1,81 @@
+package com.rae.crowns.content.thermodynamics.turbine;
+
+import net.createmod.catnip.platform.CatnipServices;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SteamFlowManager {
+
+    static SteamFlowData storage = null;
+
+    public static void addSteamCurrent(ResourceLocation dimension, SteamCurrent steamCurrent) {
+        storage.steamCurrents.computeIfAbsent(dimension, d -> new ArrayList<>())
+                .add(steamCurrent);
+        storage.setDirty(); // replace with markDirty() if your class uses that name
+
+    }
+
+    public static void tick(Level world) {
+        if (storage == null) {
+            return;
+        }
+        if (!storage.steamCurrents.containsKey(world.dimension().location())) {
+            storage.steamCurrents.put(world.dimension().location(), new ArrayList<>());
+        }
+        storage.steamCurrents.get(world.dimension().location())
+                .removeIf( steamCurrent -> !steamCurrent.isValid(world));
+
+        storage.steamCurrents.get(world.dimension().location())
+                .forEach(steamCurrent -> steamCurrent.tick(world));
+        if (world instanceof ServerLevel serverLevel) {
+            for (ServerPlayer player : serverLevel.players()) {
+               CatnipServices.NETWORK.sendToClientsTrackingAndSelf(player,
+                                new UpdateSteamFlowPacket(storage));
+            }
+        }
+
+
+    }
+
+    public static List<SteamCurrent> getCurrentsInBounds(ResourceLocation dimension, AABB bound) {
+        List<SteamCurrent> collector = new ArrayList<>();
+        storage.steamCurrents.get(dimension).forEach((steamCurrent) ->
+        {
+                if (steamCurrent.intersects(bound))
+                    collector.add(steamCurrent);
+        });
+        return collector;
+    }
+
+    /*@OnlyIn(Dist.CLIENT)
+    public static void render(ClientLevel level) {
+
+    }*/
+
+    public static void serverStarted(MinecraftServer server) {
+        if (server == null)
+            return;
+        storage = SteamFlowData.loadData(server);
+
+    }
+
+    public static void playerLoaded(ServerPlayer player) {
+
+    }
+
+    public static void setSavedData(SteamFlowData savedData) {
+        if (storage == null) {
+            storage = savedData;
+        } else {
+            storage.steamCurrents = savedData.steamCurrents;
+        }
+    }
+}

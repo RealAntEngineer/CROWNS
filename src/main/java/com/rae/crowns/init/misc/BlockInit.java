@@ -1,5 +1,7 @@
 package com.rae.crowns.init.misc;
 
+import com.rae.colony_api.multiblock.MBItem;
+import com.rae.colony_api.multiblock.MBStructureBlock;
 import com.rae.crowns.content.nuclear.AssemblyBlock;
 import com.rae.crowns.content.nuclear.UraniumOreBlock;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
@@ -7,7 +9,6 @@ import com.rae.crowns.content.thermodynamics.compressor.CompressorBlock;
 import com.rae.crowns.content.thermodynamics.turbine.SteamCollectorBlock;
 import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlock;
 import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
-import com.rae.crowns.content.thermodynamics.turbine.TurbineStageItem;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import net.minecraft.world.level.block.Blocks;
@@ -58,12 +59,18 @@ public class BlockInit {
             .item()
             .build()
             .register();
-
-    public static final BlockEntry<TurbineStageBlock> TURBINE_STAGE =
-            REGISTRATE.block("turbine_stage",(p) -> new TurbineStageBlock(p))
+    public static final BlockEntry<MBStructureBlock> TURBINE_STAGE_STRUCTURE =
+            REGISTRATE.block("turbine_stage_structure", MBStructureBlock::new)
                     .initialProperties(SharedProperties::softMetal)
                     .properties(BlockBehaviour.Properties::noOcclusion)
                     .item()
+                    .build()
+                    .register();
+    public static final BlockEntry<TurbineStageBlock> TURBINE_STAGE =
+            REGISTRATE.block("turbine_stage",(p) -> new TurbineStageBlock(p, TURBINE_STAGE_STRUCTURE.get()))
+                    .initialProperties(SharedProperties::softMetal)
+                    .properties(BlockBehaviour.Properties::noOcclusion)
+                    .item(MBItem::new)
                     .build()
                     .register();
 
