@@ -10,7 +10,7 @@
   "item.crowns.uranium_ingot": "Lingot d'uranium",
   "item.crowns.raw_uranium": "Uranium brut",
   "itemGroup.crowns.nuclear": "CROWNS",
-  "crowns.ponder.nuclear_reactor.header": "Reacteur Nucleaire",
+  "crowns.ponder.nuclear_reactor.header": "Reacteur Nucléaire",
   "crowns.ponder.nuclear_reactor.text_1": "Nuclear Fuel naturally produces fast neutrons",
   "crowns.ponder.nuclear_reactor.text_2": "Fast neutrons are unlikely to induce fission",
   "crowns.ponder.nuclear_reactor.text_3": "Add a Moderator to transform them into thermal neutrons that can induce fission and produce more neutrons",
