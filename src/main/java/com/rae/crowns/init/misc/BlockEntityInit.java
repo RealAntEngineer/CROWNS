@@ -1,11 +1,14 @@
 package com.rae.crowns.init.misc;
 
+import com.rae.crowns.content.nuclear.AssemblyBlockEntity;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlockEntity;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorRenderer;
-import com.rae.crowns.content.thermodynamics.turbine.*;
-import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerRenderer;
-import com.rae.crowns.content.nuclear.AssemblyBlockEntity;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlockEntity;
+import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerRenderer;
+import com.rae.crowns.content.thermodynamics.turbine.SteamCollectorBlockEntity;
+import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlockEntity;
+import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlockEntity;
+import com.rae.crowns.content.thermodynamics.turbine.TurbineStageRenderer;
 import com.rae.crowns.init.client.PartialModelInit;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.kinetics.base.SingleAxisRotatingVisual;
@@ -35,7 +38,7 @@ public class BlockEntityInit {
             .register();
 
     public static final BlockEntityEntry<SteamInputBlockEntity> STEAM_INPUT = REGISTRATE.blockEntity(
-            "steam_input",SteamInputBlockEntity::new)
+                    "steam_input", SteamInputBlockEntity::new)
             .validBlock(BlockInit.STEAM_INPUT)
             .register();
     public static final BlockEntityEntry<SteamCollectorBlockEntity> STEAM_COLLECTOR = REGISTRATE.blockEntity(
@@ -43,10 +46,12 @@ public class BlockEntityInit {
             .validBlock(BlockInit.STEAM_COLLECTOR)
             .register();
     public static final BlockEntityEntry<HeatExchangerBlockEntity> HEAT_EXCHANGER = REGISTRATE.blockEntity(
-                    "heat_exchanger",HeatExchangerBlockEntity::new)
+                    "heat_exchanger", HeatExchangerBlockEntity::new)
             .renderer(() -> HeatExchangerRenderer::new)
             .validBlock(BlockInit.HEAT_EXCHANGER)
             .register();
-    public static void register() {}
+
+    public static void register() {
+    }
 
 }

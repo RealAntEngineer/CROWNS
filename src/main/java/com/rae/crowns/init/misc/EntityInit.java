@@ -42,5 +42,6 @@ public class EntityInit {
                 .renderer(renderer);
     }
 
-    public static void register() {}
+    public static void register() {
+    }
 }

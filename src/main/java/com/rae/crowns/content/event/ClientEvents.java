@@ -14,7 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -38,8 +37,6 @@ public class ClientEvents {
     }
 
 
-
-
     @SubscribeEvent
     public static void addToItemTooltip(ItemTooltipEvent event) {
         if (event.getEntity() == null)
@@ -50,7 +47,7 @@ public class ClientEvents {
         CompoundTag composition = itemStack.getTagElement("composition");
         if (composition != null) {
             components.add(Component.literal("composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
-            for (ResourceLocation resourceLocation: IAmFissileMaterial.fissileCrossSection.keySet()) {
+            for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
                 if (composition.contains(resourceLocation.toString())) {
                     float concentration = composition.getFloat(resourceLocation.toString());
                     components.add(
@@ -61,6 +58,7 @@ public class ClientEvents {
         }
 
     }
+
     protected static boolean isGameActive() {
         return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
     }

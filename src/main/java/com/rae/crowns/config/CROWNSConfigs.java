@@ -17,8 +17,7 @@ import java.util.function.Supplier;
 // Demonstrates how to use Forge's config APIs
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 
-public class CROWNSConfigs
-{
+public class CROWNSConfigs {
     private static final Map<ModConfig.Type, ConfigBase> CONFIGS = new EnumMap<>(ModConfig.Type.class);
 
     public static CROWNSCfgServer SERVER;

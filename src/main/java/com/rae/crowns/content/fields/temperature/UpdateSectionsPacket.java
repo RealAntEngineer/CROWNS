@@ -14,6 +14,7 @@ public class UpdateSectionsPacket extends SimplePacketBase {
     public UpdateSectionsPacket(Map<SectionPos, TemperatureDataLayer> temperatureMap) {
         this.temperatureMap = temperatureMap;
     }
+
     public UpdateSectionsPacket(FriendlyByteBuf buffer) {
         // decode
         this.temperatureMap = buffer.readMap(
@@ -21,13 +22,15 @@ public class UpdateSectionsPacket extends SimplePacketBase {
                 buf -> TemperatureDataLayer.fromBytes(buf.readByteArray()) // value reader
         );
     }
+
     @Override
     public void write(FriendlyByteBuf buffer) {
         buffer.writeMap(
                 temperatureMap,
                 (buf, pos) -> buf.writeLong(pos.asLong()),           // key writer
                 (buf, layer) -> buf.writeByteArray(layer.toBytes())  // value writer
-        );    }
+        );
+    }
 
     @Override
     public boolean handle(NetworkEvent.Context context) {

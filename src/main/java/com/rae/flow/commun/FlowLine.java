@@ -19,7 +19,7 @@ public class FlowLine {//this is a spline
             Vec3.CODEC.listOf().fieldOf("controlPoints").forGetter(FlowLine::getControlPoints),  // Control points
             Codec.DOUBLE.listOf().fieldOf("speedAtPoints").forGetter(FlowLine::getSpeedAtPoints), // Speed at points
             Codec.INT.xmap(Color::new
-                    ,Color::getRGB
+                    , Color::getRGB
             ).listOf().fieldOf("colorsAtPoints").forGetter(FlowLine::getColorsAtPoints) // Colors at points
     ).apply(instance, FlowLine::new));
     private final List<Vec3> controlPoints;
@@ -32,33 +32,74 @@ public class FlowLine {//this is a spline
         this.controlPoints = controlPoints;
         this.speedAtPoints = speedAtPoints;
         this.colorsAtPoints = colorsAtPoints;
-        if (controlPoints.size() >1) {
+        if (controlPoints.size() > 1) {
             this.computedTangents = new ArrayList<>();
             this.coefficients = new ArrayList<>();
             computeTangents();
             computeCoefficients();
 
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("At least two control points are required.");
         }
     }
+
+    // Deserialization: Read BSpline data from NBT
+    public static FlowLine deserializeNBT(CompoundTag tag) {
+        List<Vec3> controlPoints = new ArrayList<>();
+
+        // Deserialize control points
+        ListTag pointsTag = tag.getList("ControlPoints", 10); // 10 for CompoundTag type
+        for (int i = 0; i < pointsTag.size(); i++) {
+            CompoundTag pointTag = pointsTag.getCompound(i);
+            double x = pointTag.getDouble("x");
+            double y = pointTag.getDouble("y");
+            double z = pointTag.getDouble("z");
+            controlPoints.add(new Vec3(x, y, z));
+        }
+
+        // Deserialize speed at points
+        ListTag speedsTag = tag.getList("Speeds", 10);
+        ArrayList<Double> speedAtPoints = new ArrayList<>();
+        for (int i = 0; i < speedsTag.size(); i++) {
+            CompoundTag speedTag = speedsTag.getCompound(i);
+            speedAtPoints.set(i, speedTag.getDouble("Speed"));
+        }
+
+        // Deserialize colors at points
+        ListTag colorsTag = tag.getList("Colors", 10);
+        ArrayList<Color> colorsAtPoints = new ArrayList<>();
+        for (int i = 0; i < colorsTag.size(); i++) {
+            CompoundTag colorTag = colorsTag.getCompound(i);
+            long rgba = colorTag.getLong("RGBA");
+            colorsAtPoints.set(i, new Color((int) rgba));
+        }
+
+        return new FlowLine(controlPoints, speedAtPoints, colorsAtPoints);
+    }
+
+    public static FlowLine readFromBuffer(FriendlyByteBuf buffer) {
+        CompoundTag nbt = buffer.readNbt(); // Reading NBT from the buffer
+        assert nbt != null;
+        return FlowLine.deserializeNBT(nbt);
+    }
+
     private void computeTangents() {
 
         int n = controlPoints.size();
 
         // Add the start tangent
-        computedTangents.add(computeTangent(0,1));
+        computedTangents.add(computeTangent(0, 1));
 
         // Compute tangents for intermediate points
         for (int i = 1; i < n - 1; i++) {
-            Vec3 tangent = computeTangent(i - 1, i,i + 1);
+            Vec3 tangent = computeTangent(i - 1, i, i + 1);
             computedTangents.add(tangent);
         }
 
         // Add the end tangent
-        computedTangents.add(computeTangent(n-2,n-1));
+        computedTangents.add(computeTangent(n - 2, n - 1));
     }
+
     public List<Vec3> getControlPoints() {
         return controlPoints;
     }
@@ -74,7 +115,7 @@ public class FlowLine {//this is a spline
     // Get the speed at a parameter value 't' along the spline
     public double getSpeedAtT(double t) {
         int n = speedAtPoints.size();
-        if (n < 2){
+        if (n < 2) {
             return speedAtPoints.get(0);
         }
         int segment = Math.min((int) (t * (n - 1)), n - 2);
@@ -85,7 +126,7 @@ public class FlowLine {//this is a spline
     // Get the color at a parameter value 't' along the spline
     public Color getColorAtT(double t) {
         int n = colorsAtPoints.size();
-        if (n < 2){
+        if (n < 2) {
             return colorsAtPoints.get(0);
         }
         int segment = Math.min((int) (t * (n - 1)), n - 2);
@@ -94,7 +135,7 @@ public class FlowLine {//this is a spline
         Color startColor = colorsAtPoints.get(segment);
         Color endColor = colorsAtPoints.get(segment + 1);
 
-        return Color.mixColors(startColor,endColor, (float)localT);
+        return Color.mixColors(startColor, endColor, (float) localT);
     }
 
     // Serialization: Write BSpline data into NBT
@@ -131,40 +172,6 @@ public class FlowLine {//this is a spline
         tag.put("Colors", colorsTag);
 
         return tag;
-    }
-
-    // Deserialization: Read BSpline data from NBT
-    public static FlowLine deserializeNBT(CompoundTag tag) {
-        List<Vec3> controlPoints = new ArrayList<>();
-
-        // Deserialize control points
-        ListTag pointsTag = tag.getList("ControlPoints", 10); // 10 for CompoundTag type
-        for (int i = 0; i < pointsTag.size(); i++) {
-            CompoundTag pointTag = pointsTag.getCompound(i);
-            double x = pointTag.getDouble("x");
-            double y = pointTag.getDouble("y");
-            double z = pointTag.getDouble("z");
-            controlPoints.add(new Vec3(x, y, z));
-        }
-
-        // Deserialize speed at points
-        ListTag speedsTag = tag.getList("Speeds", 10);
-        ArrayList<Double> speedAtPoints = new ArrayList<>();
-        for (int i = 0; i < speedsTag.size(); i++) {
-            CompoundTag speedTag = speedsTag.getCompound(i);
-            speedAtPoints.set(i, speedTag.getDouble("Speed"));
-        }
-
-        // Deserialize colors at points
-        ListTag colorsTag = tag.getList("Colors", 10);
-        ArrayList<Color> colorsAtPoints = new ArrayList<>();
-        for (int i = 0; i < colorsTag.size(); i++) {
-            CompoundTag colorTag = colorsTag.getCompound(i);
-            long rgba = colorTag.getLong("RGBA");
-            colorsAtPoints.set(i, new Color((int) rgba));
-        }
-
-        return new FlowLine(controlPoints, speedAtPoints, colorsAtPoints);
     }
 
     private void computeCoefficients() {
@@ -232,19 +239,15 @@ public class FlowLine {//this is a spline
         Vec3 p1 = controlPoints.get(index1);
         return p1.subtract(p0);  // Example of tangent computation
     }
+
     private Vec3 computeTangent(int index0, int index1, int index2) {
-        return computeTangent(index0, index1).add(computeTangent(index1,index2)).scale(0.5f);  // Example of tangent computation
+        return computeTangent(index0, index1).add(computeTangent(index1, index2)).scale(0.5f);  // Example of tangent computation
     }
+
     // Network buffer serialization
     public void writeToBuffer(FriendlyByteBuf buffer) {
         CompoundTag nbt = this.serializeNBT();
         buffer.writeNbt(nbt); // Writing NBT to the buffer
-    }
-
-    public static FlowLine readFromBuffer(FriendlyByteBuf buffer) {
-        CompoundTag nbt = buffer.readNbt(); // Reading NBT from the buffer
-        assert nbt != null;
-        return FlowLine.deserializeNBT(nbt);
     }
 
     public void render(PoseStack ms, SuperRenderTypeBuffer buffer, Vec3 camera, float pt) {

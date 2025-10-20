@@ -16,7 +16,8 @@ public class StateFluidTank extends SmartFluidTank {
     public StateFluidTank(int capacity, Consumer<FluidStack> updateCallback) {
         super(capacity, updateCallback);
     }
-    public void heat(float amount){
+
+    public void heat(float amount) {
         if (fluid.getAmount() > 0) {
 
             CompoundTag tag = new CompoundTag();
@@ -32,7 +33,8 @@ public class StateFluidTank extends SmartFluidTank {
             fluid.setTag(tag);
         }
     }
-    public void compress(float ratio){
+
+    public void compress(float ratio) {
         if (fluid.getAmount() > 0) {
 
             CompoundTag tag = new CompoundTag();
@@ -49,10 +51,10 @@ public class StateFluidTank extends SmartFluidTank {
         }
     }
 
-    public SpecificRealGazState getState(){
+    public SpecificRealGazState getState() {
         CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
         SpecificRealGazState oldState;
-        if (oldStateNBT!=null){
+        if (oldStateNBT != null) {
             oldState = new SpecificRealGazState(oldStateNBT);
         } else {
             oldState = DEFAULT_STATE;

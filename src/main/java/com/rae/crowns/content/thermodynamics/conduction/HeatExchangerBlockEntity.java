@@ -6,7 +6,6 @@ import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.misc.BlockInit;
-
 import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.fluids.PipeConnection;
@@ -36,19 +35,23 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
-    //transform the IHaveTemperature interface into a behavior
-    // for now if T > 373°K P = 20 bar.
-    public float C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
-    public float temperature = 300;
-    protected LazyOptional<IFluidHandler> fluidCapability;
-
+    //really heavy -> to optimise and run less by second
+    private static final int SYNC_RATE = 8;
     //for later maybe ? to make the code simpler to understand
-    private final StateFluidTank WATER_TANK = new StateFluidTank(1000, (f)-> {}){
+    private final StateFluidTank WATER_TANK = new StateFluidTank(1000, (f) -> {
+    }) {
         @Override
         public boolean isFluidValid(FluidStack stack) {
             return stack.getFluid().is(FluidTags.WATER);
         }
     };
+    //transform the IHaveTemperature interface into a behavior
+    // for now if T > 373°K P = 20 bar.
+    public float C = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
+    public float temperature = 300;
+    protected LazyOptional<IFluidHandler> fluidCapability;
+    protected int syncCooldown;
+    protected boolean queuedSync;
 
     public HeatExchangerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -59,6 +62,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
         fluidCapability = LazyOptional.of(() -> WATER_TANK);
     }
+
     @Override
     public void sendData() {
         if (syncCooldown > 0) {
@@ -69,10 +73,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         queuedSync = false;
         syncCooldown = SYNC_RATE;
     }
-    //really heavy -> to optimise and run less by second
-    private static final int SYNC_RATE = 8;
-    protected int syncCooldown;
-    protected boolean queuedSync;
+
     @Override
     public void tick() {
         super.tick();
@@ -87,14 +88,14 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             BlockPos outPos = getBlockPos().relative(
                     getBlockState().getValue(HeatExchangerBlock.FACING));
             BlockState outState = level.getBlockState(outPos);
-            if (outState.is(BlockInit.HEAT_EXCHANGER.get())){
+            if (outState.is(BlockInit.HEAT_EXCHANGER.get())) {
                 HeatExchangerBlockEntity be = (HeatExchangerBlockEntity) level.getBlockEntity(outPos);
                 assert be != null;
                 FluidTank handler = (FluidTank)
-                        be.getCapability(ForgeCapabilities.FLUID_HANDLER,getBlockState().getValue(HeatExchangerBlock.FACING)
-                ).orElse(new FluidTank(0));
-                if (handler.getFluidAmount()< (float) WATER_TANK.getFluidAmount()){//if input of following handler is smaller than ours
-                    FluidStack stack =  WATER_TANK.getFluid().copy();
+                        be.getCapability(ForgeCapabilities.FLUID_HANDLER, getBlockState().getValue(HeatExchangerBlock.FACING)
+                        ).orElse(new FluidTank(0));
+                if (handler.getFluidAmount() < (float) WATER_TANK.getFluidAmount()) {//if input of following handler is smaller than ours
+                    FluidStack stack = WATER_TANK.getFluid().copy();
                     stack.setAmount(WATER_TANK.getFluidAmount() - handler.getFluidAmount());
                     WATER_TANK.drain(handler.fill(stack, IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE);
                 }
@@ -150,13 +151,14 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     public float getThermalConductivity() {
         return CROWNSConfigs.SERVER.conduction.heatExchangerExternal.getF();
     }
+
     public float getInternalConductivity() {
         return CROWNSConfigs.SERVER.conduction.heatExchangerInternal.getF();
     }
 
     @Override
     public float getTemperature() {
-        if (Float.isNaN(temperature)){
+        if (Float.isNaN(temperature)) {
             temperature = 300;
         }
         return temperature;
@@ -164,16 +166,17 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
     @Override
     public void addTemperature(float dT) {
-        if (Float.isNaN(temperature)){
+        if (Float.isNaN(temperature)) {
             temperature = 300;
         }
-        temperature+=dT;
+        temperature += dT;
     }
+
     @Override
     protected void write(CompoundTag tag, boolean clientPacket) {
         super.write(tag, clientPacket);
-        tag.putFloat("temperature",temperature);
-        tag.put("water_tank",WATER_TANK.writeToNBT(new CompoundTag()));
+        tag.putFloat("temperature", temperature);
+        tag.put("water_tank", WATER_TANK.writeToNBT(new CompoundTag()));
 
     }
 
@@ -199,10 +202,10 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.FLUID_HANDLER) {
             Direction localDir = this.getBlockState().getValue(DirectionalBlock.FACING);
-            if (side == localDir){
+            if (side == localDir) {
                 return this.fluidCapability.cast();
             }
-            if (side ==  localDir.getOpposite()){
+            if (side == localDir.getOpposite()) {
                 return this.fluidCapability.cast();
             }
         }

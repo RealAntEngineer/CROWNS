@@ -14,14 +14,17 @@ public class SteamCollectorBlock extends WrenchableDirectionalBlock implements I
     public SteamCollectorBlock(Properties pProperties) {
         super(pProperties);
     }
+
     @Override
     public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
         IBE.onRemove(state, world, pos, newState);
     }
+
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(FACING, context.getClickedFace());
     }
+
     @Override
     public Class<SteamCollectorBlockEntity> getBlockEntityClass() {
         return SteamCollectorBlockEntity.class;

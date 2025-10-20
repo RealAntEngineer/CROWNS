@@ -34,9 +34,26 @@ import static com.rae.crowns.Constants.fissionEnergy;
 import static com.rae.crowns.content.nuclear.NuclearExplosion.nuclearExplosion;
 
 public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
+    private static final int SYNC_RATE = 8;
+    public float temperature = 300;
+    public float backgroundActivity = 12 * 3;//In MBq ( mega becquerels ) uranium is 12 Mbq per tonnes
+    public float oldNbrOfFission;
+    public float nbrOfFission = backgroundActivity;//nbr of fission/t
+    public int C = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
+    public float additionalNeutronsAbsorbed = 0;
+    public HashMap<ResourceLocation, Float> radioactiveElements = new HashMap<>(
+            Map.of(
+                    CROWNS.resource("u235"), 0.014f * 0.2f,
+                    CROWNS.resource("u238"), 0.986f * 0.2f,
+                    CROWNS.resource("p239"), 0.00f * 0.2f
+            ));//for U235,U358 and Plutonium -> percentage of total mass
+    protected int syncCooldown;
+    protected boolean queuedSync;
+    LerpedFloat pointer;
     public ControlledAssemblyBE(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
     }
+
     @Override
     public void sendData() {
         if (syncCooldown > 0) {
@@ -47,25 +64,6 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
         queuedSync = false;
         syncCooldown = SYNC_RATE;
     }
-    private static final int SYNC_RATE = 8;
-    protected int syncCooldown;
-    protected boolean queuedSync;
-
-    public float temperature = 300;
-    public float backgroundActivity = 12*3;//In MBq ( mega becquerels ) uranium is 12 Mbq per tonnes
-    public float oldNbrOfFission;
-    public float nbrOfFission = backgroundActivity;//nbr of fission/t
-    public int C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
-
-    public float additionalNeutronsAbsorbed = 0;
-    public HashMap<ResourceLocation,Float> radioactiveElements = new HashMap<>(
-            Map.of(
-                    CROWNS.resource("u235"),0.014f*0.2f,
-                    CROWNS.resource("u238"),0.986f*0.2f,
-                    CROWNS.resource("p239"),0.00f*0.2f
-            ));//for U235,U358 and Plutonium -> percentage of total mass
-
-    LerpedFloat pointer;
 
     private float getChaseSpeed() {
         return Mth.clamp(Math.abs(getSpeed()) / 16 / 20, 0, 1);
@@ -82,6 +80,7 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
     }
+
     @Override
     public void initialize() {
         super.initialize();
@@ -92,6 +91,7 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
             }
         }
     }
+
     @Override
     public void tick() {
         super.tick();
@@ -104,19 +104,19 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
             }
 
             if (CROWNSConfigs.COMMON.nuclearParticle.get())
-                spawnRadiationParticles(level,getBlockPos(),nbrOfFission);
+                spawnRadiationParticles(level, getBlockPos(), nbrOfFission);
         }
-        if (Float.isNaN(temperature)){
+        if (Float.isNaN(temperature)) {
             temperature = 300;
         }
     }
 
     @Override
-    public void lazyTick(){
+    public void lazyTick() {
         if (!level.isClientSide()) {
             oldNbrOfFission = nbrOfFission;
-            nbrOfFission = additionalNeutronsAbsorbed+backgroundActivity; //for now a 100% change of fission : no absorption
-            if (Float.isNaN(nbrOfFission)){
+            nbrOfFission = additionalNeutronsAbsorbed + backgroundActivity; //for now a 100% change of fission : no absorption
+            if (Float.isNaN(nbrOfFission)) {
                 nbrOfFission = backgroundActivity;
             }
             additionalNeutronsAbsorbed = 0;
@@ -124,10 +124,10 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
 
             //float thermal_loses = (temperature-300)*10;// ambient temperature = 300K make thermal loses in the conduct temperature
 
-            float power = (float) (nbrOfFission*fissionEnergy *
+            float power = (float) (nbrOfFission * fissionEnergy *
                     CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
 
-            temperature += power/C;
+            temperature += power / C;
 
             if (temperature > 3500) {
                 if (power > 100000000) {
@@ -135,8 +135,7 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
                 } else {
                     meltdown(pos);
                 }
-            }
-            else {
+            } else {
                 if (nbrOfFission < 300 * backgroundActivity) {
                     level.setBlock(pos, getBlockState().setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.NONE), 3);
                 } else if (temperature < 3000) {
@@ -146,16 +145,17 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
 
                 }
             }
-            moreOptimizedImpactEnv(pos,level,CROWNSConfigs.SERVER.nuclear.radiationRange.get());
+            moreOptimizedImpactEnv(pos, level, CROWNSConfigs.SERVER.nuclear.radiationRange.get());
             //conductTemperature(pos,level);
             notifyUpdate();
 
         }
     }
+
     public void spawnRadiationParticles(Level level, BlockPos pos, float nbrOfFission) {
         if (!(level instanceof ServerLevel serverLevel)) return; // Only spawn particles on server side
 
-        float nbrOfParticles = (float) (Math.log10(nbrOfFission * 20 / 5000f)) * 3f/20f;
+        float nbrOfParticles = (float) (Math.log10(nbrOfFission * 20 / 5000f)) * 3f / 20f;
         int wholeParticles = Mth.floor(nbrOfParticles);
         float fractional = nbrOfParticles - wholeParticles;
 
@@ -178,7 +178,7 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
             double dz = speed * Math.cos(phi);
 
             // Use any existing particle type here (e.g., SMOKE)
-            serverLevel.sendParticles(new DustParticleOptions(Color.WHITE.asVectorF(),1), x, y, z, 1, dx, dy, dz, speed);// You can replace ParticleTypes.SMOKE with your custom particle
+            serverLevel.sendParticles(new DustParticleOptions(Color.WHITE.asVectorF(), 1), x, y, z, 1, dx, dy, dz, speed);// You can replace ParticleTypes.SMOKE with your custom particle
         }
     }
 
@@ -196,11 +196,11 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
     }
 
 
-
     @Override
     public float getThermalCapacity() {
         return C;
     }
+
     //transmition coef
     @Override
     public float getThermalConductivity() {
@@ -214,28 +214,29 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
 
     @Override
     public void addTemperature(float dT) {
-        temperature = Math.max(temperature+dT,0);;
+        temperature = Math.max(temperature + dT, 0);
     }
 
     @Override
     public float getRadioactiveActivity() {
         float easeCoef = 1f; //TODO config
-        return backgroundActivity+nbrOfFission * 2.5f*easeCoef;
+        return backgroundActivity + nbrOfFission * 2.5f * easeCoef;
     }
+
     @Override
     public float getEffectiveK() {
         float easeCoef = 1f; //TODO config
-        return (backgroundActivity + nbrOfFission * 2.5f * easeCoef)/(backgroundActivity + oldNbrOfFission * 2.5f * easeCoef);
+        return (backgroundActivity + nbrOfFission * 2.5f * easeCoef) / (backgroundActivity + oldNbrOfFission * 2.5f * easeCoef);
     }
     //to optimise, cost too much on the server
 
     @Override
     protected void write(CompoundTag tag, boolean clientPacket) {
-        super.write(tag,clientPacket);
+        super.write(tag, clientPacket);
 
         tag.putFloat("nbrOfFission", nbrOfFission);
-        tag.putFloat("additionalNeutrons",additionalNeutronsAbsorbed);
-        tag.putFloat("temperature",temperature);
+        tag.putFloat("additionalNeutrons", additionalNeutronsAbsorbed);
+        tag.putFloat("temperature", temperature);
 
     }
 
@@ -251,7 +252,7 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 
-        FormicApiLang.formatRadiationFlux(getRadioactiveActivity()*20)
+        FormicApiLang.formatRadiationFlux(getRadioactiveActivity() * 20)
                 .style(ChatFormatting.DARK_GREEN)
                 .forGoggles(tooltip, 1);
 
@@ -264,18 +265,18 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
 
     @Override
     public Couple<Float> absorbNeutrons(Couple<Float> radiationFlux) {
-        Float temperatureCoef = 1/Math.max(1,(temperature-300)/600);
+        Float temperatureCoef = 1 / Math.max(1, (temperature - 300) / 600);
         Float fastAbsorbed = 0f;
         Float slowAbsorbed = 0f;
-        for (ResourceLocation resourceLocation: radioactiveElements.keySet()) {
-            Float massFrac  = radioactiveElements.get(resourceLocation);
+        for (ResourceLocation resourceLocation : radioactiveElements.keySet()) {
+            Float massFrac = radioactiveElements.get(resourceLocation);
             Float cm = IAmFissileMaterial.molarConcentration.get(resourceLocation);
             Float fastAbsorptionChance = Math.min(1,
                     IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getFirst()
-                            *massFrac*cm*barnNa);
+                            * massFrac * cm * barnNa);
             Float slowAbsorptionChance = Math.min(1,
                     IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getSecond()
-                            *massFrac*cm*barnNa);
+                            * massFrac * cm * barnNa);
             //System.out.println(resourceLocation);
             //System.out.println("fastC : "+ fastAbsorptionChance);
             //System.out.println("slowC : "+ slowAbsorptionChance);
@@ -283,6 +284,6 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
             slowAbsorbed += radiationFlux.getSecond() * temperatureCoef * slowAbsorptionChance;
         }
         additionalNeutronsAbsorbed += fastAbsorbed + slowAbsorbed;
-        return Couple.create(radiationFlux.getFirst()-fastAbsorbed,radiationFlux.getSecond()-slowAbsorbed);
+        return Couple.create(radiationFlux.getFirst() - fastAbsorbed, radiationFlux.getSecond() - slowAbsorbed);
     }
 }

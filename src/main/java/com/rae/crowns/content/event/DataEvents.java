@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.Mod;
 public class DataEvents {
 
     @SubscribeEvent
-    public static void onChunkUnload(ChunkEvent.Unload event){
+    public static void onChunkUnload(ChunkEvent.Unload event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             ChunkAccess chunk = event.getChunk();
             TemperatureWorldData worldData = TemperatureManager.get(serverLevel);
@@ -38,13 +38,13 @@ public class DataEvents {
     }
 
     @SubscribeEvent
-    public static void onChunkLoad(ChunkEvent.Load event){
+    public static void onChunkLoad(ChunkEvent.Load event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             TemperatureWorldData worldData = TemperatureManager.get(serverLevel);
-            if (event.isNewChunk()){//warning if it's an old world for
+            if (event.isNewChunk()) {//warning if it's an old world for
                 ChunkAccess chunk = event.getChunk();
                 ChunkPos chunkPos = chunk.getPos();
-                for (int i = chunk.getMinSection(); i  < chunk.getMaxSection(); i++){
+                for (int i = chunk.getMinSection(); i < chunk.getMaxSection(); i++) {
                     worldData.putForInitialisation(SectionPos.of(chunkPos, i));
                 }
             }

@@ -14,27 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SteamFlowData  extends SavedData {
+public class SteamFlowData extends SavedData {
     //static Codec<Map<ResourceLocation,List<SteamCurrent>>> CODEC = Codec.unboundedMap(ResourceLocation.CODEC,Codec.list(SteamCurrent.CODEC));
     static final Codec<List<ResourceLocation>> KEYS_CODEC = Codec.list(ResourceLocation.CODEC);
-    Map<ResourceLocation,List<SteamCurrent>> steamCurrents = new HashMap<>();
-
-    @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag nbt) {
-        nbt.put("dimensions",KEYS_CODEC.encodeStart(NbtOps.INSTANCE, steamCurrents.keySet().stream().toList()).result().orElse(new CompoundTag()));
-        for (Map.Entry<ResourceLocation,List<SteamCurrent>> entry : steamCurrents.entrySet()) {
-
-            ListTag tag = new ListTag();
-
-            for (SteamCurrent current : entry.getValue()) {
-                tag.add(current.toNBT()); // assuming you have a toNBT() method in SteamCurrent
-            }
-            
-            nbt.put(entry.getKey().toString(),tag );
-        }
-
-        return nbt;
-    }
+    Map<ResourceLocation, List<SteamCurrent>> steamCurrents = new HashMap<>();
 
     public static SteamFlowData load(CompoundTag nbt) {
         SteamFlowData savedData = new SteamFlowData();
@@ -57,5 +40,22 @@ public class SteamFlowData  extends SavedData {
         return server.overworld()
                 .getDataStorage()
                 .computeIfAbsent(SteamFlowData::load, SteamFlowData::new, "steam_currents");
+    }
+
+    @Override
+    public @NotNull CompoundTag save(@NotNull CompoundTag nbt) {
+        nbt.put("dimensions", KEYS_CODEC.encodeStart(NbtOps.INSTANCE, steamCurrents.keySet().stream().toList()).result().orElse(new CompoundTag()));
+        for (Map.Entry<ResourceLocation, List<SteamCurrent>> entry : steamCurrents.entrySet()) {
+
+            ListTag tag = new ListTag();
+
+            for (SteamCurrent current : entry.getValue()) {
+                tag.add(current.toNBT()); // assuming you have a toNBT() method in SteamCurrent
+            }
+
+            nbt.put(entry.getKey().toString(), tag);
+        }
+
+        return nbt;
     }
 }

@@ -12,10 +12,10 @@ public class ShapesInit {
 
     public static final VoxelShaper
             TURBINE = shape(makeTurbineshape())
-                    .forDirectional();
+            .forDirectional();
 
 
-    public static VoxelShape makeTurbineshape(){
+    public static VoxelShape makeTurbineshape() {
         VoxelShape shape = Shapes.empty();
         shape = Shapes.join(shape, Shapes.box(0.0625, 0, 0.0625, 0.9375, 1, 0.9375), BooleanOp.OR);
         shape = Shapes.join(shape, Shapes.box(1.9375, 0, -0.4375, 2, 1, 1.4375), BooleanOp.OR);

@@ -20,7 +20,7 @@ public class RayTraceUtil {
                 for (int z = bz - radius; z <= bz + radius; z++) {
                     double distance = ((bx - x) * (bx - x) + (bz - z) * (bz - z) + (by - y) * (by - y));
                     if (distance < radius * radius && (!empty || distance >= (radius - 1) * (radius - 1))) {
-                        blocks.add(new BlockPos( x, y, z));
+                        blocks.add(new BlockPos(x, y, z));
                     }
                 }
             }

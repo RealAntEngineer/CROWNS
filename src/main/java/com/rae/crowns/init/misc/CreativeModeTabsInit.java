@@ -10,17 +10,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.*;
 import java.util.function.Function;
-
-import static net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack.FLUID_NBT_KEY;
 
 public class CreativeModeTabsInit {
     private static final DeferredRegister<CreativeModeTab> TAB_REGISTER =
@@ -33,7 +28,7 @@ public class CreativeModeTabsInit {
                             .title(Component.translatable("itemGroup.crowns.nuclear"))
                             .withTabsBefore(AllCreativeModeTabs.PALETTES_CREATIVE_TAB.getKey())
                             .icon(BlockInit.FUEL_ASSEMBLY::asStack)
-                            .displayItems(($1,output)-> {
+                            .displayItems(($1, output) -> {
                                 output.accept(BlockInit.HEAT_EXCHANGER);
                                 output.accept(BlockInit.STEAM_INPUT);
                                 output.accept(BlockInit.STEAM_COLLECTOR);
@@ -51,6 +46,7 @@ public class CreativeModeTabsInit {
                                 output.accept(ItemInit.FUEL_ROD);
                             })
                             .build());
+
     private static Function<Item, Collection<ItemStack>> makeFuelAssembly() {
         Map<Item, Function<Item, Collection<ItemStack>>> factories = new Reference2ReferenceOpenHashMap<>();
         List<Float> uraniumGrades = List.of(7e-4f, 5e-3f, 0.2f, 0.9f);
@@ -61,8 +57,8 @@ public class CreativeModeTabsInit {
                         ItemStack itemStack = item.getDefaultInstance();
                         CompoundTag tag = itemStack.getOrCreateTag();
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putFloat("crowns:u235", grade*0.2f);
-                        compositionNBT.putFloat("crowns:u238", (1-grade)*0.2f);
+                        compositionNBT.putFloat("crowns:u235", grade * 0.2f);
+                        compositionNBT.putFloat("crowns:u238", (1 - grade) * 0.2f);
                         tag.put("composition", compositionNBT);
                         itemStack.setTag(tag);
                         itemStacks.add(itemStack);

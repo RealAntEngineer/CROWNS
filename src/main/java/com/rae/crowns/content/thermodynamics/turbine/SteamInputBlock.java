@@ -25,10 +25,12 @@ public class SteamInputBlock extends WrenchableDirectionalBlock implements IBE<S
     public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
         IBE.onRemove(state, world, pos, newState);
     }
+
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(FACING, context.getClickedFace());
     }
+
     @Override
     public BlockEntityType<? extends SteamInputBlockEntity> getBlockEntityType() {
         return BlockEntityInit.STEAM_INPUT.get();
@@ -37,7 +39,7 @@ public class SteamInputBlock extends WrenchableDirectionalBlock implements IBE<S
     @Override
     public void onBlockStateChange(LevelReader level, BlockPos pos, BlockState oldState, BlockState newState) {
         super.onBlockStateChange(level, pos, oldState, newState);
-        if (level.getBlockEntity(pos) instanceof SteamInputBlockEntity be){
+        if (level.getBlockEntity(pos) instanceof SteamInputBlockEntity be) {
             be.updateSteamFlow = true;
         }
     }

@@ -20,8 +20,8 @@ public class PlacementHandler {
         BlockPos pos = event.getPos();
         TemperatureWorldData tempData = TemperatureManager.get(level);
 
-        tempData.set(pos, TemperatureManager.getDefaultTemperature(level,pos),TemperatureManager.getDefaultConduction(level,pos),
-                TemperatureManager.getDefaultResilience(level,pos));
-        tempData.setDirty(SectionPos.of(pos));
+        tempData.set(pos, TemperatureManager.getDefaultTemperature(level, pos), TemperatureManager.getDefaultConduction(level, pos),
+                TemperatureManager.getDefaultResilience(level, pos));
+        tempData.setDirty(SectionPos.of(pos).asLong());
     }
 }

@@ -31,7 +31,7 @@ public class SteamFlowManager {
             storage.steamCurrents.put(world.dimension().location(), new ArrayList<>());
         }
         storage.steamCurrents.get(world.dimension().location())
-                .removeIf( steamCurrent -> !steamCurrent.isValid(world));
+                .removeIf(steamCurrent -> !steamCurrent.isValid(world));
 
         storage.steamCurrents.get(world.dimension().location())
                 .forEach(steamCurrent -> steamCurrent.tick(world));
@@ -50,8 +50,8 @@ public class SteamFlowManager {
         List<SteamCurrent> collector = new ArrayList<>();
         storage.steamCurrents.get(dimension).forEach((steamCurrent) ->
         {
-                if (steamCurrent.intersects(bound))
-                    collector.add(steamCurrent);
+            if (steamCurrent.intersects(bound))
+                collector.add(steamCurrent);
         });
         return collector;
     }

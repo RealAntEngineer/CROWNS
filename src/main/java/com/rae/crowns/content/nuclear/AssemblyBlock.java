@@ -28,12 +28,12 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
         super(properties);
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(TEMPERATURE, Temperature.COLD)
-                .setValue(ACTIVITY,Activity.NONE));
+                .setValue(ACTIVITY, Activity.NONE));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(TEMPERATURE,ACTIVITY);
+        builder.add(TEMPERATURE, ACTIVITY);
         super.createBlockStateDefinition(builder);
     }
 
@@ -50,34 +50,18 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return level.isClientSide() ? null : ($0,pos,$1,blockEntity) -> {
-            if(blockEntity instanceof AssemblyBlockEntity assemblyBlockEntity) {
+        return level.isClientSide() ? null : ($0, pos, $1, blockEntity) -> {
+            if (blockEntity instanceof AssemblyBlockEntity assemblyBlockEntity) {
                 assemblyBlockEntity.tick();
             }
         };
-    }
-
-    public enum Activity implements StringRepresentable {
-        NONE,LOW,HIGH;
-        @Override
-        public @NotNull String getSerializedName() {
-            return this.name().toLowerCase();
-        }
-    }
-    public enum Temperature implements StringRepresentable {
-        COLD,WARM,HOT;
-
-        @Override
-        public @NotNull String getSerializedName() {
-            return this.name().toLowerCase();
-        }
     }
 
     @Override
     @SuppressWarnings("deprecated")
     public int getSignal(@NotNull BlockState state, BlockGetter level, @NotNull BlockPos pos, @NotNull Direction direction) {
         if (level.getBlockEntity(pos) instanceof AssemblyBlockEntity assemblyBlockEntity) {
-            return (int) (assemblyBlockEntity.getTemperature()/3500f * 16f);
+            return (int) (assemblyBlockEntity.getTemperature() / 3500f * 16f);
         }
         return super.getSignal(state, level, pos, direction);
     }
@@ -90,5 +74,23 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
         withBlockEntityDo(level, pos, be -> {
             be.setComposition(itemStack.getOrCreateTag().getCompound("composition"));
         });
+    }
+
+    public enum Activity implements StringRepresentable {
+        NONE, LOW, HIGH;
+
+        @Override
+        public @NotNull String getSerializedName() {
+            return this.name().toLowerCase();
+        }
+    }
+
+    public enum Temperature implements StringRepresentable {
+        COLD, WARM, HOT;
+
+        @Override
+        public @NotNull String getSerializedName() {
+            return this.name().toLowerCase();
+        }
     }
 }

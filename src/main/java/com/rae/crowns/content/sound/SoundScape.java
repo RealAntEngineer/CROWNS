@@ -16,10 +16,10 @@ import java.util.List;
 class SoundScape {
     List<ContinuousSound> continuous;
     List<RepeatingSound> repeating;
-    private float pitch;
-    private CrownsSoundScapes.AmbienceGroup group;
+    private final float pitch;
+    private final CrownsSoundScapes.AmbienceGroup group;
     private Vec3 meanPos;
-    private CrownsSoundScapes.PitchGroup pitchGroup;
+    private final CrownsSoundScapes.PitchGroup pitchGroup;
 
     public SoundScape(float pitch, CrownsSoundScapes.AmbienceGroup group) {
         this.pitchGroup = CrownsSoundScapes.getGroupFromPitch(pitch);

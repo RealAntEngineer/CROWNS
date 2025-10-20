@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 import org.lwjgl.system.NonnullDefault;
 
@@ -23,14 +22,14 @@ import java.util.ArrayList;
 
 /**
  * this is corium, it follows the following spread rule:
- *  - it tries to spread on the bottom and 4 sides
- *  - it first transforms it into magma
- *  - spreading to a block add a decay of 1
- *  - spreading to a refactory block add a decay of 2
+ * - it tries to spread on the bottom and 4 sides
+ * - it first transforms it into magma
+ * - spreading to a block add a decay of 1
+ * - spreading to a refactory block add a decay of 2
  */
 @NonnullDefault
 public abstract class CoriumFluid extends ForgeFlowingFluid {
-    public static final IntegerProperty POWER = IntegerProperty.create("power", 0,15);
+    public static final IntegerProperty POWER = IntegerProperty.create("power", 0, 15);
 
     protected CoriumFluid(ForgeFlowingFluid.Properties properties) {
         super(properties);
@@ -48,10 +47,10 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
             BlockState adjacentState = level.getBlockState(adjacentPos);
             if (!adjacentState.isAir() && !adjacentState.liquid() && !TagsInit.CustomBlockTags.UNDESTRUCTABLE.matches(adjacentState)) {
                 int power = state.getValue(POWER);
-                if (power > 2 && (level.random.nextFloat() * 15 < power * (direction == Direction.DOWN? 10:1))){
-                    state = this.getFlowing(state.getAmount(),power - 1,false);
+                if (power > 2 && (level.random.nextFloat() * 15 < power * (direction == Direction.DOWN ? 10 : 1))) {
+                    state = this.getFlowing(state.getAmount(), power - 1, false);
                     //level.setBlock(pos, state.createLegacyBlock(), 3);
-                    level.setBlock(adjacentPos, this.getFlowing(6,power - 2,false).createLegacyBlock(),3);
+                    level.setBlock(adjacentPos, this.getFlowing(6, power - 2, false).createLegacyBlock(), 3);
                 }
             }
         }
@@ -101,6 +100,7 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
     public FluidState getFlowing(int level, int power, boolean falling) {
         return this.getFlowing().defaultFluidState().setValue(LEVEL, level).setValue(POWER, power).setValue(FALLING, falling);
     }
+
     protected void spread(Level level, BlockPos pos, FluidState originalFluid) {
 
         if (!originalFluid.isEmpty()) {
@@ -113,20 +113,19 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
             FluidState bellowFluid = level.getFluidState(bellowPos);
             int oldBellowAmount = bellowFluid.getAmount();
             if (oldBellowAmount < 8 &&
-                    this.canSpreadTo(level, pos, currentState, Direction.DOWN, bellowPos, bellowState, bellowFluid , originalFluid.getType())) {
+                    this.canSpreadTo(level, pos, currentState, Direction.DOWN, bellowPos, bellowState, bellowFluid, originalFluid.getType())) {
                 //we try to fill completely the block bellow us.
 
                 int newBellowAmount = Mth.clamp(oldBellowAmount + originalFluid.getAmount(), 1, 8);
                 int transmittedAmount = newBellowAmount - oldBellowAmount;
-                int bellowPower = bellowFluid.isEmpty() ? originalPower :  bellowFluid.getValue(POWER);
+                int bellowPower = bellowFluid.isEmpty() ? originalPower : bellowFluid.getValue(POWER);
                 this.spreadTo(level, bellowPos, bellowState, Direction.DOWN,
-                        this.getFlowing(newBellowAmount,Mth.clamp(( transmittedAmount * originalPower +  bellowPower * oldBellowAmount) /newBellowAmount, 0, 15), false));
+                        this.getFlowing(newBellowAmount, Mth.clamp((transmittedAmount * originalPower + bellowPower * oldBellowAmount) / newBellowAmount, 0, 15), false));
 
                 if (newBellowAmount - oldBellowAmount >= originalFluid.getAmount()) {
                     amountAvailable = 0;
                     level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-                }
-                else {
+                } else {
 
                     amountAvailable = originalFluid.getAmount() - transmittedAmount;
 
@@ -156,8 +155,8 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
                             int newAmount = Mth.clamp(spreadAmount + fluidPresent.getAmount(), 1, 8);
                             FluidState spreadState =
                                     this.getFlowing(newAmount,
-                                            Mth.clamp(( presentPower * fluidPresent.getAmount()
-                                                    +  spreadAmount * originalPower)/newAmount,0,15), false);
+                                            Mth.clamp((presentPower * fluidPresent.getAmount()
+                                                    + spreadAmount * originalPower) / newAmount, 0, 15), false);
 
                             if (spreadState.getAmount() > fluidPresent.getAmount() && amountAvailable > spreadAmount) {
                                 amountAvailable -= spreadAmount;
@@ -165,7 +164,7 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
                             }
                         }
                         //we remove the spent liquid from the originating block
-                        level.setBlock(pos, this.getFlowing(amountAvailable,originalPower, false).createLegacyBlock(), 3);
+                        level.setBlock(pos, this.getFlowing(amountAvailable, originalPower, false).createLegacyBlock(), 3);
                     }
                 }
             }
@@ -175,7 +174,7 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
 
     protected void spreadTo(LevelAccessor level, BlockPos pos, BlockState blockState, Direction direction, FluidState fluidState) {
         if (blockState.getBlock() instanceof LiquidBlockContainer) {
-            ((LiquidBlockContainer)blockState.getBlock()).placeLiquid(level, pos, blockState, fluidState);
+            ((LiquidBlockContainer) blockState.getBlock()).placeLiquid(level, pos, blockState, fluidState);
         } else {
             if (!blockState.isAir()) {
                 this.beforeDestroyingBlock(level, pos, blockState);
@@ -214,10 +213,12 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
             super(properties);
             registerDefaultState(getStateDefinition().any().setValue(POWER, 15));
         }
+
         protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
             super.createFluidStateDefinition(builder);
             builder.add(POWER);
         }
+
         public int getAmount(FluidState state) {
             return 8;
         }

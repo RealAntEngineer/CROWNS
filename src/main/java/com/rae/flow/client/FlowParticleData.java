@@ -4,8 +4,8 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.rae.flow.commun.FlowLine;
 import com.rae.crowns.init.client.ParticleTypeInit;
+import com.rae.flow.commun.FlowLine;
 import com.simibubi.create.foundation.particle.ICustomParticleDataWithSprite;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.client.particle.ParticleEngine;
@@ -34,7 +34,7 @@ public class FlowParticleData implements ParticleOptions, ICustomParticleDataWit
             float y = reader.readFloat();
             reader.expect(' ');
             float z = reader.readFloat();
-            return new FlowParticleData(new FlowLine(List.of(new Vec3(x,y,z)),List.of(1.0),List.of(Color.WHITE)), 0.0);
+            return new FlowParticleData(new FlowLine(List.of(new Vec3(x, y, z)), List.of(1.0), List.of(Color.WHITE)), 0.0);
         }
 
         @Override
@@ -48,9 +48,11 @@ public class FlowParticleData implements ParticleOptions, ICustomParticleDataWit
 
     private final FlowLine spline;
     private final double initialT;
-    public FlowParticleData(){
-        this(new FlowLine(List.of(Vec3.ZERO, Vec3.ZERO.relative(Direction.NORTH,1f)),List.of(0.1d,0d),List.of(Color.WHITE,Color.WHITE)),0);
+
+    public FlowParticleData() {
+        this(new FlowLine(List.of(Vec3.ZERO, Vec3.ZERO.relative(Direction.NORTH, 1f)), List.of(0.1d, 0d), List.of(Color.WHITE, Color.WHITE)), 0);
     }
+
     public FlowParticleData(FlowLine spline, double initialT) {
         this.spline = spline;
         this.initialT = initialT;

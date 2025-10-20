@@ -1,11 +1,8 @@
 package com.rae.crowns.init.misc;
 
 import com.tterrag.registrate.util.entry.ItemEntry;
-
-import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.EnchantedGoldenAppleItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Rarity;
 
 import static com.rae.crowns.CROWNS.REGISTRATE;
 
@@ -23,8 +20,9 @@ public class ItemInit {
             DEPLETED_URANIUM_NUGGET = REGISTRATE.item("depleted_uranium_nugget", Item::new).register(),
             RAW_URANIUM = REGISTRATE.item("raw_uranium", Item::new).register();
 
-    public static final ItemEntry<EnchantedGoldenAppleItem>  ENRICHED_URANIUM_INGOT = REGISTRATE.item("enriched_uranium_ingot", EnchantedGoldenAppleItem::new).register();
+    public static final ItemEntry<EnchantedGoldenAppleItem> ENRICHED_URANIUM_INGOT = REGISTRATE.item("enriched_uranium_ingot", EnchantedGoldenAppleItem::new).register();
 
-    public static void register() {}
+    public static void register() {
+    }
 
 }

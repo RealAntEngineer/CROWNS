@@ -16,13 +16,6 @@ public class ConductionDataLayer {
     public ConductionDataLayer() {
         this.data = new byte[16 * 16 * 16];
     }
-    public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(SIZE);
-        for (byte val : data) {
-            buffer.put(val);
-        }
-        return buffer.array();
-    }
 
     public static ConductionDataLayer fromBytes(byte[] bytes) {
         ConductionDataLayer temp = new ConductionDataLayer();
@@ -33,13 +26,21 @@ public class ConductionDataLayer {
         return temp;
     }
 
+    public byte[] toBytes() {
+        ByteBuffer buffer = ByteBuffer.allocate(SIZE);
+        for (byte val : data) {
+            buffer.put(val);
+        }
+        return buffer.array();
+    }
+
     public float get(int x, int y, int z) {
         int temp = data[y << 8 | z << 4 | x] + 128;
-        return temp*temp/100f;
+        return temp * temp / 100f;
     }
 
 
     public void set(int x, int y, int z, float conduction) {//map
-        data[y << 8 | z << 4 | x] = (byte) (Mth.clamp(Math.sqrt(Math.abs(conduction*100)),0,255) - 128);
+        data[y << 8 | z << 4 | x] = (byte) (Mth.clamp(Math.sqrt(Math.abs(conduction * 100)), 0, 255) - 128);
     }
 }

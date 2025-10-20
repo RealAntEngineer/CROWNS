@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class TemperatureDisplaySource extends DisplaySource {
+    static final int ENTRIES_PER_PAGE = 8;
+
     @Override
     public List<MutableComponent> provideText(DisplayLinkContext context, DisplayTargetStats stats) {
         boolean isBook = context.getTargetBlockEntity() instanceof LecternBlockEntity;
@@ -27,7 +29,6 @@ public class TemperatureDisplaySource extends DisplaySource {
         return list;
     }
 
-    static final int ENTRIES_PER_PAGE = 8;
     @Override
     public int getPassiveRefreshTicks() {
         return 5;
@@ -40,7 +41,6 @@ public class TemperatureDisplaySource extends DisplaySource {
 
         List<MutableComponent> values = new ArrayList<>();
         values.add(FormicApiLang.formatTemperature(temperature.getTemperature()).component());
-
 
 
         return values

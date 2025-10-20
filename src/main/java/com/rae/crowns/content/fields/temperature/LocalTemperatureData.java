@@ -22,7 +22,7 @@ public class LocalTemperatureData {
         temperatureMap.putAll(serverData);
     }
 
-    public static void receiveUpdate(Map<SectionPos, TemperatureDataLayer> serverData){
+    public static void receiveUpdate(Map<SectionPos, TemperatureDataLayer> serverData) {
         temperatureMap.putAll(serverData);
     }
 

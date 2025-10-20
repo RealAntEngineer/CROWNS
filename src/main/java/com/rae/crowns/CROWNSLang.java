@@ -14,6 +14,7 @@ import java.util.List;
 
 public class CROWNSLang extends Lang {
     //blatant copy of CreateLang
+
     /**
      * legacy-ish. Use CROWNSLang.translate and other builder methods where possible
      */

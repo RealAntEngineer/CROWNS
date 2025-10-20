@@ -22,7 +22,7 @@ import static net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT;
 
 public enum PacketInit {
     UPDATE_STEAM_FLOW_DATA(UpdateSteamFlowPacket.class, UpdateSteamFlowPacket::new, NetworkDirection.PLAY_TO_CLIENT),
-    UPDATE_SAVED_DATA(UpdateSectionsPacket.class, UpdateSectionsPacket::new,PLAY_TO_CLIENT);
+    UPDATE_SAVED_DATA(UpdateSectionsPacket.class, UpdateSectionsPacket::new, PLAY_TO_CLIENT);
 
     public static final ResourceLocation CHANNEL_NAME = CROWNS.resource("main");
     public static final int NETWORK_VERSION = 3;
@@ -35,6 +35,7 @@ public enum PacketInit {
                                             NetworkDirection direction) {
         packetType = new PacketType<>(type, factory, direction);
     }
+
     public static void registerPackets() {
         channel = NetworkRegistry.ChannelBuilder.named(CHANNEL_NAME)
                 .serverAcceptedVersions(NETWORK_VERSION_STR::equals)

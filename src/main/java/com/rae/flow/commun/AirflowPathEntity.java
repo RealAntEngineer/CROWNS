@@ -1,4 +1,5 @@
 package com.rae.flow.commun;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -8,9 +9,9 @@ import net.minecraft.world.level.Level;
 import org.joml.Vector3f;
 
 public class AirflowPathEntity extends Entity implements IAirflowPath {
-    private FlowLine spline;
     private final double[] speedAtPoints;
     private final Vector3f[] colorsAtPoints;
+    private FlowLine spline;
 
     public AirflowPathEntity(EntityType<?> type, Level world) {
         super(type, world);

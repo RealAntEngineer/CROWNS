@@ -16,7 +16,7 @@ public class UraniumIngot extends Item {
         CompoundTag nbt = defaultInstance.getOrCreateTag();
         CompoundTag composition = new CompoundTag();
         float refinement = 0.007f;
-        composition.putFloat("crowns:u238", 1-refinement);
+        composition.putFloat("crowns:u238", 1 - refinement);
         composition.putFloat("crowns:u235", refinement);
         nbt.put("composition", composition);
         defaultInstance.setTag(nbt);

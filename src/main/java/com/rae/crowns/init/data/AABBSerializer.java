@@ -21,7 +21,7 @@ public class AABBSerializer implements EntityDataSerializer<AABB> {
 
     @Override
     public @NotNull AABB read(FriendlyByteBuf byteBuf) {
-        return new AABB(byteBuf.readDouble(), byteBuf.readDouble(), byteBuf.readDouble(),byteBuf.readDouble(),byteBuf.readDouble(),byteBuf.readDouble());
+        return new AABB(byteBuf.readDouble(), byteBuf.readDouble(), byteBuf.readDouble(), byteBuf.readDouble(), byteBuf.readDouble(), byteBuf.readDouble());
     }
 
     @Override

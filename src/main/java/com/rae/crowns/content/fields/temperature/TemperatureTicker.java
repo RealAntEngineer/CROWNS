@@ -2,25 +2,41 @@ package com.rae.crowns.content.fields.temperature;
 
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
-import net.minecraft.core.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 public class TemperatureTicker {
     public static int TICK_PERIOD = 1;
-    public static float DT = TICK_PERIOD/20f;
+    public static float DT = TICK_PERIOD / 20f;
 
-    public static void tick(Set<SectionPos> loadedSections, TemperatureWorldData data) {
-        //System.out.println("ticking for "+loadedSections.size()+" sections");
-        //System.out.println("of "+data.getLoadedSections().size()+"in memory");
+    // --- PACKING SECTION COORDINATES ---
+    private static long packSection(int x, int y, int z) {
+        return ((long) x & 0xFFFFF) << 40 | ((long) y & 0xFFFFF) << 20 | ((long) z & 0xFFFFF);
+    }
+
+    private static int unpackX(long packed) {
+        return (int) (packed >>> 40);
+    }
+
+    private static int unpackY(long packed) {
+        return (int) ((packed >>> 20) & 0xFFFFF);
+    }
+
+    private static int unpackZ(long packed) {
+        return (int) (packed & 0xFFFFF);
+    }
+
+    public static void tick(Set<Long> loadedSections, TemperatureWorldData data) {
         List<Vec3i> toDump = new ArrayList<>();
         int range = CROWNSConfigs.SERVER.conduction.conductionLimitDistance.get();
-        Set<SectionPos> sectionAccumulator = new HashSet<>(80);
+        Set<Long> sectionAccumulator = new HashSet<>(80);
 
+        // --- DYNAMIC DATA LOOP ---
         for (Map.Entry<Vec3i, IHaveTemperature> entry : data.getDynamicData().entrySet()) {
             Vec3i pos = entry.getKey();
             IHaveTemperature value = entry.getValue();
@@ -30,29 +46,27 @@ public class TemperatureTicker {
                 continue;
             }
 
-            // --- Compute section coords manually ---
             int sx = pos.getX() >> 4;
             int sy = pos.getY() >> 4;
             int sz = pos.getZ() >> 4;
+            long packedSection = packSection(sx, sy, sz);
 
-            TemperatureDataLayer temperatureData = data.getTemperature(sx, sy, sz);
-            ConductionDataLayer conductionData = data.getConduction(sx, sy, sz);
-            ResilienceDataLayer resilienceData = data.getResilience(sx, sy, sz);
+            TemperatureDataLayer temperatureData = data.getTemperature(packedSection);
+            ConductionDataLayer conductionData = data.getConduction(packedSection);
+            ResilienceDataLayer resilienceData = data.getResilience(packedSection);
 
             if (temperatureData == null || conductionData == null || resilienceData == null) continue;
 
-            // local coordinates inside the section
             int lx = pos.getX() & 15;
             int ly = pos.getY() & 15;
             int lz = pos.getZ() & 15;
 
-            // update temperature and conduction
             float temp = value.getTemperature();
             temperatureData.set(lx, ly, lz, temp);
             temperatureData.setDefault(lx, ly, lz, temp);
             conductionData.set(lx, ly, lz, value.getThermalConductivity());
 
-            // --- iterate neighbors without creating SectionPos objects ---
+            // --- ITERATE NEIGHBOR SECTIONS USING PACKED LONGS ---
             for (int dx = -range; dx <= range; dx++) {
                 int nsx = sx + dx;
                 for (int dy = -range; dy <= range; dy++) {
@@ -60,102 +74,147 @@ public class TemperatureTicker {
                     for (int dz = -range; dz <= range; dz++) {
                         int nsz = sz + dz;
 
-                        // Check Euclidean distance in section space
-                        if (isInDynamicRange(pos, range).test(nsx, nsy, nsz)
-                                && loadedSections.contains(nsx, nsy, nsz)) {
-                            // Reuse SectionPos instance or use a lightweight hash key
-                            sectionAccumulator.add(new SectionPos(nsx, nsy, nsz));
+                        if (isInDynamicRange(pos, range, nsx, nsy, nsz)) {
+                            long neighborPacked = packSection(nsx, nsy, nsz);
+                            if (loadedSections.contains(neighborPacked)) {
+                                sectionAccumulator.add(neighborPacked);
+                            }
                         }
                     }
                 }
             }
 
-            data.setDirty(sx, sy, sz);
+            data.setDirty(packedSection);
         }
 
-        for (Vec3i pos : toDump){
+        for (Vec3i pos : toDump) {
             data.getDynamicData().remove(pos);
         }
-        //System.out.println("limiting the originally loaded "+ loadedSections.size()+ " to only "+ sectionAccumulator.size()+ " sections");
-        loadedSections = sectionAccumulator;
-        //we should only tick this if we are allowed by the config.
-        for (SectionPos sectionPos : loadedSections) {
-            BlockPos base = sectionPos.origin();
-            TemperatureDataLayer temperatureData = data.getTemperature(sectionPos);
-            ConductionDataLayer conductionData = data.getConduction(sectionPos);
-            ResilienceDataLayer resilienceData = data.getResilience(sectionPos);
 
+        loadedSections = sectionAccumulator;
+
+        // --- MAIN TICK LOOP FOR SECTIONS ---
+        for (long packedSection : loadedSections) {
+            int sx = unpackX(packedSection);
+            int sy = unpackY(packedSection);
+            int sz = unpackZ(packedSection);
+            BlockPos base = new BlockPos(sx << 4, sy << 4, sz << 4);
+
+            TemperatureDataLayer temperatureData = data.getTemperature(packedSection);
+            ConductionDataLayer conductionData = data.getConduction(packedSection);
+            ResilienceDataLayer resilienceData = data.getResilience(packedSection);
 
             if (temperatureData == null || conductionData == null || resilienceData == null) continue;
-            //TODO allow for conduction past the frontiers.
+
             for (int x = 0; x < 16; x++) {
                 for (int y = 0; y < 16; y++) {
                     for (int z = 0; z < 16; z++) {
                         BlockPos pos = base.offset(x, y, z);
+
                         float selfDefaultTemp = temperatureData.getDefault(x, y, z);
                         float selfTemp = temperatureData.get(x, y, z);
-                        float selfCond = conductionData.get(x, y, z) * DT;//nope we are going to do it with omega.
+                        float selfCond = conductionData.get(x, y, z) * DT;
+
                         float weightedMean = 0;
                         float weights = 0;
                         float maxTemp = selfDefaultTemp;
                         float minTemp = selfDefaultTemp;
+
+                        // --- NEIGHBORS ---
                         for (Direction dir : Direction.values()) {
-                            int dx = dir.getStepX(), dy = dir.getStepY(), dz = dir.getStepZ();
-                            if (0 < x + dx && x + dx < 16 && 0 < y + dy && y + dy < 16 && 0 < z + dz && z + dz < 16) {
-                                float neighborTemp = temperatureData.get(x + dx, y + dy, z + dz);
-                                float neighborDefaultTemp = temperatureData.getDefault(x + dx, y + dy, z + dz);
+                            int nx = x + dir.getStepX();
+                            int ny = y + dir.getStepY();
+                            int nz = z + dir.getStepZ();
+
+                            if (0 <= nx && nx < 16 && 0 <= ny && ny < 16 && 0 <= nz && nz < 16) {
+                                float neighborTemp = temperatureData.get(nx, ny, nz);
+                                float neighborDefaultTemp = temperatureData.getDefault(nx, ny, nz);
+                                float neighborCond = conductionData.get(nx, ny, nz) * DT;
+
                                 maxTemp = Math.max(neighborDefaultTemp, maxTemp);
                                 minTemp = Math.min(neighborDefaultTemp, minTemp);
-                                float neighborCond = conductionData.get(x + dx, y + dy, z + dz) * DT;
 
-                                weightedMean += neighborTemp * (neighborCond * selfCond) / (neighborCond + selfCond);
-                                weights += (neighborCond * selfCond) / (neighborCond + selfCond);
+                                float blend = (neighborCond * selfCond) / (neighborCond + selfCond);
+                                weightedMean += neighborTemp * blend;
+                                weights += blend;
                             } else {
-                                // Cross-section neighbor
-                                BlockPos neighborPos = pos.relative(dir);
-                                SectionPos neighborSection = SectionPos.of(neighborPos);
-                                TemperatureDataLayer neighborTempData = data.getTemperature(neighborSection);
-                                ConductionDataLayer neighborCondData = data.getConduction(neighborSection);
+                                // --- CROSS-SECTION NEIGHBORS ---
+                                int nsx = sx, nsy = sy, nsz = sz;
+                                int lx = nx, ly = ny, lz = nz;
+
+                                if (nx < 0) {
+                                    nsx--;
+                                    lx += 16;
+                                } else if (nx >= 16) {
+                                    nsx++;
+                                    lx -= 16;
+                                }
+
+                                if (ny < 0) {
+                                    nsy--;
+                                    ly += 16;
+                                } else if (ny >= 16) {
+                                    nsy++;
+                                    ly -= 16;
+                                }
+
+                                if (nz < 0) {
+                                    nsz--;
+                                    lz += 16;
+                                } else if (nz >= 16) {
+                                    nsz++;
+                                    lz -= 16;
+                                }
+
+                                long neighborPacked = packSection(nsx, nsy, nsz);
+                                TemperatureDataLayer neighborTempData = data.getTemperature(neighborPacked);
+                                ConductionDataLayer neighborCondData = data.getConduction(neighborPacked);
 
                                 if (neighborTempData != null && neighborCondData != null) {
-                                    int lx = neighborPos.getX() & 15;
-                                    int ly = neighborPos.getY() & 15;
-                                    int lz = neighborPos.getZ() & 15;
-
                                     float neighborTemp = neighborTempData.get(lx, ly, lz);
                                     float neighborCond = neighborCondData.get(lx, ly, lz) * DT;
 
                                     maxTemp = Math.max(neighborTemp, maxTemp);
                                     minTemp = Math.min(neighborTemp, minTemp);
-                                    float blendWeight = (neighborCond * selfCond) / (neighborCond + selfCond);
-                                    weightedMean += neighborTemp * blendWeight;
-                                    weights += blendWeight;
+
+                                    float blend = (neighborCond * selfCond) / (neighborCond + selfCond);
+                                    weightedMean += neighborTemp * blend;
+                                    weights += blend;
                                 }
                             }
-
                         }
-                        //just to have access to the value in debug mode
+
                         float newTemp = Mth.clamp(
-                                Mth.clamp((selfDefaultTemp - selfTemp)
-                                        * resilienceData.get(x, y, z) + weightedMean / weights, minTemp, maxTemp),
+                                Mth.clamp((selfDefaultTemp - selfTemp) * resilienceData.get(x, y, z) + weightedMean / weights,
+                                        minTemp, maxTemp),
                                 TemperatureDataLayer.MIN_TEMPERATURE, TemperatureDataLayer.MAX_TEMPERATURE);
-                        newTemp = (newTemp * 0.9f + selfTemp * 0.1f);//here to dampen oscillations
-                        if ((newTemp != selfDefaultTemp || data.dynamicContains(pos))&& Mth.abs(selfTemp - newTemp) > 0.5f) {
+
+                        newTemp = newTemp * 0.9f + selfTemp * 0.1f;
+
+                        if ((newTemp != selfDefaultTemp || data.dynamicContains(pos)) && Mth.abs(selfTemp - newTemp) > 0.5f) {
                             if (data.dynamicContains(pos)) {
                                 IHaveTemperature be = data.getDynamic(pos);
                                 be.addTemperature(newTemp - selfTemp);
                             }
                             temperatureData.set(x, y, z, newTemp);
-                            data.setDirty(sectionPos);
+                            data.setDirty(packedSection);
 
-                            if (x == 0) data.setDirty(SectionPos.of(pos.west()));
-                            if (x == 15) data.setDirty(SectionPos.of(pos.east()));
-                            if (y == 0) data.setDirty(SectionPos.of(pos.below()));
-                            if (y == 15) data.setDirty(SectionPos.of(pos.above()));
-                            if (z == 0) data.setDirty(SectionPos.of(pos.north()));
-                            if (z == 15) data.setDirty(SectionPos.of(pos.south()));
+                            // --- MARK CROSS-SECTION DIRTY SECTIONS ---
+                            for (Direction dir : Direction.values()) {
+                                int nx = x + dir.getStepX();
+                                int ny = y + dir.getStepY();
+                                int nz = z + dir.getStepZ();
+
+                                if (nx < 0 || nx >= 16 || ny < 0 || ny >= 16 || nz < 0 || nz >= 16) {
+                                    int nsx = sx + (nx < 0 ? -1 : nx >= 16 ? 1 : 0);
+                                    int nsy = sy + (ny < 0 ? -1 : ny >= 16 ? 1 : 0);
+                                    int nsz = sz + (nz < 0 ? -1 : nz >= 16 ? 1 : 0);
+                                    long neighborPacked = packSection(nsx, nsy, nsz);
+                                    data.setDirty(neighborPacked);
+                                }
+                            }
                         } else {
-                            data.setClean(sectionPos);
+                            data.setClean(packedSection);
                         }
                     }
                 }
@@ -163,7 +222,14 @@ public class TemperatureTicker {
         }
     }
 
-    private static @NotNull Predicate<SectionPos> isInDynamicRange(Vec3i pos, int range) {
-        return p -> p.center().distSqr(pos) < range * range * 16 * 16;
+    // --- HELPER FOR DYNAMIC RANGE CHECK ---
+    private static boolean isInDynamicRange(Vec3i pos, int range, int sx, int sy, int sz) {
+        final int px = pos.getX();
+        final int py = pos.getY();
+        final int pz = pos.getZ();
+        int dx = (sx << 4) + 8 - px;
+        int dy = (sy << 4) + 8 - py;
+        int dz = (sz << 4) + 8 - pz;
+        return dx * dx + dy * dy + dz * dz < range * range * 16 * 16;
     }
 }

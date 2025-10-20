@@ -5,7 +5,7 @@ import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureTicker;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
-import net.minecraft.core.SectionPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -13,11 +13,11 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber(modid = CROWNS.MODID)
 public class ServerEvents {
     private static int tickCounter = 1;
+
     @SubscribeEvent
     public static void onServerLevelTick(TickEvent.LevelTickEvent event) {
         if (!(event.phase == TickEvent.Phase.END && event.level instanceof ServerLevel serverLevel)) return;
@@ -26,10 +26,17 @@ public class ServerEvents {
         data.updateChangedBlocks(serverLevel);
         if (tickCounter % (TemperatureTicker.TICK_PERIOD) == 0) {
             //lazy ticking
-            Set<SectionPos> dirtySections = new HashSet<>(data.getLoadedSections().size());
-            for (SectionPos pos : data.getLoadedSections()) {
-                if (serverLevel.isAreaLoaded(pos.origin(), 1) && data.isDirty(pos)) {
-                    dirtySections.add(pos);
+            Set<Long> dirtySections = new HashSet<>(data.getLoadedSections().size());
+            for (long packed : data.getLoadedSections()) {
+                int sx = (int) (packed >>> 40);
+                int sy = (int) ((packed >>> 20) & 0xFFFFF);
+                int sz = (int) (packed & 0xFFFFF);
+
+                // section origin in block coordinates
+                BlockPos origin = new BlockPos(sx << 4, sy << 4, sz << 4);
+
+                if (serverLevel.isAreaLoaded(origin, 1) && data.isDirty(packed)) {
+                    dirtySections.add(packed);
                 }
             }
             TemperatureTicker.tick(dirtySections, data);

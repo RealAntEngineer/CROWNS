@@ -20,9 +20,11 @@ public abstract class BlazeBurnerMixin extends SmartBlockEntity implements IHave
         super(type, pos, state);
     }
 
-    @Shadow(remap = false) protected abstract BlazeBurnerBlock.HeatLevel getHeatLevel();
+    @Shadow(remap = false)
+    protected abstract BlazeBurnerBlock.HeatLevel getHeatLevel();
 
-    @Shadow(remap = false) public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
+    @Shadow(remap = false)
+    public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
 
     @Override
     public void initialize() {
@@ -47,7 +49,7 @@ public abstract class BlazeBurnerMixin extends SmartBlockEntity implements IHave
 
     @Override
     public float getTemperature() {
-        return switch (getHeatLevelFromBlock()){
+        return switch (getHeatLevelFromBlock()) {
             case NONE -> 300f;
             case SMOULDERING -> 500F;
             case FADING -> 900F;

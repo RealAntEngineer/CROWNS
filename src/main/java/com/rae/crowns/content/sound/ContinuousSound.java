@@ -7,9 +7,9 @@ import net.minecraft.sounds.SoundSource;
 
 public class ContinuousSound extends AbstractTickableSoundInstance {
 
-    private float sharedPitch;
-    private SoundScape scape;
-    private float relativeVolume;
+    private final float sharedPitch;
+    private final SoundScape scape;
+    private final float relativeVolume;
 
     protected ContinuousSound(SoundEvent event, SoundScape scape, float sharedPitch, float relativeVolume) {
         super(event, SoundSource.AMBIENT, SoundInstance.createUnseededRandom());
@@ -51,7 +51,8 @@ public class ContinuousSound extends AbstractTickableSoundInstance {
     }
 
     @Override
-    public void tick() {}
+    public void tick() {
+    }
 
 }
 

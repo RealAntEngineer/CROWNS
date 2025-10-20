@@ -24,11 +24,12 @@ import java.util.function.Supplier;
 public abstract class ServerLevelMixin extends Level {
 
 
-    @Shadow public abstract ServerLevel getLevel();
-
     protected ServerLevelMixin(WritableLevelData p_270739_, ResourceKey<Level> p_270683_, RegistryAccess p_270200_, Holder<DimensionType> p_270240_, Supplier<ProfilerFiller> p_270692_, boolean p_270904_, boolean p_270470_, long p_270248_, int p_270466_) {
         super(p_270739_, p_270683_, p_270200_, p_270240_, p_270692_, p_270904_, p_270470_, p_270248_, p_270466_);
     }
+
+    @Shadow
+    public abstract ServerLevel getLevel();
 
     @Inject(method = "onBlockStateChange", at = @At("HEAD"))
     private void onSetBlockState(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo ci) {

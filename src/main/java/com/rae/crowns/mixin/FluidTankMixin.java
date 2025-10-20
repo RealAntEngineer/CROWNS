@@ -18,11 +18,14 @@ import static com.rae.formicapi.thermal_utilities.helper.WaterTableBased.mix;
 
 @Mixin(value = FluidTank.class)
 public abstract class FluidTankMixin {
-    @Shadow(remap = false) @NotNull protected FluidStack fluid;
+    @Shadow(remap = false)
+    @NotNull
+    protected FluidStack fluid;
 
-    @Shadow(remap = false) public abstract int getFluidAmount();
+    @Shadow(remap = false)
+    public abstract int getFluidAmount();
 
-    @Inject(method = "fill", at = @At(value = "HEAD"),remap = false)
+    @Inject(method = "fill", at = @At(value = "HEAD"), remap = false)
     public void mergeStateNBT(FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
         if (!fluid.isEmpty() && fluid.isFluidEqual(resource) && fluid.getFluid().is(FluidTags.WATER)) {
             CompoundTag newStateNBT = resource.getChildTag("realGazState");

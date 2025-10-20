@@ -3,6 +3,7 @@ package com.rae.crowns.content.fields.temperature;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.init.data.PacketInit;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -15,57 +16,62 @@ import net.minecraftforge.network.PacketDistributor;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-public class TemperatureWorldData  {//Only for the server
-    private final Map<SectionPos, TemperatureDataLayer> temperatureMap = new HashMap<>();
-    private final Map<SectionPos, ConductionDataLayer> conductionMap = new HashMap<>();
-    private final Map<SectionPos, ResilienceDataLayer> resilienceMap = new HashMap<>();
+public class TemperatureWorldData {//Only for the server
+    private final Long2ObjectMap<TemperatureDataLayer> temperatureMap = new Long2ObjectOpenHashMap<>();
+    private final Long2ObjectMap<ConductionDataLayer> conductionMap = new Long2ObjectOpenHashMap<>();
+    private final Long2ObjectMap<ResilienceDataLayer> resilienceMap = new Long2ObjectOpenHashMap<>();
     private final Map<Vec3i, IHaveTemperature> dynamicData = new HashMap<>();
     private final Queue<SectionPos> toInitialise = new ArrayDeque<>();
     //use to store changed positions so we don't encounter a deadlock
     private final Queue<BlockPos> changedBlocks = new ConcurrentLinkedQueue<>();
 
     private final LongSet changedSections = new LongOpenHashSet();
-    private final Set<SectionPos> dirty = new HashSet<>();
-    //TODO hook onto chunk serializer and do a packet for client server sync (always for server to client)
+    private final LongSet dirty = new LongOpenHashSet();
 
-    public Set<SectionPos> getLoadedSections() {
+    public Set<Long> getLoadedSections() {
         return new HashSet<>(temperatureMap.keySet()); // You can safely expose this if you're not modifying it
     }
-    public TemperatureDataLayer getTemperature(SectionPos section) {
+
+    public TemperatureDataLayer getTemperature(long section) {
         return temperatureMap.get(section);
     }
-    public ResilienceDataLayer getResilience(SectionPos section) {
+
+    public ResilienceDataLayer getResilience(long section) {
         return resilienceMap.get(section);
     }
-    public ConductionDataLayer getConduction(SectionPos section) {
+
+    public ConductionDataLayer getConduction(long section) {
         return conductionMap.get(section);
     }
-    public void put(SectionPos section, TemperatureDataLayer dataLayer) {
+
+    public void put(long section, TemperatureDataLayer dataLayer) {
         temperatureMap.put(section, dataLayer);
     }
-    public void put(SectionPos section, ResilienceDataLayer dataLayer) {
+
+    public void put(long section, ResilienceDataLayer dataLayer) {
         resilienceMap.put(section, dataLayer);
     }
-    public void put(SectionPos section, ConductionDataLayer dataLayer) {
+
+    public void put(long section, ConductionDataLayer dataLayer) {
         conductionMap.put(section, dataLayer);
     }
 
     public void putForInitialisation(SectionPos section) {
         toInitialise.add(section);
-        setDirty(section);
+        setDirty(section.asLong());
     }
+
     public void initialise(ServerLevel level) {
         // do the break with a timer.
         float initialTimeMS = System.currentTimeMillis();
         int range = CROWNSConfigs.SERVER.conduction.conductionLimitDistance.get();
-        for (int i = 0; i < 10000 && !toInitialise.isEmpty();i++) {
+        for (int i = 0; i < 10000 && !toInitialise.isEmpty(); i++) {
             if (System.currentTimeMillis() - initialTimeMS > 20) {
                 break;
             }
-            SectionPos sectionPos  = toInitialise.peek();
+            SectionPos sectionPos = toInitialise.peek();
             assert sectionPos != null;
             if (!level.isLoaded(sectionPos.origin())) continue;
             toInitialise.poll();
@@ -80,7 +86,7 @@ public class TemperatureWorldData  {//Only for the server
                     for (int dz = 0; dz < 16; dz++) {
                         BlockPos pos = base.offset(dx, dy, dz);
                         float oldTemp = defaultTemp;
-                        defaultTemp = TemperatureManager.getDefaultTemperature(level,pos);
+                        defaultTemp = TemperatureManager.getDefaultTemperature(level, pos);
                         temperatureDataLayer.set(dx, dy, dz, defaultTemp);
                         temperatureDataLayer.setDefault(dx, dy, dz, defaultTemp);
                         conductionDataLayer.set(dx, dy, dz, TemperatureManager.getDefaultConduction(level, pos));
@@ -91,55 +97,57 @@ public class TemperatureWorldData  {//Only for the server
                     }
                 }
             }
-            temperatureMap.put(sectionPos, temperatureDataLayer);
-            conductionMap.put(sectionPos, conductionDataLayer);
-            resilienceMap.put(sectionPos,resilienceDataLayer);
-            if (!canBeDirty){
-                setClean(sectionPos);
+            temperatureMap.put(sectionPos.asLong(), temperatureDataLayer);
+            conductionMap.put(sectionPos.asLong(), conductionDataLayer);
+            resilienceMap.put(sectionPos.asLong(), resilienceDataLayer);
+            if (!canBeDirty) {
+                setClean(sectionPos.asLong());
             }
 
         }
     }
 
-    private boolean inDynamicRange(SectionPos sectionPos,int range) {
-        AtomicBoolean flag = new AtomicBoolean(false);
-        dynamicData.keySet().forEach(blockPos -> {
-             flag.set(sectionPos.center().distSqr(blockPos) < range * range * 64 || flag.get());
-        });
-        return flag.get();
-    }
-
     public void updateChangedBlocks(ServerLevel level) {
         float initialTimeMS = System.currentTimeMillis();
-        for (int i = 0; i < 10000 && !changedBlocks.isEmpty();i++) {
-            BlockPos pos  = changedBlocks.poll();
-            set(pos,
-                    TemperatureManager.getDefaultTemperature(level, pos),
-                    TemperatureManager.getDefaultConduction(level, pos),
-                    TemperatureManager.getDefaultResilience(level, pos));
-            setDirty(SectionPos.of(pos));
+        for (int i = 0; i < 10000 && !changedBlocks.isEmpty(); i++) {
+            BlockPos pos = changedBlocks.poll();
+            set(pos, TemperatureManager.getDefaultTemperature(level, pos), TemperatureManager.getDefaultConduction(level, pos), TemperatureManager.getDefaultResilience(level, pos));
+            setDirty(SectionPos.of(pos).asLong());
             if (System.currentTimeMillis() - initialTimeMS > 20) {
                 break;
             }
         }
     }
+
     public void set(BlockPos pos, float temperature, float conduction, float resilience) {
-        SectionPos sectionPos = SectionPos.of(pos);
-        TemperatureDataLayer temperatureDataLayer = getTemperature(sectionPos);
-        ConductionDataLayer conductionDataLayer = getConduction(sectionPos);
-        ResilienceDataLayer resilienceDataLayer = getResilience(sectionPos);
+        // --- Compute packed section coordinates manually ---
+        int sx = pos.getX() >> 4;
+        int sy = pos.getY() >> 4;
+        int sz = pos.getZ() >> 4;
+        long packedSection = ((long) sx & 0xFFFFF) << 40 | ((long) sy & 0xFFFFF) << 20 | ((long) sz & 0xFFFFF);
+
+        // --- Get layers ---
+        TemperatureDataLayer temperatureDataLayer = getTemperature(packedSection);
+        ConductionDataLayer conductionDataLayer = getConduction(packedSection);
+        ResilienceDataLayer resilienceDataLayer = getResilience(packedSection);
 
         if (temperatureDataLayer != null && conductionDataLayer != null && resilienceDataLayer != null) {
-            temperatureDataLayer.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, temperature);
-            temperatureDataLayer.setDefault(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, temperature);
-            conductionDataLayer.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, conduction);
-            resilienceDataLayer.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15, resilience);
+            // --- Local coordinates inside the section ---
+            int lx = pos.getX() & 15;
+            int ly = pos.getY() & 15;
+            int lz = pos.getZ() & 15;
 
-            put(sectionPos, temperatureDataLayer);
-            put(sectionPos, conductionDataLayer);
-            put(sectionPos, resilienceDataLayer);
+            // --- Set values once ---
+            temperatureDataLayer.set(lx, ly, lz, temperature);
+            temperatureDataLayer.setDefault(lx, ly, lz, temperature);
+            conductionDataLayer.set(lx, ly, lz, conduction);
+            resilienceDataLayer.set(lx, ly, lz, resilience);
+
+            // --- No need to put layers back if your map already stores references ---
+            // put(packedSection, temperatureDataLayer);
+            // put(packedSection, conductionDataLayer);
+            // put(packedSection, resilienceDataLayer);
         }
-
     }
 
     //IHaveTemperature management
@@ -152,22 +160,25 @@ public class TemperatureWorldData  {//Only for the server
         return dynamicData;
     }
 
-    public boolean dynamicContains(Vec3i pos){
+    public boolean dynamicContains(Vec3i pos) {
         return dynamicData.containsKey(pos);
     }
-    public IHaveTemperature getDynamic(Vec3i pos){
+
+    public IHaveTemperature getDynamic(Vec3i pos) {
         return dynamicData.get(pos);
     }
+
     //to avoid ticking stable sections.
-    public void setDirty(SectionPos sectionPos) {
+    public void setDirty(long sectionPos) {
         dirty.add(sectionPos);
-        changedSections.add(sectionPos.asLong());
+        changedSections.add(sectionPos);
     }
-    public boolean isDirty(SectionPos sectionPos){
+
+    public boolean isDirty(long sectionPos) {
         return dirty.contains(sectionPos);
     }
 
-    public void setClean(SectionPos sectionPos) {
+    public void setClean(long sectionPos) {
         dirty.remove(sectionPos);
     }
 
@@ -183,27 +194,18 @@ public class TemperatureWorldData  {//Only for the server
         int batchSize = 10;
 
         // Only keep the entries that actually changed
-        List<Map.Entry<SectionPos, TemperatureDataLayer>> entries =
-                temperatureMap.entrySet().stream()
-                        .filter(entry -> changedSections.contains(entry.getKey().asLong()))
-                        .map(entry -> Map.entry(SectionPos.of(entry.getKey().asLong()), entry.getValue()))
-                        .toList();
+        List<Map.Entry<SectionPos, TemperatureDataLayer>> entries = temperatureMap.entrySet().stream().filter(entry -> changedSections.contains(entry.getKey())).map(entry -> Map.entry(SectionPos.of(entry.getKey()), entry.getValue())).toList();
         //System.out.println("updated " + entries.size() + " sections to the client");
 
         for (int i = 0; i < entries.size(); i += batchSize) {
             // Create a batch of up to 10
-            Map<SectionPos, TemperatureDataLayer> batch = entries.subList(i, Math.min(i + batchSize, entries.size()))
-                    .stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            Map<SectionPos, TemperatureDataLayer> batch = entries.subList(i, Math.min(i + batchSize, entries.size())).stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
             if (!batch.isEmpty() && !players.isEmpty()) {
 
                 // Send to all players
                 for (ServerPlayer player : players) {
-                    PacketInit.getChannel().send(
-                            PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
-                            new UpdateSectionsPacket(batch)
-                    );
+                    PacketInit.getChannel().send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new UpdateSectionsPacket(batch));
                 }
 
                 // Remove them globally
@@ -221,9 +223,5 @@ public class TemperatureWorldData  {//Only for the server
         // clean up other related queues/maps
         changedSections.remove(sectionPos.asLong());
         dirty.remove(sectionPos);
-    }
-
-    public void setDirty(int sx, int sy, int sz) {
-        SectionPos.of(sx, sy, sz);
     }
 }

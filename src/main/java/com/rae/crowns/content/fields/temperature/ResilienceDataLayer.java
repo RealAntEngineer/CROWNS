@@ -16,13 +16,6 @@ public class ResilienceDataLayer {
     public ResilienceDataLayer() {
         this.data = new byte[16 * 16 * 16];
     }
-    public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(SIZE);
-        for (byte val : data) {
-            buffer.put(val);
-        }
-        return buffer.array();
-    }
 
     public static ResilienceDataLayer fromBytes(byte[] bytes) {
         ResilienceDataLayer temp = new ResilienceDataLayer();
@@ -33,16 +26,24 @@ public class ResilienceDataLayer {
         return temp;
     }
 
+    public byte[] toBytes() {
+        ByteBuffer buffer = ByteBuffer.allocate(SIZE);
+        for (byte val : data) {
+            buffer.put(val);
+        }
+        return buffer.array();
+    }
+
     public byte[] getRaw() {
         return data;
     }
 
     public float get(int x, int y, int z) {
-        return  (data[y << 8 | z << 4 | x] + 128f) / 255f;
+        return (data[y << 8 | z << 4 | x] + 128f) / 255f;
     }
 
 
     public void set(int x, int y, int z, float resilience) {//map
-        data[y << 8 | z << 4 | x] = (byte) (Mth.clamp(resilience,0,1) * 255f - 128);
+        data[y << 8 | z << 4 | x] = (byte) (Mth.clamp(resilience, 0, 1) * 255f - 128);
     }
 }

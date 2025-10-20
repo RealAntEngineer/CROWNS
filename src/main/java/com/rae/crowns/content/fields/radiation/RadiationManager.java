@@ -34,7 +34,7 @@ public class RadiationManager {
             int cz = pos.getZ() & 15;
 
             short current = rad.getRadiation(cx, cy, cz);
-            short decayed = (short)(current * 0.99f);
+            short decayed = (short) (current * 0.99f);
             rad.setRadiation(cx, cy, cz, decayed);
 
             for (Direction dir : Direction.values()) {
@@ -51,9 +51,9 @@ public class RadiationManager {
                 short neighborValue = neighborRad.getRadiation(nx, ny, nz);
                 int diff = current - neighborValue;
                 if (Math.abs(diff) > 1) {
-                    short transfer = (short)(diff * 0.05f);
-                    rad.setRadiation(cx, cy, cz, (short)(current - transfer));
-                    neighborRad.setRadiation(nx, ny, nz, (short)(neighborValue + transfer));
+                    short transfer = (short) (diff * 0.05f);
+                    rad.setRadiation(cx, cy, cz, (short) (current - transfer));
+                    neighborRad.setRadiation(nx, ny, nz, (short) (neighborValue + transfer));
 
                     enqueue(level, neighbor);
                 }

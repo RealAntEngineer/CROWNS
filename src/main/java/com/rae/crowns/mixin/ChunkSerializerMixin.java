@@ -33,7 +33,7 @@ public class ChunkSerializerMixin {
 
             if (!sectionTag.contains("Y")) continue;
             int y = sectionTag.getByte("Y");
-            SectionPos sectionPos = SectionPos.of(chunk.getPos(), y);
+            long sectionPos = SectionPos.of(chunk.getPos(), y).asLong();
             TemperatureDataLayer temp = worldData.getTemperature(sectionPos);
             ConductionDataLayer cond = worldData.getConduction(sectionPos);
             ResilienceDataLayer resilience = worldData.getResilience(sectionPos);
@@ -76,13 +76,12 @@ public class ChunkSerializerMixin {
 
                 byte[] capBytes = sectionTag.getByteArray("Resilience");
                 worldData.put(sectionPos, ResilienceDataLayer.fromBytes(capBytes));
-                if (sectionTag.contains("TemperatureDirty") && sectionTag.getBoolean("TemperatureDirty")){
-                    worldData.setDirty(sectionPos);
+                if (sectionTag.contains("TemperatureDirty") && sectionTag.getBoolean("TemperatureDirty")) {
+                    worldData.setDirty(sectionPos.asLong());
                 } else {
-                    worldData.setClean(sectionPos);
+                    worldData.setClean(sectionPos.asLong());
                 }
-            }
-            else{
+            } else {
                 worldData.putForInitialisation(sectionPos);
             }
 

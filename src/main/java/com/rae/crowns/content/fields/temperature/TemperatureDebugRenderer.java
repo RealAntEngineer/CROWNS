@@ -23,21 +23,15 @@ import java.util.Map;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class TemperatureDebugRenderer {
-    public enum RenderMode {
-        AABB,
-        TEXT
-    }
-
     // 🧭 Switch this to change render mode
     private static final RenderMode RENDER_MODE = RenderMode.TEXT;
     // Smaller cubic radius for performance
     private static final int RADIUS = 8;
     private static final int INSTANCE_SIZE = 8; // subcube side length
-    private static BlockPos lastPlayerPos = null;
-
     // Cache outlines to avoid constant reallocation
     private static final Map<BlockPos, AABBOutline> CACHE = new HashMap<>();
     private static final int CACHE_PRUNE_DISTANCE = 4;
+    private static BlockPos lastPlayerPos = null;
 
     @SubscribeEvent
     public static void onRenderWorld(RenderLevelStageEvent event) {
@@ -145,6 +139,7 @@ public class TemperatureDebugRenderer {
 
         poseStack.popPose();
     }
+
     /**
      * Clears cached outlines if the player moved more than CACHE_PRUNE_DISTANCE blocks.
      */
@@ -174,5 +169,10 @@ public class TemperatureDebugRenderer {
         int g = (int) ((1 - Math.abs(t - 0.5f) * 2) * 255);
         int b = (int) ((1 - t) * 255);
         return (r << 16) | (g << 8) | b;
+    }
+
+    public enum RenderMode {
+        AABB,
+        TEXT
     }
 }

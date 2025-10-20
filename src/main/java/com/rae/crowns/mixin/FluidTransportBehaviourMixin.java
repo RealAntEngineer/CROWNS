@@ -22,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.channels.Pipe;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -31,17 +30,20 @@ import java.util.function.Predicate;
 public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour {
 
 
-    @Shadow(remap = false) public Map<Direction, PipeConnection> interfaces;
+    @Shadow(remap = false)
+    public Map<Direction, PipeConnection> interfaces;
 
-    @Shadow(remap = false) public FluidTransportBehaviour.UpdatePhase phase;
-
-    @Shadow(remap = false) public abstract boolean canPullFluidFrom(FluidStack fluid, BlockState state, Direction direction);
+    @Shadow(remap = false)
+    public FluidTransportBehaviour.UpdatePhase phase;
 
     public FluidTransportBehaviourMixin(SmartBlockEntity be) {
         super(be);
     }
 
-    @Inject(method = "tick", at = @At("HEAD"),cancellable = true, remap = false)
+    @Shadow(remap = false)
+    public abstract boolean canPullFluidFrom(FluidStack fluid, BlockState state, Direction direction);
+
+    @Inject(method = "tick", at = @At("HEAD"), cancellable = true, remap = false)
     public void replaceTick(CallbackInfo ci) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         super.tick();
         Level world = getWorld();
@@ -110,20 +112,19 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
                     singleSource = null;
                     CompoundTag inFlowTag = fluidInFlow.getTag();
                     SpecificRealGazState inFlowState = WaterTableBased.DEFAULT_STATE;
-                    if (inFlowTag!=null && inFlowTag.contains("realGazState")){
+                    if (inFlowTag != null && inFlowTag.contains("realGazState")) {
                         inFlowState = new SpecificRealGazState((CompoundTag) inFlowTag.get("realGazState"));
                     }
                     CompoundTag availableTag = availableFlow.getTag();
                     SpecificRealGazState availableState = WaterTableBased.DEFAULT_STATE;
-                    if (availableTag!=null && availableTag.contains("realGazState")){
+                    if (availableTag != null && availableTag.contains("realGazState")) {
                         availableState = new SpecificRealGazState((CompoundTag) availableTag.get("realGazState"));
-                    }
-                    else {
+                    } else {
                         availableTag = new CompoundTag();
                     }
 
                     SpecificRealGazState mixedState = WaterTableBased.mix(availableState, availableFlow.getAmount(),
-                            inFlowState,fluidInFlow.getAmount());
+                            inFlowState, fluidInFlow.getAmount());
 
                     availableFlow = fluidInFlow;
                     availableTag.put("realGazState", mixedState.serialize());

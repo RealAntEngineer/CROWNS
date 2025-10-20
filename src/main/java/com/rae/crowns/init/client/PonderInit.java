@@ -10,15 +10,15 @@ import net.minecraft.resources.ResourceLocation;
 
 public class PonderInit {
 
-	public static void register(PonderSceneRegistrationHelper<ResourceLocation> helper) {
-		// Register storyboards here
-		// (!) Added entries require re-launch
-		// (!) Modifications inside storyboard methods only require re-opening the ui
-		PonderSceneRegistrationHelper<ItemProviderEntry<?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
+    public static void register(PonderSceneRegistrationHelper<ResourceLocation> helper) {
+        // Register storyboards here
+        // (!) Added entries require re-launch
+        // (!) Modifications inside storyboard methods only require re-opening the ui
+        PonderSceneRegistrationHelper<ItemProviderEntry<?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
 
 
-		HELPER.forComponents(BlockInit.FUEL_ASSEMBLY,BlockInit.HEAT_EXCHANGER).addStoryBoard("nuclear/reactor", NuclearScene::reactor);
-		HELPER.forComponents(BlockInit.STEAM_INPUT,BlockInit.TURBINE_STAGE).addStoryBoard("thermal/turbine", ThermodynamicsScene::turbine);
+        HELPER.forComponents(BlockInit.FUEL_ASSEMBLY, BlockInit.HEAT_EXCHANGER).addStoryBoard("nuclear/reactor", NuclearScene::reactor);
+        HELPER.forComponents(BlockInit.STEAM_INPUT, BlockInit.TURBINE_STAGE).addStoryBoard("thermal/turbine", ThermodynamicsScene::turbine);
 
-	}
+    }
 }

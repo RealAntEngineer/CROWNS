@@ -3,8 +3,11 @@ package com.rae.crowns.content.thermodynamics;
 public interface IHaveTemperature {
 
     float getThermalCapacity();
+
     float getThermalConductivity();
+
     float getTemperature();
+
     void addTemperature(float dT);
     /*
     default void conductTemperature(BlockPos pos, Level level){

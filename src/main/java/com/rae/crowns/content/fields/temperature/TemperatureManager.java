@@ -13,6 +13,7 @@ import java.util.WeakHashMap;
 
 public class TemperatureManager {
     private static final Map<ServerLevel, TemperatureWorldData> worldDataMap = new WeakHashMap<>();
+
     public static TemperatureWorldData get(ServerLevel level) {
         return worldDataMap.computeIfAbsent(level, k -> new TemperatureWorldData());
     }
@@ -34,8 +35,9 @@ public class TemperatureManager {
 
     /**
      * lock safe version.
-     * @param level the level, doesn't make sens for non server level
-     * @param pos position
+     *
+     * @param level      the level, doesn't make sens for non server level
+     * @param pos        position
      * @param blockState blockstate at said position
      * @return the default temperature at the position.
      */
@@ -62,6 +64,7 @@ public class TemperatureManager {
 
         }
     }
+
     public static float getDefaultResilience(Level level, BlockPos pos) {
         FluidState fluid = level.getFluidState(pos);
         // Priority: Fluid > Block

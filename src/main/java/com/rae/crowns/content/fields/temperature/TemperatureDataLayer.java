@@ -10,26 +10,16 @@ import java.nio.ByteBuffer;
  */
 public class TemperatureDataLayer {
     public static final int SIZE = 16 * 16 * 16;
-    private static final int SHORT_SIZE  = 256 * 256;
-    private final short[] data;
-    private final short[] defaultData;
     public static final int MIN_TEMPERATURE = 0;
     public static final int MAX_TEMPERATURE = 6553;
+    private static final int SHORT_SIZE = 256 * 256;
+    private final short[] data;
+    private final short[] defaultData;
 
 
     public TemperatureDataLayer() {
         this.data = new short[16 * 16 * 16];
-        this.defaultData = new short[16*16*16];// One short per block in a chunk section
-    }
-    public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(SIZE * 4);
-        for (short val : data) {
-            buffer.putShort(val);
-        }
-        for (short val : defaultData) {
-            buffer.putShort(val);
-        }
-        return buffer.array();
+        this.defaultData = new short[16 * 16 * 16];// One short per block in a chunk section
     }
 
     public static TemperatureDataLayer fromBytes(byte[] bytes) {
@@ -44,22 +34,35 @@ public class TemperatureDataLayer {
         return temp;
     }
 
+    public byte[] toBytes() {
+        ByteBuffer buffer = ByteBuffer.allocate(SIZE * 4);
+        for (short val : data) {
+            buffer.putShort(val);
+        }
+        for (short val : defaultData) {
+            buffer.putShort(val);
+        }
+        return buffer.array();
+    }
+
     public short[] getRaw() {
         return data;
     }
 
     public float get(int x, int y, int z) {
-        return (float) (data[y << 8 | z << 4 | x] + SHORT_SIZE/2) / 10;
+        return (float) (data[y << 8 | z << 4 | x] + SHORT_SIZE / 2) / 10;
     }
+
     public float getDefault(int x, int y, int z) {
-        return (float) (defaultData[y << 8 | z << 4 | x] + SHORT_SIZE/2) / 10;
+        return (float) (defaultData[y << 8 | z << 4 | x] + SHORT_SIZE / 2) / 10;
     }
 
 
     public void set(int x, int y, int z, float temperature) {//map
-        data[y << 8 | z << 4 | x] = (short) ((int) Mth.clamp(temperature, MIN_TEMPERATURE, MAX_TEMPERATURE) * 10 - SHORT_SIZE/2);
+        data[y << 8 | z << 4 | x] = (short) ((int) Mth.clamp(temperature, MIN_TEMPERATURE, MAX_TEMPERATURE) * 10 - SHORT_SIZE / 2);
     }
+
     public void setDefault(int x, int y, int z, float temperature) {//map
-        defaultData[y << 8 | z << 4 | x] = (short) ((int)Mth.clamp(temperature,MIN_TEMPERATURE,MAX_TEMPERATURE) * 10 - SHORT_SIZE/2);
+        defaultData[y << 8 | z << 4 | x] = (short) ((int) Mth.clamp(temperature, MIN_TEMPERATURE, MAX_TEMPERATURE) * 10 - SHORT_SIZE / 2);
     }
 }
