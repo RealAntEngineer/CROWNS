@@ -4,14 +4,15 @@ import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureTicker;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
-import net.minecraft.client.telemetry.events.WorldLoadEvent;
+import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
+import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber(modid = CROWNS.MODID)
@@ -25,14 +26,19 @@ public class ServerEvents {
         data.updateChangedBlocks(serverLevel);
         if (tickCounter % (TemperatureTicker.TICK_PERIOD) == 0) {
             //lazy ticking
-            TemperatureTicker.tick(data.getLoadedSections().stream()
-                    .filter(pos -> serverLevel.isAreaLoaded(pos.origin(),1) && data.isDirty(pos))
-                    .collect(Collectors.toSet()), data);
+            Set<SectionPos> dirtySections = new HashSet<>(data.getLoadedSections().size());
+            for (SectionPos pos : data.getLoadedSections()) {
+                if (serverLevel.isAreaLoaded(pos.origin(), 1) && data.isDirty(pos)) {
+                    dirtySections.add(pos);
+                }
+            }
+            TemperatureTicker.tick(dirtySections, data);
         }
 
         if (tickCounter % (20) == 0) {
             TemperatureManager.sendUpdate(serverLevel);
         }
+        SteamFlowManager.tick(serverLevel);
         tickCounter++;
     }
 

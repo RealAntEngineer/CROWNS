@@ -12,6 +12,7 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber()
 public class PlacementHandler {
+    //redundant because we already do it with mixin
     @SubscribeEvent
     public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;

@@ -2,6 +2,7 @@ package com.rae.crowns.content.event;
 
 import com.rae.crowns.content.nuclear.IAmFissileMaterial;
 import com.rae.crowns.content.sound.CrownsSoundScapes;
+import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
@@ -33,6 +34,7 @@ public class ClientEvents {
         }
 
         CrownsSoundScapes.tick();
+        SteamFlowManager.tick(world);
     }
 
 

@@ -2,9 +2,9 @@ package com.rae.crowns;
 
 import com.mojang.logging.LogUtils;
 import com.rae.crowns.init.client.SoundInit;
+import com.rae.crowns.init.data.PacketInit;
 import com.rae.formicapi.data.managers.FloatMapDataLoader;
 import com.rae.crowns.config.CROWNSConfigs;
-import com.rae.crowns.init.client.PartialModelInit;
 import com.rae.crowns.init.client.ParticleTypeInit;
 import com.rae.crowns.init.data.EntityDataSerializersInit;
 import com.rae.crowns.init.misc.*;
@@ -64,7 +64,6 @@ public class CROWNS {
         DisplaySourceInit.register();
         CreativeModeTabsInit.register(modEventBus);
         ParticleTypeInit.register(modEventBus);
-        PartialModelInit.init();
         EntityDataSerializersInit.register(modEventBus);
 
         CROWNSConfigs.registerConfigs(modLoadingContext);

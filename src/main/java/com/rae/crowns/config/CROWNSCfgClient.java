@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CROWNSCfgClient extends ConfigBase {
 
+    public final ConfigBase.ConfigBool thermalVisualisation = b(true, "thermal_visualisation", CROWNSCfgClient.Comments.thermalVisualisation);
 
     @Override
     public @NotNull String getName() {
@@ -13,7 +14,7 @@ public class CROWNSCfgClient extends ConfigBase {
     }
 
     private static class Comments {
-        static String units = "Units used";
+        static String thermalVisualisation = "See temperature";
 
     }
 

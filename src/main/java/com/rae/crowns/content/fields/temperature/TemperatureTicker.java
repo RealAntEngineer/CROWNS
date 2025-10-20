@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class TemperatureTicker {
     public static int TICK_PERIOD = 1;
@@ -21,47 +20,57 @@ public class TemperatureTicker {
         List<Vec3i> toDump = new ArrayList<>();
         int range = CROWNSConfigs.SERVER.conduction.conductionLimitDistance.get();
         Set<SectionPos> sectionAccumulator = new HashSet<>(80);
-        for (Map.Entry<Vec3i,IHaveTemperature> entries:data.getDynamicData().entrySet()){
-            Vec3i pos = entries.getKey();
-            IHaveTemperature value = entries.getValue();
-            if (value instanceof BlockEntity blockEntity){
-                if (blockEntity.isRemoved()){
-                    toDump.add(pos);
-                    continue;
-                }
+
+        for (Map.Entry<Vec3i, IHaveTemperature> entry : data.getDynamicData().entrySet()) {
+            Vec3i pos = entry.getKey();
+            IHaveTemperature value = entry.getValue();
+
+            if (value instanceof BlockEntity blockEntity && blockEntity.isRemoved()) {
+                toDump.add(pos);
+                continue;
             }
-            //to do -> we could have some byte operation on the long value rather than some object creation
-            SectionPos sectionPos = SectionPos.of((BlockPos) pos);
-            TemperatureDataLayer temperatureData = data.getTemperature(sectionPos);
-            ConductionDataLayer conductionData = data.getConduction(sectionPos);
-            ResilienceDataLayer resilienceData = data.getResilience(sectionPos);
+
+            // --- Compute section coords manually ---
+            int sx = pos.getX() >> 4;
+            int sy = pos.getY() >> 4;
+            int sz = pos.getZ() >> 4;
+
+            TemperatureDataLayer temperatureData = data.getTemperature(sx, sy, sz);
+            ConductionDataLayer conductionData = data.getConduction(sx, sy, sz);
+            ResilienceDataLayer resilienceData = data.getResilience(sx, sy, sz);
 
             if (temperatureData == null || conductionData == null || resilienceData == null) continue;
+
+            // local coordinates inside the section
             int lx = pos.getX() & 15;
             int ly = pos.getY() & 15;
             int lz = pos.getZ() & 15;
-            temperatureData.set(lx, ly, lz, value.getTemperature());
-            temperatureData.setDefault(lx, ly, lz, value.getTemperature());
 
+            // update temperature and conduction
+            float temp = value.getTemperature();
+            temperatureData.set(lx, ly, lz, temp);
+            temperatureData.setDefault(lx, ly, lz, temp);
             conductionData.set(lx, ly, lz, value.getThermalConductivity());
 
-
-            SectionPos center = SectionPos.of((BlockPos) pos);
-
+            // --- iterate neighbors without creating SectionPos objects ---
             for (int dx = -range; dx <= range; dx++) {
+                int nsx = sx + dx;
                 for (int dy = -range; dy <= range; dy++) {
+                    int nsy = sy + dy;
                     for (int dz = -range; dz <= range; dz++) {
-                        SectionPos neighbor = SectionPos.of(center.getX() + dx, center.getY() + dy, center.getZ() + dz);
+                        int nsz = sz + dz;
 
-                        // Check Euclidean (or whatever your function is)
-                        if (isInDynamicRange(pos, range).test(neighbor) && loadedSections.contains(neighbor)) {
-                            sectionAccumulator.add(neighbor);
+                        // Check Euclidean distance in section space
+                        if (isInDynamicRange(pos, range).test(nsx, nsy, nsz)
+                                && loadedSections.contains(nsx, nsy, nsz)) {
+                            // Reuse SectionPos instance or use a lightweight hash key
+                            sectionAccumulator.add(new SectionPos(nsx, nsy, nsz));
                         }
                     }
                 }
             }
-            //sectionAccumulator.addAll(loadedSections.stream().filter(isInDynamicRange(pos, range)).collect(Collectors.toSet()));
-            data.setDirty(sectionPos);
+
+            data.setDirty(sx, sy, sz);
         }
 
         for (Vec3i pos : toDump){

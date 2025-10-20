@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.WritableLevelData;
@@ -33,6 +34,8 @@ public abstract class ServerLevelMixin extends Level {
     private void onSetBlockState(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo ci) {
         if (!oldState.equals(newState)) {
             TemperatureManager.get(getLevel()).registerChanged(pos.immutable());
+            if (newState.getBlock() instanceof LiquidBlock)
+                System.out.println("updating a fluid");
         }
     }
 }

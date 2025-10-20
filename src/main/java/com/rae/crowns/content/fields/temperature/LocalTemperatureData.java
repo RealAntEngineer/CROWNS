@@ -27,7 +27,16 @@ public class LocalTemperatureData {
     }
 
     public static float getTemperature(Vec3i pos) {
-        if (!temperatureMap.containsKey(SectionPos.of((BlockPos) pos))) return 300;
-        return temperatureMap.get(SectionPos.of((BlockPos) pos)).get(pos.getX(), pos.getY(), pos.getZ());
+        SectionPos sectionPos = SectionPos.of((BlockPos) pos);
+        TemperatureDataLayer layer = temperatureMap.get(sectionPos);
+
+        if (layer == null) return 300;
+
+        // Convert world coordinates to local (0–15) section coordinates
+        int localX = pos.getX() & 15;
+        int localY = pos.getY() & 15;
+        int localZ = pos.getZ() & 15;
+
+        return layer.get(localX, localY, localZ);
     }
 }
