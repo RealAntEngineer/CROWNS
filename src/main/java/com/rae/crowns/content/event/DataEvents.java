@@ -45,7 +45,7 @@ public class DataEvents {
                 ChunkAccess chunk = event.getChunk();
                 ChunkPos chunkPos = chunk.getPos();
                 for (int i = chunk.getMinSection(); i < chunk.getMaxSection(); i++) {
-                    worldData.putForInitialisation(SectionPos.of(chunkPos, i));
+                    worldData.putForInitialisation(SectionPos.of(chunkPos, i).asLong());
                 }
             }
         }

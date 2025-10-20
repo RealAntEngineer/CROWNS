@@ -58,9 +58,9 @@ public class TemperatureWorldData {//Only for the server
         conductionMap.put(section, dataLayer);
     }
 
-    public void putForInitialisation(SectionPos section) {
-        toInitialise.add(section);
-        setDirty(section.asLong());
+    public void putForInitialisation(long section) {
+        toInitialise.add(SectionPos.of(section));
+        setDirty(section);
     }
 
     public void initialise(ServerLevel level) {

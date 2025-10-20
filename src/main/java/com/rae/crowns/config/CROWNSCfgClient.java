@@ -10,7 +10,7 @@ public class CROWNSCfgClient extends ConfigBase {
 
     @Override
     public @NotNull String getName() {
-        return CROWNS.MODID +".client";
+        return CROWNS.MODID + ".client";
     }
 
     private static class Comments {
