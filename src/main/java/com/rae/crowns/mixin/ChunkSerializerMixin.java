@@ -1,5 +1,6 @@
 package com.rae.crowns.mixin;
 
+import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.temperature.*;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
@@ -43,14 +44,21 @@ public class ChunkSerializerMixin {
                 sectionTag.putByteArray("Temperature", temp.toBytes());
                 sectionTag.putByteArray("Conduction", cond.toBytes());
                 sectionTag.putByteArray("Resilience", resilience.toBytes());
+                sectionTag.putBoolean("TemperatureDirty", worldData.isDirty(sectionPos));
 
+                //we can save and not unload the chunk. so we need to check if it was unloaded or not.
+                if (!worldData.isLoaded(sectionPos)){
+                    worldData.dumpSection(sectionPos);
+                    CROWNS.LOGGER.info("unloading section : {}", SectionPos.of(chunk.getPos(), y));
+                }
 
             }
-            sectionTag.putBoolean("TemperatureDirty", worldData.isDirty(sectionPos));
             sections.set(i, sectionTag);
+
+
+
         }
         root.put("sections", sections);
-
         cir.setReturnValue(root);
     }
 
@@ -69,13 +77,12 @@ public class ChunkSerializerMixin {
             long sectionPos = SectionPos.of(pos, y).asLong();
             if (sectionTag.contains("Temperature") && sectionTag.contains("Resilience") && sectionTag.contains("Conduction")) {
                 byte[] tempBytes = sectionTag.getByteArray("Temperature");
-                worldData.put(sectionPos, TemperatureDataLayer.fromBytes(tempBytes));
-
                 byte[] condBytes = sectionTag.getByteArray("Conduction");
-                worldData.put(sectionPos, ConductionDataLayer.fromBytes(condBytes));
+                byte[] resBytes = sectionTag.getByteArray("Resilience");
 
-                byte[] capBytes = sectionTag.getByteArray("Resilience");
-                worldData.put(sectionPos, ResilienceDataLayer.fromBytes(capBytes));
+                worldData.put(sectionPos, TemperatureDataLayer.fromBytes(tempBytes), ConductionDataLayer.fromBytes(condBytes),
+                        ResilienceDataLayer.fromBytes(resBytes));
+
                 if (sectionTag.contains("TemperatureDirty") && sectionTag.getBoolean("TemperatureDirty")) {
                     worldData.setDirty(sectionPos);
                 } else {

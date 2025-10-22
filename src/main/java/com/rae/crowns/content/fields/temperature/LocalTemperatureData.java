@@ -7,14 +7,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @OnlyIn(Dist.CLIENT)
 public class LocalTemperatureData {
     private static final Map<SectionPos, TemperatureDataLayer> temperatureMap = new HashMap<>();
+    private static final Set<SectionPos> tickingSections = new HashSet<>();
+    private static final Map<SectionPos, Long> lastTicked = new HashMap<>();
+    private static final long MAX_TICKS_AGE = 5; // keep highlighting for 5 ticks
     private static ResourceLocation location = null;
-
 
     public static void receiveFullUpdate(Map<SectionPos, TemperatureDataLayer> serverData, ResourceLocation location) {
         LocalTemperatureData.location = location;
@@ -22,8 +23,25 @@ public class LocalTemperatureData {
         temperatureMap.putAll(serverData);
     }
 
-    public static void receiveUpdate(Map<SectionPos, TemperatureDataLayer> serverData) {
+    public static void receiveUpdate(Map<SectionPos, TemperatureDataLayer> serverData, long currentTick) {
         temperatureMap.putAll(serverData);
+
+        // Mark all sections in this batch as ticking in this tick
+        for (SectionPos section : serverData.keySet()) {
+            tickingSections.add(section);
+            lastTicked.put(section, currentTick);
+        }
+
+        // Prune old sections
+        Iterator<SectionPos> it = tickingSections.iterator();
+        while (it.hasNext()) {
+            SectionPos section = it.next();
+            long tick = lastTicked.getOrDefault(section, currentTick);
+            if (currentTick - tick > MAX_TICKS_AGE) {
+                it.remove();
+                lastTicked.remove(section);
+            }
+        }
     }
 
     public static float getTemperature(Vec3i pos) {
@@ -38,5 +56,9 @@ public class LocalTemperatureData {
         int localZ = pos.getZ() & 15;
 
         return layer.get(localX, localY, localZ);
+    }
+
+    public static Set<SectionPos> getTickingSections(){
+        return tickingSections;
     }
 }

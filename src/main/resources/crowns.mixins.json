@@ -12,7 +12,8 @@
     "FluidTankMixin",
     "FluidTransportBehaviourMixin",
     "LangMixin",
-    "ServerLevelMixin"
+    "ServerLevelMixin",
+    "SmartBlockEntityMixin"
   ],
   "client": [
   ],

@@ -1,9 +1,11 @@
 package com.rae.crowns.content.fields.temperature;
 
+import com.rae.crowns.CROWNS;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -15,26 +17,19 @@ public class TemperatureTicker {
     public static float DT = TICK_PERIOD / 20f;
 
     // --- PACKING SECTION COORDINATES ---
-    private static long packSection(int x, int y, int z) {
-        return ((long) x & 0xFFFFF) << 40 | ((long) y & 0xFFFFF) << 20 | ((long) z & 0xFFFFF);
+    public static long packSection(int sx, int sy, int sz) {
+        return ((long)sx & 0x3FFFFF) << 42
+                | ((long)sz & 0x3FFFFF) << 20
+                | ((long)sy & 0xFFFFF);
     }
 
-    private static int unpackX(long packed) {
-        return (int) (packed >>> 40);
-    }
+    public static int unpackSectionX(long packed) { return (int)(packed >> 42); }
+    public static int unpackSectionY(long packed) { return (int)(packed << 44 >> 44); }
+    public static int unpackSectionZ(long packed) { return (int)(packed << 22 >> 42); }
 
-    private static int unpackY(long packed) {
-        return (int) ((packed >>> 20) & 0xFFFFF);
-    }
 
-    private static int unpackZ(long packed) {
-        return (int) (packed & 0xFFFFF);
-    }
-
-    public static void tick(Set<Long> loadedSections, TemperatureWorldData data) {
-        List<Vec3i> toDump = new ArrayList<>();
-        int range = CROWNSConfigs.SERVER.conduction.conductionLimitDistance.get();
-        Set<Long> sectionAccumulator = new HashSet<>(80);
+    public static void tick(Set<Long> tickingSections, TemperatureWorldData data) {
+        //List<Vec3i> toDump = new ArrayList<>();
 
         // --- DYNAMIC DATA LOOP ---
         for (Map.Entry<Vec3i, IHaveTemperature> entry : data.getDynamicData().entrySet()) {
@@ -42,7 +37,7 @@ public class TemperatureTicker {
             IHaveTemperature value = entry.getValue();
 
             if (value instanceof BlockEntity blockEntity && blockEntity.isRemoved()) {
-                toDump.add(pos);
+                //toDump.add(pos);
                 continue;
             }
 
@@ -55,7 +50,11 @@ public class TemperatureTicker {
             ConductionDataLayer conductionData = data.getConduction(packedSection);
             ResilienceDataLayer resilienceData = data.getResilience(packedSection);
 
-            if (temperatureData == null || conductionData == null || resilienceData == null) continue;
+            if (temperatureData == null || conductionData == null || resilienceData == null) {
+                CROWNS.LOGGER.warn("error trying to load temperature data at {}", SectionPos.of(packedSection));
+                data.putForInitialisation(packedSection);//this means that the data got corrupted.
+                continue;
+            }
 
             int lx = pos.getX() & 15;
             int ly = pos.getY() & 15;
@@ -66,38 +65,14 @@ public class TemperatureTicker {
             temperatureData.setDefault(lx, ly, lz, temp);
             conductionData.set(lx, ly, lz, value.getThermalConductivity());
 
-            // --- ITERATE NEIGHBOR SECTIONS USING PACKED LONGS ---
-            for (int dx = -range; dx <= range; dx++) {
-                int nsx = sx + dx;
-                for (int dy = -range; dy <= range; dy++) {
-                    int nsy = sy + dy;
-                    for (int dz = -range; dz <= range; dz++) {
-                        int nsz = sz + dz;
-
-                        if (isInDynamicRange(pos, range, nsx, nsy, nsz)) {
-                            long neighborPacked = packSection(nsx, nsy, nsz);
-                            if (loadedSections.contains(neighborPacked)) {
-                                sectionAccumulator.add(neighborPacked);
-                            }
-                        }
-                    }
-                }
-            }
-
             data.setDirty(packedSection);
         }
 
-        for (Vec3i pos : toDump) {
-            data.getDynamicData().remove(pos);
-        }
-
-        loadedSections = sectionAccumulator;
-
         // --- MAIN TICK LOOP FOR SECTIONS ---
-        for (long packedSection : loadedSections) {
-            int sx = unpackX(packedSection);
-            int sy = unpackY(packedSection);
-            int sz = unpackZ(packedSection);
+        for (long packedSection : tickingSections) {
+            int sx = unpackSectionX(packedSection);
+            int sy = unpackSectionY(packedSection);
+            int sz = unpackSectionZ(packedSection);
             BlockPos base = new BlockPos(sx << 4, sy << 4, sz << 4);
 
             TemperatureDataLayer temperatureData = data.getTemperature(packedSection);
@@ -125,7 +100,7 @@ public class TemperatureTicker {
                             int nx = x + dir.getStepX();
                             int ny = y + dir.getStepY();
                             int nz = z + dir.getStepZ();
-
+                            //this changed compared to previous version check if it's still valid
                             if (0 <= nx && nx < 16 && 0 <= ny && ny < 16 && 0 <= nz && nz < 16) {
                                 float neighborTemp = temperatureData.get(nx, ny, nz);
                                 float neighborDefaultTemp = temperatureData.getDefault(nx, ny, nz);
@@ -189,15 +164,16 @@ public class TemperatureTicker {
                                         minTemp, maxTemp),
                                 TemperatureDataLayer.MIN_TEMPERATURE, TemperatureDataLayer.MAX_TEMPERATURE);
 
-                        newTemp = newTemp * 0.9f + selfTemp * 0.1f;
+                        //newTemp = newTemp * 0.9f + selfTemp * 0.1f;
 
-                        if ((newTemp != selfDefaultTemp || data.dynamicContains(pos)) && Mth.abs(selfTemp - newTemp) > 0.5f) {
+                        if ((newTemp != selfDefaultTemp || data.dynamicContains(pos))) {
                             if (data.dynamicContains(pos)) {
                                 IHaveTemperature be = data.getDynamic(pos);
                                 be.addTemperature(newTemp - selfTemp);
                             }
                             temperatureData.set(x, y, z, newTemp);
-                            data.setDirty(packedSection);
+                            if (Mth.abs(selfTemp - newTemp) > 1e-2f)
+                                data.setDirty(packedSection);
 
                             // --- MARK CROSS-SECTION DIRTY SECTIONS ---
                             for (Direction dir : Direction.values()) {
@@ -222,14 +198,5 @@ public class TemperatureTicker {
         }
     }
 
-    // --- HELPER FOR DYNAMIC RANGE CHECK ---
-    private static boolean isInDynamicRange(Vec3i pos, int range, int sx, int sy, int sz) {
-        final int px = pos.getX();
-        final int py = pos.getY();
-        final int pz = pos.getZ();
-        int dx = (sx << 4) + 8 - px;
-        int dy = (sy << 4) + 8 - py;
-        int dz = (sz << 4) + 8 - pz;
-        return dx * dx + dy * dy + dz * dz < range * range * 16 * 16;
-    }
+
 }

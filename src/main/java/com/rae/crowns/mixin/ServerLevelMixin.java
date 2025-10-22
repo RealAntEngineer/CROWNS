@@ -35,8 +35,6 @@ public abstract class ServerLevelMixin extends Level {
     private void onSetBlockState(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo ci) {
         if (!oldState.equals(newState)) {
             TemperatureManager.get(getLevel()).registerChanged(pos.immutable());
-            if (newState.getBlock() instanceof LiquidBlock)
-                System.out.println("updating a fluid");
         }
     }
 }

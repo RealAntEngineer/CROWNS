@@ -32,7 +32,7 @@ public class DataEvents {
 
             for (int sectionY = 0; sectionY < chunk.getSectionsCount(); sectionY++) {
                 SectionPos sectionPos = SectionPos.of(chunkX, sectionY, chunkZ);
-                worldData.dumpSection(sectionPos);
+                worldData.unloading(sectionPos.asLong());
             }
         }
     }
@@ -41,11 +41,13 @@ public class DataEvents {
     public static void onChunkLoad(ChunkEvent.Load event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             TemperatureWorldData worldData = TemperatureManager.get(serverLevel);
-            if (event.isNewChunk()) {//warning if it's an old world for
+            if (event.isNewChunk()) {//if it's an old world the ChunkSerializer should take care of it.
                 ChunkAccess chunk = event.getChunk();
                 ChunkPos chunkPos = chunk.getPos();
                 for (int i = chunk.getMinSection(); i < chunk.getMaxSection(); i++) {
+                    //maybe it's better to only initialise the neighbors of the player and dynamic data.
                     worldData.putForInitialisation(SectionPos.of(chunkPos, i).asLong());
+                    CROWNS.LOGGER.info("putting chunk {} to initialisation", SectionPos.of(chunkPos, i).asLong());
                 }
             }
         }
@@ -63,5 +65,6 @@ public class DataEvents {
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
         SteamFlowManager.serverStarted(event.getServer());
+        //TemperatureManager.reset();
     }
 }

@@ -148,6 +148,13 @@ dependencies {
     //implementation fg.deobf("com.rae.formicapi:FormicAPI:1.20.1-1.4.3")
     implementation fg.deobf('com.github.RealAntEngineer:FormicAPI:v1.20.1-1.5.1:slim')
     //implementation fg.deobf("curse.maven:formicapi-1282701:6712287")
+
+    //unit test tool
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+}
+test {
+    useJUnitPlatform()
 }
 mixin {
     add sourceSets.main, 'crowns.refmap.json'

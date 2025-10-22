@@ -82,17 +82,6 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
     }
 
     @Override
-    public void initialize() {
-        super.initialize();
-        if (level instanceof ServerLevel serverLevel) {
-            TemperatureWorldData data = TemperatureManager.get(serverLevel);
-            if (data != null) {
-                data.putDynamic(getBlockPos(), this);
-            }
-        }
-    }
-
-    @Override
     public void tick() {
         super.tick();
         pointer.tickChaser();
@@ -194,7 +183,6 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
         // Remove the block after the explosion
         level.setBlock(worldPosition, Blocks.AIR.defaultBlockState(), 3);
     }
-
 
     @Override
     public float getThermalCapacity() {

@@ -1,7 +1,7 @@
 {
   "replace": false,
   "values": {
-    "minecraft:air": 0.1,
+    "minecraft:air": 1000,
     "minecraft:copper_block": 10000,
     "#minecraft:wool": 1e-4
   }

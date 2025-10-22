@@ -1,11 +1,14 @@
 package com.rae.crowns.content.fields.temperature;
 
 import com.simibubi.create.foundation.networking.SimplePacketBase;
+import net.createmod.catnip.platform.CatnipServices;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class UpdateSectionsPacket extends SimplePacketBase {
     private final Map<SectionPos, TemperatureDataLayer> temperatureMap;
@@ -36,7 +39,11 @@ public class UpdateSectionsPacket extends SimplePacketBase {
     public boolean handle(NetworkEvent.Context context) {
         context.enqueueWork(() -> {
             if (context.getDirection().getReceptionSide().isClient()) {
-                LocalTemperatureData.receiveUpdate(temperatureMap);
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.level == null) return;
+
+                long time = mc.level.getGameTime();
+                LocalTemperatureData.receiveUpdate(temperatureMap, time);
             }
         });
         return true;

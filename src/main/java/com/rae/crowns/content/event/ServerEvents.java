@@ -5,14 +5,12 @@ import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureTicker;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
-import net.minecraft.core.BlockPos;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Mod.EventBusSubscriber(modid = CROWNS.MODID)
 public class ServerEvents {
@@ -25,21 +23,22 @@ public class ServerEvents {
         data.initialise(serverLevel);
         data.updateChangedBlocks(serverLevel);
         if (tickCounter % (TemperatureTicker.TICK_PERIOD) == 0) {
-            //lazy ticking
-            Set<Long> dirtySections = new HashSet<>(data.getLoadedSections().size());
-            for (long packed : data.getLoadedSections()) {
-                int sx = (int) (packed >>> 40);
-                int sy = (int) ((packed >>> 20) & 0xFFFFF);
-                int sz = (int) (packed & 0xFFFFF);
+            //this is too long...
+            LongSet loadedSections = data.getLoadedSections(); // LongSet view of keys
+            LongSet nearDynamicSections = data.getNearDynamic();
+            LongSet toTick = new LongOpenHashSet();
 
-                // section origin in block coordinates
-                BlockPos origin = new BlockPos(sx << 4, sy << 4, sz << 4);
-
-                if (serverLevel.isAreaLoaded(origin, 1) && data.isDirty(packed)) {
-                    dirtySections.add(packed);
+            // Compute intersection efficiently
+            for (long packed : nearDynamicSections) {
+                if (loadedSections.contains(packed)) {
+                    if (data.isDirty(packed)) {
+                        toTick.add(packed);
+                    }
                 }
             }
-            TemperatureTicker.tick(dirtySections, data);
+
+            TemperatureTicker.tick(toTick, data);
+
         }
 
         if (tickCounter % (20) == 0) {

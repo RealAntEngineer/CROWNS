@@ -73,17 +73,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     @Override
-    public void initialize() {
-        super.initialize();
-        if (level instanceof ServerLevel serverLevel) {
-            TemperatureWorldData data = TemperatureManager.get(serverLevel);
-            if (data != null) {
-                data.putDynamic(getBlockPos(), this);
-            }
-        }
-    }
-
-    @Override
     public void tick() {
         super.tick();
         if (!level.isClientSide()) {

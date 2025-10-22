@@ -120,17 +120,6 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     }
 
     @Override
-    public void initialize() {
-        super.initialize();
-        if (level instanceof ServerLevel serverLevel) {
-            TemperatureWorldData data = TemperatureManager.get(serverLevel);
-            if (data != null) {
-                data.putDynamic(getBlockPos(), this);
-            }
-        }
-    }
-
-    @Override
     public void lazyTick() {
         //What the fuck is going on here ?
         super.lazyTick();
