@@ -19,6 +19,9 @@ import java.util.stream.Collectors;
 import static com.rae.crowns.content.fields.temperature.TemperatureTicker.packSection;
 
 public class TemperatureWorldData {//Only for the server
+
+    //in the future hook into ChunkSection directly : easier for communication and initialisation
+
     private static final int DYNAMIC_RANGE = 2;
     private final Long2ObjectMap<TemperatureDataLayer> temperatureMap = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectMap<ConductionDataLayer> conductionMap = new Long2ObjectOpenHashMap<>();
@@ -285,6 +288,7 @@ public class TemperatureWorldData {//Only for the server
 
                 // Send to all players
                 for (ServerPlayer player : players) {
+                    //here we need to drop chunks that are too far.
                     PacketInit.getChannel().send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new UpdateSectionsPacket(batch));
                 }
 
