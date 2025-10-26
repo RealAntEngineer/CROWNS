@@ -1,9 +1,16 @@
 {
   "replace": false,
   "values": {
-    "minecraft:copper_block": 0.05,
-    "minecraft:magma_block": 1,
-    "crowns:heat_exchanger": 0.05,
-    "#minecraft:wool": 0
+    "minecraft:copper_block": 0,
+    "crowns:heat_exchanger": 0,
+    "#minecraft:wool": 0,
+    "minecraft:waxed_copper_block": 0,
+    "minecraft:exposed_copper": 0.1,
+    "minecraft:waxed_exposed_copper": 0.1,
+    "minecraft:magma_block": 0.8,
+    "minecraft:ice": 0.2,
+    "minecraft:packed_ice": 0.1,
+    "minecraft:blue_ice": 0,
+    "minecraft:air": 0.2
   }
 }

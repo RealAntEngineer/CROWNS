@@ -75,7 +75,9 @@ public class ChunkSerializerMixin {
             if (!sectionTag.contains("Y")) continue;
             int y = sectionTag.getByte("Y");
             long sectionPos = SectionPos.of(pos, y).asLong();
-            if (sectionTag.contains("Temperature") && sectionTag.contains("Resilience") && sectionTag.contains("Conduction")) {
+            if (sectionTag.contains("ThermalDataVersion") && sectionTag.getInt("ThermalDataVersion") == TemperatureWorldData.DATA_VERSION &&
+                    sectionTag.contains("Temperature") && sectionTag.contains("Resilience") && sectionTag.contains("Conduction")) {
+
                 byte[] tempBytes = sectionTag.getByteArray("Temperature");
                 byte[] condBytes = sectionTag.getByteArray("Conduction");
                 byte[] resBytes = sectionTag.getByteArray("Resilience");

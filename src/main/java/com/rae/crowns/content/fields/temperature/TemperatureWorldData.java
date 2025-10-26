@@ -22,7 +22,8 @@ public class TemperatureWorldData {//Only for the server
 
     //in the future hook into ChunkSection directly : easier for communication and initialisation
 
-    private static final int DYNAMIC_RANGE = 2;
+    private static final int DYNAMIC_RANGE = 1;
+    public static final int DATA_VERSION = 8;
     private final Long2ObjectMap<TemperatureDataLayer> temperatureMap = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectMap<ConductionDataLayer> conductionMap = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectMap<ResilienceDataLayer> resilienceMap = new Long2ObjectOpenHashMap<>();
@@ -88,8 +89,8 @@ public class TemperatureWorldData {//Only for the server
             long section = iterator.nextLong();
             SectionPos sectionPos = SectionPos.of(section);
 
-            // ⚠️ Skip this section if not loaded, keep it in the set for later
-            if (!level.isLoaded(sectionPos.origin())) {
+            // ⚠️ Skip this section if not loaded or not near a dynamic block, keep it in the set for later
+            if (!level.isLoaded(sectionPos.origin()) || !nearDynamicSections.contains(section)) {
                 continue;
             }
 
@@ -212,7 +213,6 @@ public class TemperatureWorldData {//Only for the server
         int sx = pos.getX() >> 4;
         int sy = pos.getY() >> 4;
         int sz = pos.getZ() >> 4;
-        int range = 2;
 
         for (int dx = -DYNAMIC_RANGE; dx <= DYNAMIC_RANGE; dx++) {
             int nsx = sx + dx;

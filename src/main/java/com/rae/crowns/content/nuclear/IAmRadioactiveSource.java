@@ -72,8 +72,8 @@ public interface IAmRadioactiveSource {
                 radiationFlux = Couple.create(radiationFlux.getFirst() * (1 - 0.7f), radiationFlux.getSecond() + radiationFlux.getFirst() * (Float) 0.7f);
             }
             if (TagsInit.CustomBlockTags.GOLD_BLOCK.matches(state)) {
-                radiationFlux = Couple.create(0f, 0f)//Couple.create(radiationFlux.getFirst()*0.5f, radiationFlux.getSecond()*0.5f);
-                ;
+                //radiationFlux = Couple.create(0f,0f);//Couple.create(radiationFlux.getFirst()*0.5f, radiationFlux.getSecond()*0.5f);
+                break;
             }
             FluidState fluidState = level.getFluidState(child);
             if (!fluidState.isEmpty()) {

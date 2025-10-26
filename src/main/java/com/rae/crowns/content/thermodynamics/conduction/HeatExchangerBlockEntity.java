@@ -102,18 +102,14 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             }
 
             //internal conduction
-            if (WATER_TANK.getFluidAmount() > 0) {
-                int steps = 10;
-                for (int i = 0; i < steps; i++) {
-                    float dt = 0.05F / steps; // time step duration in seconds
-                    float deltaT = temperature - WATER_TANK.getState().temperature();
-
-                    // Calculate the heat transfer using exponential decay for stability
-                    float heatTransfer = deltaT * this.getInternalConductivity() * dt;
-
-                    // Transfer heat to water
-                    WATER_TANK.heat(heatTransfer);
-                    temperature -= heatTransfer / this.getThermalCapacity();
+            float dt = 1/20f;
+            double k = getInternalConductivity()/getThermalCapacity();
+            if (!WATER_TANK.isEmpty()) {//we don't heat it if empty
+                int iteration = Math.max(1,(int) k * 1000/WATER_TANK.getFluidAmount());
+                for (int i = 0; i < iteration; i++) {
+                    float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) * dt / iteration;
+                    WATER_TANK.heat(power);
+                    this.addTemperature( -power / this.getThermalCapacity());
                 }
             }
         }

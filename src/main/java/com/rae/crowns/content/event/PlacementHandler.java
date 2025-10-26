@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber()
 public class PlacementHandler {
     //redundant because we already do it with mixin
-    @SubscribeEvent
+    /*@SubscribeEvent
     public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
 
@@ -23,5 +23,5 @@ public class PlacementHandler {
         tempData.set(pos, TemperatureManager.getDefaultTemperature(level, pos), TemperatureManager.getDefaultConduction(level, pos),
                 TemperatureManager.getDefaultResilience(level, pos));
         tempData.setDirty(SectionPos.of(pos).asLong());
-    }
+    }*/
 }

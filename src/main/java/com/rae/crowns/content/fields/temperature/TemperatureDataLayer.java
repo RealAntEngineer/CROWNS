@@ -5,64 +5,85 @@ import net.minecraft.util.Mth;
 import java.nio.ByteBuffer;
 
 /**
- * implement temperature for a Section (16, 16, 16)
- * temperature is coded on a short from 0 to 6553.5 with a step of 0.1
+ * Temperature data for a Section (16×16×16)
+ *
+ * Temperatures are stored as fixed-point integers with 5 decimal digits of precision.
+ * The int range (-2_147_483_648 to 2_147_483_647) is mapped linearly to temperature space
+ * by offsetting with Integer.MIN_VALUE.
+ *
+ * Encoding:
+ *   stored = (int)(temperature * SCALE) + Integer.MIN_VALUE
+ *
+ * Decoding:
+ *   temperature = (stored - Integer.MIN_VALUE) / SCALE
  */
 public class TemperatureDataLayer {
     public static final int SIZE = 16 * 16 * 16;
-    public static final int MIN_TEMPERATURE = 0;
-    public static final int MAX_TEMPERATURE = 6553;
-    private static final int SHORT_SIZE = 256 * 256;
-    private final short[] data;
-    private final short[] defaultData;
+    public static final double SCALE = 100000f; // 5 decimal places
 
+    public static final double MIN_TEMPERATURE = 0.0d;
+    public static final double MAX_TEMPERATURE =
+            (Integer.MAX_VALUE - (long) Integer.MIN_VALUE) / SCALE; // ≈ 42949.67295
+    private final int[] data;
+    private final int[] defaultData;
 
     public TemperatureDataLayer() {
-        this.data = new short[16 * 16 * 16];
-        this.defaultData = new short[16 * 16 * 16];// One short per block in a chunk section
+        this.data = new int[SIZE];
+        this.defaultData = new int[SIZE];
     }
 
     public static TemperatureDataLayer fromBytes(byte[] bytes) {
         TemperatureDataLayer temp = new TemperatureDataLayer();
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
+
         for (int i = 0; i < SIZE; i++) {
-            temp.data[i] = buffer.getShort();
+            temp.data[i] = buffer.getInt();
         }
         for (int i = 0; i < SIZE; i++) {
-            temp.defaultData[i] = buffer.getShort();
+            temp.defaultData[i] = buffer.getInt();
         }
+
         return temp;
     }
 
     public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(SIZE * 4);
-        for (short val : data) {
-            buffer.putShort(val);
+        ByteBuffer buffer = ByteBuffer.allocate(SIZE * 4 * 2);
+        for (int val : data) {
+            buffer.putInt(val);
         }
-        for (short val : defaultData) {
-            buffer.putShort(val);
+        for (int val : defaultData) {
+            buffer.putInt(val);
         }
         return buffer.array();
     }
 
-    public short[] getRaw() {
+    public int[] getRaw() {
         return data;
     }
 
+    private static int index(int x, int y, int z) {
+        return (y << 8) | (z << 4) | x;
+    }
+
     public float get(int x, int y, int z) {
-        return (float) (data[y << 8 | z << 4 | x] + SHORT_SIZE / 2) / 10;
+        int stored = data[index(x, y, z)];
+        return (float) ((stored - (long) Integer.MIN_VALUE) / SCALE);
     }
 
     public float getDefault(int x, int y, int z) {
-        return (float) (defaultData[y << 8 | z << 4 | x] + SHORT_SIZE / 2) / 10;
+        int stored = defaultData[index(x, y, z)];
+        return (float) ((stored - (long) Integer.MIN_VALUE) / SCALE);
     }
 
-
-    public void set(int x, int y, int z, float temperature) {//map
-        data[y << 8 | z << 4 | x] = (short) ((int) Mth.clamp(temperature, MIN_TEMPERATURE, MAX_TEMPERATURE) * 10 - SHORT_SIZE / 2);
+    public void set(int x, int y, int z, float temperature) {
+        long encoded = (long) (temperature * SCALE) + (long) Integer.MIN_VALUE;
+        //encoded = Math.clamp(encoded, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        data[index(x, y, z)] = (int) encoded;
     }
 
-    public void setDefault(int x, int y, int z, float temperature) {//map
-        defaultData[y << 8 | z << 4 | x] = (short) ((int) Mth.clamp(temperature, MIN_TEMPERATURE, MAX_TEMPERATURE) * 10 - SHORT_SIZE / 2);
+    public void setDefault(int x, int y, int z, float temperature) {
+        long encoded = (long) (temperature * SCALE) + (long) Integer.MIN_VALUE;
+        //encoded = Mth.clamp(encoded, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        defaultData[index(x, y, z)] = (int) encoded;
     }
 }

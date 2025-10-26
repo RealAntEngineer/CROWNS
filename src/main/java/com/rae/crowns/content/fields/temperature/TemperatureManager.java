@@ -82,7 +82,7 @@ public class TemperatureManager {
     public static float getDefaultConduction(Level level, Vec3i pos) {
         FluidState fluid = level.getFluidState((BlockPos) pos);
         // Priority: Fluid > Block
-        if (!fluid.isEmpty()) {
+        if (fluid.isEmpty()) {
             return CROWNS.BLOCK_CONDUCTION.getValue(level.getBlockState((BlockPos) pos).getBlock(), 100);
         } else {
             return CROWNS.FLUID_CONDUCTION.getValue(fluid.getType(), 100);

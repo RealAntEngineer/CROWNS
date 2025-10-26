@@ -205,7 +205,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public float getEffectiveK() {
-        float easeCoef = 1f; //TODO config
+        float easeCoef = CROWNSConfigs.SERVER.nuclear.easeCoef.getF(); //TODO config
         return (backgroundActivity + nbrOfFission * 2.5f * easeCoef) / (backgroundActivity + oldNbrOfFission * 2.5f * easeCoef);
     }
 

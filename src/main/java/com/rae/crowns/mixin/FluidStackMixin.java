@@ -10,8 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = FluidStack.class)
 public abstract class FluidStackMixin {
-    @Shadow
-    public abstract CompoundTag getOrCreateTag();
+    @Shadow(remap = false) public abstract CompoundTag getOrCreateTag();
 
     @Inject(method = "isFluidStackTagEqual", at = @At(value = "RETURN"), remap = false, cancellable = true)
     private void tagIsEqualForState(FluidStack other, CallbackInfoReturnable<Boolean> cir) {

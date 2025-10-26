@@ -12,7 +12,10 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.ChunkEvent;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -63,8 +66,11 @@ public class DataEvents {
     }
 
     @SubscribeEvent
+    public static void onServerStopping(ServerStoppedEvent event) {
+        TemperatureManager.reset();//this in important to clean the data after leaving.
+    }
+    @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
         SteamFlowManager.serverStarted(event.getServer());
-        //TemperatureManager.reset();
     }
 }

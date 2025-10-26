@@ -1,10 +1,12 @@
 package com.rae.crowns.content.nuclear.corium;
 
 
+import com.rae.crowns.init.misc.BlockInit;
 import com.rae.crowns.init.misc.TagsInit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -71,6 +73,22 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
         level.setBlock(pos, state.createLegacyBlock().setValue(POWER, currentPower), 3);
 
          */
+    }
+
+    @Override
+    protected void randomTick(Level level, BlockPos pos, FluidState state, RandomSource random) {
+        if (state.getValue(POWER) <= 1) {
+            level.setBlock(pos, BlockInit.SOLID_CORIUM.getDefaultState(), 3);
+        } else {
+            state.setValue(POWER, state.getValue(POWER) - 1);
+            level.setBlock(pos, state.createLegacyBlock(), 3);
+
+        }
+    }
+
+    @Override
+    protected boolean isRandomlyTicking() {
+        return true;
     }
 
     @Override

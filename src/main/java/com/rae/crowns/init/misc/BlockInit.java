@@ -11,6 +11,7 @@ import com.rae.formicapi.multiblock.MBItem;
 import com.rae.formicapi.multiblock.MBStructureBlock;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntry;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -109,6 +110,14 @@ public class BlockInit {
             .block("uranium_ore", UraniumOreBlock::new)
             .initialProperties(SharedProperties::stone)
             .properties(p -> p.lightLevel(litBlockEmission(9)).strength(4, 4))
+            .item()
+            .build()
+            .register();
+
+    public static final BlockEntry<Block> SOLID_CORIUM = REGISTRATE
+            .block("solid_corium", Block::new)
+            .initialProperties(SharedProperties::stone)
+            .properties(p -> p.lightLevel((blockState) -> 9).strength(4, 4))
             .item()
             .build()
             .register();

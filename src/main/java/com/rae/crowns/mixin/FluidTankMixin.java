@@ -28,13 +28,6 @@ public abstract class FluidTankMixin {
     @Inject(method = "fill", at = @At(value = "HEAD"), remap = false)
     public void mergeStateNBT(FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
         if (!fluid.isEmpty() && fluid.isFluidEqual(resource) && fluid.getFluid().is(FluidTags.WATER)) {
-            CompoundTag newStateNBT = resource.getChildTag("realGazState");
-            SpecificRealGazState newState;
-            if (newStateNBT != null && !newStateNBT.isEmpty()) {
-                newState = new SpecificRealGazState(newStateNBT);
-            } else {
-                newState = DEFAULT_STATE;
-            }
             CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
             SpecificRealGazState oldState;
             if (oldStateNBT != null && !oldStateNBT.isEmpty()) {
@@ -42,14 +35,26 @@ public abstract class FluidTankMixin {
             } else {
                 oldState = DEFAULT_STATE;
             }
-            CompoundTag mergedTag = fluid.getOrCreateTag();
 
-            mergedTag.put("realGazState",
-                    mix(newState, resource.getAmount(), oldState, getFluidAmount()).serialize()
-            );
-            fluid.setTag(mergedTag);
+            CompoundTag newStateNBT = resource.getChildTag("realGazState");
+            SpecificRealGazState newState;
+            if (newStateNBT != null && !newStateNBT.isEmpty()) {
+                newState = new SpecificRealGazState(newStateNBT);
+            } else {
+                newState = DEFAULT_STATE;
+            }
+            //too much duplication it's unreadable.
+            if (newStateNBT != null && !newStateNBT.isEmpty() || oldStateNBT != null && !oldStateNBT.isEmpty()) {
 
-            resource.setTag(fluid.getTag());//to ensure correct merge
+                CompoundTag mergedTag = fluid.getOrCreateTag();
+
+                mergedTag.put("realGazState",
+                        mix(newState, resource.getAmount(), oldState, getFluidAmount()).serialize()
+                );
+                fluid.setTag(mergedTag);
+
+                resource.setTag(fluid.getTag());//to ensure correct merge
+            }
         }
     }
 }

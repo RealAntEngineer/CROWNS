@@ -36,10 +36,10 @@ public class CROWNS {
                     .defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
     public static final FloatMapDataLoader<Block> BLOCK_TEMPERATURES = new FloatMapDataLoader<>(MODID, "blocks/temperatures", Registries.BLOCK);
     public static final FloatMapDataLoader<Block> BLOCK_CONDUCTION = new FloatMapDataLoader<>(MODID, "blocks/conduction", Registries.BLOCK);
-    public static final FloatMapDataLoader<Block> BLOCK_RESILIENCE = new FloatMapDataLoader<>(MODID, "blocks/capacity", Registries.BLOCK);
+    public static final FloatMapDataLoader<Block> BLOCK_RESILIENCE = new FloatMapDataLoader<>(MODID, "blocks/resilience", Registries.BLOCK);
     public static final FloatMapDataLoader<Fluid> FLUID_TEMPERATURES = new FloatMapDataLoader<>(MODID, "fluids/temperatures", Registries.FLUID);
     public static final FloatMapDataLoader<Fluid> FLUID_CONDUCTION = new FloatMapDataLoader<>(MODID, "fluids/conduction", Registries.FLUID);
-    public static final FloatMapDataLoader<Fluid> FLUID_RESILIENCE = new FloatMapDataLoader<>(MODID, "fluids/capacity", Registries.FLUID);
+    public static final FloatMapDataLoader<Fluid> FLUID_RESILIENCE = new FloatMapDataLoader<>(MODID, "fluids/resilience", Registries.FLUID);
 
     public static final FloatMapDataLoader<Biome> BIOME_TEMPERATURES = new FloatMapDataLoader<>(MODID, "biomes/temperatures", Registries.BIOME);
 

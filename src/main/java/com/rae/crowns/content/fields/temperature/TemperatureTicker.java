@@ -15,6 +15,7 @@ import java.util.*;
 public class TemperatureTicker {
     public static int TICK_PERIOD = 1;
     public static float DT = TICK_PERIOD / 20f;
+    public static float CAPACITY = 3e4f;
 
     // --- PACKING SECTION COORDINATES ---
     public static long packSection(int sx, int sy, int sz) {
@@ -63,6 +64,7 @@ public class TemperatureTicker {
             float temp = value.getTemperature();
             temperatureData.set(lx, ly, lz, temp);
             temperatureData.setDefault(lx, ly, lz, temp);
+            resilienceData.set(lx, ly, lz, 0);
             conductionData.set(lx, ly, lz, value.getThermalConductivity());
 
             data.setDirty(packedSection);
@@ -88,30 +90,28 @@ public class TemperatureTicker {
 
                         float selfDefaultTemp = temperatureData.getDefault(x, y, z);
                         float selfTemp = temperatureData.get(x, y, z);
-                        float selfCond = conductionData.get(x, y, z) * DT;
+                        float selfCond = conductionData.get(x, y, z);
 
-                        float weightedMean = 0;
-                        float weights = 0;
-                        float maxTemp = selfDefaultTemp;
-                        float minTemp = selfDefaultTemp;
+                        float totalFlux = 0;
+                        //float weights = 0;
+                        float maxTemp = selfTemp;
+                        float minTemp = selfTemp;
 
                         // --- NEIGHBORS ---
                         for (Direction dir : Direction.values()) {
                             int nx = x + dir.getStepX();
                             int ny = y + dir.getStepY();
                             int nz = z + dir.getStepZ();
-                            //this changed compared to previous version check if it's still valid
+                            //this changed compared to previous version check if it's still valid (I don't think it's right.)
                             if (0 <= nx && nx < 16 && 0 <= ny && ny < 16 && 0 <= nz && nz < 16) {
                                 float neighborTemp = temperatureData.get(nx, ny, nz);
-                                float neighborDefaultTemp = temperatureData.getDefault(nx, ny, nz);
-                                float neighborCond = conductionData.get(nx, ny, nz) * DT;
+                                float neighborCond = conductionData.get(nx, ny, nz);
 
-                                maxTemp = Math.max(neighborDefaultTemp, maxTemp);
-                                minTemp = Math.min(neighborDefaultTemp, minTemp);
+                                maxTemp = Math.max(neighborTemp, maxTemp);
+                                minTemp = Math.min(neighborTemp, minTemp);
 
                                 float blend = (neighborCond * selfCond) / (neighborCond + selfCond);
-                                weightedMean += neighborTemp * blend;
-                                weights += blend;
+                                totalFlux += (neighborTemp - selfTemp) * blend;
                             } else {
                                 // --- CROSS-SECTION NEIGHBORS ---
                                 int nsx = sx, nsy = sy, nsz = sz;
@@ -147,47 +147,55 @@ public class TemperatureTicker {
 
                                 if (neighborTempData != null && neighborCondData != null) {
                                     float neighborTemp = neighborTempData.get(lx, ly, lz);
-                                    float neighborCond = neighborCondData.get(lx, ly, lz) * DT;
+                                    float neighborCond = neighborCondData.get(lx, ly, lz);
 
                                     maxTemp = Math.max(neighborTemp, maxTemp);
                                     minTemp = Math.min(neighborTemp, minTemp);
-
+                                    //conduction bwn neighbor.
                                     float blend = (neighborCond * selfCond) / (neighborCond + selfCond);
-                                    weightedMean += neighborTemp * blend;
-                                    weights += blend;
+                                    totalFlux += (neighborTemp - selfTemp) * blend;
+                                    //weights += blend;
                                 }
                             }
                         }
 
-                        float newTemp = Mth.clamp(
-                                Mth.clamp((selfDefaultTemp - selfTemp) * resilienceData.get(x, y, z) + weightedMean / weights,
-                                        minTemp, maxTemp),
-                                TemperatureDataLayer.MIN_TEMPERATURE, TemperatureDataLayer.MAX_TEMPERATURE);
+                        float res = resilienceData.get(x, y, z);
+                        float newTemp =
+                                (float) Mth.clamp(
+                                        selfTemp + //
+                                                ((selfDefaultTemp - selfTemp) * res * 100d //ground callback
+                                                + totalFlux * (1- res) )* DT/CAPACITY,//fluxes sums.
+                            /*Mth.clamp((selfDefaultTemp - selfTemp) * resilienceData.get(x, y, z) + totalFlux / weights,
+                                    minTemp, maxTemp),*/
+                            TemperatureDataLayer.MIN_TEMPERATURE, TemperatureDataLayer.MAX_TEMPERATURE);
 
                         //newTemp = newTemp * 0.9f + selfTemp * 0.1f;
 
-                        if ((newTemp != selfDefaultTemp || data.dynamicContains(pos))) {
+                        if ((newTemp != selfTemp || data.dynamicContains(pos))) {
                             if (data.dynamicContains(pos)) {
                                 IHaveTemperature be = data.getDynamic(pos);
                                 be.addTemperature(newTemp - selfTemp);
                             }
                             temperatureData.set(x, y, z, newTemp);
-                            if (Mth.abs(selfTemp - newTemp) > 1e-2f)
+                            if (Mth.abs(selfTemp - newTemp) > 1e-3f) {
                                 data.setDirty(packedSection);
 
-                            // --- MARK CROSS-SECTION DIRTY SECTIONS ---
-                            for (Direction dir : Direction.values()) {
-                                int nx = x + dir.getStepX();
-                                int ny = y + dir.getStepY();
-                                int nz = z + dir.getStepZ();
+                                // --- MARK CROSS-SECTION DIRTY SECTIONS ---
+                                for (Direction dir : Direction.values()) {
+                                    int nx = x + dir.getStepX();
+                                    int ny = y + dir.getStepY();
+                                    int nz = z + dir.getStepZ();
 
-                                if (nx < 0 || nx >= 16 || ny < 0 || ny >= 16 || nz < 0 || nz >= 16) {
-                                    int nsx = sx + (nx < 0 ? -1 : nx >= 16 ? 1 : 0);
-                                    int nsy = sy + (ny < 0 ? -1 : ny >= 16 ? 1 : 0);
-                                    int nsz = sz + (nz < 0 ? -1 : nz >= 16 ? 1 : 0);
-                                    long neighborPacked = packSection(nsx, nsy, nsz);
-                                    data.setDirty(neighborPacked);
+                                    if (nx < 0 || nx >= 16 || ny < 0 || ny >= 16 || nz < 0 || nz >= 16) {
+                                        int nsx = sx + (nx < 0 ? -1 : nx >= 16 ? 1 : 0);
+                                        int nsy = sy + (ny < 0 ? -1 : ny >= 16 ? 1 : 0);
+                                        int nsz = sz + (nz < 0 ? -1 : nz >= 16 ? 1 : 0);
+                                        long neighborPacked = packSection(nsx, nsy, nsz);
+                                        data.setDirty(neighborPacked);
+                                    }
                                 }
+                            } else {
+                                data.setClean(packedSection);
                             }
                         } else {
                             data.setClean(packedSection);
