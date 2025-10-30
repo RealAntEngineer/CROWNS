@@ -1,11 +1,13 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
+import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.thermodynamics.ISteamPressureChange;
 import com.rae.crowns.init.misc.BlockInit;
 import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.rae.formicapi.thermal_utilities.helper.WaterAsRealGaz;
+import com.rae.formicapi.thermal_utilities.helper.WaterTableBased;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,10 +22,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.rae.crowns.Constants.whatSU;
 
@@ -45,7 +46,7 @@ public class SteamCurrent {
     ArrayList<BlockPos> stagesPos = new ArrayList<>();
     BlockPos collectorPos = null;
     BlockPos injectorPos;
-    HashMap<BlockPos, Float> powerForStage = new HashMap<>();
+    Map<BlockPos, Float> powerForStage = new ConcurrentHashMap<>();
     HashMap<BlockPos, SpecificRealGazState> stateMap = new HashMap<>();
     private SpecificRealGazState inputFluidState = null;
     private SpecificRealGazState outputFluidState = null;
@@ -165,45 +166,67 @@ public class SteamCurrent {
     }
 
     public void calculateForStage(ISteamPressureChange addedStage, Level level) {
-        if (!stagesPos.contains(((BlockEntity) addedStage).getBlockPos())) {//do the list of blockPos or relative distance to take care of..
-            stagesPos.add(((BlockEntity) addedStage).getBlockPos());
-            stagesPos = new ArrayList<>(stagesPos.stream().filter(
-                    p -> level.getBlockEntity(p) instanceof ISteamPressureChange).sorted(
-                    (s1, s2) -> ((direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) ? 1 : -1) *
-                            (Objects.requireNonNull(level.getBlockEntity(s1)).getBlockPos().get(direction.getAxis()) -
-                                    (Objects.requireNonNull(level.getBlockEntity(s2))).getBlockPos().get(direction.getAxis()))).toList());//sort by distance
-        }
-        ArrayList<ISteamPressureChange> stages = new ArrayList<>(
-                stagesPos.stream().filter(
-                        p -> level.getBlockEntity(p) instanceof ISteamPressureChange).map(p -> (ISteamPressureChange) level.getBlockEntity(p)).toList());
+        final BlockPos addedPos = ((BlockEntity) addedStage).getBlockPos();
 
-        //rebuild the map
-        powerForStage = new HashMap<>();
+        // 1) Snapshot & mutate shared list under lock (short critical section)
+        List<BlockPos> snapshot;
+        synchronized (this) {
+            // make a copy first to avoid modifying the list while someone else may iterate it
+            List<BlockPos> local = new ArrayList<>(stagesPos);
+
+            if (!local.contains(addedPos)) {
+                local.add(addedPos);
+            }
+            // filter & sort on the local copy
+            local = local.stream()
+                    .filter(p -> level.getBlockEntity(p) instanceof ISteamPressureChange)
+                    .sorted((s1, s2) -> ((direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) ? 1 : -1) *
+                            (Objects.requireNonNull(level.getBlockEntity(s1)).getBlockPos().get(direction.getAxis()) -
+                                    Objects.requireNonNull(level.getBlockEntity(s2)).getBlockPos().get(direction.getAxis())))
+                    .toList();
+
+            // publish the new list atomically
+            stagesPos = new ArrayList<>(local);
+
+            // snapshot the current list for processing
+            snapshot = new ArrayList<>(stagesPos);
+        } // lock released here
+
+        // 2) Build stage instances from the snapshot (no lock held)
+        List<ISteamPressureChange> stages = snapshot.stream()
+                .map(level::getBlockEntity)
+                .filter(e -> e instanceof ISteamPressureChange)
+                .map(e -> (ISteamPressureChange) e)
+                .toList();
+
+        // 3) Rebuild the maps / compute physics (heavy work outside lock)
+        powerForStage = new ConcurrentHashMap<>();
         HashMap<BlockPos, SpecificRealGazState> stateMap = new HashMap<>();
         SpecificRealGazState previousState = getInputFluidState(level);
         stateMap.put(injectorPos, previousState);
-        //System.out.println("start water : "+previousState);
-        //sorted to ensure correct thing
-        int i = 0;
+
         SpecificRealGazState nextState = previousState;
         for (ISteamPressureChange stage : stages) {
-            i++;
-            if (stage != null) {
-                float pressureRatio = stage.pressureRatio();
-                if (pressureRatio < 1) {
-                    nextState = WaterAsRealGaz.standardExpansion(previousState, 1 / pressureRatio);
-                } else if (pressureRatio > 1) {
-                    nextState = WaterAsRealGaz.standardCompression(previousState, pressureRatio);
+            if (stage == null) continue;
+
+            float pressureRatio = stage.pressureRatio();
+            try {
+                if (pressureRatio < 1f) {
+                    nextState = WaterTableBased.isentropicExpansion(previousState, 1f / pressureRatio);
+                } else if (pressureRatio > 1f) {
+                    nextState = WaterTableBased.isentropicCompression(previousState, pressureRatio);
                 }
-                //need to ensure that it's empty before end
-                //.get(this.direction.getAxis()
-                float power = (previousState.specificEnthalpy() - nextState.specificEnthalpy()) * getFlow(level) * 20 / whatSU;
-                powerForStage.put(((BlockEntity) stage).getBlockPos(), Float.isNaN(power) ? 0 : power);
-                //System.out.println("stage : "+i+" | "+nextState + "power : "+(previousState.specificEnthalpy() - nextState.specificEnthalpy()) * getFlow());
-                previousState = nextState;
-                stateMap.put(((BlockEntity) stage).getBlockPos(), nextState);
+            } catch (IllegalStateException error) {
+                CROWNS.LOGGER.error("{} caused by trying to compress water from {} with a ratio of {}", error.getMessage(), previousState, pressureRatio);
+                throw error;
             }
+            float power = (previousState.specificEnthalpy() - nextState.specificEnthalpy()) * getFlow(level) * 20f / whatSU;
+            powerForStage.put(((BlockEntity) stage).getBlockPos(), Float.isNaN(power) ? 0f : power);
+
+            previousState = nextState;
+            stateMap.put(((BlockEntity) stage).getBlockPos(), nextState);
         }
+
         this.outputFluidState = nextState;
         this.stateMap = stateMap;
         this.reloadSpline = true;

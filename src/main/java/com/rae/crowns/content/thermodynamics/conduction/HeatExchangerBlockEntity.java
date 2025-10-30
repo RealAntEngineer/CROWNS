@@ -16,6 +16,7 @@ import com.simibubi.create.foundation.utility.CreateLang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -101,6 +102,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                 }
             }
 
+            //if not loaded we keep the same temperature.
             //internal conduction
             float dt = 1/20f;
             double k = getInternalConductivity()/getThermalCapacity();
@@ -109,7 +111,9 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                 for (int i = 0; i < iteration; i++) {
                     float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) * dt / iteration;
                     WATER_TANK.heat(power);
-                    this.addTemperature( -power / this.getThermalCapacity());
+                    if (TemperatureManager.get((ServerLevel) level).isLoaded(SectionPos.of(getBlockPos()).asLong())) {
+                        this.addTemperature(-power / this.getThermalCapacity());
+                    }
                 }
             }
         }

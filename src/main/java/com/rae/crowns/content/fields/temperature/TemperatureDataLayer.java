@@ -6,14 +6,14 @@ import java.nio.ByteBuffer;
 
 /**
  * Temperature data for a Section (16×16×16)
- *
+ * <p>
  * Temperatures are stored as fixed-point integers with 5 decimal digits of precision.
  * The int range (-2_147_483_648 to 2_147_483_647) is mapped linearly to temperature space
  * by offsetting with Integer.MIN_VALUE.
- *
+ * <p>
  * Encoding:
  *   stored = (int)(temperature * SCALE) + Integer.MIN_VALUE
- *
+ * <p>
  * Decoding:
  *   temperature = (stored - Integer.MIN_VALUE) / SCALE
  */

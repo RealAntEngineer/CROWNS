@@ -49,8 +49,8 @@ public class DataEvents {
                 ChunkPos chunkPos = chunk.getPos();
                 for (int i = chunk.getMinSection(); i < chunk.getMaxSection(); i++) {
                     //maybe it's better to only initialise the neighbors of the player and dynamic data.
-                    worldData.putForInitialisation(SectionPos.of(chunkPos, i).asLong());
-                    CROWNS.LOGGER.info("putting chunk {} to initialisation", SectionPos.of(chunkPos, i).asLong());
+                    //worldData.putForInitialisation(SectionPos.of(chunkPos, i).asLong());
+                    //CROWNS.LOGGER.info("putting chunk {} to initialisation", SectionPos.of(chunkPos, i).asLong());
                 }
             }
         }
@@ -67,7 +67,7 @@ public class DataEvents {
 
     @SubscribeEvent
     public static void onServerStopping(ServerStoppedEvent event) {
-        TemperatureManager.reset();//this in important to clean the data after leaving.
+        //TemperatureManager.reset();//this in important to clean the data after leaving.
     }
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {

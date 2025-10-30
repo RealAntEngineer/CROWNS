@@ -48,7 +48,7 @@ public class SteamFlowManager {
 
     public static List<SteamCurrent> getCurrentsInBounds(ResourceLocation dimension, AABB bound) {
         List<SteamCurrent> collector = new ArrayList<>();
-        storage.steamCurrents.get(dimension).forEach((steamCurrent) ->
+        storage.steamCurrents.getOrDefault(dimension, List.of()).forEach((steamCurrent) ->
         {
             if (steamCurrent.intersects(bound))
                 collector.add(steamCurrent);

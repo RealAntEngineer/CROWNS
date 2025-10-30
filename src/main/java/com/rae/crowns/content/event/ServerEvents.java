@@ -19,6 +19,7 @@ public class ServerEvents {
     @SubscribeEvent
     public static void onServerLevelTick(TickEvent.LevelTickEvent event) {
         if (!(event.phase == TickEvent.Phase.END && event.level instanceof ServerLevel serverLevel)) return;
+        if (!event.haveTime()) return;
         TemperatureWorldData data = TemperatureManager.get(serverLevel);
         data.initialise(serverLevel);
         data.updateChangedBlocks(serverLevel);

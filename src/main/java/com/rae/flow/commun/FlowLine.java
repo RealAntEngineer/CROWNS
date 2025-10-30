@@ -45,10 +45,11 @@ public class FlowLine {//this is a spline
 
     // Deserialization: Read BSpline data from NBT
     public static FlowLine deserializeNBT(CompoundTag tag) {
-        List<Vec3> controlPoints = new ArrayList<>();
 
         // Deserialize control points
         ListTag pointsTag = tag.getList("ControlPoints", 10); // 10 for CompoundTag type
+        List<Vec3> controlPoints = new ArrayList<>(pointsTag.size());
+
         for (int i = 0; i < pointsTag.size(); i++) {
             CompoundTag pointTag = pointsTag.getCompound(i);
             double x = pointTag.getDouble("x");
@@ -59,19 +60,19 @@ public class FlowLine {//this is a spline
 
         // Deserialize speed at points
         ListTag speedsTag = tag.getList("Speeds", 10);
-        ArrayList<Double> speedAtPoints = new ArrayList<>();
+        ArrayList<Double> speedAtPoints = new ArrayList<>(speedsTag.size());
         for (int i = 0; i < speedsTag.size(); i++) {
             CompoundTag speedTag = speedsTag.getCompound(i);
-            speedAtPoints.set(i, speedTag.getDouble("Speed"));
+            speedAtPoints.add(i, speedTag.getDouble("Speed"));
         }
 
         // Deserialize colors at points
         ListTag colorsTag = tag.getList("Colors", 10);
-        ArrayList<Color> colorsAtPoints = new ArrayList<>();
+        ArrayList<Color> colorsAtPoints = new ArrayList<>(colorsTag.size());
         for (int i = 0; i < colorsTag.size(); i++) {
             CompoundTag colorTag = colorsTag.getCompound(i);
             long rgba = colorTag.getLong("RGBA");
-            colorsAtPoints.set(i, new Color((int) rgba));
+            colorsAtPoints.add(i, new Color((int) rgba));
         }
 
         return new FlowLine(controlPoints, speedAtPoints, colorsAtPoints);

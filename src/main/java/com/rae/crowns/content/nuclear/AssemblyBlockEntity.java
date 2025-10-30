@@ -14,6 +14,7 @@ import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -76,6 +77,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public void tick() {
         super.tick();
         if (!level.isClientSide()) {
+            if (!TemperatureManager.get((ServerLevel) level).isLoaded(SectionPos.of(getBlockPos()).asLong())) return;
             if (syncCooldown > 0) {
                 syncCooldown--;
                 if (syncCooldown == 0 && queuedSync)
@@ -94,6 +96,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public void lazyTick() {
         if (!level.isClientSide()) {
+            if (!TemperatureManager.get((ServerLevel) level).isLoaded(SectionPos.of(getBlockPos()).asLong())) return;
             oldNbrOfFission = nbrOfFission;
             nbrOfFission = additionalNeutronsAbsorbed + backgroundActivity; //for now a 100% change of fission : no absorption
             if (Float.isNaN(nbrOfFission)) {
@@ -181,7 +184,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         return C;
     }
 
-    //transmition coef
     @Override
     public float getThermalConductivity() {
         return CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
@@ -217,6 +219,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         tag.putFloat("additionalNeutrons", additionalNeutronsAbsorbed);
         tag.putFloat("temperature", temperature);
         tag.putFloat("power", power);
+        tag.put("composition", saveComposition());
 
     }
 
@@ -227,6 +230,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         additionalNeutronsAbsorbed = tag.getFloat("additionalNeutrons");
         temperature = tag.getFloat("temperature");
         power = tag.getFloat("power");
+        setComposition(tag.getCompound("composition"));
         super.read(tag, clientPacket);
     }
 
@@ -270,8 +274,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     public void setComposition(CompoundTag composition) {
-        radioactiveElements = new HashMap<>();
-        if (composition != null) {
+        if (composition != null) {//if null we keep the default.
+            radioactiveElements = new HashMap<>();
             for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
                 if (composition.contains(resourceLocation.toString())) {
                     float concentration = composition.getFloat(resourceLocation.toString());
@@ -279,5 +283,17 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 }
             }
         }
+    }
+
+    public CompoundTag saveComposition() {
+        CompoundTag composition = new CompoundTag();
+        for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
+            if (radioactiveElements.containsKey(resourceLocation)) {
+                float concentration = radioactiveElements.get(resourceLocation);
+
+                composition.putFloat(resourceLocation.toString(), concentration);
+            }
+        }
+        return composition;
     }
 }

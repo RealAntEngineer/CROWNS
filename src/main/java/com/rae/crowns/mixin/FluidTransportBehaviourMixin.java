@@ -127,9 +127,12 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
                             inFlowState, fluidInFlow.getAmount());
 
                     availableFlow = fluidInFlow;
-                    availableTag.put("realGazState", mixedState.serialize());
-                    availableFlow.setTag(availableTag);
 
+                    //don't create it if there is no thermal data in both flow.
+                    if (availableTag.contains("realGazState") || inFlowTag != null && inFlowTag.contains("realGazState")) {
+                        availableTag.put("realGazState", mixedState.serialize());
+                        availableFlow.setTag(availableTag);
+                    }
                     continue;
                     //end of modified part
                 }

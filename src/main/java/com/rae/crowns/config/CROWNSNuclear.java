@@ -13,7 +13,7 @@ public class CROWNSNuclear extends ConfigBase {
 
     @Override
     public @NotNull String getName() {
-        return "nuclear.v2";
+        return "nuclear_v2";
     }
     private static class Comments {
         static String realismCoef = "make reactor reach equilibrium faster, don't change it will a reactor is running";

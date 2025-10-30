@@ -94,9 +94,9 @@ public class TemperatureManager {
         FluidState fluid = level.getFluidState(pos);
         // Priority: Fluid > Block
         if (fluid.isEmpty()) {
-            return CROWNS.BLOCK_RESILIENCE.getValue(level.getBlockState(pos).getBlock(), 0.5f);
+            return CROWNS.BLOCK_RESILIENCE.getValue(level.getBlockState(pos).getBlock(), 0f);
         } else {
-            return CROWNS.FLUID_RESILIENCE.getValue(fluid.getType(), 0.5f);
+            return CROWNS.FLUID_RESILIENCE.getValue(fluid.getType(), 0f);
 
         }
     }

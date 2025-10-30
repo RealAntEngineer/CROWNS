@@ -91,6 +91,7 @@ public class TemperatureWorldData {//Only for the server
 
             // ⚠️ Skip this section if not loaded or not near a dynamic block, keep it in the set for later
             if (!level.isLoaded(sectionPos.origin()) || !nearDynamicSections.contains(section)) {
+                iterator.remove();
                 continue;
             }
 
@@ -201,6 +202,7 @@ public class TemperatureWorldData {//Only for the server
                         long packed = packSection(nsx, nsy, nsz);
                         nearDynamicSections.add(packed);
                         sectionDynamicCount.put(packed, sectionDynamicCount.getOrDefault(packed, 0) + 1);
+                        putForInitialisation(packed);
                     }
                 }
             }
@@ -328,7 +330,7 @@ public class TemperatureWorldData {//Only for the server
         loadedSections.remove(pos);
     }
 
-    public boolean isLoaded(long pos) {
-        return loadedSections.contains(pos);
+    public boolean isLoaded(long sectionPos) {
+        return loadedSections.contains(sectionPos);
     }
 }

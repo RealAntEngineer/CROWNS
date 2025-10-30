@@ -45,6 +45,7 @@ public class ChunkSerializerMixin {
                 sectionTag.putByteArray("Conduction", cond.toBytes());
                 sectionTag.putByteArray("Resilience", resilience.toBytes());
                 sectionTag.putBoolean("TemperatureDirty", worldData.isDirty(sectionPos));
+                sectionTag.putInt("ThermalDataVersion", TemperatureWorldData.DATA_VERSION);
 
                 //we can save and not unload the chunk. so we need to check if it was unloaded or not.
                 if (!worldData.isLoaded(sectionPos)){
@@ -84,6 +85,7 @@ public class ChunkSerializerMixin {
 
                 worldData.put(sectionPos, TemperatureDataLayer.fromBytes(tempBytes), ConductionDataLayer.fromBytes(condBytes),
                         ResilienceDataLayer.fromBytes(resBytes));
+                CROWNS.LOGGER.info("loading section : {}", SectionPos.of(pos, y));
 
                 if (sectionTag.contains("TemperatureDirty") && sectionTag.getBoolean("TemperatureDirty")) {
                     worldData.setDirty(sectionPos);
@@ -91,7 +93,7 @@ public class ChunkSerializerMixin {
                     worldData.setClean(sectionPos);
                 }
             } else {
-                worldData.putForInitialisation(sectionPos);
+                //worldData.putForInitialisation(sectionPos);
             }
 
         }
