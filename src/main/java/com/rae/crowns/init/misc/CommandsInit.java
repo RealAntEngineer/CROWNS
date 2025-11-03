@@ -11,10 +11,11 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.NotNull;
 
 public class CommandsInit {
 
-        public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+        public static void register(@NotNull CommandDispatcher<CommandSourceStack> dispatcher) {
             dispatcher.register(Commands.literal("nuclearExplosion")
                     .requires(source -> source.hasPermission(2)) // Requires operator level permission
                     .then(Commands.argument("power", FloatArgumentType.floatArg(0.0F)) // you can set min/max here

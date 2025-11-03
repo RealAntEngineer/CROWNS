@@ -17,6 +17,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,10 +30,10 @@ public class TemperatureDebugRenderer {
     private static final int RADIUS = 8;
     private static final int CACHE_PRUNE_DISTANCE = 4;
     private static final Map<BlockPos, AABBOutline> CACHE = new HashMap<>();
-    private static BlockPos lastPlayerPos = null;
+    private static @Nullable BlockPos lastPlayerPos = null;
 
     @SubscribeEvent
-    public static void onRenderWorld(RenderLevelStageEvent event) {
+    public static void onRenderWorld(@NotNull RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
 
         Minecraft mc = Minecraft.getInstance();
@@ -53,7 +55,7 @@ public class TemperatureDebugRenderer {
     }
     private static final int TICKING_SECTION_COLOR = 0x66CCFF; // light blue
 
-    private static void renderTickingSectionsAABB(PoseStack poseStack, Vec3 cameraPos, float pt) {
+    private static void renderTickingSectionsAABB(@NotNull PoseStack poseStack, @NotNull Vec3 cameraPos, float pt) {
         SuperRenderTypeBuffer buffer = DefaultSuperRenderTypeBuffer.getInstance();
 
         for (SectionPos section : LocalTemperatureData.getTickingSections()) {
@@ -74,10 +76,10 @@ public class TemperatureDebugRenderer {
         buffer.draw();
     }
 
-    private static void renderTemperatureText(PoseStack poseStack, BlockPos playerPos) {
+    private static void renderTemperatureText(@NotNull PoseStack poseStack, @NotNull BlockPos playerPos) {
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
-
+        float threshold = CROWNSConfigs.CLIENT.visualisationThreshold.getF();
         for (int x = -RADIUS; x <= RADIUS; x++) {
             for (int y = -RADIUS; y <= RADIUS; y++) {
                 for (int z = -RADIUS; z <= RADIUS; z++) {
@@ -85,7 +87,7 @@ public class TemperatureDebugRenderer {
                     if (!mc.level.isLoaded(pos)) continue;
 
                     float temp = LocalTemperatureData.getTemperature(pos);
-                    if (Math.abs(temp - 300f) < 0.1f) continue;
+                    if (Math.abs(temp - 300f) < threshold) continue;
 
                     int color = temperatureToColor(temp);
                     Vec3 labelPos = Vec3.atCenterOf(pos);
@@ -95,7 +97,7 @@ public class TemperatureDebugRenderer {
         }
     }
 
-    private static void renderFloatingText(PoseStack poseStack, Font font, String text, Vec3 worldPos, int color) {
+    private static void renderFloatingText(@NotNull PoseStack poseStack, @NotNull Font font, @NotNull String text, @NotNull Vec3 worldPos, int color) {
         Minecraft mc = Minecraft.getInstance();
         Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
         double dx = worldPos.x - cam.x;
@@ -117,7 +119,7 @@ public class TemperatureDebugRenderer {
         poseStack.popPose();
     }
 
-    private static void pruneCacheIfPlayerMoved(BlockPos playerPos) {
+    private static void pruneCacheIfPlayerMoved(@NotNull BlockPos playerPos) {
         if (lastPlayerPos == null) {
             lastPlayerPos = playerPos;
             return;

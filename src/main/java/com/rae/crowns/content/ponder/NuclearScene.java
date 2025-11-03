@@ -10,9 +10,10 @@ import net.createmod.ponder.api.scene.Selection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
+import org.jetbrains.annotations.NotNull;
 
 public class NuclearScene {
-    public static void reactor(SceneBuilder builder, SceneBuildingUtil sceneBuildingUtil) {
+    public static void reactor(@NotNull SceneBuilder builder, @NotNull SceneBuildingUtil sceneBuildingUtil) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
         scene.title("nuclear_reactor", "Nuclear Rectors");
         //sceneBuilder.setSceneOffsetY(-5);

@@ -43,7 +43,7 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
         }
     }) {
         @Override
-        public boolean isFluidValid(FluidStack stack) {
+        public boolean isFluidValid(@NotNull FluidStack stack) {
             return stack.getFluid().is(FluidTags.WATER);
         }
     };
@@ -72,14 +72,14 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
     }
 
     @Override
-    protected void read(CompoundTag compound, boolean clientPacket) {
+    protected void read(@NotNull CompoundTag compound, boolean clientPacket) {
         if (compound.contains("water_tank"))
             WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
         super.read(compound, clientPacket);
     }
 
     @Override
-    public void write(CompoundTag compound, boolean clientPacket) {
+    public void write(@NotNull CompoundTag compound, boolean clientPacket) {
         super.write(compound, clientPacket);
         compound.put("water_tank", WATER_TANK.writeToNBT(new CompoundTag()));
     }

@@ -6,21 +6,23 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 public class AirflowPathEntity extends Entity implements IAirflowPath {
     private final double[] speedAtPoints;
     private final Vector3f[] colorsAtPoints;
-    private FlowLine spline;
+    private @Nullable FlowLine spline;
 
-    public AirflowPathEntity(EntityType<?> type, Level world) {
+    public AirflowPathEntity(@NotNull EntityType<?> type, @NotNull Level world) {
         super(type, world);
         this.spline = null; // Initialize properly later
         this.speedAtPoints = new double[0]; // Initialize based on spline points
         this.colorsAtPoints = new Vector3f[0]; // Initialize based on spline points
     }
 
-    public AirflowPathEntity(EntityType<?> type, Level world, FlowLine spline, double[] speedAtPoints, Vector3f[] colorsAtPoints) {
+    public AirflowPathEntity(@NotNull EntityType<?> type, @NotNull Level world, FlowLine spline, double[] speedAtPoints, Vector3f[] colorsAtPoints) {
         super(type, world);
         this.spline = spline;
         this.speedAtPoints = speedAtPoints;
@@ -38,7 +40,7 @@ public class AirflowPathEntity extends Entity implements IAirflowPath {
         return speedAtPoints[segment] * (1 - localT) + speedAtPoints[segment + 1] * localT;
     }
 
-    public Vector3f getColorAtT(double t) {
+    public @NotNull Vector3f getColorAtT(double t) {
         int n = colorsAtPoints.length;
         int segment = Math.min((int) (t * (n - 1)), n - 2);
         double localT = (t * (n - 1)) - segment;
@@ -59,21 +61,21 @@ public class AirflowPathEntity extends Entity implements IAirflowPath {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compound) {
+    protected void readAdditionalSaveData(@NotNull CompoundTag compound) {
         // Deserialize spline, speeds, and colors from NBT
         this.spline = FlowLine.deserializeNBT(compound.getCompound("BSpline"));
         // Deserialize speedAtPoints and colorsAtPoints as well
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compound) {
+    protected void addAdditionalSaveData(@NotNull CompoundTag compound) {
         // Serialize spline, speeds, and colors to NBT
         compound.put("BSpline", spline.serializeNBT());
         // Add serialization for speedAtPoints and colorsAtPoints
     }
 
     @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
+    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
         // For syncing entity with client (optional)
         return null;
     }

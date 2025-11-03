@@ -7,6 +7,7 @@ import net.createmod.catnip.lang.LangBuilder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.fluids.FluidStack;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value = CreateLang.class)
 public class LangMixin {
     @Inject(method = "fluidName", at = @At(value = "RETURN"), cancellable = true, remap = false)
-    private static void addWaterStateInfo(FluidStack stack, CallbackInfoReturnable<LangBuilder> cir) {
+    private static void addWaterStateInfo(@NotNull FluidStack stack, @NotNull CallbackInfoReturnable<LangBuilder> cir) {
         CompoundTag newStateNBT = stack.getChildTag("realGazState");
         if (newStateNBT != null && !newStateNBT.isEmpty()) {
             SpecificRealGazState newState = new SpecificRealGazState(newStateNBT);

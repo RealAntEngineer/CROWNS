@@ -1,7 +1,12 @@
 {
   "variants": {
-    "": {
-      "model": "crowns:block/solid_corium"
-    }
+    "": [
+      {
+        "model": "crowns:block/solid_corium_animated"
+      },
+      {
+        "model": "crowns:block/solid_corium_animated_2"
+      }
+    ]
   }
 }

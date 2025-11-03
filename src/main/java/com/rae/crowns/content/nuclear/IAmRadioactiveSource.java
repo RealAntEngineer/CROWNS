@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +54,7 @@ public interface IAmRadioactiveSource {
      * @param level : a server level
      * @param range :  the range of impact
      */
-    private static void traceNeutron(BlockPos pos, Level level, Double range, Vec3 vec, Float fastNeutrons) {
+    private static void traceNeutron(@NotNull BlockPos pos, @NotNull Level level, Double range, @NotNull Vec3 vec, Float fastNeutrons) {
         Vec3 newVec = vec.scale((double) 1 / range);
         //the surface isn't really a constant so a bit wrong
         //TODO make the surface a variable
@@ -90,7 +91,7 @@ public interface IAmRadioactiveSource {
      */
     float getRadioactiveActivity();
 
-    default void moreOptimizedImpactEnv(BlockPos pos, Level level, Double range) {
+    default void moreOptimizedImpactEnv(@NotNull BlockPos pos, @NotNull Level level, @NotNull Double range) {
         Float fastNeutrons = getRadioactiveActivity();
         Float slowNeutrons = 0f;
         //should impact itself
@@ -103,7 +104,7 @@ public interface IAmRadioactiveSource {
         }
     }
 
-    private List<BlockPos> getSphere(BlockPos center, int radius, boolean empty) {
+    private @NotNull List<BlockPos> getSphere(@NotNull BlockPos center, int radius, boolean empty) {
         List<BlockPos> blocks = new ArrayList<>();
 
         int bx = center.getX();

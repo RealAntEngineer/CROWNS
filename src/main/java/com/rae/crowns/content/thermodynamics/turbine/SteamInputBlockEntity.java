@@ -32,7 +32,7 @@ import java.util.List;
 public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
     private static final int SYNC_RATE = 8;
-    public SteamCurrent steamCurrent;
+    public @Nullable SteamCurrent steamCurrent;
     protected int currentUpdateCooldown;
     protected boolean updateSteamFlow;
     protected LazyOptional<IFluidHandler> fluidCapability;
@@ -50,7 +50,7 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
         }
     }) {
         @Override
-        public boolean isFluidValid(FluidStack stack) {
+        public boolean isFluidValid(@NotNull FluidStack stack) {
             return stack.getFluid().is(FluidTags.WATER);
         }
     };
@@ -68,7 +68,7 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
     }
 
     @Override
-    protected void read(CompoundTag compound, boolean clientPacket) {
+    protected void read(@NotNull CompoundTag compound, boolean clientPacket) {
         if (compound.contains("water_tank"))
             WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
         flow = compound.getFloat("flow");
@@ -76,7 +76,7 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
     }
 
     @Override
-    public void write(CompoundTag compound, boolean clientPacket) {
+    public void write(@NotNull CompoundTag compound, boolean clientPacket) {
         super.write(compound, clientPacket);
         compound.put("water_tank", WATER_TANK.writeToNBT(new CompoundTag()));
         compound.putFloat("flow", flow);
@@ -161,7 +161,7 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
     }
 
     @Override
-    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+    public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
         SpecificRealGazState newState = getState();
         FormicApiLang.formatTemperature(newState.temperature())
                 .text(" | ")

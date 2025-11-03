@@ -2,6 +2,7 @@ package com.rae.flow.commun;
 
 import net.createmod.catnip.theme.Color;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +11,7 @@ import java.util.List;
 public class FlowBuilder {
     private static final Color defaultColor = Color.WHITE;
     //todo implement Chan's algorithm for finding hull
-    private final HashMap<Integer, FlowLine> flows;//ids are in order of construction
+    private final @NotNull HashMap<Integer, FlowLine> flows;//ids are in order of construction
     private final Vec3 startPoint;
 
     public FlowBuilder(Vec3 startPoint) {
@@ -18,14 +19,14 @@ public class FlowBuilder {
         this.startPoint = startPoint;
     }
 
-    public FlowBuilder wingtip(Vec3 direction, float length, float strength) {
+    public @NotNull FlowBuilder wingtip(Vec3 direction, float length, float strength) {
         //first point is at the tip of the blade, the
 
         //rotation :
         return this;
     }
 
-    public FlowBuilder turbulence(Vec3 flowSpeed, Vec3 rotationCenter, float length, float rotationSpeed) {
+    public @NotNull FlowBuilder turbulence(@NotNull Vec3 flowSpeed, @NotNull Vec3 rotationCenter, float length, float rotationSpeed) {
         //first point is at the tip of the blade, the
         //rotation :
         ArrayList<Vec3> pointBuilder = new ArrayList<>();
@@ -42,7 +43,7 @@ public class FlowBuilder {
         return this;
     }
 
-    public ArrayList<FlowLine> build() {
+    public @NotNull ArrayList<FlowLine> build() {
         return new ArrayList<>(flows.values());
     }
 }

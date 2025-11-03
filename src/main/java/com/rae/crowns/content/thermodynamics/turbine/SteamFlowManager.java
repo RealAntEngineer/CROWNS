@@ -8,13 +8,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.network.PacketDistributor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SteamFlowManager {
 
-    static SteamFlowData storage = null;
+    static @Nullable SteamFlowData storage = null;
 
     public static void addSteamCurrent(ResourceLocation dimension, SteamCurrent steamCurrent) {
         storage.steamCurrents.computeIfAbsent(dimension, d -> new ArrayList<>())
@@ -23,7 +25,7 @@ public class SteamFlowManager {
 
     }
 
-    public static void tick(Level world) {
+    public static void tick(@NotNull Level world) {
         if (storage == null) {
             return;
         }
@@ -46,7 +48,7 @@ public class SteamFlowManager {
 
     }
 
-    public static List<SteamCurrent> getCurrentsInBounds(ResourceLocation dimension, AABB bound) {
+    public static @NotNull List<SteamCurrent> getCurrentsInBounds(ResourceLocation dimension, @NotNull AABB bound) {
         List<SteamCurrent> collector = new ArrayList<>();
         storage.steamCurrents.getOrDefault(dimension, List.of()).forEach((steamCurrent) ->
         {
@@ -61,7 +63,7 @@ public class SteamFlowManager {
 
     }*/
 
-    public static void serverStarted(MinecraftServer server) {
+    public static void serverStarted(@Nullable MinecraftServer server) {
         if (server == null)
             return;
         storage = SteamFlowData.loadData(server);
@@ -72,7 +74,7 @@ public class SteamFlowManager {
 
     }
 
-    public static void setSavedData(SteamFlowData savedData) {
+    public static void setSavedData(@NotNull SteamFlowData savedData) {
         if (storage == null) {
             storage = savedData;
         } else {

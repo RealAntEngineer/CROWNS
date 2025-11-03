@@ -51,7 +51,7 @@ public class StateFluidTank extends SmartFluidTank {
         }
     }
 
-    public SpecificRealGazState getState() {
+    public @NotNull SpecificRealGazState getState() {
         CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
         SpecificRealGazState oldState;
         if (oldStateNBT != null) {

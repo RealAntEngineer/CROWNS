@@ -21,6 +21,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,15 +45,15 @@ public class SteamCurrent {
 			).apply(instance, SteamCurrent::new));*/
 
     public float maxDistance;
-    ArrayList<BlockPos> stagesPos = new ArrayList<>();
-    BlockPos collectorPos = null;
+    @NotNull ArrayList<BlockPos> stagesPos = new ArrayList<>();
+    @Nullable BlockPos collectorPos = null;
     BlockPos injectorPos;
-    Map<BlockPos, Float> powerForStage = new ConcurrentHashMap<>();
-    HashMap<BlockPos, SpecificRealGazState> stateMap = new HashMap<>();
-    private SpecificRealGazState inputFluidState = null;
-    private SpecificRealGazState outputFluidState = null;
+    @NotNull Map<BlockPos, Float> powerForStage = new ConcurrentHashMap<>();
+    @NotNull HashMap<BlockPos, SpecificRealGazState> stateMap = new HashMap<>();
+    private @Nullable SpecificRealGazState inputFluidState = null;
+    private @Nullable SpecificRealGazState outputFluidState = null;
     private Direction direction;
-    private FlowLine spline;
+    private @Nullable FlowLine spline;
 
 	/*public SteamCurrent(SpecificRealGazState inputFluidState, SpecificRealGazState outputFluidState, float maxDistance,
 						List<BlockPos> stagesPos, BlockPos collectorPos, BlockPos injectorPos, Direction direction,
@@ -77,7 +79,7 @@ public class SteamCurrent {
 
     //TODO finish to assemble the bricks + test if it works
 //Sync the AABB ?
-    public SteamCurrent(BlockPos sourcePosition, Direction direction, float maxDistance) {
+    public SteamCurrent(BlockPos sourcePosition, @NotNull Direction direction, float maxDistance) {
         this.injectorPos = sourcePosition;
         this.direction = direction;
         this.maxDistance = maxDistance;
@@ -94,7 +96,7 @@ public class SteamCurrent {
         this.reloadSpline = reloadSpline;
     }
 
-    public static SteamCurrent fromNBT(CompoundTag nbt) {
+    public static @NotNull SteamCurrent fromNBT(@NotNull CompoundTag nbt) {
         AABB bondingBox =
                 new AABB(
                         BlockPos.of(nbt.getLong("startPos")),
@@ -118,7 +120,7 @@ public class SteamCurrent {
         return new SteamCurrent(injectorPos, direction, maxDistance, bondingBox, collectorPos, spline, reloadSpline);
     }
 
-    protected CompoundTag toNBT() {
+    protected @NotNull CompoundTag toNBT() {
         CompoundTag nbt = new CompoundTag();
         AABB syncedBB = bondingBox;
         if (spline != null)
@@ -133,13 +135,13 @@ public class SteamCurrent {
         return nbt;
     }
 
-    public float getPowerForStage(ISteamPressureChange stage) {
+    public float getPowerForStage(@NotNull ISteamPressureChange stage) {
         calculateForStage(stage, ((BlockEntity) stage).getLevel());
         return powerForStage.getOrDefault(((BlockEntity) stage).getBlockPos(), 0f);
 
     }
 
-    public void rebuild(Level level) {
+    public void rebuild(@NotNull Level level) {
 
         float distance = explore(level, injectorPos, maxDistance, direction);
         if (maxDistance < 0.25f)
@@ -159,13 +161,13 @@ public class SteamCurrent {
         //put and end ?
     }
 
-    private void setBoundingBox(AABB aabb) {
+    private void setBoundingBox(@NotNull AABB aabb) {
         if (aabb.equals(bondingBox)) return;
         bondingBox = aabb;
 
     }
 
-    public void calculateForStage(ISteamPressureChange addedStage, Level level) {
+    public void calculateForStage(@NotNull ISteamPressureChange addedStage, @NotNull Level level) {
         final BlockPos addedPos = ((BlockEntity) addedStage).getBlockPos();
 
         // 1) Snapshot & mutate shared list under lock (short critical section)
@@ -237,7 +239,7 @@ public class SteamCurrent {
 
     }
 
-    public SpecificRealGazState getInputFluidState(Level level) {
+    public @NotNull SpecificRealGazState getInputFluidState(@NotNull Level level) {
         BlockEntity be = level.getBlockEntity(injectorPos);
         if (be instanceof SteamInputBlockEntity) {
             inputFluidState = ((SteamInputBlockEntity) be).getState();
@@ -252,7 +254,7 @@ public class SteamCurrent {
         return outputFluidState;
     }
 
-    public float explore(Level world, BlockPos start, float max, Direction facing) {
+    public float explore(@NotNull Level world, @NotNull BlockPos start, float max, @NotNull Direction facing) {
         //Vec3 directionVec = Vec3.atLowerCornerOf(facing.getNormal());
         // add 2 to the flow if the block is a turbine blade
         // Determine the distance of the air flow
@@ -274,7 +276,7 @@ public class SteamCurrent {
         return distance;
     }
 
-    public float getFlow(Level level) {
+    public float getFlow(@NotNull Level level) {
         BlockEntity be = level.getBlockEntity(injectorPos);
         if (be instanceof SteamInputBlockEntity) {
             flow = ((SteamInputBlockEntity) be).getFlow();
@@ -282,7 +284,7 @@ public class SteamCurrent {
         return flow;//Kg/s
     }
 
-    public void tick(Level level) {
+    public void tick(@NotNull Level level) {
         //System.out.println((level.isClientSide?"client":"server") +" : "+ getBoundingBox());
         if (level.isClientSide) {
             //setBoundingBox(this.entityData.get(SYNCED_BB_ACCESSOR));
@@ -348,7 +350,7 @@ public class SteamCurrent {
     }
 
 
-    public boolean isValid(Level level) {
+    public boolean isValid(@NotNull Level level) {
         if (level.getBlockEntity(injectorPos) instanceof SteamInputBlockEntity injector) {
             return !injector.isRemoved();
         }
@@ -363,7 +365,7 @@ public class SteamCurrent {
         direction = facing;
     }
 
-    public boolean intersects(AABB bound) {
+    public boolean intersects(@NotNull AABB bound) {
         if (bondingBox == null) {
             return false;
         }

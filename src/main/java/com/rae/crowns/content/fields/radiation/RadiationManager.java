@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayDeque;
 import java.util.Map;
@@ -15,11 +16,11 @@ public class RadiationManager {
     private static final int MAX_UPDATES_PER_TICK = 100;
     private static final Map<ServerLevel, RadiationWorldData> worldDataMap = new WeakHashMap<>();
 
-    public static void enqueue(ServerLevel level, BlockPos pos) {
+    public static void enqueue(ServerLevel level, @NotNull BlockPos pos) {
         updateQueue.add(pos.immutable());
     }
 
-    public static void tick(ServerLevel level) {
+    public static void tick(@NotNull ServerLevel level) {
         RadiationWorldData data = worldDataMap.computeIfAbsent(level, k -> new RadiationWorldData());
 
         for (int i = 0; i < MAX_UPDATES_PER_TICK && !updateQueue.isEmpty(); i++) {

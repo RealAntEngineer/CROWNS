@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Function;
@@ -47,7 +48,7 @@ public class CreativeModeTabsInit {
                             })
                             .build());
 
-    private static Function<Item, Collection<ItemStack>> makeFuelAssembly() {
+    private static @NotNull Function<Item, Collection<ItemStack>> makeFuelAssembly() {
         Map<Item, Function<Item, Collection<ItemStack>>> factories = new Reference2ReferenceOpenHashMap<>();
         List<Float> uraniumGrades = List.of(7e-4f, 5e-3f, 0.2f, 0.9f);
         Map<ItemProviderEntry<?>, Function<Item, Collection<ItemStack>>> simpleFactories = Map.of(

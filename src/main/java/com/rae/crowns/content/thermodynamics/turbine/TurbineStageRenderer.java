@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 public class TurbineStageRenderer extends KineticBlockEntityRenderer<TurbineStageBlockEntity> {
     public TurbineStageRenderer(BlockEntityRendererProvider.Context context) {
@@ -19,7 +20,7 @@ public class TurbineStageRenderer extends KineticBlockEntityRenderer<TurbineStag
     }
 
     @Override
-    protected void renderSafe(TurbineStageBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
+    protected void renderSafe(@NotNull TurbineStageBlockEntity be, float partialTicks, @NotNull PoseStack ms, @NotNull MultiBufferSource buffer,
                               int light, int overlay) {
         if (VisualizationManager.supportsVisualization(be.getLevel())) return;
 

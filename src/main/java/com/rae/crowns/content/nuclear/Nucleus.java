@@ -2,6 +2,7 @@ package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.config.CROWNSConfigs;
 import net.createmod.catnip.data.Couple;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class Nucleus {
         }
     }
 
-    public Float getNeutronCrossSections(boolean fast) {
+    public @NotNull Float getNeutronCrossSections(boolean fast) {
         return neutronCrossSections.get(fast);
     }
 
@@ -79,7 +80,7 @@ public class Nucleus {
     public record NuclearEquation(Map<Integer, Float> element_map, float neutron_yielded, float energy_yielded) {
         public static final Nucleus.NuclearEquation EMPTY = new Nucleus.NuclearEquation(Map.of(), 0f, 0f);
 
-        public NuclearTransformationResult compute(float advancement) {
+        public @NotNull NuclearTransformationResult compute(float advancement) {
             Map<Nucleus, Float> elements = new HashMap<>();
             element_map.forEach((element, quantity) -> elements.put(VALUES.get(element), quantity * advancement));
             return new NuclearTransformationResult(elements, neutron_yielded * advancement * CROWNSConfigs.SERVER.nuclear.easeCoef.getF(),

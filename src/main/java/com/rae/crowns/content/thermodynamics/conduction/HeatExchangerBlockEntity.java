@@ -42,7 +42,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     private final StateFluidTank WATER_TANK = new StateFluidTank(1000, (f) -> {
     }) {
         @Override
-        public boolean isFluidValid(FluidStack stack) {
+        public boolean isFluidValid(@NotNull FluidStack stack) {
             return stack.getFluid().is(FluidTags.WATER);
         }
     };
@@ -162,7 +162,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     }
 
     @Override
-    protected void write(CompoundTag tag, boolean clientPacket) {
+    protected void write(@NotNull CompoundTag tag, boolean clientPacket) {
         super.write(tag, clientPacket);
         tag.putFloat("temperature", temperature);
         tag.put("water_tank", WATER_TANK.writeToNBT(new CompoundTag()));
@@ -170,14 +170,14 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     }
 
     @Override
-    protected void read(CompoundTag tag, boolean clientPacket) {
+    protected void read(@NotNull CompoundTag tag, boolean clientPacket) {
         temperature = tag.getFloat("temperature");
         WATER_TANK.readFromNBT((CompoundTag) tag.get("water_tank"));
         super.read(tag, clientPacket);
     }
 
     @Override
-    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+    public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
         CreateLang.builder().add(Component.literal("exchanger "))
                 .add(FormicApiLang.formatTemperature(temperature))
                 .style(ChatFormatting.DARK_RED)

@@ -11,13 +11,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = CROWNS.MODID)
 public class ServerEvents {
     private static int tickCounter = 1;
 
     @SubscribeEvent
-    public static void onServerLevelTick(TickEvent.LevelTickEvent event) {
+    public static void onServerLevelTick(TickEvent.@NotNull LevelTickEvent event) {
         if (!(event.phase == TickEvent.Phase.END && event.level instanceof ServerLevel serverLevel)) return;
         if (!event.haveTime()) return;
         TemperatureWorldData data = TemperatureManager.get(serverLevel);

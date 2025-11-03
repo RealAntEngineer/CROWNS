@@ -7,10 +7,11 @@ import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 public class PonderInit {
 
-    public static void register(PonderSceneRegistrationHelper<ResourceLocation> helper) {
+    public static void register(@NotNull PonderSceneRegistrationHelper<ResourceLocation> helper) {
         // Register storyboards here
         // (!) Added entries require re-launch
         // (!) Modifications inside storyboard methods only require re-opening the ui

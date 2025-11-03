@@ -16,11 +16,11 @@ public class CROWNSNuclear extends ConfigBase {
         return "nuclear_v2";
     }
     private static class Comments {
-        static String realismCoef = "make reactor reach equilibrium faster, don't change it will a reactor is running";
-        static String radiationRange = "the maximum distance for radiation influence on fission, the bigger the range," +
+        static @NotNull String realismCoef = "make reactor reach equilibrium faster, don't change it will a reactor is running";
+        static @NotNull String radiationRange = "the maximum distance for radiation influence on fission, the bigger the range," +
                 "the better big reactor will perform. Huge performance impact don't make it higher than 10";
-        static String easeCoef = " decrease it to make reactor less reactive, control how much neutron each fission gives out (easeCoef * 2.5)";
-        static String negativeThermalCoef ="increase it to decrease the temperature, make neutron less likely to impact" +
+        static @NotNull String easeCoef = " decrease it to make reactor less reactive, control how much neutron each fission gives out (easeCoef * 2.5)";
+        static @NotNull String negativeThermalCoef ="increase it to decrease the temperature, make neutron less likely to impact" +
                 " when temperature is higher ((temperature - 200) * negativeThermalCoef)";
 
     }

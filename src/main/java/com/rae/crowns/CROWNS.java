@@ -24,6 +24,7 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 @SuppressWarnings("ALL")
@@ -75,7 +76,7 @@ public class CROWNS {
 
     }
 
-    public static void onAddReloadListeners(AddReloadListenerEvent event) {
+    public static void onAddReloadListeners(@NotNull AddReloadListenerEvent event) {
         event.addListener(CROWNS.BLOCK_TEMPERATURES);
         event.addListener(CROWNS.BLOCK_RESILIENCE);
         event.addListener(CROWNS.BLOCK_CONDUCTION);
@@ -88,7 +89,7 @@ public class CROWNS {
 
     }
 
-    public static ResourceLocation resource(String name) {
+    public static @NotNull ResourceLocation resource(@NotNull String name) {
         return new ResourceLocation(MODID, name);
     }
 }

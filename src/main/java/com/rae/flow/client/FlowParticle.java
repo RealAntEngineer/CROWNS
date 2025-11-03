@@ -8,12 +8,13 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SimpleAnimatedParticle;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 public class FlowParticle extends SimpleAnimatedParticle {
-    private final FlowLine spline;
+    private final @NotNull FlowLine spline;
     private double t; // Parameter along the B-spline (0 to 1)
 
-    public FlowParticle(ClientLevel world, FlowLine spline, float initialT, SpriteSet spriteSet) {
+    public FlowParticle(@NotNull ClientLevel world, @NotNull FlowLine spline, float initialT, @NotNull SpriteSet spriteSet) {
         super(world, spline.getPoint(0).x, spline.getPoint(0).y, spline.getPoint(0).z, spriteSet, 0.0f);
         setSpriteFromAge(spriteSet);
         this.spline = spline;
@@ -63,7 +64,7 @@ public class FlowParticle extends SimpleAnimatedParticle {
         }
 
         @Override
-        public Particle createParticle(FlowParticleData data, ClientLevel worldIn, double x, double y, double z,
+        public Particle createParticle(@NotNull FlowParticleData data, ClientLevel worldIn, double x, double y, double z,
                                        double xSpeed, double ySpeed, double zSpeed) {
 
             return new FlowParticle(worldIn, data.getSpline(), (float) data.getInitialT(), this.spriteSet);

@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 public class HeatExchangerBlock extends WrenchableDirectionalBlock implements ProperWaterloggedBlock, IBE<HeatExchangerBlockEntity> {
     public static final BooleanProperty IN = BooleanProperty.create("in");
     public static final BooleanProperty OUT = BooleanProperty.create("out");
-    public HeatExchangerBlock(Properties properties) {
+    public HeatExchangerBlock(@NotNull Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState()
                 .setValue(FACING, Direction.NORTH)
@@ -35,7 +35,7 @@ public class HeatExchangerBlock extends WrenchableDirectionalBlock implements Pr
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder.add(WATERLOGGED, IN, OUT));
 
     }
@@ -118,7 +118,7 @@ public class HeatExchangerBlock extends WrenchableDirectionalBlock implements Pr
         return pState;
     }
 
-    public @NotNull VoxelShape getShape(BlockState pState, @NotNull BlockGetter pLevel, @NotNull BlockPos pPos, @NotNull CollisionContext pContext) {
+    public @NotNull VoxelShape getShape(@NotNull BlockState pState, @NotNull BlockGetter pLevel, @NotNull BlockPos pPos, @NotNull CollisionContext pContext) {
         return AllShapes.EIGHT_VOXEL_POLE.get(pState.getValue(FACING).getAxis());
     }
 
@@ -128,12 +128,12 @@ public class HeatExchangerBlock extends WrenchableDirectionalBlock implements Pr
     }
 
     @Override
-    public Class<HeatExchangerBlockEntity> getBlockEntityClass() {
+    public @NotNull Class<HeatExchangerBlockEntity> getBlockEntityClass() {
         return HeatExchangerBlockEntity.class;
     }
 
     @Override
-    public BlockEntityType<? extends HeatExchangerBlockEntity> getBlockEntityType() {
+    public @NotNull BlockEntityType<? extends HeatExchangerBlockEntity> getBlockEntityType() {
         return BlockEntityInit.HEAT_EXCHANGER.get();
     }
 }

@@ -7,6 +7,7 @@ import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ public class FlowManager {
     private static FlowManager INSTANCE;
     private final Map<Object, FlowEntry> flows = Collections.synchronizedMap(new HashMap<>());
 
-    public static FlowManager getINSTANCE() {
+    public static @NotNull FlowManager getINSTANCE() {
         if (INSTANCE == null) {
             INSTANCE = new FlowManager();
 

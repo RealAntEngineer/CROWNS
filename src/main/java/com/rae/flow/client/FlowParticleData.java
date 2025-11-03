@@ -14,6 +14,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Locale;
@@ -26,7 +27,7 @@ public class FlowParticleData implements ParticleOptions, ICustomParticleDataWit
     ).apply(instance, FlowParticleData::new));
     public static final Deserializer<FlowParticleData> DESERIALIZER = new Deserializer<>() {
         @Override
-        public FlowParticleData fromCommand(ParticleType<FlowParticleData> particleType, StringReader reader) throws CommandSyntaxException {
+        public @NotNull FlowParticleData fromCommand(ParticleType<FlowParticleData> particleType, @NotNull StringReader reader) throws CommandSyntaxException {
             // Parsing command input (optional)
             reader.expect(' ');
             float x = reader.readFloat();
@@ -38,7 +39,7 @@ public class FlowParticleData implements ParticleOptions, ICustomParticleDataWit
         }
 
         @Override
-        public FlowParticleData fromNetwork(ParticleType<FlowParticleData> particleType, FriendlyByteBuf buffer) {
+        public @NotNull FlowParticleData fromNetwork(ParticleType<FlowParticleData> particleType, FriendlyByteBuf buffer) {
             // Deserialize the spline and initial 't' from network data
             FlowLine spline = FlowLine.readFromBuffer(buffer);
             double initialT = buffer.readDouble();
@@ -67,7 +68,7 @@ public class FlowParticleData implements ParticleOptions, ICustomParticleDataWit
     }
 
     @Override
-    public ParticleType<?> getType() {
+    public @NotNull ParticleType<?> getType() {
         return ParticleTypeInit.FLOW_PARTICLE.get();
     }
 
@@ -79,7 +80,7 @@ public class FlowParticleData implements ParticleOptions, ICustomParticleDataWit
     }
 
     @Override
-    public String writeToString() {
+    public @NotNull String writeToString() {
         return String.format(Locale.ROOT, "%s %s %f", ParticleTypeInit.FLOW_PARTICLE.parameter(), spline.toString(), initialT);
     }
 
@@ -94,7 +95,7 @@ public class FlowParticleData implements ParticleOptions, ICustomParticleDataWit
     }
 
     @Override
-    public ParticleEngine.SpriteParticleRegistration<FlowParticleData> getMetaFactory() {
+    public ParticleEngine.@NotNull SpriteParticleRegistration<FlowParticleData> getMetaFactory() {
         return FlowParticle.Factory::new;
     }
 }

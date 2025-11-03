@@ -8,6 +8,7 @@ import net.createmod.catnip.data.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -24,7 +25,7 @@ public class CrownsSoundScapes {
         return new SoundScape(pitch, group).continuous(SoundInit.TURBINE_SOUND.get(), 2f, 1);
     }
 
-    public static void play(AmbienceGroup group, BlockPos pos, float pitch) {
+    public static void play(@NotNull AmbienceGroup group, @NotNull BlockPos pos, float pitch) {
         if (!AllConfigs.client().enableAmbientSounds.get())
             return;
         if (!outOfRange(pos))
@@ -57,7 +58,7 @@ public class CrownsSoundScapes {
                         .forEach(Set::clear));
     }
 
-    private static void addSound(AmbienceGroup group, BlockPos pos, float pitch) {
+    private static void addSound(@NotNull AmbienceGroup group, BlockPos pos, float pitch) {
         PitchGroup groupFromPitch = getGroupFromPitch(pitch);
         Set<BlockPos> set = counter.computeIfAbsent(group, ag -> new IdentityHashMap<>())
                 .computeIfAbsent(groupFromPitch, pg -> new HashSet<>());
@@ -77,11 +78,11 @@ public class CrownsSoundScapes {
         activeSounds.clear();
     }
 
-    protected static boolean outOfRange(BlockPos pos) {
+    protected static boolean outOfRange(@NotNull BlockPos pos) {
         return !getCameraPos().closerThan(pos, MAX_AMBIENT_SOURCE_DISTANCE);
     }
 
-    protected static BlockPos getCameraPos() {
+    protected static @NotNull BlockPos getCameraPos() {
         Entity renderViewEntity = Minecraft.getInstance().cameraEntity;
         if (renderViewEntity == null)
             return BlockPos.ZERO;
@@ -98,7 +99,7 @@ public class CrownsSoundScapes {
                 .getOrDefault(pitchGroup, Collections.emptySet());
     }
 
-    public static PitchGroup getGroupFromPitch(float pitch) {
+    public static @NotNull PitchGroup getGroupFromPitch(float pitch) {
         if (pitch < .70)
             return PitchGroup.VERY_LOW;
         if (pitch < .90)

@@ -9,6 +9,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -29,7 +30,7 @@ public class TemperatureTicker {
     public static int unpackSectionZ(long packed) { return (int)(packed << 22 >> 42); }
 
 
-    public static void tick(Set<Long> tickingSections, TemperatureWorldData data) {
+    public static void tick(@NotNull Set<Long> tickingSections, @NotNull TemperatureWorldData data) {
         //List<Vec3i> toDump = new ArrayList<>();
 
         // --- DYNAMIC DATA LOOP ---
@@ -163,8 +164,8 @@ public class TemperatureTicker {
                         float newTemp =
                                 (float) Mth.clamp(
                                         selfTemp + //
-                                                ((selfDefaultTemp - selfTemp) * res * 100d //ground callback
-                                                + totalFlux * (1- res) )* DT/CAPACITY,//fluxes sums.
+                                                ((selfDefaultTemp - selfTemp) * res * 1000d //ground callback
+                                                + totalFlux * (1- res))* DT/CAPACITY,//fluxes sums.
                             /*Mth.clamp((selfDefaultTemp - selfTemp) * resilienceData.get(x, y, z) + totalFlux / weights,
                                     minTemp, maxTemp),*/
                             TemperatureDataLayer.MIN_TEMPERATURE, TemperatureDataLayer.MAX_TEMPERATURE);

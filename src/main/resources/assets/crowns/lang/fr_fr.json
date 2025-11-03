@@ -19,7 +19,7 @@
   "crowns.ponder.nuclear_reactor.text_6": "When enough fuel-type blocks are in one place with a Moderator, the reaction will skyrocket",
   "crowns.ponder.nuclear_reactor.text_7": "Like every hot block, hot Nuclear Fuel can be used to heat Water",
   "crowns.ponder.nuclear_reactor.text_8": "Construct a chess board shape out of fuel and water to optimise the use of the Moderator",
-  "crowns.ponder.nuclear_reactor.text_9": "The taller the Reactor, the more time the water will need to boil",
+  "crowns.ponder.nuclear_reactor.text_9": "The taller the Reactor, the more time the water will have to boil",
   "crowns.ponder.nuclear_reactor.text_10": "Fuel becomes red when hotter than 3000 degrees Kelvin, and explodes at 3500",
   "crowns.ponder.turbine.header": "Turbines",
   "crowns.ponder.turbine.text_1": "Input vapor into the Steam Inputs",

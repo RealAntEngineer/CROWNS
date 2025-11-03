@@ -15,6 +15,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.List;
 public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implements ISteamPressureChange {
     public int initialTicks;
     //the turbine add itself to the SteamCurrent
-    protected List<SteamCurrent> flows = List.of();
+    protected @NotNull List<SteamCurrent> flows = List.of();
     float power;
 
     public TurbineStageBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -107,13 +108,13 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     }
 
     @Override
-    protected void write(CompoundTag compound, boolean clientPacket) {
+    protected void write(@NotNull CompoundTag compound, boolean clientPacket) {
         compound.putFloat("power", power);
         super.write(compound, clientPacket);
     }
 
     @Override
-    protected void read(CompoundTag compound, boolean clientPacket) {
+    protected void read(@NotNull CompoundTag compound, boolean clientPacket) {
         super.read(compound, clientPacket);
         power = compound.getFloat("power");
     }

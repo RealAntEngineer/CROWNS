@@ -4,6 +4,7 @@ import com.rae.crowns.content.nuclear.RadiationSourceDisplaySource;
 import com.rae.crowns.content.nuclear.TemperatureDisplaySource;
 import com.simibubi.create.api.behaviour.display.DisplaySource;
 import com.tterrag.registrate.util.entry.RegistryEntry;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
@@ -13,7 +14,7 @@ public class DisplaySourceInit {
     public static final RegistryEntry<DisplaySource> ACTIVITY = simple("radiation_source", RadiationSourceDisplaySource::new);
     public static final RegistryEntry<DisplaySource> TEMPERATURE = simple("temperature", TemperatureDisplaySource::new);
 
-    private static <T extends DisplaySource> RegistryEntry<T> simple(String name, Supplier<T> supplier) {
+    private static <T extends DisplaySource> @NotNull RegistryEntry<T> simple(String name, Supplier<T> supplier) {
         return REGISTRATE.displaySource(name, supplier).register();
     }
 

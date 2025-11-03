@@ -13,6 +13,7 @@ import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -29,7 +30,7 @@ public enum PacketInit {
     public static final String NETWORK_VERSION_STR = String.valueOf(NETWORK_VERSION);
     private static SimpleChannel channel;
 
-    private final PacketType<?> packetType;
+    private final @NotNull PacketType<?> packetType;
 
     <T extends SimplePacketBase> PacketInit(Class<T> type, Function<FriendlyByteBuf, T> factory,
                                             NetworkDirection direction) {
@@ -51,7 +52,7 @@ public enum PacketInit {
         return channel;
     }
 
-    public static void sendToNear(Level world, BlockPos pos, int range, Object message) {
+    public static void sendToNear(@NotNull Level world, @NotNull BlockPos pos, int range, Object message) {
         getChannel().send(
                 PacketDistributor.NEAR.with(PacketDistributor.TargetPoint.p(pos.getX(), pos.getY(), pos.getZ(), range, world.dimension())),
                 message);
@@ -60,9 +61,9 @@ public enum PacketInit {
     private static class PacketType<T extends SimplePacketBase> {
         private static int index = 0;
 
-        private final BiConsumer<T, FriendlyByteBuf> encoder;
+        private final @NotNull BiConsumer<T, FriendlyByteBuf> encoder;
         private final Function<FriendlyByteBuf, T> decoder;
-        private final BiConsumer<T, Supplier<NetworkEvent.Context>> handler;
+        private final @NotNull BiConsumer<T, Supplier<NetworkEvent.Context>> handler;
         private final Class<T> type;
         private final NetworkDirection direction;
 

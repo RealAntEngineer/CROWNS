@@ -35,7 +35,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
         setChanged();
     }) {
         @Override
-        public boolean isFluidValid(FluidStack stack) {
+        public boolean isFluidValid(@NotNull FluidStack stack) {
             return stack.getFluid().is(FluidTags.WATER);
         }
     };
@@ -43,7 +43,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
         setChanged();
     }) {
         @Override
-        public boolean isFluidValid(FluidStack stack) {
+        public boolean isFluidValid(@NotNull FluidStack stack) {
             return stack.getFluid().is(FluidTags.WATER);
         }
     };
@@ -83,7 +83,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     }
 
     @Override
-    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+    public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
         super.addToGoggleTooltip(tooltip, isPlayerSneaking);
         SpecificRealGazState inputState = INPUT_WATER_TANK.getState();
         CreateLang.builder().add(
@@ -115,7 +115,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     // it's directional
 
     @Override
-    protected void write(CompoundTag tag, boolean clientPacket) {
+    protected void write(@NotNull CompoundTag tag, boolean clientPacket) {
         super.write(tag, clientPacket);
         tag.putFloat("power", power);
         tag.put("input_water_tank", INPUT_WATER_TANK.writeToNBT(new CompoundTag()));
@@ -124,7 +124,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     }
 
     @Override
-    protected void read(CompoundTag tag, boolean clientPacket) {
+    protected void read(@NotNull CompoundTag tag, boolean clientPacket) {
         power = tag.getFloat("power");
         INPUT_WATER_TANK.readFromNBT((CompoundTag) tag.get("input_water_tank"));
         OUTPUT_WATER_TANK.readFromNBT((CompoundTag) tag.get("output_water_tank"));

@@ -24,6 +24,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +44,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public float nbrOfFission;//nbr of fission/t
     public float C = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
     public float additionalNeutronsAbsorbed = 0;
-    public HashMap<ResourceLocation, Float> radioactiveElements = new HashMap<>(
+    public @NotNull HashMap<ResourceLocation, Float> radioactiveElements = new HashMap<>(
             Map.of(
                     CROWNS.resource("u235"), 0.014f * 0.2f,
                     CROWNS.resource("u238"), 0.986f * 0.2f,
@@ -136,7 +138,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         }
     }
 
-    public void spawnRadiationParticles(Level level, BlockPos pos, float nbrOfFission) {
+    public void spawnRadiationParticles(Level level, @NotNull BlockPos pos, float nbrOfFission) {
         if (!(level instanceof ServerLevel serverLevel)) return; // Only spawn particles on server side
 
         float nbrOfParticles = (float) (Math.log10(nbrOfFission * 20 / 5000f)) * 3f / 20f;
@@ -166,13 +168,13 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         }
     }
 
-    private void meltdown(BlockPos pos) {
+    private void meltdown(@NotNull BlockPos pos) {
         assert level != null;
         level.setBlockAndUpdate(pos, FluidInit.CORIUM.get().getFlowing(8, 15, false).createLegacyBlock());
         //level.removeBlockEntity(pos);
     }
 
-    private void standardExplosion(BlockPos pos, float power) {
+    private void standardExplosion(@NotNull BlockPos pos, float power) {
         assert this.level != null;
         nuclearExplosion(this.level, pos, power);
         // Remove the block after the explosion
@@ -212,7 +214,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     @Override
-    protected void write(CompoundTag tag, boolean clientPacket) {
+    protected void write(@NotNull CompoundTag tag, boolean clientPacket) {
         super.write(tag, clientPacket);
 
         tag.putFloat("nbrOfFission", nbrOfFission);
@@ -224,7 +226,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     @Override
-    protected void read(CompoundTag tag, boolean clientPacket) {
+    protected void read(@NotNull CompoundTag tag, boolean clientPacket) {
 
         nbrOfFission = tag.getFloat("nbrOfFission");
         additionalNeutronsAbsorbed = tag.getFloat("additionalNeutrons");
@@ -235,7 +237,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     @Override
-    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+    public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
 
         FormicApiLang.formatRadiationFlux(getRadioactiveActivity() * 20)
                 .style(ChatFormatting.DARK_GREEN)
@@ -249,7 +251,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     @Override
-    public Couple<Float> absorbNeutrons(Couple<Float> radiationFlux) {
+    public @NotNull Couple<Float> absorbNeutrons(@NotNull Couple<Float> radiationFlux) {
         Float temperatureCoef = 1 / Math.max(1, (temperature - 200) * CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF());
         //System.out.println("temperature coef "+ temperatureCoef);
         float fastAbsorbed = 0f;
@@ -273,7 +275,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         return Couple.create(radiationFlux.getFirst() - fastAbsorbed, radiationFlux.getSecond() - slowAbsorbed);
     }
 
-    public void setComposition(CompoundTag composition) {
+    public void setComposition(@Nullable CompoundTag composition) {
         if (composition != null) {//if null we keep the default.
             radioactiveElements = new HashMap<>();
             for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
@@ -285,7 +287,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         }
     }
 
-    public CompoundTag saveComposition() {
+    public @NotNull CompoundTag saveComposition() {
         CompoundTag composition = new CompoundTag();
         for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
             if (radioactiveElements.containsKey(resourceLocation)) {

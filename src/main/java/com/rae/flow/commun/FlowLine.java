@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +24,12 @@ public class FlowLine {//this is a spline
             ).listOf().fieldOf("colorsAtPoints").forGetter(FlowLine::getColorsAtPoints) // Colors at points
     ).apply(instance, FlowLine::new));
     private final List<Vec3> controlPoints;
-    private final List<Vec3> computedTangents;
-    private final List<Vec3[]> coefficients;  // List of Vec3[] for the coefficients (a, b, c, d for each segment)
+    private final @NotNull List<Vec3> computedTangents;
+    private final @NotNull List<Vec3[]> coefficients;  // List of Vec3[] for the coefficients (a, b, c, d for each segment)
     private final List<Double> speedAtPoints;
     private final List<Color> colorsAtPoints;
 
-    public FlowLine(List<Vec3> controlPoints, List<Double> speedAtPoints, List<Color> colorsAtPoints) {
+    public FlowLine(@NotNull List<Vec3> controlPoints, List<Double> speedAtPoints, List<Color> colorsAtPoints) {
         this.controlPoints = controlPoints;
         this.speedAtPoints = speedAtPoints;
         this.colorsAtPoints = colorsAtPoints;
@@ -44,7 +45,7 @@ public class FlowLine {//this is a spline
     }
 
     // Deserialization: Read BSpline data from NBT
-    public static FlowLine deserializeNBT(CompoundTag tag) {
+    public static @NotNull FlowLine deserializeNBT(@NotNull CompoundTag tag) {
 
         // Deserialize control points
         ListTag pointsTag = tag.getList("ControlPoints", 10); // 10 for CompoundTag type
@@ -78,7 +79,7 @@ public class FlowLine {//this is a spline
         return new FlowLine(controlPoints, speedAtPoints, colorsAtPoints);
     }
 
-    public static FlowLine readFromBuffer(FriendlyByteBuf buffer) {
+    public static @NotNull FlowLine readFromBuffer(@NotNull FriendlyByteBuf buffer) {
         CompoundTag nbt = buffer.readNbt(); // Reading NBT from the buffer
         assert nbt != null;
         return FlowLine.deserializeNBT(nbt);
@@ -140,7 +141,7 @@ public class FlowLine {//this is a spline
     }
 
     // Serialization: Write BSpline data into NBT
-    public CompoundTag serializeNBT() {
+    public @NotNull CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
 
         // Serialize control points
@@ -190,14 +191,14 @@ public class FlowLine {//this is a spline
         }
     }
 
-    private Vec3[] computeCoefficients(Vec3 p0, Vec3 p1, Vec3 m0, Vec3 m1) {
+    private Vec3 @NotNull [] computeCoefficients(@NotNull Vec3 p0, @NotNull Vec3 p1, @NotNull Vec3 m0, @NotNull Vec3 m1) {
         Vec3 a = p0.scale(2).subtract(p1.scale(2)).add(m0).add(m1);
         Vec3 b = p0.scale(-3).add(p1.scale(3)).subtract(m0.scale(2)).subtract(m1);
 
         return new Vec3[]{a, b, m0, p0};  // a, b, c, d as Vec3
     }
 
-    public Vec3 getPoint(float t) {
+    public @NotNull Vec3 getPoint(float t) {
         int n = controlPoints.size();
         if (n < 2) {
             throw new IllegalArgumentException("At least two control points are required.");
@@ -227,7 +228,7 @@ public class FlowLine {//this is a spline
         return evaluateCubic(a, b, c, d, localT);
     }
 
-    private Vec3 evaluateCubic(Vec3 a, Vec3 b, Vec3 c, Vec3 d, float t) {
+    private @NotNull Vec3 evaluateCubic(@NotNull Vec3 a, @NotNull Vec3 b, @NotNull Vec3 c, @NotNull Vec3 d, float t) {
         float t2 = t * t;
         float t3 = t2 * t;
 
@@ -235,18 +236,18 @@ public class FlowLine {//this is a spline
         return a.scale(t3).add(b.scale(t2)).add(c.scale(t)).add(d);
     }
 
-    private Vec3 computeTangent(int index0, int index1) {
+    private @NotNull Vec3 computeTangent(int index0, int index1) {
         Vec3 p0 = controlPoints.get(index0);
         Vec3 p1 = controlPoints.get(index1);
         return p1.subtract(p0);  // Example of tangent computation
     }
 
-    private Vec3 computeTangent(int index0, int index1, int index2) {
+    private @NotNull Vec3 computeTangent(int index0, int index1, int index2) {
         return computeTangent(index0, index1).add(computeTangent(index1, index2)).scale(0.5f);  // Example of tangent computation
     }
 
     // Network buffer serialization
-    public void writeToBuffer(FriendlyByteBuf buffer) {
+    public void writeToBuffer(@NotNull FriendlyByteBuf buffer) {
         CompoundTag nbt = this.serializeNBT();
         buffer.writeNbt(nbt); // Writing NBT to the buffer
     }

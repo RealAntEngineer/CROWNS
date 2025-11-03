@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -18,7 +19,7 @@ import java.util.WeakHashMap;
 public class TemperatureManager {
     private static final Map<ResourceKey<Level>, TemperatureWorldData> worldDataMap = new WeakHashMap<>();
 
-    public static TemperatureWorldData get(ServerLevel level) {
+    public static @NotNull TemperatureWorldData get(@NotNull ServerLevel level) {
         return worldDataMap.computeIfAbsent(level.dimension(), k -> new TemperatureWorldData());
     }
 
@@ -27,7 +28,7 @@ public class TemperatureManager {
     }
 
 
-    public static float getDefaultTemperature(Level level, BlockPos pos) {
+    public static float getDefaultTemperature(@NotNull Level level, @NotNull BlockPos pos) {
         FluidState fluid = level.getFluidState(pos);
 
         // Convert to quart coordinates (biome resolution)
@@ -58,7 +59,7 @@ public class TemperatureManager {
      * @param blockState block state at said position
      * @return the default temperature at the position.
      */
-    public static float getDefaultTemperature(Level level, BlockPos pos, BlockState blockState) {
+    public static float getDefaultTemperature(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState blockState) {
         FluidState fluid = blockState.getFluidState();
         // Convert to quart coordinates (biome resolution)
         int qx = QuartPos.fromBlock(pos.getX());
@@ -79,7 +80,7 @@ public class TemperatureManager {
         }
     }
 
-    public static float getDefaultConduction(Level level, Vec3i pos) {
+    public static float getDefaultConduction(@NotNull Level level, Vec3i pos) {
         FluidState fluid = level.getFluidState((BlockPos) pos);
         // Priority: Fluid > Block
         if (fluid.isEmpty()) {
@@ -90,7 +91,7 @@ public class TemperatureManager {
         }
     }
 
-    public static float getDefaultResilience(Level level, BlockPos pos) {
+    public static float getDefaultResilience(@NotNull Level level, @NotNull BlockPos pos) {
         FluidState fluid = level.getFluidState(pos);
         // Priority: Fluid > Block
         if (fluid.isEmpty()) {
@@ -102,7 +103,7 @@ public class TemperatureManager {
     }
 
 
-    public static void sendUpdate(ServerLevel level) {
+    public static void sendUpdate(@NotNull ServerLevel level) {
         get(level).syncWithPlayers(level.getPlayers(serverPlayer -> serverPlayer.level().dimension().equals(level.dimension())));
     }
 }

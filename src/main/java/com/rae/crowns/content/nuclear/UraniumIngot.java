@@ -6,7 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class UraniumIngot extends Item {
-    public UraniumIngot(Properties properties) {
+    public UraniumIngot(@NotNull Properties properties) {
         super(properties);
     }
 

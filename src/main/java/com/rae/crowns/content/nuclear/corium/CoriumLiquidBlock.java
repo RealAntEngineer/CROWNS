@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CoriumLiquidBlock extends LiquidBlock {
 
-    public CoriumLiquidBlock(java.util.function.Supplier<? extends FlowingFluid> fluid, BlockBehaviour.Properties properties) {
+    public CoriumLiquidBlock(java.util.function.@NotNull Supplier<? extends FlowingFluid> fluid, BlockBehaviour.@NotNull Properties properties) {
         super(fluid, properties);
 
         this.registerDefaultState(this.stateDefinition.any().setValue(LEVEL, 0).setValue(CoriumFluid.POWER, 15));
@@ -24,7 +24,7 @@ public class CoriumLiquidBlock extends LiquidBlock {
         builder.add(CoriumFluid.POWER);
     }
 
-    public @NotNull FluidState getFluidState(BlockState state) {
+    public @NotNull FluidState getFluidState(@NotNull BlockState state) {
         int p = state.getValue(CoriumFluid.POWER);
         return super.getFluidState(state).setValue(CoriumFluid.POWER, p);
     }

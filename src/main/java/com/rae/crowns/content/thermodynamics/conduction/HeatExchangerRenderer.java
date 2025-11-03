@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 public class HeatExchangerRenderer extends SafeBlockEntityRenderer<HeatExchangerBlockEntity> {
     public HeatExchangerRenderer(BlockEntityRendererProvider.Context context) {
@@ -19,7 +20,7 @@ public class HeatExchangerRenderer extends SafeBlockEntityRenderer<HeatExchanger
     }
 
     @Override
-    protected void renderSafe(HeatExchangerBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
+    protected void renderSafe(@NotNull HeatExchangerBlockEntity be, float partialTicks, @NotNull PoseStack ms, @NotNull MultiBufferSource buffer,
                               int light, int overlay) {
         //if (Backend.canUseInstancing(be.getLevel())) return;
 

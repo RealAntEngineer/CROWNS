@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class CROWNSConfigs {
         return CONFIGS.get(type);
     }
 
-    private static <T extends ConfigBase> T register(Supplier<T> factory, ModConfig.Type side) {
+    private static <T extends ConfigBase> @NotNull T register(@NotNull Supplier<T> factory, ModConfig.Type side) {
         Pair<T, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure((builder) -> {
             T config = factory.get();
             config.registerAll(builder);
@@ -44,7 +45,7 @@ public class CROWNSConfigs {
         return config;
     }
 
-    public static void registerConfigs(ModLoadingContext context) {
+    public static void registerConfigs(@NotNull ModLoadingContext context) {
         CLIENT = register(CROWNSCfgClient::new, ModConfig.Type.CLIENT);
         COMMON = register(CROWNSCfgCommon::new, ModConfig.Type.COMMON);
         SERVER = register(CROWNSCfgServer::new, ModConfig.Type.SERVER);
@@ -56,7 +57,7 @@ public class CROWNSConfigs {
     }
 
     @SubscribeEvent
-    public static void onLoad(ModConfigEvent.Loading event) {
+    public static void onLoad(ModConfigEvent.@NotNull Loading event) {
         for (ConfigBase config : CONFIGS.values())
             if (config.specification == event.getConfig()
                     .getSpec())
@@ -64,7 +65,7 @@ public class CROWNSConfigs {
     }
 
     @SubscribeEvent
-    public static void onReload(ModConfigEvent.Reloading event) {
+    public static void onReload(ModConfigEvent.@NotNull Reloading event) {
         for (ConfigBase config : CONFIGS.values())
             if (config.specification == event.getConfig()
                     .getSpec())

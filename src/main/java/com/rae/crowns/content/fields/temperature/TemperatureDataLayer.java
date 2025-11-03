@@ -1,6 +1,7 @@
 package com.rae.crowns.content.fields.temperature;
 
-import net.minecraft.util.Mth;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
@@ -17,57 +18,40 @@ import java.nio.ByteBuffer;
  * Decoding:
  *   temperature = (stored - Integer.MIN_VALUE) / SCALE
  */
-public class TemperatureDataLayer {
-    public static final int SIZE = 16 * 16 * 16;
+public class TemperatureDataLayer extends AbstractDataLayer {
     public static final double SCALE = 100000f; // 5 decimal places
-
     public static final double MIN_TEMPERATURE = 0.0d;
     public static final double MAX_TEMPERATURE =
             (Integer.MAX_VALUE - (long) Integer.MIN_VALUE) / SCALE; // ≈ 42949.67295
-    private final int[] data;
-    private final int[] defaultData;
+    private final int[] data = new int[SIZE];
+    private final int[] defaultData = new int[SIZE];
 
-    public TemperatureDataLayer() {
-        this.data = new int[SIZE];
-        this.defaultData = new int[SIZE];
-    }
-
-    public static TemperatureDataLayer fromBytes(byte[] bytes) {
-        TemperatureDataLayer temp = new TemperatureDataLayer();
+    @Override
+    public TemperatureDataLayer fromBytes(byte @NotNull [] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
-
-        for (int i = 0; i < SIZE; i++) {
-            temp.data[i] = buffer.getInt();
-        }
-        for (int i = 0; i < SIZE; i++) {
-            temp.defaultData[i] = buffer.getInt();
-        }
-
-        return temp;
+        for (int i = 0; i < SIZE; i++) data[i] = buffer.getInt();
+        for (int i = 0; i < SIZE; i++) defaultData[i] = buffer.getInt();
+        return this;
     }
 
+    @Override
     public byte[] toBytes() {
         ByteBuffer buffer = ByteBuffer.allocate(SIZE * 4 * 2);
-        for (int val : data) {
-            buffer.putInt(val);
-        }
-        for (int val : defaultData) {
-            buffer.putInt(val);
-        }
+        for (int val : data) buffer.putInt(val);
+        for (int val : defaultData) buffer.putInt(val);
         return buffer.array();
     }
 
-    public int[] getRaw() {
-        return data;
-    }
-
-    private static int index(int x, int y, int z) {
-        return (y << 8) | (z << 4) | x;
-    }
-
-    public float get(int x, int y, int z) {
-        int stored = data[index(x, y, z)];
+    @Override
+    protected float decode(int index) {
+        int stored = data[index];
         return (float) ((stored - (long) Integer.MIN_VALUE) / SCALE);
+    }
+
+    @Override
+    protected void encode(int index, float value) {
+        long encoded = (long) (value * SCALE) + (long) Integer.MIN_VALUE;
+        data[index] = (int) encoded;
     }
 
     public float getDefault(int x, int y, int z) {
@@ -75,15 +59,8 @@ public class TemperatureDataLayer {
         return (float) ((stored - (long) Integer.MIN_VALUE) / SCALE);
     }
 
-    public void set(int x, int y, int z, float temperature) {
-        long encoded = (long) (temperature * SCALE) + (long) Integer.MIN_VALUE;
-        //encoded = Math.clamp(encoded, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        data[index(x, y, z)] = (int) encoded;
-    }
-
     public void setDefault(int x, int y, int z, float temperature) {
         long encoded = (long) (temperature * SCALE) + (long) Integer.MIN_VALUE;
-        //encoded = Mth.clamp(encoded, Integer.MIN_VALUE, Integer.MAX_VALUE);
         defaultData[index(x, y, z)] = (int) encoded;
     }
 }

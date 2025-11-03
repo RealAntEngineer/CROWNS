@@ -13,7 +13,7 @@ public class StateMapSerializer implements EntityDataSerializer<HashMap<BlockPos
     }
 
     @Override
-    public void write(FriendlyByteBuf byteBuf, HashMap<BlockPos, SpecificRealGazState> stateMap) {
+    public void write(@NotNull FriendlyByteBuf byteBuf, @NotNull HashMap<BlockPos, SpecificRealGazState> stateMap) {
         byteBuf.writeInt(stateMap.size());
         stateMap.forEach((key, value) -> {
             byteBuf.writeBlockPos(key);
@@ -26,7 +26,7 @@ public class StateMapSerializer implements EntityDataSerializer<HashMap<BlockPos
     }
 
     @Override
-    public @NotNull HashMap<BlockPos, SpecificRealGazState> read(FriendlyByteBuf byteBuf) {
+    public @NotNull HashMap<BlockPos, SpecificRealGazState> read(@NotNull FriendlyByteBuf byteBuf) {
         HashMap<BlockPos, SpecificRealGazState> stateMap = new HashMap<>();
         int size = byteBuf.readInt();
         for (int i = 0; i < size; i++) {

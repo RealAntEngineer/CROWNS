@@ -11,6 +11,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.PacketDistributor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -22,8 +23,8 @@ public class TemperatureWorldData {//Only for the server
 
     //in the future hook into ChunkSection directly : easier for communication and initialisation
 
-    private static final int DYNAMIC_RANGE = 1;
-    public static final int DATA_VERSION = 8;
+    private static final int DYNAMIC_RANGE = 2;
+    public static final int DATA_VERSION = 9;
     private final Long2ObjectMap<TemperatureDataLayer> temperatureMap = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectMap<ConductionDataLayer> conductionMap = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectMap<ResilienceDataLayer> resilienceMap = new Long2ObjectOpenHashMap<>();
@@ -39,11 +40,11 @@ public class TemperatureWorldData {//Only for the server
     private final Long2IntMap sectionDynamicCount = new Long2IntOpenHashMap();
     private final LongSet nearDynamicSections = new LongOpenHashSet();
 
-    public LongSet getNearDynamic() {
+    public @NotNull LongSet getNearDynamic() {
         return nearDynamicSections; // You can safely expose this if you're not modifying it
     }
 
-    public LongSet getLoadedSections(){
+    public @NotNull LongSet getLoadedSections(){
         return loadedSections;
     }
 
@@ -73,7 +74,7 @@ public class TemperatureWorldData {//Only for the server
         setDirty(section);
     }
 
-    public void initialise(ServerLevel level) {
+    public void initialise(@NotNull ServerLevel level) {
         long startTime = System.nanoTime(); // More accurate timing
         int processed = 0;
 
@@ -139,7 +140,7 @@ public class TemperatureWorldData {//Only for the server
         }
     }
 
-    public void updateChangedBlocks(ServerLevel level) {
+    public void updateChangedBlocks(@NotNull ServerLevel level) {
         float initialTimeMS = System.currentTimeMillis();
         for (int i = 0; i < 10000 && !changedBlocks.isEmpty(); i++) {
             BlockPos pos = changedBlocks.poll();
@@ -151,7 +152,7 @@ public class TemperatureWorldData {//Only for the server
         }
     }
 
-    public void set(BlockPos pos, float temperature, float conduction, float resilience) {
+    public void set(@NotNull BlockPos pos, float temperature, float conduction, float resilience) {
         // --- Compute packed section coordinates manually ---
         int sx = pos.getX() >> 4;
         int sy = pos.getY() >> 4;
@@ -184,7 +185,7 @@ public class TemperatureWorldData {//Only for the server
 
     //IHaveTemperature management
 
-    public void putDynamic(BlockPos pos, IHaveTemperature dynamic) {
+    public void putDynamic(@NotNull BlockPos pos, IHaveTemperature dynamic) {
         dynamicData.put(pos, dynamic);
 
         int sx = pos.getX() >> 4;
@@ -202,14 +203,16 @@ public class TemperatureWorldData {//Only for the server
                         long packed = packSection(nsx, nsy, nsz);
                         nearDynamicSections.add(packed);
                         sectionDynamicCount.put(packed, sectionDynamicCount.getOrDefault(packed, 0) + 1);
-                        putForInitialisation(packed);
+                        if (!loadedSections.contains(packed)) {
+                            putForInitialisation(packed);
+                        }
                     }
                 }
             }
         }
     }
 
-    public void removeDynamic(BlockPos pos) {
+    public void removeDynamic(@NotNull BlockPos pos) {
         dynamicData.remove(pos);
 
         int sx = pos.getX() >> 4;
@@ -238,7 +241,7 @@ public class TemperatureWorldData {//Only for the server
         }
     }
 
-    public Map<Vec3i, IHaveTemperature> getDynamicData() {
+    public @NotNull Map<Vec3i, IHaveTemperature> getDynamicData() {
         return dynamicData;
     }
 
@@ -264,14 +267,14 @@ public class TemperatureWorldData {//Only for the server
         dirty.remove(sectionPos);
     }
 
-    public void registerChanged(BlockPos immutable) {
+    public void registerChanged(@NotNull BlockPos immutable) {
         if (temperatureMap.containsKey(SectionPos.of(immutable).asLong())) {
             changedBlocks.add(immutable);
         }
     }
 
 
-    public void syncWithPlayers(List<ServerPlayer> players) {
+    public void syncWithPlayers(@NotNull List<ServerPlayer> players) {
         // Grab the first 100 changed sections
         int batchSize = 10;
 
@@ -313,7 +316,7 @@ public class TemperatureWorldData {//Only for the server
     }
 
     // --- HELPER FOR DYNAMIC RANGE CHECK ---
-    private static boolean isInDynamicRange(Vec3i pos, int sx, int sy, int sz) {
+    private static boolean isInDynamicRange(@NotNull Vec3i pos, int sx, int sy, int sz) {
         //block pos
         final int px = pos.getX();
         final int py = pos.getY();

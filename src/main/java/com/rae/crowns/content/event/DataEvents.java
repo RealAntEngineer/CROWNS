@@ -18,13 +18,14 @@ import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jetbrains.annotations.NotNull;
 
 
 @Mod.EventBusSubscriber(modid = CROWNS.MODID)
 public class DataEvents {
 
     @SubscribeEvent
-    public static void onChunkUnload(ChunkEvent.Unload event) {
+    public static void onChunkUnload(ChunkEvent.@NotNull Unload event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             ChunkAccess chunk = event.getChunk();
             TemperatureWorldData worldData = TemperatureManager.get(serverLevel);
@@ -41,7 +42,7 @@ public class DataEvents {
     }
 
     @SubscribeEvent
-    public static void onChunkLoad(ChunkEvent.Load event) {
+    public static void onChunkLoad(ChunkEvent.@NotNull Load event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             TemperatureWorldData worldData = TemperatureManager.get(serverLevel);
             if (event.isNewChunk()) {//if it's an old world the ChunkSerializer should take care of it.
@@ -58,7 +59,7 @@ public class DataEvents {
     }
 
     @SubscribeEvent
-    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+    public static void onPlayerJoin(PlayerEvent.@NotNull PlayerLoggedInEvent event) {
         Player player = event.getEntity();
         if (player instanceof ServerPlayer serverPlayer)
             SteamFlowManager.playerLoaded(serverPlayer);
@@ -70,7 +71,7 @@ public class DataEvents {
         //TemperatureManager.reset();//this in important to clean the data after leaving.
     }
     @SubscribeEvent
-    public static void onServerStarted(ServerStartedEvent event) {
+    public static void onServerStarted(@NotNull ServerStartedEvent event) {
         SteamFlowManager.serverStarted(event.getServer());
     }
 }

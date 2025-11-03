@@ -14,8 +14,8 @@ public class CROWNSCfgCommon extends ConfigBase {
     }
 
     private static class Comments {
-        static String nuclear = "Graphic config for nuclear";
-        static String nuclearParticle = "Radiation Particles";
+        static @NotNull String nuclear = "Graphic config for nuclear";
+        static @NotNull String nuclearParticle = "Radiation Particles";
 
     }
 }

@@ -10,11 +10,12 @@ import net.createmod.ponder.api.scene.SceneBuildingUtil;
 import net.createmod.ponder.api.scene.Selection;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class ThermodynamicsScene {
-    public static void turbine(SceneBuilder builder, SceneBuildingUtil sceneBuildingUtil) {
+    public static void turbine(@NotNull SceneBuilder builder, @NotNull SceneBuildingUtil sceneBuildingUtil) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
         scene.title("turbine", "Turbines");
         scene.configureBasePlate(0, -2, 7);

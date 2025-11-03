@@ -12,6 +12,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.storage.ChunkSerializer;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,7 +23,7 @@ public class ChunkSerializerMixin {
 
     @Inject(method = "write", at = @At("RETURN"), cancellable = true)
     private static void onWriteInject(
-            ServerLevel level, ChunkAccess chunk, CallbackInfoReturnable<CompoundTag> cir) {
+            @NotNull ServerLevel level, @NotNull ChunkAccess chunk, @NotNull CallbackInfoReturnable<CompoundTag> cir) {
 
         CompoundTag root = cir.getReturnValue();
         ListTag sections = root.getList("sections", Tag.TAG_COMPOUND);
@@ -65,7 +66,7 @@ public class ChunkSerializerMixin {
 
     @Inject(method = "read", at = @At("RETURN"))
     private static void onReadInject(
-            ServerLevel level, PoiManager p_188232_, ChunkPos pos, CompoundTag tag, CallbackInfoReturnable<ProtoChunk> cir) {
+            @NotNull ServerLevel level, PoiManager p_188232_, @NotNull ChunkPos pos, @NotNull CompoundTag tag, CallbackInfoReturnable<ProtoChunk> cir) {
         ListTag sections = tag.getList("sections", Tag.TAG_COMPOUND);
 
         TemperatureWorldData worldData = TemperatureManager.get(level);
@@ -83,8 +84,8 @@ public class ChunkSerializerMixin {
                 byte[] condBytes = sectionTag.getByteArray("Conduction");
                 byte[] resBytes = sectionTag.getByteArray("Resilience");
 
-                worldData.put(sectionPos, TemperatureDataLayer.fromBytes(tempBytes), ConductionDataLayer.fromBytes(condBytes),
-                        ResilienceDataLayer.fromBytes(resBytes));
+                worldData.put(sectionPos, new TemperatureDataLayer().fromBytes(tempBytes), new ConductionDataLayer().fromBytes(condBytes),
+                        new ResilienceDataLayer().fromBytes(resBytes));
                 CROWNS.LOGGER.info("loading section : {}", SectionPos.of(pos, y));
 
                 if (sectionTag.contains("TemperatureDirty") && sectionTag.getBoolean("TemperatureDirty")) {

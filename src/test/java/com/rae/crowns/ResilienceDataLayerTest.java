@@ -53,6 +53,6 @@ public class ResilienceDataLayerTest {
         layer.set(3, 2, 1, 0.75f);
 
         byte[] bytes = layer.toBytes();
-        ResilienceDataLayer loaded = ResilienceDataLayer.fromBytes(bytes);
+        ResilienceDataLayer loaded = new ResilienceDataLayer().fromBytes(bytes);
     }
 }

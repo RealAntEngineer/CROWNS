@@ -16,6 +16,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ import java.util.List;
 public class ClientEvents {
 
     @SubscribeEvent
-    public static void onTick(TickEvent.ClientTickEvent event) {
+    public static void onTick(TickEvent.@NotNull ClientTickEvent event) {
         if (!isGameActive())
             return;
 
@@ -38,7 +39,7 @@ public class ClientEvents {
 
 
     @SubscribeEvent
-    public static void addToItemTooltip(ItemTooltipEvent event) {
+    public static void addToItemTooltip(@NotNull ItemTooltipEvent event) {
         if (event.getEntity() == null)
             return;
 

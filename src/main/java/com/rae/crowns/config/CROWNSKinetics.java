@@ -2,6 +2,7 @@ package com.rae.crowns.config;
 
 
 import net.createmod.catnip.config.ConfigBase;
+import org.jetbrains.annotations.NotNull;
 
 public class CROWNSKinetics extends ConfigBase {
 
@@ -12,12 +13,12 @@ public class CROWNSKinetics extends ConfigBase {
     public final ConfigBase.ConfigInt turbineSpeed = i(256, 1, 256, "turbineSpeed", Comments.turbineCoefficient);
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return "kinetics";
     }
 
     private static class Comments {
-        static String turbineStage = "Fine tune the speed and capacity of turbine stages";
-        static String turbineCoefficient = "turbine capacity factor";
+        static @NotNull String turbineStage = "Fine tune the speed and capacity of turbine stages";
+        static @NotNull String turbineCoefficient = "turbine capacity factor";
     }
 }

@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fluids.FluidStack;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -44,7 +45,7 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
     public abstract boolean canPullFluidFrom(FluidStack fluid, BlockState state, Direction direction);
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true, remap = false)
-    public void replaceTick(CallbackInfo ci) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void replaceTick(@NotNull CallbackInfo ci) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         super.tick();
         Level world = getWorld();
         BlockPos pos = getPos();

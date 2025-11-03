@@ -12,22 +12,23 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("ALL")
 public class EntityInit {
 
 
-    private static <T extends Entity> CreateEntityBuilder<T, ?> contraption(String name, EntityType.EntityFactory<T> factory,
-                                                                            NonNullSupplier<NonNullFunction<EntityRendererProvider.Context, EntityRenderer<? super T>>> renderer, int range,
-                                                                            int updateFrequency, boolean sendVelocity) {
+    private static <T extends Entity> @NotNull CreateEntityBuilder<T, ?> contraption(@NotNull String name, EntityType.@NotNull EntityFactory<T> factory,
+                                                                                     @NotNull NonNullSupplier<NonNullFunction<EntityRendererProvider.Context, EntityRenderer<? super T>>> renderer, int range,
+                                                                                     int updateFrequency, boolean sendVelocity) {
         return register(name, factory, renderer, MobCategory.MISC, range, updateFrequency, sendVelocity, true,
                 AbstractContraptionEntity::build);
     }
 
-    private static <T extends Entity> CreateEntityBuilder<T, ?> register(String name, EntityType.EntityFactory<T> factory,
-                                                                         NonNullSupplier<NonNullFunction<EntityRendererProvider.Context, EntityRenderer<? super T>>> renderer,
-                                                                         MobCategory group, int range, int updateFrequency, boolean sendVelocity, boolean immuneToFire,
-                                                                         NonNullConsumer<EntityType.Builder<T>> propertyBuilder) {
+    private static <T extends Entity> @NotNull CreateEntityBuilder<T, ?> register(@NotNull String name, EntityType.@NotNull EntityFactory<T> factory,
+                                                                                  @NotNull NonNullSupplier<NonNullFunction<EntityRendererProvider.Context, EntityRenderer<? super T>>> renderer,
+                                                                                  @NotNull MobCategory group, int range, int updateFrequency, boolean sendVelocity, boolean immuneToFire,
+                                                                                  @NotNull NonNullConsumer<EntityType.Builder<T>> propertyBuilder) {
         String id = Lang.asId(name);
         return (CreateEntityBuilder<T, ?>) CROWNS.REGISTRATE
                 .entity(id, factory, group)

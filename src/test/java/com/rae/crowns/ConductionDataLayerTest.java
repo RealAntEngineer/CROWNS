@@ -45,7 +45,7 @@ public class ConductionDataLayerTest {
         layer.set(3, 2, 1, 12345f);
         byte[] bytes = layer.toBytes();
 
-        ConductionDataLayer loaded = ConductionDataLayer.fromBytes(bytes);
+        ConductionDataLayer loaded = new ConductionDataLayer().fromBytes(bytes);
         float got = loaded.get(3, 2, 1);
         assertEquals(layer.get(3, 2, 1), got, 1e-3f);
     }

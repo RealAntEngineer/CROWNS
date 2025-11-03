@@ -24,7 +24,7 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
     public static final EnumProperty<Temperature> TEMPERATURE = EnumProperty.create("temperature", Temperature.class); //T*10
     public static final EnumProperty<Activity> ACTIVITY = EnumProperty.create("activity", Activity.class);
 
-    public AssemblyBlock(Properties properties) {
+    public AssemblyBlock(@NotNull Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(TEMPERATURE, Temperature.COLD)
@@ -32,24 +32,24 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
         builder.add(TEMPERATURE, ACTIVITY);
         super.createBlockStateDefinition(builder);
     }
 
     @Override
-    public Class<AssemblyBlockEntity> getBlockEntityClass() {
+    public @NotNull Class<AssemblyBlockEntity> getBlockEntityClass() {
         return AssemblyBlockEntity.class;
     }
 
     @Override
-    public BlockEntityType<? extends AssemblyBlockEntity> getBlockEntityType() {
+    public @NotNull BlockEntityType<? extends AssemblyBlockEntity> getBlockEntityType() {
         return BlockEntityInit.FUEL_ASSEMBLY.get();
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, BlockState state, BlockEntityType<T> type) {
         return level.isClientSide() ? null : ($0, pos, $1, blockEntity) -> {
             if (blockEntity instanceof AssemblyBlockEntity assemblyBlockEntity) {
                 assemblyBlockEntity.tick();
@@ -59,7 +59,7 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
 
     @Override
     @SuppressWarnings("deprecated")
-    public int getSignal(@NotNull BlockState state, BlockGetter level, @NotNull BlockPos pos, @NotNull Direction direction) {
+    public int getSignal(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull Direction direction) {
         if (level.getBlockEntity(pos) instanceof AssemblyBlockEntity assemblyBlockEntity) {
             return (int) (assemblyBlockEntity.getTemperature() / 3500f * 16f);
         }

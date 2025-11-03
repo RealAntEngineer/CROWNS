@@ -1,7 +1,9 @@
 package com.rae.crowns.content.fields.radiation;
 
+import org.jetbrains.annotations.NotNull;
+
 public class RadiationData {
-    private final short[] data;
+    private final short @NotNull [] data;
 
     public RadiationData() {
         this.data = new short[16 * 16 * 16]; // One short per block in a chunk section

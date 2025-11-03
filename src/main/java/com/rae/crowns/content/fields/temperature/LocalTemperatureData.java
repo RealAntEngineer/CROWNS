@@ -6,6 +6,8 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -15,15 +17,15 @@ public class LocalTemperatureData {
     private static final Set<SectionPos> tickingSections = new HashSet<>();
     private static final Map<SectionPos, Long> lastTicked = new HashMap<>();
     private static final long MAX_TICKS_AGE = 5; // keep highlighting for 5 ticks
-    private static ResourceLocation location = null;
+    private static @Nullable ResourceLocation location = null;
 
-    public static void receiveFullUpdate(Map<SectionPos, TemperatureDataLayer> serverData, ResourceLocation location) {
+    public static void receiveFullUpdate(@NotNull Map<SectionPos, TemperatureDataLayer> serverData, ResourceLocation location) {
         LocalTemperatureData.location = location;
         temperatureMap.clear();
         temperatureMap.putAll(serverData);
     }
 
-    public static void receiveUpdate(Map<SectionPos, TemperatureDataLayer> serverData, long currentTick) {
+    public static void receiveUpdate(@NotNull Map<SectionPos, TemperatureDataLayer> serverData, long currentTick) {
         temperatureMap.putAll(serverData);
 
         // Mark all sections in this batch as ticking in this tick
@@ -44,7 +46,7 @@ public class LocalTemperatureData {
         }
     }
 
-    public static float getTemperature(Vec3i pos) {
+    public static float getTemperature(@NotNull Vec3i pos) {
         SectionPos sectionPos = SectionPos.of((BlockPos) pos);
         TemperatureDataLayer layer = temperatureMap.get(sectionPos);
 
@@ -58,7 +60,7 @@ public class LocalTemperatureData {
         return layer.get(localX, localY, localZ);
     }
 
-    public static Set<SectionPos> getTickingSections(){
+    public static @NotNull Set<SectionPos> getTickingSections(){
         return tickingSections;
     }
 }

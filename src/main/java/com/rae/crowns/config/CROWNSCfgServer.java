@@ -17,9 +17,9 @@ public class CROWNSCfgServer extends ConfigBase {
     }
 
     private static class Comments {
-        static String nuclear = "Parameter and constants for nuclear reactors";
-        static String kinetics = "Parameters and abilities of CROWNS's kinetic mechanisms";
-        static String conduction = "How heat is transferred. Changes can create instability and world corruption, HERE BE DRAGONS ";
+        static @NotNull String nuclear = "Parameter and constants for nuclear reactors";
+        static @NotNull String kinetics = "Parameters and abilities of CROWNS's kinetic mechanisms";
+        static @NotNull String conduction = "How heat is transferred. Changes can create instability and world corruption, HERE BE DRAGONS ";
     }
 
 }

@@ -26,7 +26,7 @@ public abstract class FluidTankMixin {
     public abstract int getFluidAmount();
 
     @Inject(method = "fill", at = @At(value = "HEAD"), remap = false)
-    public void mergeStateNBT(FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
+    public void mergeStateNBT(@NotNull FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
         if (!fluid.isEmpty() && fluid.isFluidEqual(resource) && fluid.getFluid().is(FluidTags.WATER)) {
             CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
             SpecificRealGazState oldState;

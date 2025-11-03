@@ -2,6 +2,7 @@ package com.rae.crowns.init.misc;
 
 import com.rae.crowns.content.nuclear.AssemblyBlock;
 import com.rae.crowns.content.nuclear.UraniumOreBlock;
+import com.rae.crowns.content.nuclear.corium.SolidCoriumBlock;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlock;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
 import com.rae.crowns.content.thermodynamics.turbine.SteamCollectorBlock;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.ToIntFunction;
 
@@ -114,8 +116,8 @@ public class BlockInit {
             .build()
             .register();
 
-    public static final BlockEntry<Block> SOLID_CORIUM = REGISTRATE
-            .block("solid_corium", Block::new)
+    public static final BlockEntry<SolidCoriumBlock> SOLID_CORIUM = REGISTRATE
+            .block("solid_corium", SolidCoriumBlock::new)
             .initialProperties(SharedProperties::stone)
             .properties(p -> p.lightLevel((blockState) -> 9).strength(4, 4))
             .item()
@@ -123,7 +125,7 @@ public class BlockInit {
             .register();
 
 
-    private static ToIntFunction<BlockState> litBlockEmission(int lightLevel) {
+    private static @NotNull ToIntFunction<BlockState> litBlockEmission(int lightLevel) {
         return (blockState) -> blockState.getValue(BlockStateProperties.LIT) ? lightLevel : 0;
     }
 

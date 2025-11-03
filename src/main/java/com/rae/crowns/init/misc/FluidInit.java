@@ -11,6 +11,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.registries.DeferredRegister;
+import org.jetbrains.annotations.NotNull;
 
 public class FluidInit {
     public static final FluidEntry<CoriumFluid.Flowing> CORIUM =
@@ -46,7 +47,7 @@ public class FluidInit {
     private static final DeferredRegister<Fluid> FLUID_REGISTER =
             DeferredRegister.create(Registries.FLUID, CROWNS.MODID);
 
-    private static FluidType defaultFluidType(FluidType.Properties properties, ResourceLocation stillTexture, ResourceLocation flowingTexture) {
+    private static @NotNull FluidType defaultFluidType(FluidType.@NotNull Properties properties, ResourceLocation stillTexture, ResourceLocation flowingTexture) {
         return new FluidType(properties) {
 
         };
