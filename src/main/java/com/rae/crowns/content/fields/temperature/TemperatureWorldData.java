@@ -24,11 +24,13 @@ public class TemperatureWorldData {//Only for the server
     //in the future hook into ChunkSection directly : easier for communication and initialisation
 
     private static final int DYNAMIC_RANGE = 2;
-    public static final int DATA_VERSION = 9;
+    public static final int DATA_VERSION = 10;
     private final Long2ObjectMap<TemperatureDataLayer> temperatureMap = new Long2ObjectOpenHashMap<>();
+    private final Long2ObjectMap<TemperatureDataLayer> defaultTemperatureMap = new Long2ObjectOpenHashMap<>();
+
     private final Long2ObjectMap<ConductionDataLayer> conductionMap = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectMap<ResilienceDataLayer> resilienceMap = new Long2ObjectOpenHashMap<>();
-    private final Map<Vec3i, IHaveTemperature> dynamicData = new HashMap<>();
+    private final Long2ObjectMap<IHaveTemperature> dynamicData = new Long2ObjectOpenHashMap<>();
     private final LongSet toInitialise = new LongOpenHashSet();
     //use to store changed positions so we don't encounter a deadlock
     private final Queue<BlockPos> changedBlocks = new ConcurrentLinkedQueue<>();
@@ -51,6 +53,10 @@ public class TemperatureWorldData {//Only for the server
     public TemperatureDataLayer getTemperature(long section) {
         return temperatureMap.get(section);
     }
+    public TemperatureDataLayer getDefaultTemperature(long section) {
+        return defaultTemperatureMap.get(section);
+    }
+
 
     public ResilienceDataLayer getResilience(long section) {
         return resilienceMap.get(section);
@@ -60,8 +66,9 @@ public class TemperatureWorldData {//Only for the server
         return conductionMap.get(section);
     }
 
-    public void put(long section, TemperatureDataLayer tempDataLayer, ConductionDataLayer condDataLayer, ResilienceDataLayer resDataLayer) {
+    public void put(long section, TemperatureDataLayer tempDataLayer, TemperatureDataLayer defTempDataLayer, ConductionDataLayer condDataLayer, ResilienceDataLayer resDataLayer) {
         temperatureMap.put(section, tempDataLayer);
+        defaultTemperatureMap.put(section, defTempDataLayer);
         resilienceMap.put(section, resDataLayer);
         conductionMap.put(section, condDataLayer);
 
@@ -100,6 +107,8 @@ public class TemperatureWorldData {//Only for the server
             iterator.remove();
 
             TemperatureDataLayer temperatureDataLayer = new TemperatureDataLayer();
+            TemperatureDataLayer defaultTemperatureDataLayer = new TemperatureDataLayer();
+
             ConductionDataLayer conductionDataLayer = new ConductionDataLayer();
             ResilienceDataLayer resilienceDataLayer = new ResilienceDataLayer();
 
@@ -115,7 +124,7 @@ public class TemperatureWorldData {//Only for the server
                         defaultTemp = TemperatureManager.getDefaultTemperature(level, pos);
 
                         temperatureDataLayer.set(dx, dy, dz, defaultTemp);
-                        temperatureDataLayer.setDefault(dx, dy, dz, defaultTemp);
+                        defaultTemperatureDataLayer.set(dx, dy, dz, defaultTemp);
                         conductionDataLayer.set(dx, dy, dz, TemperatureManager.getDefaultConduction(level, pos));
                         resilienceDataLayer.set(dx, dy, dz, TemperatureManager.getDefaultResilience(level, pos));
 
@@ -128,6 +137,7 @@ public class TemperatureWorldData {//Only for the server
 
             long sectionLong = sectionPos.asLong();
             temperatureMap.put(sectionLong, temperatureDataLayer);
+            defaultTemperatureMap.put(sectionLong, defaultTemperatureDataLayer);
             conductionMap.put(sectionLong, conductionDataLayer);
             resilienceMap.put(sectionLong, resilienceDataLayer);
             loadedSections.add(sectionLong);
@@ -161,6 +171,8 @@ public class TemperatureWorldData {//Only for the server
 
         // --- Get layers ---
         TemperatureDataLayer temperatureDataLayer = getTemperature(packedSection);
+        TemperatureDataLayer defaultTemperatureDataLayer = getDefaultTemperature(packedSection);
+
         ConductionDataLayer conductionDataLayer = getConduction(packedSection);
         ResilienceDataLayer resilienceDataLayer = getResilience(packedSection);
 
@@ -172,7 +184,7 @@ public class TemperatureWorldData {//Only for the server
 
             // --- Set values once ---
             temperatureDataLayer.set(lx, ly, lz, temperature);
-            temperatureDataLayer.setDefault(lx, ly, lz, temperature);
+            defaultTemperatureDataLayer.set(lx, ly, lz, temperature);
             conductionDataLayer.set(lx, ly, lz, conduction);
             resilienceDataLayer.set(lx, ly, lz, resilience);
 
@@ -186,7 +198,7 @@ public class TemperatureWorldData {//Only for the server
     //IHaveTemperature management
 
     public void putDynamic(@NotNull BlockPos pos, IHaveTemperature dynamic) {
-        dynamicData.put(pos, dynamic);
+        dynamicData.put(pos.asLong(), dynamic);
 
         int sx = pos.getX() >> 4;
         int sy = pos.getY() >> 4;
@@ -213,7 +225,7 @@ public class TemperatureWorldData {//Only for the server
     }
 
     public void removeDynamic(@NotNull BlockPos pos) {
-        dynamicData.remove(pos);
+        dynamicData.remove(pos.asLong());
 
         int sx = pos.getX() >> 4;
         int sy = pos.getY() >> 4;
@@ -241,15 +253,15 @@ public class TemperatureWorldData {//Only for the server
         }
     }
 
-    public @NotNull Map<Vec3i, IHaveTemperature> getDynamicData() {
+    public @NotNull Long2ObjectMap<IHaveTemperature> getDynamicData() {
         return dynamicData;
     }
 
-    public boolean dynamicContains(Vec3i pos) {
+    public boolean dynamicContains(long pos) {
         return dynamicData.containsKey(pos);
     }
 
-    public IHaveTemperature getDynamic(Vec3i pos) {
+    public IHaveTemperature getDynamic(long pos) {
         return dynamicData.get(pos);
     }
 

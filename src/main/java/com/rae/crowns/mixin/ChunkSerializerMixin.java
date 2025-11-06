@@ -37,12 +37,14 @@ public class ChunkSerializerMixin {
             int y = sectionTag.getByte("Y");
             long sectionPos = SectionPos.of(chunk.getPos(), y).asLong();
             TemperatureDataLayer temp = worldData.getTemperature(sectionPos);
+            TemperatureDataLayer defTemp = worldData.getDefaultTemperature(sectionPos);
             ConductionDataLayer cond = worldData.getConduction(sectionPos);
             ResilienceDataLayer resilience = worldData.getResilience(sectionPos);
 
 
             if (temp != null && cond != null && resilience != null) {
                 sectionTag.putByteArray("Temperature", temp.toBytes());
+                sectionTag.putByteArray("DefaultTemperature", defTemp.toBytes());
                 sectionTag.putByteArray("Conduction", cond.toBytes());
                 sectionTag.putByteArray("Resilience", resilience.toBytes());
                 sectionTag.putBoolean("TemperatureDirty", worldData.isDirty(sectionPos));
@@ -81,10 +83,12 @@ public class ChunkSerializerMixin {
                     sectionTag.contains("Temperature") && sectionTag.contains("Resilience") && sectionTag.contains("Conduction")) {
 
                 byte[] tempBytes = sectionTag.getByteArray("Temperature");
+                byte[] defTempBytes = sectionTag.getByteArray("DefaultTemperature");
                 byte[] condBytes = sectionTag.getByteArray("Conduction");
                 byte[] resBytes = sectionTag.getByteArray("Resilience");
 
-                worldData.put(sectionPos, new TemperatureDataLayer().fromBytes(tempBytes), new ConductionDataLayer().fromBytes(condBytes),
+
+                worldData.put(sectionPos, new TemperatureDataLayer().fromBytes(tempBytes), new TemperatureDataLayer().fromBytes(defTempBytes), new ConductionDataLayer().fromBytes(condBytes),
                         new ResilienceDataLayer().fromBytes(resBytes));
                 CROWNS.LOGGER.info("loading section : {}", SectionPos.of(pos, y));
 

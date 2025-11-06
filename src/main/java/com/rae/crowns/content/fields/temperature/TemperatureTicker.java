@@ -34,13 +34,11 @@ public class TemperatureTicker {
         //List<Vec3i> toDump = new ArrayList<>();
 
         // --- DYNAMIC DATA LOOP ---
-        for (Map.Entry<Vec3i, IHaveTemperature> entry : data.getDynamicData().entrySet()) {
-            Vec3i pos = entry.getKey();
-            IHaveTemperature value = entry.getValue();
-
+        data.getDynamicData().forEach( (key, value) -> {
+            BlockPos pos = BlockPos.of(key);
             if (value instanceof BlockEntity blockEntity && blockEntity.isRemoved()) {
                 //toDump.add(pos);
-                continue;
+                return;
             }
 
             int sx = pos.getX() >> 4;
@@ -49,13 +47,14 @@ public class TemperatureTicker {
             long packedSection = packSection(sx, sy, sz);
 
             TemperatureDataLayer temperatureData = data.getTemperature(packedSection);
+            TemperatureDataLayer defaultTemperatureData = data.getDefaultTemperature(packedSection);
             ConductionDataLayer conductionData = data.getConduction(packedSection);
             ResilienceDataLayer resilienceData = data.getResilience(packedSection);
 
             if (temperatureData == null || conductionData == null || resilienceData == null) {
                 CROWNS.LOGGER.warn("error trying to load temperature data at {}", SectionPos.of(packedSection));
                 data.putForInitialisation(packedSection);//this means that the data got corrupted.
-                continue;
+                return;
             }
 
             int lx = pos.getX() & 15;
@@ -64,12 +63,12 @@ public class TemperatureTicker {
 
             float temp = value.getTemperature();
             temperatureData.set(lx, ly, lz, temp);
-            temperatureData.setDefault(lx, ly, lz, temp);
+            defaultTemperatureData.set(lx, ly, lz, temp);
             resilienceData.set(lx, ly, lz, 0);
             conductionData.set(lx, ly, lz, value.getThermalConductivity());
 
             data.setDirty(packedSection);
-        }
+        });
 
         // --- MAIN TICK LOOP FOR SECTIONS ---
         for (long packedSection : tickingSections) {
@@ -79,6 +78,7 @@ public class TemperatureTicker {
             BlockPos base = new BlockPos(sx << 4, sy << 4, sz << 4);
 
             TemperatureDataLayer temperatureData = data.getTemperature(packedSection);
+            TemperatureDataLayer defaultTemperatureData = data.getDefaultTemperature(packedSection);
             ConductionDataLayer conductionData = data.getConduction(packedSection);
             ResilienceDataLayer resilienceData = data.getResilience(packedSection);
 
@@ -89,7 +89,7 @@ public class TemperatureTicker {
                     for (int z = 0; z < 16; z++) {
                         BlockPos pos = base.offset(x, y, z);
 
-                        float selfDefaultTemp = temperatureData.getDefault(x, y, z);
+                        float selfDefaultTemp = defaultTemperatureData.get(x, y, z);
                         float selfTemp = temperatureData.get(x, y, z);
                         float selfCond = conductionData.get(x, y, z);
 
@@ -172,9 +172,9 @@ public class TemperatureTicker {
 
                         //newTemp = newTemp * 0.9f + selfTemp * 0.1f;
 
-                        if ((newTemp != selfTemp || data.dynamicContains(pos))) {
-                            if (data.dynamicContains(pos)) {
-                                IHaveTemperature be = data.getDynamic(pos);
+                        if ((newTemp != selfTemp || data.dynamicContains(pos.asLong()))) {
+                            if (data.dynamicContains(pos.asLong())) {
+                                IHaveTemperature be = data.getDynamic(pos.asLong());
                                 be.addTemperature(newTemp - selfTemp);
                             }
                             temperatureData.set(x, y, z, newTemp);

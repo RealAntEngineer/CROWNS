@@ -3,6 +3,7 @@ package com.rae.crowns.content.event;
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.temperature.TemperatureManager;
 import com.rae.crowns.content.fields.temperature.TemperatureTicker;
+import com.rae.crowns.content.fields.temperature.TemperatureTickerRefactored;
 import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -39,7 +40,7 @@ public class ServerEvents {
                 }
             }
 
-            TemperatureTicker.tick(toTick, data);
+            TemperatureTickerRefactored.tick(toTick, data);
 
         }
 
