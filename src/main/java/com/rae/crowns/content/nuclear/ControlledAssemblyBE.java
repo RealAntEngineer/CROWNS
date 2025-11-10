@@ -2,8 +2,6 @@ package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.config.CROWNSConfigs;
-import com.rae.crowns.content.fields.temperature.TemperatureManager;
-import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;

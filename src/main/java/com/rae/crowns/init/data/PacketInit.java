@@ -1,7 +1,7 @@
 package com.rae.crowns.init.data;
 
 import com.rae.crowns.CROWNS;
-import com.rae.crowns.content.fields.temperature.UpdateSectionsPacket;
+import com.rae.crowns.content.fields.util.UpdateSectionsPacket;
 import com.rae.crowns.content.thermodynamics.turbine.UpdateSteamFlowPacket;
 import com.simibubi.create.foundation.networking.SimplePacketBase;
 import net.minecraft.core.BlockPos;

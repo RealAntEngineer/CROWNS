@@ -1,8 +1,8 @@
 package com.rae.crowns.content.event;
 
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
-import com.rae.crowns.content.fields.temperature.TemperatureManager;
-import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
+import com.rae.crowns.content.fields.util.PhysicsSaveManager;
+import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.init.misc.CommandsInit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -36,7 +36,7 @@ public class CommonEvents {
     public static void onEntityTick(LivingEvent.@NotNull LivingTickEvent event) {
         LivingEntity entity = event.getEntity();
         if (!entity.level().isClientSide()) {
-            TemperatureWorldData data = TemperatureManager.get((ServerLevel) entity.level());
+            PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) entity.level());
             AtomicReference<Float> cumlTemp = new AtomicReference<>(0f);
             AtomicReference<Integer> numberOfTemps = new AtomicReference<>(0);
             BlockPos.betweenClosedStream(entity.getBoundingBox()).forEach(blockPos -> {

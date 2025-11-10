@@ -2,6 +2,10 @@ package com.rae.crowns.mixin;
 
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.temperature.*;
+import com.rae.crowns.content.fields.util.AbstractDataLayer;
+import com.rae.crowns.content.fields.util.DataLayerType;
+import com.rae.crowns.content.fields.util.PhysicsSaveManager;
+import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -18,6 +22,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Mixin(ChunkSerializer.class)
 public class ChunkSerializerMixin {
 
@@ -28,7 +35,7 @@ public class ChunkSerializerMixin {
         CompoundTag root = cir.getReturnValue();
         ListTag sections = root.getList("sections", Tag.TAG_COMPOUND);
 
-        TemperatureWorldData worldData = TemperatureManager.get(level);
+        PhysicsWorldData worldData = PhysicsSaveManager.get(level);
 
         for (int i = 0; i < sections.size(); i++) {
             CompoundTag sectionTag = sections.getCompound(i);
@@ -36,42 +43,40 @@ public class ChunkSerializerMixin {
             if (!sectionTag.contains("Y")) continue;
             int y = sectionTag.getByte("Y");
             long sectionPos = SectionPos.of(chunk.getPos(), y).asLong();
-            TemperatureDataLayer temp = worldData.getTemperature(sectionPos);
-            TemperatureDataLayer defTemp = worldData.getDefaultTemperature(sectionPos);
-            ConductionDataLayer cond = worldData.getConduction(sectionPos);
-            ResilienceDataLayer resilience = worldData.getResilience(sectionPos);
 
+            // --- Iterate over all registered DataLayerTypes ---
 
-            if (temp != null && cond != null && resilience != null) {
-                sectionTag.putByteArray("Temperature", temp.toBytes());
-                sectionTag.putByteArray("DefaultTemperature", defTemp.toBytes());
-                sectionTag.putByteArray("Conduction", cond.toBytes());
-                sectionTag.putByteArray("Resilience", resilience.toBytes());
+            boolean exist = false;
+            for (DataLayerType<?> type : DataLayerType.REGISTRY.values()) {
+                AbstractDataLayer layer = worldData.getLayer(type, sectionPos);
+                if (layer != null) {
+                    sectionTag.putByteArray(type.id, layer.toBytes());
+                    exist = true;
+                }
+            }
+            if (exist) {
                 sectionTag.putBoolean("TemperatureDirty", worldData.isDirty(sectionPos));
-                sectionTag.putInt("ThermalDataVersion", TemperatureWorldData.DATA_VERSION);
+                sectionTag.putInt("ThermalDataVersion", PhysicsWorldData.DATA_VERSION);
 
-                //we can save and not unload the chunk. so we need to check if it was unloaded or not.
-                if (!worldData.isLoaded(sectionPos)){
+
+                if (!worldData.isLoaded(sectionPos)) {
                     worldData.dumpSection(sectionPos);
                     CROWNS.LOGGER.info("unloading section : {}", SectionPos.of(chunk.getPos(), y));
                 }
-
             }
             sections.set(i, sectionTag);
-
-
-
         }
+
         root.put("sections", sections);
         cir.setReturnValue(root);
     }
 
     @Inject(method = "read", at = @At("RETURN"))
     private static void onReadInject(
-            @NotNull ServerLevel level, PoiManager p_188232_, @NotNull ChunkPos pos, @NotNull CompoundTag tag, CallbackInfoReturnable<ProtoChunk> cir) {
-        ListTag sections = tag.getList("sections", Tag.TAG_COMPOUND);
+            @NotNull ServerLevel level, PoiManager poiManager, @NotNull ChunkPos pos, @NotNull CompoundTag tag, CallbackInfoReturnable<ProtoChunk> cir) {
 
-        TemperatureWorldData worldData = TemperatureManager.get(level);
+        ListTag sections = tag.getList("sections", Tag.TAG_COMPOUND);
+        PhysicsWorldData worldData = PhysicsSaveManager.get(level);
 
         for (int i = 0; i < sections.size(); i++) {
             CompoundTag sectionTag = sections.getCompound(i);
@@ -79,28 +84,33 @@ public class ChunkSerializerMixin {
             if (!sectionTag.contains("Y")) continue;
             int y = sectionTag.getByte("Y");
             long sectionPos = SectionPos.of(pos, y).asLong();
-            if (sectionTag.contains("ThermalDataVersion") && sectionTag.getInt("ThermalDataVersion") == TemperatureWorldData.DATA_VERSION &&
-                    sectionTag.contains("Temperature") && sectionTag.contains("Resilience") && sectionTag.contains("Conduction")) {
 
-                byte[] tempBytes = sectionTag.getByteArray("Temperature");
-                byte[] defTempBytes = sectionTag.getByteArray("DefaultTemperature");
-                byte[] condBytes = sectionTag.getByteArray("Conduction");
-                byte[] resBytes = sectionTag.getByteArray("Resilience");
+            if (!sectionTag.contains("ThermalDataVersion") ||
+                    sectionTag.getInt("ThermalDataVersion") != PhysicsWorldData.DATA_VERSION) continue;
 
-
-                worldData.put(sectionPos, new TemperatureDataLayer().fromBytes(tempBytes), new TemperatureDataLayer().fromBytes(defTempBytes), new ConductionDataLayer().fromBytes(condBytes),
-                        new ResilienceDataLayer().fromBytes(resBytes));
-                CROWNS.LOGGER.info("loading section : {}", SectionPos.of(pos, y));
-
-                if (sectionTag.contains("TemperatureDirty") && sectionTag.getBoolean("TemperatureDirty")) {
-                    worldData.setDirty(sectionPos);
-                } else {
-                    worldData.setClean(sectionPos);
+            // --- Iterate over all registered DataLayerTypes ---
+            Map<DataLayerType<?>, AbstractDataLayer> layers = new HashMap<>();
+            for (DataLayerType<?> type : DataLayerType.REGISTRY.values()) {
+                if (sectionTag.contains(type.id)) {
+                    byte[] bytes = sectionTag.getByteArray(type.id);
+                    AbstractDataLayer layer = type.createLayer().fromBytes(bytes);
+                    layers.put(type, layer);
                 }
-            } else {
-                //worldData.putForInitialisation(sectionPos);
             }
 
+            // Put loaded layers into world data
+            for (Map.Entry<DataLayerType<?>, AbstractDataLayer> entry : layers.entrySet()) {
+                worldData.putLayer(entry.getKey(), sectionPos, entry.getValue());
+            }
+
+            if (sectionTag.contains("TemperatureDirty") && sectionTag.getBoolean("TemperatureDirty")) {
+                worldData.setDirty(sectionPos);
+            } else {
+                worldData.setClean(sectionPos);
+            }
+
+            CROWNS.LOGGER.info("loading section : {}", SectionPos.of(pos, y));
         }
     }
 }
+

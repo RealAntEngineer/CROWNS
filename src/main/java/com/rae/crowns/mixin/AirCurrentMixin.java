@@ -1,6 +1,8 @@
 package com.rae.crowns.mixin;
 
 import com.rae.crowns.content.fields.temperature.*;
+import com.rae.crowns.content.fields.util.PhysicsSaveManager;
+import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.simibubi.create.content.kinetics.fan.AirCurrent;
 import com.simibubi.create.content.kinetics.fan.IAirCurrentSource;
 import net.minecraft.core.BlockPos;
@@ -38,7 +40,7 @@ public class AirCurrentMixin {
         Level world = source.getAirCurrentWorld();
         if (!(world instanceof ServerLevel serverLevel)) return;
 
-        TemperatureWorldData data = TemperatureManager.get(serverLevel);
+        PhysicsWorldData data = PhysicsSaveManager.get(serverLevel);
         Direction dir = direction;
 
         // --- Key fix: reverse the starting point ---

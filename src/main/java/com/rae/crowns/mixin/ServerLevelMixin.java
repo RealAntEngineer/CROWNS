@@ -1,6 +1,6 @@
 package com.rae.crowns.mixin;
 
-import com.rae.crowns.content.fields.temperature.TemperatureManager;
+import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
@@ -8,7 +8,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.WritableLevelData;
@@ -35,7 +34,7 @@ public abstract class ServerLevelMixin extends Level {
     @Inject(method = "onBlockStateChange", at = @At("HEAD"))
     private void onSetBlockState(@NotNull BlockPos pos, @NotNull BlockState oldState, BlockState newState, CallbackInfo ci) {
         if (!oldState.equals(newState)) {
-            TemperatureManager.get(getLevel()).registerChanged(pos.immutable());
+            PhysicsSaveManager.get(getLevel()).registerChanged(pos.immutable());
         }
     }
 }

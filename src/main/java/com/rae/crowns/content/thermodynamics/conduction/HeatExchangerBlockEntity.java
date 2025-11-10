@@ -1,8 +1,7 @@
 package com.rae.crowns.content.thermodynamics.conduction;
 
 import com.rae.crowns.config.CROWNSConfigs;
-import com.rae.crowns.content.fields.temperature.TemperatureManager;
-import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
+import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.misc.BlockInit;
@@ -111,7 +110,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                 for (int i = 0; i < iteration; i++) {
                     float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) * dt / iteration;
                     WATER_TANK.heat(power);
-                    if (TemperatureManager.get((ServerLevel) level).isLoaded(SectionPos.of(getBlockPos()).asLong())) {
+                    if (PhysicsSaveManager.get((ServerLevel) level).isLoaded(SectionPos.of(getBlockPos()).asLong())) {
                         this.addTemperature(-power / this.getThermalCapacity());
                     }
                 }

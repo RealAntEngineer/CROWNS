@@ -1,5 +1,4 @@
-package com.rae.crowns.content.fields.temperature;
-
+package com.rae.crowns.content.fields.advection;
 
 import com.rae.crowns.content.fields.util.AbstractDataLayer;
 import org.jetbrains.annotations.NotNull;
@@ -19,26 +18,24 @@ import java.nio.ByteBuffer;
  * Decoding:
  *   temperature = (stored - Integer.MIN_VALUE) / SCALE
  */
-public class TemperatureDataLayer extends AbstractDataLayer {
-    public static final double SCALE = 100000f; // 5 decimal places
-    public static final double MIN_TEMPERATURE = 0.0d;
-    public static final double MAX_TEMPERATURE =
-            (Integer.MAX_VALUE - (long) Integer.MIN_VALUE) / SCALE; // ≈ 42949.67295
-    private final int[] data = new int[SIZE];
-    //private final int[] defaultData = new int[SIZE];
+public class VelocityDataLayer extends AbstractDataLayer {
+    public static final double SCALE = 100f; // 5 decimal places
+    public static final double MIN_SPEED = Short.MIN_VALUE/SCALE;
+    public static final double MAX_SPEED = Short.MAX_VALUE/SCALE; // ≈ 42949.67295
+    private final short[] data = new short[SIZE];
 
     @Override
-    public TemperatureDataLayer fromBytes(byte @NotNull [] bytes) {
+    public VelocityDataLayer fromBytes(byte @NotNull [] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        for (int i = 0; i < SIZE; i++) data[i] = buffer.getInt();
+        for (int i = 0; i < SIZE; i++) data[i] = buffer.getShort();
         //for (int i = 0; i < SIZE; i++) defaultData[i] = buffer.getInt();
         return this;
     }
 
     @Override
     public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(SIZE * 4);// * 2);
-        for (int val : data) buffer.putInt(val);
+        ByteBuffer buffer = ByteBuffer.allocate(SIZE * 2);// * 2);
+        for (short val : data) buffer.putShort(val);
         //for (int val : defaultData) buffer.putInt(val);
         return buffer.array();
     }
@@ -46,12 +43,12 @@ public class TemperatureDataLayer extends AbstractDataLayer {
     @Override
     protected float decode(int index) {
         int stored = data[index];
-        return (float) ((stored - (long) Integer.MIN_VALUE) / SCALE);
+        return (float) (stored / SCALE);
     }
 
     @Override
     protected void encode(int index, float value) {
-        long encoded = (long) (value * SCALE) + (long) Integer.MIN_VALUE;
-        data[index] = (int) encoded;
+        short encoded = (short) (value * SCALE);
+        data[index] = encoded;
     }
 }

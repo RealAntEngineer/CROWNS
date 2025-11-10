@@ -1,8 +1,8 @@
 package com.rae.crowns.content.event;
 
 import com.rae.crowns.CROWNS;
-import com.rae.crowns.content.fields.temperature.TemperatureManager;
-import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
+import com.rae.crowns.content.fields.util.PhysicsSaveManager;
+import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
@@ -12,10 +12,8 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.ChunkEvent;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +26,7 @@ public class DataEvents {
     public static void onChunkUnload(ChunkEvent.@NotNull Unload event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             ChunkAccess chunk = event.getChunk();
-            TemperatureWorldData worldData = TemperatureManager.get(serverLevel);
+            PhysicsWorldData worldData = PhysicsSaveManager.get(serverLevel);
 
             // Dump all sections for this chunk
             int chunkX = chunk.getPos().x;
@@ -44,7 +42,7 @@ public class DataEvents {
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.@NotNull Load event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
-            TemperatureWorldData worldData = TemperatureManager.get(serverLevel);
+            PhysicsWorldData worldData = PhysicsSaveManager.get(serverLevel);
             if (event.isNewChunk()) {//if it's an old world the ChunkSerializer should take care of it.
                 ChunkAccess chunk = event.getChunk();
                 ChunkPos chunkPos = chunk.getPos();

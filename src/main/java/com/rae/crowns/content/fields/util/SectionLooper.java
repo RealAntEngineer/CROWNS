@@ -1,9 +1,9 @@
-package com.rae.crowns.content.fields.temperature;
-
-import net.minecraft.core.Direction;
+package com.rae.crowns.content.fields.util;
 
 import java.util.Set;
 import java.util.function.Function;
+
+import static com.rae.crowns.content.fields.util.PosPackingUtil.*;
 
 /**
  * Generic section iteration helper.
@@ -82,8 +82,9 @@ public final class SectionLooper {
         /**
          * Compute absolute BlockPos (packed as a long)
          */
+
         public long packedPos() {
-            return packSection((sx << 4) + x(), (sy << 4) + y(), (sz << 4) + z());//the packing is the same for blocks and sections
+            return packBlockPos((sx << 4) + x(), (sy << 4) + y(), (sz << 4) + z());//the packing is the same for blocks and sections
         }
 
         /**
@@ -118,7 +119,7 @@ public final class SectionLooper {
                 lz -= SECTION_SIZE;
             }
 
-            long packed = SectionLooper.packSection(nsx, nsy, nsz);
+            long packed = PosPackingUtil.packSection(nsx, nsy, nsz);
             return new NeighborRef(packed, lx, ly, lz);
         }
 
@@ -175,16 +176,6 @@ public final class SectionLooper {
         public record NeighborRef(long packedSection, int localX, int localY, int localZ) {
     }
 
-    // --- packing/unpacking kept identical to your original scheme ---
-    public static long packSection(int sx, int sy, int sz) {
-        return ((long)sx & 0x3FFFFF) << 42
-                | ((long)sz & 0x3FFFFF) << 20
-                | ((long)sy & 0xFFFFF);
-    }
-
-    public static int unpackSectionX(long packed) { return (int)(packed >> 42); }
-    public static int unpackSectionY(long packed) { return (int)(packed << 44 >> 44); }
-    public static int unpackSectionZ(long packed) { return (int)(packed << 22 >> 42); }
 
     /**
      * Iterate every voxel in every packedSection and call visitor.

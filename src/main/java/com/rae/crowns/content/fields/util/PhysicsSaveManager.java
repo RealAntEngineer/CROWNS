@@ -1,4 +1,4 @@
-package com.rae.crowns.content.fields.temperature;
+package com.rae.crowns.content.fields.util;
 
 import com.rae.crowns.CROWNS;
 import net.minecraft.core.BlockPos;
@@ -16,11 +16,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class TemperatureManager {
-    private static final Map<ResourceKey<Level>, TemperatureWorldData> worldDataMap = new WeakHashMap<>();
+public class PhysicsSaveManager {
+    private static final Map<ResourceKey<Level>, PhysicsWorldData> worldDataMap = new WeakHashMap<>();
 
-    public static @NotNull TemperatureWorldData get(@NotNull ServerLevel level) {
-        return worldDataMap.computeIfAbsent(level.dimension(), k -> new TemperatureWorldData());
+    public static @NotNull PhysicsWorldData get(@NotNull ServerLevel level) {
+        return worldDataMap.computeIfAbsent(level.dimension(), k -> new PhysicsWorldData());
     }
 
     public static void reset(){

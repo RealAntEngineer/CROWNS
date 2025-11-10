@@ -2,8 +2,7 @@ package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.config.CROWNSConfigs;
-import com.rae.crowns.content.fields.temperature.TemperatureManager;
-import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
+import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.init.misc.FluidInit;
 import com.rae.formicapi.FormicApiLang;
@@ -79,7 +78,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public void tick() {
         super.tick();
         if (!level.isClientSide()) {
-            if (!TemperatureManager.get((ServerLevel) level).isLoaded(SectionPos.of(getBlockPos()).asLong())) return;
+            if (!PhysicsSaveManager.get((ServerLevel) level).isLoaded(SectionPos.of(getBlockPos()).asLong())) return;
             if (syncCooldown > 0) {
                 syncCooldown--;
                 if (syncCooldown == 0 && queuedSync)
@@ -98,7 +97,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public void lazyTick() {
         if (!level.isClientSide()) {
-            if (!TemperatureManager.get((ServerLevel) level).isLoaded(SectionPos.of(getBlockPos()).asLong())) return;
+            if (!PhysicsSaveManager.get((ServerLevel) level).isLoaded(SectionPos.of(getBlockPos()).asLong())) return;
             oldNbrOfFission = nbrOfFission;
             nbrOfFission = additionalNeutronsAbsorbed + backgroundActivity; //for now a 100% change of fission : no absorption
             if (Float.isNaN(nbrOfFission)) {

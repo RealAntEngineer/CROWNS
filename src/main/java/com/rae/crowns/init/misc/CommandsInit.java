@@ -3,7 +3,7 @@ package com.rae.crowns.init.misc;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
-import com.rae.crowns.content.fields.temperature.TemperatureManager;
+import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.nuclear.NuclearExplosion;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -32,7 +32,7 @@ public class CommandsInit {
                             .executes(context -> {
                                 ServerPlayer player = context.getSource().getPlayerOrException();
                                 long sectionPos = SectionPos.of(BlockPosArgument.getBlockPos(context, "pos")).asLong(); // <-- get the float argument
-                                TemperatureManager.get((ServerLevel) player.level()).putForInitialisation(sectionPos);
+                                PhysicsSaveManager.get((ServerLevel) player.level()).putForInitialisation(sectionPos);
                                 return Command.SINGLE_SUCCESS;
                             })));
         }
