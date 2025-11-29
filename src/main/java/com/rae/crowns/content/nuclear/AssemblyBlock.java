@@ -1,11 +1,16 @@
 package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.init.misc.BlockEntityInit;
+import com.simibubi.create.content.equipment.armor.BacktankBlockEntity;
+import com.simibubi.create.content.equipment.armor.BacktankItem;
 import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -17,8 +22,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlockEntity> {
     public static final EnumProperty<Temperature> TEMPERATURE = EnumProperty.create("temperature", Temperature.class); //T*10
@@ -79,6 +87,22 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
         withBlockEntityDo(level, pos, be -> {
             be.setComposition(itemStack.getOrCreateTag().getCompound("composition"));
         });
+    }
+
+    @Override
+    public @NotNull ItemStack getCloneItemStack(BlockGetter blockGetter, BlockPos pos, BlockState state) {
+        Item item = asItem();
+
+        Optional<AssemblyBlockEntity> blockEntityOptional = getBlockEntityOptional(blockGetter, pos);
+        CompoundTag composition = blockEntityOptional.map(AssemblyBlockEntity::saveComposition)
+                .map(CompoundTag::copy)
+                .orElse(new CompoundTag());
+
+        ItemStack stack = new ItemStack(item, 1);
+        CompoundTag compoundtag = stack.getOrCreateTag();
+        compoundtag.put("composition", composition);
+        stack.setTag(compoundtag);
+        return stack;
     }
 
     public enum Activity implements StringRepresentable {

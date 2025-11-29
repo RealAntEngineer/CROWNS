@@ -19,6 +19,7 @@ public class SteamFlowManager {
     static @Nullable SteamFlowData storage = null;
 
     public static void addSteamCurrent(ResourceLocation dimension, SteamCurrent steamCurrent) {
+        if (storage == null) return;
         storage.steamCurrents.computeIfAbsent(dimension, d -> new ArrayList<>())
                 .add(steamCurrent);
         storage.setDirty(); // replace with markDirty() if your class uses that name
@@ -37,6 +38,7 @@ public class SteamFlowManager {
 
         storage.steamCurrents.get(world.dimension().location())
                 .forEach(steamCurrent -> steamCurrent.tick(world));
+
         if (world instanceof ServerLevel serverLevel) {
             for (ServerPlayer player : serverLevel.players()) {
                 PacketInit.getChannel()
@@ -50,6 +52,7 @@ public class SteamFlowManager {
 
     public static @NotNull List<SteamCurrent> getCurrentsInBounds(ResourceLocation dimension, @NotNull AABB bound) {
         List<SteamCurrent> collector = new ArrayList<>();
+        if (storage == null) return collector;
         storage.steamCurrents.getOrDefault(dimension, List.of()).forEach((steamCurrent) ->
         {
             if (steamCurrent.intersects(bound))
@@ -78,6 +81,7 @@ public class SteamFlowManager {
         if (storage == null) {
             storage = savedData;
         } else {
+            //attention : if the server is local, server only data will get overwritten.
             storage.steamCurrents = savedData.steamCurrents;
         }
     }

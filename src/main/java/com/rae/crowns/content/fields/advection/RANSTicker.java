@@ -19,7 +19,7 @@ import java.util.Set;
  *   5 -> BLOCKED_Z
  */
 public class RANSTicker {
-
+    /*
     public static int TICK_PERIOD = 1;
     public static float DT = TICK_PERIOD / 20f;
 
@@ -49,7 +49,7 @@ public class RANSTicker {
     /**
      * Visitor that computes one explicit viscous-diffusion + damping step for vx/vy/vz.
      * Uses blocked-face masks to prevent flux across solid faces.
-     */
+
     private static final class VelocityVoxelVisitor implements SectionLooper.VoxelVisitor {
         private final PhysicsWorldData data;
         private final VelocityNeighborVisitor neighborVisitor;
@@ -128,7 +128,7 @@ public class RANSTicker {
     /**
      * Neighbor consumer that computes laplacian contributions for velocity,
      * skipping faces that are blocked by the per-face masks.
-     */
+
     private static final class VelocityNeighborVisitor implements SectionLooper.Context.NeighborConsumer {
         private final PhysicsWorldData data;
 
@@ -180,7 +180,7 @@ public class RANSTicker {
                 lapZ += (0f - selfVz);
                 neighborCount++;
                 return;
-            }*/
+            }
 
             // fetch neighbor conduction/velocity layers from world data (neighbor section)
             VelocityDataLayer nVxLayer = data.getLayer(DataLayerType.VX, ref.packedSection());
@@ -219,5 +219,5 @@ public class RANSTicker {
 
             return false;
         }
-    }
+    }*/
 }

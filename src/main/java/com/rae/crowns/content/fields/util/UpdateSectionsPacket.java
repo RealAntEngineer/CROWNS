@@ -13,19 +13,19 @@ import java.util.Map;
 
 public class UpdateSectionsPacket extends SimplePacketBase {
     private final Map<SectionPos, TemperatureDataLayer> temperatureMap;
-    private final Map<SectionPos, VelocityDataLayer> vxMap;
-    private final Map<SectionPos, VelocityDataLayer> vyMap;
-    private final Map<SectionPos, VelocityDataLayer> vzMap;
+    //private final Map<SectionPos, VelocityDataLayer> vxMap;
+    //private final Map<SectionPos, VelocityDataLayer> vyMap;
+    //private final Map<SectionPos, VelocityDataLayer> vzMap;
 
 
-    public UpdateSectionsPacket(Map<SectionPos, TemperatureDataLayer> temperatureMap,
-                                Map<SectionPos, VelocityDataLayer> vxMap,
+    public UpdateSectionsPacket(Map<SectionPos, TemperatureDataLayer> temperatureMap
+                                /*Map<SectionPos, VelocityDataLayer> vxMap,
                                 Map<SectionPos, VelocityDataLayer> vyMap,
-                                Map<SectionPos, VelocityDataLayer> vzMap) {
+                                Map<SectionPos, VelocityDataLayer> vzMap*/) {
         this.temperatureMap = temperatureMap;
-        this.vxMap = vxMap;
-        this.vyMap = vyMap;
-        this.vzMap = vzMap;
+        //this.vxMap = vxMap;
+        //this.vyMap = vyMap;
+        //this.vzMap = vzMap;
 
     }
 
@@ -35,7 +35,7 @@ public class UpdateSectionsPacket extends SimplePacketBase {
                 buf -> SectionPos.of(buf.readLong()),                // key reader
                 buf -> new TemperatureDataLayer().fromBytes(buf.readByteArray()) // value reader
         );
-
+        /*
         this.vxMap = buffer.readMap(
                 buf -> SectionPos.of(buf.readLong()),                // key reader
                 buf -> new VelocityDataLayer().fromBytes(buf.readByteArray()) // value reader
@@ -49,7 +49,7 @@ public class UpdateSectionsPacket extends SimplePacketBase {
         this.vzMap = buffer.readMap(
                 buf -> SectionPos.of(buf.readLong()),                // key reader
                 buf -> new VelocityDataLayer().fromBytes(buf.readByteArray()) // value reader
-        );
+        );*/
     }
 
     @Override
@@ -59,7 +59,7 @@ public class UpdateSectionsPacket extends SimplePacketBase {
                 (buf, pos) -> buf.writeLong(pos.asLong()),           // key writer
                 (buf, layer) -> buf.writeByteArray(layer.toBytes())  // value writer
         );
-
+        /*
         buffer.writeMap(
                 vxMap,
                 (buf, pos) -> buf.writeLong(pos.asLong()),           // key writer
@@ -74,7 +74,7 @@ public class UpdateSectionsPacket extends SimplePacketBase {
                 vzMap,
                 (buf, pos) -> buf.writeLong(pos.asLong()),           // key writer
                 (buf, layer) -> buf.writeByteArray(layer.toBytes())  // value writer
-        );
+        );*/
     }
 
     @Override
@@ -85,7 +85,7 @@ public class UpdateSectionsPacket extends SimplePacketBase {
                 if (mc.level == null) return;
 
                 long time = mc.level.getGameTime();
-                LocalPhysicData.receiveUpdate(temperatureMap,vxMap, vyMap, vzMap, time);
+                LocalPhysicData.receiveUpdate(temperatureMap, /*vxMap, vyMap, vzMap,*/ time);
             }
         });
         return true;

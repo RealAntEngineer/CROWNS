@@ -46,15 +46,16 @@ public class ChunkSerializerMixin {
 
             // --- Iterate over all registered DataLayerTypes ---
 
-            boolean exist = false;
-            for (DataLayerType<?> type : DataLayerType.REGISTRY.values()) {
-                AbstractDataLayer layer = worldData.getLayer(type, sectionPos);
-                if (layer != null) {
-                    sectionTag.putByteArray(type.id, layer.toBytes());
-                    exist = true;
-                }
-            }
+            boolean exist = worldData.isLoaded(sectionPos);
             if (exist) {
+                for (DataLayerType<?> type : DataLayerType.REGISTRY.values()) {
+                    AbstractDataLayer layer = worldData.getLayer(type, sectionPos);
+                    if (layer != null) {
+                        sectionTag.putByteArray(type.id, layer.toBytes());
+                    } else {
+                        CROWNS.LOGGER.info("missing {} for {} at write", type.id, SectionPos.of(chunk.getPos(), y));
+                    }
+                }
                 sectionTag.putBoolean("TemperatureDirty", worldData.isDirty(sectionPos));
                 sectionTag.putInt("ThermalDataVersion", PhysicsWorldData.DATA_VERSION);
 
@@ -63,8 +64,9 @@ public class ChunkSerializerMixin {
                     worldData.dumpSection(sectionPos);
                     CROWNS.LOGGER.info("unloading section : {}", SectionPos.of(chunk.getPos(), y));
                 }
+
+                sections.set(i, sectionTag);
             }
-            sections.set(i, sectionTag);
         }
 
         root.put("sections", sections);
@@ -95,6 +97,8 @@ public class ChunkSerializerMixin {
                     byte[] bytes = sectionTag.getByteArray(type.id);
                     AbstractDataLayer layer = type.createLayer().fromBytes(bytes);
                     layers.put(type, layer);
+                } else {
+                    CROWNS.LOGGER.info("missing {} for {} at read", type.id, SectionPos.of(pos, y));
                 }
             }
 

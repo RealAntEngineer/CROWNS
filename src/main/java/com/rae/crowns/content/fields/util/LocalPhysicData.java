@@ -17,9 +17,9 @@ import java.util.*;
 @OnlyIn(Dist.CLIENT)
 public class LocalPhysicData {
     private static final Map<SectionPos, TemperatureDataLayer> temperatureMap = new HashMap<>();
-    private static final Map<SectionPos, VelocityDataLayer> vxMap = new HashMap<>();
-    private static final Map<SectionPos, VelocityDataLayer> vyMap = new HashMap<>();
-    private static final Map<SectionPos, VelocityDataLayer> vzMap = new HashMap<>();
+    //private static final Map<SectionPos, VelocityDataLayer> vxMap = new HashMap<>();
+    //private static final Map<SectionPos, VelocityDataLayer> vyMap = new HashMap<>();
+    //private static final Map<SectionPos, VelocityDataLayer> vzMap = new HashMap<>();
     private static final Set<SectionPos> tickingSections = new HashSet<>();
     private static final Map<SectionPos, Long> lastTicked = new HashMap<>();
     private static final long MAX_TICKS_AGE = 5; // keep highlighting for 5 ticks
@@ -32,13 +32,13 @@ public class LocalPhysicData {
     }
 
     public static void receiveUpdate(@NotNull Map<SectionPos, TemperatureDataLayer> serverTemperatureData,
-                                     @NotNull Map<SectionPos, VelocityDataLayer> vxData,
+                                     /*@NotNull Map<SectionPos, VelocityDataLayer> vxData,
                                      @NotNull Map<SectionPos, VelocityDataLayer> vyData,
-                                     @NotNull Map<SectionPos, VelocityDataLayer> vzData, long currentTick) {
+                                     @NotNull Map<SectionPos, VelocityDataLayer> vzData,*/ long currentTick) {
         temperatureMap.putAll(serverTemperatureData);
-        vxMap.putAll(vxData);
-        vyMap.putAll(vyData);
-        vzMap.putAll(vzData);
+        //vxMap.putAll(vxData);
+        //vyMap.putAll(vyData);
+        //vzMap.putAll(vzData);
 
         // Mark all sections in this batch as ticking in this tick
         for (SectionPos section : serverTemperatureData.keySet()) {
@@ -72,7 +72,7 @@ public class LocalPhysicData {
         return layer.get(localX, localY, localZ);
     }
 
-    public static Vec3 getV(@NotNull Vec3i pos) {
+    /*public static Vec3 getV(@NotNull Vec3i pos) {
         SectionPos sectionPos = SectionPos.of((BlockPos) pos);
         VelocityDataLayer vx = vxMap.get(sectionPos);
         VelocityDataLayer vy = vyMap.get(sectionPos);
@@ -86,7 +86,7 @@ public class LocalPhysicData {
         int localZ = pos.getZ() & 15;
 
         return new Vec3(vx.get(localX, localY, localZ),vy.get(localX, localY, localZ),vz.get(localX, localY, localZ));
-    }
+    }*/
 
     public static @NotNull Set<SectionPos> getTickingSections(){
         return tickingSections;

@@ -17,12 +17,12 @@ public final class DataLayerType<T extends AbstractDataLayer> {
     public static final DataLayerType<TemperatureDataLayer> DEFAULT_TEMPERATURE = register("default_temperature", TemperatureDataLayer::new);
     public static final DataLayerType<ResilienceDataLayer> RESILIENCE = register("resilence", ResilienceDataLayer::new);
     public static final DataLayerType<ConductionDataLayer> CONDUCTION = register("conduction", ConductionDataLayer::new);
-    public static final DataLayerType<VelocityDataLayer> VX = register("vx", VelocityDataLayer::new);
+    /*public static final DataLayerType<VelocityDataLayer> VX = register("vx", VelocityDataLayer::new);
     public static final DataLayerType<BlockedDataLayer> BLOCKED_X = register("blocked_x", BlockedDataLayer::new);
     public static final DataLayerType<VelocityDataLayer> VY = register("vy", VelocityDataLayer::new);
     public static final DataLayerType<BlockedDataLayer> BLOCKED_Y = register("blocked_y", BlockedDataLayer::new);
     public static final DataLayerType<VelocityDataLayer> VZ = register("vz", VelocityDataLayer::new);
-    public static final DataLayerType<BlockedDataLayer> BLOCKED_Z = register("blocked_z", BlockedDataLayer::new);
+    public static final DataLayerType<BlockedDataLayer> BLOCKED_Z = register("blocked_z", BlockedDataLayer::new);*/
 
 
     public final String id;

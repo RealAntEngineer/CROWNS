@@ -21,7 +21,7 @@ import static com.rae.crowns.content.fields.util.PosPackingUtil.packSection;
 
 @Mixin(AirCurrent.class)
 public class AirCurrentRansMixin {
-
+    /*
     @Final
     @Shadow(remap = false)
     public IAirCurrentSource source;
@@ -86,5 +86,5 @@ public class AirCurrentRansMixin {
 
         // --- Mark section dirty for CFD update ---
         data.setDirty(sectionPos);
-    }
+    }*/
 }

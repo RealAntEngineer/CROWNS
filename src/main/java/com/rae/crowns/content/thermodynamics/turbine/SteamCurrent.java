@@ -5,13 +5,15 @@ import com.rae.crowns.content.thermodynamics.ISteamPressureChange;
 import com.rae.crowns.init.misc.BlockInit;
 import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
+import com.rae.formicapi.multiblock.MBStructureBlock;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
-import com.rae.formicapi.thermal_utilities.helper.WaterAsRealGaz;
 import com.rae.formicapi.thermal_utilities.helper.WaterTableBased;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -26,195 +28,245 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import static com.rae.crowns.Constants.whatSU;
 
 public class SteamCurrent {
 
-	/*public static Codec<SteamCurrent> CODEC = RecordCodecBuilder.create(
-			instance -> instance.group(
-					SpecificRealGazState.CODEC.optionalFieldOf("inputState",null).forGetter(s -> s.inputFluidState),
-					SpecificRealGazState.CODEC.optionalFieldOf("outputState",null).forGetter(s -> s.outputFluidState),
-					Codec.list(BlockPos.CODEC).optionalFieldOf("stagePos", new ArrayList<>()).forGetter(s -> s.stagesPos),
-					BlockPos.CODEC.optionalFieldOf("collectorPos", null).forGetter(s -> s.collectorPos),
-					BlockPos.CODEC.fieldOf("injectorPos").forGetter(s -> s.injectorPos),
-					Direction.CODEC.fieldOf("direction").forGetter(s -> s.direction),
-					Codec.FLOAT.fieldOf("maxDistance").forGetter(s -> s.maxDistance)
+    // configuration
+    private final float maxDistance;
 
-			).apply(instance, SteamCurrent::new));*/
+    // dynamic state
+    @NotNull
+    private List<BlockPos> stagesPos = new ArrayList<>();
+    @Nullable
+    private BlockPos collectorPos;
+    @NotNull
+    private final BlockPos injectorPos;
+    @NotNull
+    private Map<BlockPos, Float> powerForStage = new ConcurrentHashMap<>();
+    @NotNull
+    private Map<BlockPos, SpecificRealGazState> stateMap = new HashMap<>();
 
-    public float maxDistance;
-    @NotNull ArrayList<BlockPos> stagesPos = new ArrayList<>();
-    @Nullable BlockPos collectorPos = null;
-    BlockPos injectorPos;
-    @NotNull Map<BlockPos, Float> powerForStage = new ConcurrentHashMap<>();
-    @NotNull HashMap<BlockPos, SpecificRealGazState> stateMap = new HashMap<>();
-    private @Nullable SpecificRealGazState inputFluidState = null;
-    private @Nullable SpecificRealGazState outputFluidState = null;
+    @Nullable
+    private SpecificRealGazState inputFluidState;
+    @Nullable
+    private SpecificRealGazState outputFluidState;
+
+    @NotNull
     private Direction direction;
-    private @Nullable FlowLine spline;
-
-	/*public SteamCurrent(SpecificRealGazState inputFluidState, SpecificRealGazState outputFluidState, float maxDistance,
-						List<BlockPos> stagesPos, BlockPos collectorPos, BlockPos injectorPos, Direction direction,
-						HashMap<BlockPos, Float> powerForStage, HashMap<BlockPos, SpecificRealGazState> stateMap,
-						float flow, AABB bondingBox) {
-		this.inputFluidState = inputFluidState;
-		this.outputFluidState = outputFluidState;
-		this.maxDistance = maxDistance;
-		this.stagesPos = new ArrayList<>(stagesPos);
-		this.collectorPos = collectorPos;
-		this.injectorPos = injectorPos;
-		this.direction = direction;
-		this.powerForStage = powerForStage;
-		this.stateMap = stateMap;
-		this.flow = flow;
-		this.bondingBox = bondingBox;
-		this.reloadSpline = true;
-	}*/
+    @Nullable
+    private FlowLine spline; // created on server and synced to client via NBT
 
     private float flow;
-    private AABB bondingBox;
+    private AABB boundingBox;
     private boolean reloadSpline;
 
-    //TODO finish to assemble the bricks + test if it works
-//Sync the AABB ?
-    public SteamCurrent(BlockPos sourcePosition, @NotNull Direction direction, float maxDistance) {
-        this.injectorPos = sourcePosition;
-        this.direction = direction;
-        this.maxDistance = maxDistance;
-        this.bondingBox = new AABB(injectorPos.relative(direction));
-    }
-
-    public SteamCurrent(BlockPos injectorPos, Direction direction, float maxDistance, AABB bondingBox, BlockPos collectorPos, FlowLine spline, boolean reloadSpline) {
+    public SteamCurrent(@NotNull BlockPos injectorPos, @NotNull Direction direction, float maxDistance) {
         this.injectorPos = injectorPos;
         this.direction = direction;
         this.maxDistance = maxDistance;
-        this.bondingBox = bondingBox;
+        this.boundingBox = new AABB(injectorPos.relative(direction));
+    }
+
+    public SteamCurrent(
+            @NotNull BlockPos injectorPos,
+            @NotNull Direction direction,
+            float maxDistance,
+            @NotNull AABB boundingBox,
+            @Nullable BlockPos collectorPos,
+            @Nullable FlowLine spline,
+            @NotNull List<BlockPos> stagesPos,
+            boolean reloadSpline,
+            @Nullable SpecificRealGazState inputFluidState,
+            @Nullable SpecificRealGazState outputFluidState,
+            @NotNull Map<BlockPos, Float> powerForStage,
+            @NotNull Map<BlockPos, SpecificRealGazState> stateMap,
+            float flow
+    ) {
+        this.injectorPos = injectorPos;
+        this.direction = direction;
+        this.maxDistance = maxDistance;
+        this.boundingBox = boundingBox;
         this.collectorPos = collectorPos;
         this.spline = spline;
         this.reloadSpline = reloadSpline;
+        this.stagesPos = stagesPos;
+        this.inputFluidState = inputFluidState;
+        this.outputFluidState = outputFluidState;
+        this.powerForStage = powerForStage;
+        this.stateMap = stateMap;
+        this.flow = flow;
     }
 
+
     public static @NotNull SteamCurrent fromNBT(@NotNull CompoundTag nbt) {
-        AABB bondingBox =
-                new AABB(
-                        BlockPos.of(nbt.getLong("startPos")),
-                        BlockPos.of(nbt.getLong("endPos")));
+
+        // Geometry + config
         BlockPos injectorPos = BlockPos.of(nbt.getLong("injectorPos"));
+        AABB boundingBox = new AABB(
+                BlockPos.of(nbt.getLong("startPos")),
+                BlockPos.of(nbt.getLong("endPos"))
+        );
+
         float maxDistance = nbt.getFloat("maxDistance");
         boolean reloadSpline = nbt.getBoolean("reloadSpline");
 
-        BlockPos collectorPos = null;
-        FlowLine spline = null;
-        Direction direction = null;
-        if (nbt.contains("collectorPos")) {
-            collectorPos = BlockPos.of(nbt.getLong("collectorPos"));
+        BlockPos collectorPos = nbt.contains("collectorPos") ? BlockPos.of(nbt.getLong("collectorPos")) : null;
+
+        List<BlockPos> stagesPos =
+                nbt.contains("stagesPos")
+                        ? Arrays.stream(nbt.getLongArray("stagesPos")).mapToObj(BlockPos::of).toList()
+                        : new ArrayList<>();
+
+        Direction direction = nbt.contains("direction")
+                ? Objects.requireNonNull(Direction.CODEC.byName(nbt.getString("direction")))
+                : Direction.NORTH;
+
+        FlowLine spline = nbt.contains("BSpline")
+                ? FlowLine.deserializeNBT(nbt.getCompound("BSpline"))
+                : null;
+
+        float flow = nbt.getFloat("flow");
+
+        // Input/output states
+        SpecificRealGazState inputFluidState =
+                nbt.contains("inputState") ? new SpecificRealGazState(nbt.getCompound("inputState")) : null;
+
+        SpecificRealGazState outputFluidState =
+                nbt.contains("outputState") ? new SpecificRealGazState(nbt.getCompound("outputState")) : null;
+
+        // powerForStage map
+        Map<BlockPos, Float> powerForStage = new HashMap<>();
+        if (nbt.contains("powerForStage", Tag.TAG_LIST)) {
+            ListTag list = nbt.getList("powerForStage", Tag.TAG_COMPOUND);
+            for (Tag t : list) {
+                CompoundTag tag = (CompoundTag) t;
+                powerForStage.put(BlockPos.of(tag.getLong("pos")), tag.getFloat("power"));
+            }
         }
-        if (nbt.contains("BSpline"))
-            spline = FlowLine.deserializeNBT(nbt.getCompound("BSpline"));
 
-        if (nbt.contains("direction"))
-            direction = Objects.requireNonNull(Direction.CODEC.byName(nbt.getString("direction")));
+        // stateMap
+        Map<BlockPos, SpecificRealGazState> stateMap = new HashMap<>();
+        if (nbt.contains("stateMap", Tag.TAG_LIST)) {
+            ListTag list = nbt.getList("stateMap", Tag.TAG_COMPOUND);
+            for (Tag t : list) {
+                CompoundTag tag = (CompoundTag) t;
+                stateMap.put(
+                        BlockPos.of(tag.getLong("pos")),
+                        new SpecificRealGazState(tag.getCompound("state"))
+                );
+            }
+        }
 
-        return new SteamCurrent(injectorPos, direction, maxDistance, bondingBox, collectorPos, spline, reloadSpline);
+        return new SteamCurrent(
+                injectorPos,
+                direction,
+                maxDistance,
+                boundingBox,
+                collectorPos,
+                spline,
+                stagesPos,
+                reloadSpline,
+                inputFluidState,
+                outputFluidState,
+                powerForStage,
+                stateMap,
+                flow
+        );
     }
 
     protected @NotNull CompoundTag toNBT() {
         CompoundTag nbt = new CompoundTag();
-        AABB syncedBB = bondingBox;
-        if (spline != null)
-            nbt.put("BSpline", spline.serializeNBT());
-        nbt.putLong("startPos", new BlockPos((int) syncedBB.minX, (int) syncedBB.minY, (int) syncedBB.minZ).asLong());
-        nbt.putLong("endPos", new BlockPos((int) syncedBB.maxX, (int) syncedBB.maxY, (int) syncedBB.maxZ).asLong());
+
+        // Base geometry + config
         nbt.putLong("injectorPos", injectorPos.asLong());
-        if (collectorPos != null) nbt.putLong("collectorPos", this.collectorPos.asLong());
+        nbt.putLong("startPos", new BlockPos((int) boundingBox.minX, (int) boundingBox.minY, (int) boundingBox.minZ).asLong());
+        nbt.putLong("endPos", new BlockPos((int) boundingBox.maxX, (int) boundingBox.maxY, (int) boundingBox.maxZ).asLong());
         nbt.putString("direction", direction.getName());
         nbt.putFloat("maxDistance", maxDistance);
         nbt.putBoolean("reloadSpline", reloadSpline);
+        nbt.putLongArray("stagesPos", stagesPos.stream().mapToLong(BlockPos::asLong).toArray());
+
+        if (collectorPos != null)
+            nbt.putLong("collectorPos", collectorPos.asLong());
+
+        // Flow
+        nbt.putFloat("flow", flow);
+
+        // Input/output states
+        if (inputFluidState != null)
+            nbt.put("inputState", inputFluidState.serialize());
+        if (outputFluidState != null)
+            nbt.put("outputState", outputFluidState.serialize());
+
+        // Spline
+        if (spline != null)
+            nbt.put("BSpline", spline.serializeNBT());
+
+        // powerForStage map
+        ListTag powerList = new ListTag();
+        for (var e : powerForStage.entrySet()) {
+            CompoundTag t = new CompoundTag();
+            t.putLong("pos", e.getKey().asLong());
+            t.putFloat("power", e.getValue());
+            powerList.add(t);
+        }
+        nbt.put("powerForStage", powerList);
+
+        // stateMap
+        ListTag stateList = new ListTag();
+        for (var e : stateMap.entrySet()) {
+            CompoundTag t = new CompoundTag();
+            t.putLong("pos", e.getKey().asLong());
+            t.put("state", e.getValue().serialize());
+            stateList.add(t);
+        }
+        nbt.put("stateMap", stateList);
+
         return nbt;
     }
 
-    public float getPowerForStage(@NotNull ISteamPressureChange stage) {
-        calculateForStage(stage, ((BlockEntity) stage).getLevel());
-        return powerForStage.getOrDefault(((BlockEntity) stage).getBlockPos(), 0f);
 
+    /**
+     * Returns the (stageIndex, power) record for a given pressure-change stage.
+     * This no longer triggers recomputation — recomputeStages is run on the server tick and spline is built on the server.
+     */
+    public @NotNull SPR getPowerForStage(@NotNull ISteamPressureChange stage) {
+        if (!(stage instanceof BlockEntity be)) return new SPR(-1, 0f);
+        BlockPos pos = be.getBlockPos();
+        int idx = stagesPos.indexOf(pos);
+        float power = powerForStage.getOrDefault(pos, 0f);
+        return new SPR(idx, power);
     }
 
-    public void rebuild(@NotNull Level level) {
-
-        float distance = explore(level, injectorPos, maxDistance, direction);
-        if (maxDistance < 0.25f)
-            setBoundingBox(new AABB(0, 0, 0, 0, 0, 0));
-        else {
-            float factor = distance - 1;
-            Vec3 scale = Vec3.atLowerCornerOf(direction.getNormal()).scale(factor);
-            if (factor > 0) {
-                //AABB bound = new AABB(injectorPos.relative(direction)).expandTowards(scale);
-                setBoundingBox(new AABB(injectorPos.relative(direction)).expandTowards(scale));
-            } else {
-                //AABB bound =new AABB(injectorPos.relative( direction)).contract(scale.x, scale.y, scale.z).move(scale);
-                setBoundingBox(new AABB(injectorPos.relative(direction)).contract(scale.x, scale.y, scale.z)
-                        .move(scale));
-            }
+    /**
+     * Recompute stages' states and powers. Server-only heavy work.
+     */
+    public void recomputeStages(@NotNull Level level) {
+        // build stages list from current stagesPos
+        List<ISteamPressureChange> stages = new ArrayList<>();
+        for (BlockPos p : stagesPos) {
+            BlockEntity e = level.getBlockEntity(p);
+            if (e instanceof ISteamPressureChange spc) stages.add(spc);
         }
-        //put and end ?
-    }
 
-    private void setBoundingBox(@NotNull AABB aabb) {
-        if (aabb.equals(bondingBox)) return;
-        bondingBox = aabb;
-
-    }
-
-    public void calculateForStage(@NotNull ISteamPressureChange addedStage, @NotNull Level level) {
-        final BlockPos addedPos = ((BlockEntity) addedStage).getBlockPos();
-
-        // 1) Snapshot & mutate shared list under lock (short critical section)
-        List<BlockPos> snapshot;
-        synchronized (this) {
-            // make a copy first to avoid modifying the list while someone else may iterate it
-            List<BlockPos> local = new ArrayList<>(stagesPos);
-
-            if (!local.contains(addedPos)) {
-                local.add(addedPos);
-            }
-            // filter & sort on the local copy
-            local = local.stream()
-                    .filter(p -> level.getBlockEntity(p) instanceof ISteamPressureChange)
-                    .sorted((s1, s2) -> ((direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) ? 1 : -1) *
-                            (Objects.requireNonNull(level.getBlockEntity(s1)).getBlockPos().get(direction.getAxis()) -
-                                    Objects.requireNonNull(level.getBlockEntity(s2)).getBlockPos().get(direction.getAxis())))
-                    .toList();
-
-            // publish the new list atomically
-            stagesPos = new ArrayList<>(local);
-
-            // snapshot the current list for processing
-            snapshot = new ArrayList<>(stagesPos);
-        } // lock released here
-
-        // 2) Build stage instances from the snapshot (no lock held)
-        List<ISteamPressureChange> stages = snapshot.stream()
-                .map(level::getBlockEntity)
-                .filter(e -> e instanceof ISteamPressureChange)
-                .map(e -> (ISteamPressureChange) e)
-                .toList();
-
-        // 3) Rebuild the maps / compute physics (heavy work outside lock)
+        // recompute physics
         powerForStage = new ConcurrentHashMap<>();
-        HashMap<BlockPos, SpecificRealGazState> stateMap = new HashMap<>();
+        Map<BlockPos, SpecificRealGazState> newStateMap = new HashMap<>();
+
         SpecificRealGazState previousState = getInputFluidState(level);
-        stateMap.put(injectorPos, previousState);
+        newStateMap.put(injectorPos, previousState);
 
         SpecificRealGazState nextState = previousState;
         for (ISteamPressureChange stage : stages) {
-            if (stage == null) continue;
+            if (!(stage instanceof BlockEntity stageBe)) continue;
 
             float pressureRatio = stage.pressureRatio();
             try {
                 if (pressureRatio < 1f) {
-                    nextState = WaterTableBased.isentropicExpansion(previousState, 1f / pressureRatio);
+                    nextState = WaterTableBased.isentropicExpansion(previousState,1f / pressureRatio);
                 } else if (pressureRatio > 1f) {
                     nextState = WaterTableBased.isentropicCompression(previousState, pressureRatio);
                 }
@@ -222,21 +274,21 @@ public class SteamCurrent {
                 CROWNS.LOGGER.error("{} caused by trying to compress water from {} with a ratio of {}", error.getMessage(), previousState, pressureRatio);
                 throw error;
             }
+
             float power = (previousState.specificEnthalpy() - nextState.specificEnthalpy()) * getFlow(level) * 20f / whatSU;
-            powerForStage.put(((BlockEntity) stage).getBlockPos(), Float.isNaN(power) ? 0f : power);
+            powerForStage.put(stageBe.getBlockPos(), Float.isNaN(power) ? 0f : power);
 
             previousState = nextState;
-            stateMap.put(((BlockEntity) stage).getBlockPos(), nextState);
+            newStateMap.put(stageBe.getBlockPos(), nextState);
         }
 
         this.outputFluidState = nextState;
-        this.stateMap = stateMap;
-        this.reloadSpline = true;
+        this.stateMap = newStateMap;
+        this.reloadSpline = true; // mark server to rebuild spline and sync it
     }
 
-    public void setInputFluidState(SpecificRealGazState inputFluidState) {
+    public void setInputFluidState(@NotNull SpecificRealGazState inputFluidState) {
         this.inputFluidState = inputFluidState;
-
     }
 
     public @NotNull SpecificRealGazState getInputFluidState(@NotNull Level level) {
@@ -244,35 +296,50 @@ public class SteamCurrent {
         if (be instanceof SteamInputBlockEntity) {
             inputFluidState = ((SteamInputBlockEntity) be).getState();
         }
-        if (inputFluidState == null) {
-            inputFluidState = WaterAsRealGaz.DEFAULT_STATE;
-        }
+        if (inputFluidState == null) inputFluidState = WaterTableBased.DEFAULT_STATE;
         return inputFluidState;
     }
 
-    public SpecificRealGazState getOutputFluidState() {
+    public @NotNull SpecificRealGazState getOutputFluidState() {
+        if (outputFluidState == null) outputFluidState = WaterTableBased.DEFAULT_STATE;
         return outputFluidState;
     }
 
+    /**
+     * Explore along facing direction and collect valid controller positions for turbine stages.
+     * Returns the distance traveled (number of non-air steps encountered).
+     */
     public float explore(@NotNull Level world, @NotNull BlockPos start, float max, @NotNull Direction facing) {
-        //Vec3 directionVec = Vec3.atLowerCornerOf(facing.getNormal());
-        // add 2 to the flow if the block is a turbine blade
-        // Determine the distance of the air flow
-        float distance = 0;
+        float distance = 0f;
+        List<BlockPos> foundStages = new ArrayList<>();
+
         for (int i = 1; i <= max; i++) {
             BlockPos currentPos = start.relative(facing, i);
-            if (!world.isLoaded(currentPos))
-                break;
+            if (!world.isLoaded(currentPos)) break;
             BlockState state = world.getBlockState(currentPos);
+
             if (!state.isAir()) {
-                if (state.is(BlockInit.STEAM_COLLECTOR.get()) && state.getValue(DirectionalBlock.FACING) == getDirection().getOpposite())
+                if (state.is(BlockInit.STEAM_COLLECTOR.get()) && state.getValue(DirectionalBlock.FACING) == getDirection().getOpposite()) {
                     collectorPos = currentPos;
+                }
+
                 if (!state.is(BlockInit.TURBINE_STAGE_STRUCTURE.get())) {
                     break;
+                } else {
+                    BlockPos controller = MBStructureBlock.getMaster(world, currentPos);
+                    BlockEntity controllerEntity = world.getBlockEntity(controller);
+                    if (controllerEntity instanceof TurbineStageBlockEntity) {
+                        Direction controllerFacing = world.getBlockState(controller).getValue(DirectionalBlock.FACING);
+                        if (facing.getAxis() == controllerFacing.getAxis()) {
+                            foundStages.add(controller);
+                        }
+                    }
                 }
             }
             distance++;
         }
+
+        this.stagesPos = new ArrayList<>(foundStages);
         return distance;
     }
 
@@ -281,94 +348,141 @@ public class SteamCurrent {
         if (be instanceof SteamInputBlockEntity) {
             flow = ((SteamInputBlockEntity) be).getFlow();
         }
-        return flow;//Kg/s
+        return flow; // Kg/s
     }
 
+    /**
+     * Main tick. Server: recompute states & build spline. Client: render particles from server-synced spline.
+     */
     public void tick(@NotNull Level level) {
-        //System.out.println((level.isClientSide?"client":"server") +" : "+ getBoundingBox());
-        if (level.isClientSide) {
-            //setBoundingBox(this.entityData.get(SYNCED_BB_ACCESSOR));
-            if (this.reloadSpline) {
+        if (!level.isClientSide) {
+            // SERVER SIDE: recompute physics and build spline
+            recomputeStages(level);
+
+            if (reloadSpline) {
                 try {
-                    this.reloadSpline = false;
-                    HashMap<BlockPos, SpecificRealGazState> stateMap = this.stateMap;
-                    if (stateMap.keySet().stream().filter(Objects::nonNull).toList().size() > 1) {
-                        Direction direction = this.direction;
-                        List<BlockPos> sortedKeys = stateMap.keySet().stream().filter(p -> p != null && level.getBlockEntity(p) != null)
-                                .sorted((s1, s2) -> ((direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) ? 1 : -1) *
-                                        (Objects.requireNonNull(level.getBlockEntity(s1)).getBlockPos().get(direction.getAxis()) -
-                                                (Objects.requireNonNull(level.getBlockEntity(s2))).getBlockPos().get(direction.getAxis())))
-
-                                //.map(Vec3::atCenterOf)
-                                .toList();
-                        spline =
-                                new FlowLine(sortedKeys.stream()
-                                        .map(
-                                                p -> {
-                                                    BlockPos injectorPos = this.injectorPos;
-                                                    return new BlockPos(direction.getStepX() == 0 ? injectorPos.getX() : p.getX(),
-                                                            direction.getStepY() == 0 ? injectorPos.getY() : p.getY(),
-                                                            direction.getStepZ() == 0 ? injectorPos.getZ() : p.getZ());
-
-                                                }
-                                        )
-                                        .map(Vec3::atCenterOf).toList()
-                                        ,
-                                        List.of(0.1d),
-                                        sortedKeys.stream().map(
-                                                p ->
-                                                        stateMap.get(p).vaporQuality() > 0 ? Color.WHITE.mixWith(new Color(0f, 0f, 1f, 1f), 1 - stateMap.get(p).vaporQuality()) : new Color(0f, 0f, 1f, 1f)
-                                        ).toList()
-                                );
-                    } else {
-                        spline = null;
-                    }
+                    rebuildSplineServer(level);
                 } catch (Exception e) {
                     spline = null;
                 }
+                reloadSpline = false;
             }
+
+            // transfer to collector if present
+            if (collectorPos != null) {
+                transferToCollector(level);
+            }
+
+        } else {
+            // CLIENT SIDE: only rendering
             if (spline != null && flow > 0) {
                 level.addParticle(new FlowParticleData(spline, 0), injectorPos.getX(), injectorPos.getY(), injectorPos.getZ(), 0, 0, 0);
             }
+        }
+    }
+
+    // Rebuild stages and spline (server-side)
+    public void rebuild(@NotNull Level level) {
+        // Original rebuild logic – computes stage positions and bounding box
+        float distance = explore(level, injectorPos, maxDistance, direction);
+
+
+        if (maxDistance < 0.25f) {
+            setBoundingBox(new AABB(0, 0, 0, 0, 0, 0));
         } else {
-            if (collectorPos != null) {
-                BlockEntity be = level.getBlockEntity(collectorPos);
-                if (be instanceof SteamCollectorBlockEntity steamCollector) {
-                    try {
-                        //cheating by getting the opposite side.
-                        if (getDirection().getOpposite() == steamCollector.getBlockState().getValue(SteamCollectorBlock.FACING)) {
-                            //TODO if the input is potion, this will transform it in water
-                            CompoundTag nbt = new CompoundTag();
-                            nbt.put("realGazState", getOutputFluidState().serialize());
-                            steamCollector.getTank().fill(new FluidStack(Fluids.WATER, (int) getFlow(level), nbt), IFluidHandler.FluidAction.EXECUTE);
-                        }
-                    } catch (Exception ignored) {
-                    }
-                }
+            float factor = distance - 1;
+            Vec3 scale = Vec3.atLowerCornerOf(direction.getNormal()).scale(factor);
+
+
+            if (factor > 0) {
+                setBoundingBox(new AABB(injectorPos.relative(direction)).expandTowards(scale));
+            } else {
+                setBoundingBox(new AABB(injectorPos.relative(direction))
+                        .contract(scale.x, scale.y, scale.z)
+                        .move(scale));
             }
         }
     }
 
-
-    public boolean isValid(@NotNull Level level) {
-        if (level.getBlockEntity(injectorPos) instanceof SteamInputBlockEntity injector) {
-            return !injector.isRemoved();
-        }
-        return false;
+    private void setBoundingBox(@NotNull AABB aabb) {
+        boundingBox = aabb;
     }
 
-    public Direction getDirection() {
+    /**
+     * Build the FlowLine on the server from the current stateMap and stagesPos.
+     */
+    private void rebuildSplineServer(@NotNull Level level) {
+        if (stateMap.size() <= 1) {
+            spline = null;
+            return;
+        }
+
+        Direction dir = this.direction;
+        List<BlockPos> sortedKeys = new ArrayList<>();
+        for (BlockPos p : stateMap.keySet()) {
+            if (p != null && level.getBlockEntity(p) != null) sortedKeys.add(p);
+        }
+
+        final int sign = dir.getAxisDirection() == Direction.AxisDirection.POSITIVE ? 1 : -1;
+        sortedKeys.sort((s1, s2) -> sign * Integer.compare(s1.get(dir.getAxis()), s2.get(dir.getAxis())));
+
+        List<Vec3> points = new ArrayList<>(sortedKeys.size());
+        List<Color> colors = new ArrayList<>(sortedKeys.size());
+
+        for (BlockPos p : sortedKeys) {
+            BlockPos ip = this.injectorPos;
+            BlockPos aligned = new BlockPos(
+                    dir.getStepX() == 0 ? ip.getX() : p.getX(),
+                    dir.getStepY() == 0 ? ip.getY() : p.getY(),
+                    dir.getStepZ() == 0 ? ip.getZ() : p.getZ()
+            );
+            points.add(Vec3.atCenterOf(aligned));
+
+            SpecificRealGazState s = stateMap.get(p);
+            Color color = (s != null && s.vaporQuality() > 0)
+                    ? Color.WHITE.mixWith(new Color(0f, 0f, 1f, 1f), 1 - s.vaporQuality())
+                    : new Color(0f, 0f, 1f, 1f);
+            colors.add(color);
+        }
+
+        this.spline = new FlowLine(points, List.of(0.1d), colors);
+    }
+
+    private void transferToCollector(@NotNull Level level) {
+        assert collectorPos != null;
+        BlockEntity be = level.getBlockEntity(collectorPos);
+        if (be instanceof SteamCollectorBlockEntity steamCollector) {
+            try {
+                if (getDirection().getOpposite() == steamCollector.getBlockState().getValue(SteamCollectorBlock.FACING)) {
+                    CompoundTag nbt = new CompoundTag();
+                    nbt.put("realGazState", getOutputFluidState().serialize());
+                    steamCollector.getTank().fill(new FluidStack(Fluids.WATER, (int) getFlow(level), nbt), IFluidHandler.FluidAction.EXECUTE);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    public boolean isValid(@NotNull Level level) {
+        BlockEntity be = level.getBlockEntity(injectorPos);
+        return be instanceof SteamInputBlockEntity injector && !injector.isRemoved();
+    }
+
+    public @NotNull Direction getDirection() {
         return direction;
     }
 
-    public void setDirection(Direction facing) {
+    public void setDirection(@NotNull Direction facing) {
         direction = facing;
     }
 
     public boolean intersects(@NotNull AABB bound) {
-        if (bondingBox == null) {
-            return false;
-        }
-        return bondingBox.intersects(bound);
+        return boundingBox != null && boundingBox.intersects(bound);
     }
+
+    public AABB getBoundingBox() {
+        return boundingBox;
+    }
+
+    public record SPR(int stage, float power) {}
 }

@@ -35,6 +35,7 @@ public final class SectionLooper {
      */
     public static final class Context {
         private int sx, sy, sz;
+        private long sectionPos;
         private short packedXYZ; // stores x, y, z as 4 bits each (0-15)
         private AbstractDataLayer[] layers;
 
@@ -55,6 +56,7 @@ public final class SectionLooper {
             this.sx = sx;
             this.sy = sy;
             this.sz = sz;
+            this.sectionPos = packSection(sx, sy, sz);
         }
 
         /**
@@ -123,6 +125,10 @@ public final class SectionLooper {
             return new NeighborRef(packed, lx, ly, lz);
         }
 
+        public long packedSectionPos() {
+            return sectionPos;
+        }
+
         /**
          * Convenience: loop over axis-aligned neighbor offsets using Direction.values()
          */
@@ -163,6 +169,10 @@ public final class SectionLooper {
         public float getData(int idx) {
             return layers[idx].get(x(), y(), z());
         }
+        //only use this if you know what you're doing
+        public float getData(int idx, int x, int y,int z) {
+            return layers[idx].get(x, y, z);
+        }
 
         public void setData(int idx, float value) {
             layers[idx].set(x(), y(), z(), value);
@@ -170,6 +180,8 @@ public final class SectionLooper {
 
     }
 
+
+    //should be updated as a class, to be reused in the
     /**
      * result of neighbor resolution
      */

@@ -1,9 +1,11 @@
 package com.rae.crowns.content.event;
 
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
+import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.init.misc.CommandsInit;
+import com.rae.crowns.init.misc.DamageSourceInit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
@@ -35,23 +37,26 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onEntityTick(LivingEvent.@NotNull LivingTickEvent event) {
         LivingEntity entity = event.getEntity();
-        if (!entity.level().isClientSide()) {
+        if (entity.level() instanceof  ServerLevel level) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) entity.level());
             AtomicReference<Float> cumlTemp = new AtomicReference<>(0f);
             AtomicReference<Integer> numberOfTemps = new AtomicReference<>(0);
             BlockPos.betweenClosedStream(entity.getBoundingBox()).forEach(blockPos -> {
                 SectionPos sectionPos = SectionPos.of(blockPos);
-                cumlTemp.set(cumlTemp.get() + getTemperature(data.getTemperature(sectionPos.asLong()),blockPos));
+                cumlTemp.set(cumlTemp.get() + getTemperature(data.getLayer(DataLayerType.TEMPERATURE,sectionPos.asLong()),blockPos));
                 numberOfTemps.set(numberOfTemps.get() + 1);
             });
 
             if (numberOfTemps.get() > 0) {
                 float temp = cumlTemp.get() / numberOfTemps.get();
                 if (temp > 450){
-                    entity.lavaHurt();
+                    entity.hurt(DamageSourceInit.over_heat(level), 1.0f);
+                    entity.setRemainingFireTicks(20);
+                    //entity.lavaHurt();
                 }
-                if (temp < 250){
-                    entity.setTicksFrozen(200);
+                if (temp < 200){
+                    entity.hurt(DamageSourceInit.freezing(level), 1.0f);
+                    entity.setTicksFrozen(20);
                 }
             }
 

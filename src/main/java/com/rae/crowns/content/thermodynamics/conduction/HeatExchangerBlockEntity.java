@@ -104,7 +104,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             //if not loaded we keep the same temperature.
             //internal conduction
             float dt = 1/20f;
-            double k = getInternalConductivity()/getThermalCapacity();
+            double k = getInternalConductivity()/getThermalCapacity() * CROWNSConfigs.SERVER.conduction.heatExchangerIterations.get();
             if (!WATER_TANK.isEmpty()) {//we don't heat it if empty
                 int iteration = Math.max(1,(int) k * 1000/WATER_TANK.getFluidAmount());
                 for (int i = 0; i < iteration; i++) {

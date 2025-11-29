@@ -41,7 +41,7 @@ public class ServerEvents {
             }
 
             TemperatureTicker.tick(toTick, data);
-            RANSTicker.tick(toTick, data);
+            //RANSTicker.tick(toTick, data);
 
         }
 

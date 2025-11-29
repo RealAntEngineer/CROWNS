@@ -21,7 +21,7 @@ public class NeighborVisitors {
         // accumulators
         float dfdx, dfdy, dfdz;      // first derivatives
         float d2fdx2, d2fdy2, d2fdz2; // second derivatives
-        boolean xp, xm, yp, ym, zp, zm; // which directions were found
+        boolean xp, xn, yp, yn, zp, zn; // which directions were found
 
         public ScalarDerivativeNeighborVisitor(PhysicsWorldData data, DataLayerType<? extends AbstractDataLayer> type) {
             this.data = data;
@@ -37,7 +37,7 @@ public class NeighborVisitors {
 
             this.dfdx = this.dfdy = this.dfdz = 0f;
             this.d2fdx2 = this.d2fdy2 = this.d2fdz2 = 0f;
-            this.xp = this.xm = this.yp = this.ym = this.zp = this.zm = false;
+            this.xp = this.xn = this.yp = this.yn = this.zp = this.zn = false;
         }
 
         @Override
@@ -58,7 +58,7 @@ public class NeighborVisitors {
                 d2fdx2 += nv;
             } else if (dx == -1 && dy == 0 && dz == 0) { // -X
                 dfdx -= nv;
-                xm = true;
+                xn = true;
                 d2fdx2 += nv;
             } else if (dy == 1 && dx == 0 && dz == 0) { // +Y
                 dfdy += nv;
@@ -66,7 +66,7 @@ public class NeighborVisitors {
                 d2fdy2 += nv;
             } else if (dy == -1 && dx == 0 && dz == 0) { // -Y
                 dfdy -= nv;
-                ym = true;
+                yn = true;
                 d2fdy2 += nv;
             } else if (dz == 1 && dx == 0 && dy == 0) { // +Z
                 dfdz += nv;
@@ -74,7 +74,7 @@ public class NeighborVisitors {
                 d2fdz2 += nv;
             } else if (dz == -1 && dx == 0 && dy == 0) { // -Z
                 dfdz -= nv;
-                zm = true;
+                zn = true;
                 d2fdz2 += nv;
             }
         }
@@ -85,16 +85,16 @@ public class NeighborVisitors {
          */
         public float[] getResult() {
             float[] out = new float[6]; // [dfdx, dfdy, dfdz, d2fdx2, d2fdy2, d2fdz2]
-            if (xp && xm) out[0] = 0.5f * dfdx; // central difference
+            if (xp && xn) out[0] = 0.5f * dfdx; // central difference
             else out[0] = 0f;
-            if (yp && ym) out[1] = 0.5f * dfdy;
+            if (yp && yn) out[1] = 0.5f * dfdy;
             else out[1] = 0f;
-            if (zp && zm) out[2] = 0.5f * dfdz;
+            if (zp && zn) out[2] = 0.5f * dfdz;
             else out[2] = 0f;
 
-            if (xp && xm) out[3] = (d2fdx2 - 2f * selfValue);
-            if (yp && ym) out[4] = (d2fdy2 - 2f * selfValue);
-            if (zp && zm) out[5] = (d2fdz2 - 2f * selfValue);
+            if (xp && xn) out[3] = (d2fdx2 - 2f * selfValue);
+            if (yp && yn) out[4] = (d2fdy2 - 2f * selfValue);
+            if (zp && zn) out[5] = (d2fdz2 - 2f * selfValue);
 
             return out;
         }

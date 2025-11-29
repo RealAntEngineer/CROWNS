@@ -3,11 +3,15 @@ package com.rae.crowns.content.thermodynamics.turbine;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.sound.CrownsSoundScapes;
 import com.rae.crowns.content.thermodynamics.ISteamPressureChange;
+import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import com.simibubi.create.foundation.utility.CreateLang;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,6 +29,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     //the turbine add itself to the SteamCurrent
     protected @NotNull List<SteamCurrent> flows = List.of();
     float power;
+    int index;
 
     public TurbineStageBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -81,6 +86,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     @Override
     public void lazyTick() {
         assert level != null;
+        if (level.isClientSide()) return;
         //update the List of currents
         AABB bound = new AABB(worldPosition);
         List<Direction.Axis> plane = Arrays.stream(Direction.Axis.values()).filter(
@@ -96,9 +102,12 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
 
         flows = SteamFlowManager.getCurrentsInBounds(level.dimension().location(), bound);//level.getEntitiesOfClass(SteamCurrent.class, bound);
         power = 0;
-        flows.forEach(f -> power += f.getPowerForStage(this));
+        flows.forEach(f -> {
+            SteamCurrent.SPR spr = f.getPowerForStage(this);
+            power += spr.power();
+            index = spr.stage();
+        });
 
-        if (level.isClientSide()) return;
         updateGeneratedRotation();
     }
 
@@ -110,6 +119,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     @Override
     protected void write(@NotNull CompoundTag compound, boolean clientPacket) {
         compound.putFloat("power", power);
+        compound.putInt("index", index);
         super.write(compound, clientPacket);
     }
 
@@ -117,5 +127,16 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     protected void read(@NotNull CompoundTag compound, boolean clientPacket) {
         super.read(compound, clientPacket);
         power = compound.getFloat("power");
+        index = compound.getInt("index");
+    }
+
+
+    @Override
+    public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
+        super.addToGoggleTooltip(tooltip, isPlayerSneaking);
+        CreateLang.builder().add(Component.literal("stage number "+ index))
+                .style(ChatFormatting.DARK_RED)
+                .forGoggles(tooltip, 1);
+        return true;
     }
 }

@@ -13,9 +13,9 @@ import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
 
 public class NuclearScene {
-    public static void reactor(@NotNull SceneBuilder builder, @NotNull SceneBuildingUtil sceneBuildingUtil) {
+    public static void nuclearBasic(@NotNull SceneBuilder builder, @NotNull SceneBuildingUtil sceneBuildingUtil) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
-        scene.title("nuclear_reactor", "Nuclear Rectors");
+        scene.title("nuclear_basics", "Nuclear Rectors");
         //sceneBuilder.setSceneOffsetY(-5);
         scene.scaleSceneView(0.6f);
         scene.setSceneOffsetY(-2f);
@@ -27,10 +27,12 @@ public class NuclearScene {
 
         scene.world().showSection(sceneBuildingUtil.select().position(centerFuel), Direction.UP);
         scene.world().showSection(sceneBuildingUtil.select().position(exteriorFuel), Direction.UP);
-        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(centerFuel), 40).text("nuclear fuel naturally produce fast neutrons");
-        scene.idle(50);
-        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(exteriorFuel), 40).text("fast neutrons are unlikely to cause an other fuel block to undergo fission");
-        scene.idle(50);
+        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(centerFuel), 3 * 20)
+                .text("nuclear fuel naturally produce fast neutrons");
+        scene.idleSeconds(4);
+        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(exteriorFuel), 3 * 20)
+                .text("fast neutrons are unlikely to cause an other fuel block to undergo fission");
+        scene.idleSeconds(4);
 
         BlockPos coal = new BlockPos(4, 0, 3);
         BlockPos water = new BlockPos(3, 0, 3);
@@ -39,15 +41,21 @@ public class NuclearScene {
 
         scene.world().showSection(sceneBuildingUtil.select().position(coal), Direction.UP);
         scene.world().showSection(sceneBuildingUtil.select().position(water), Direction.UP);
-        scene.overlay().showText(80).text("add moderator to transform them into thermal neutrons that can induce fission and produce more neutrons");
+        scene.overlay().showText(4 * 20).text("add moderator to transform them into thermal neutrons that can induce fission and produce more neutrons");
         scene.idleSeconds(5);
-        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(coal), 40).text("70% efficiency for coal");
-        scene.idleSeconds(2);
-        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(water), 40).text("50% efficiency for water");
-        scene.idleSeconds(2);
+        scene.overlay().showText(4 * 20).text("in short a moderator make the reactor hotter");
+        scene.idleSeconds(5);
+        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(coal), 4 * 20).text("70% efficiency for coal");
+        scene.idleSeconds(5);
+        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(water), 4 * 20).text("50% efficiency for water");
+        scene.idleSeconds(5);
+        scene.world().setBlock(coal, Blocks.GOLD_BLOCK.defaultBlockState(), false);
+        scene.overlay().showText(4 * 20).text("gold has the opposite effect and can be used as a control rod to slow down radiation");
+        scene.idleSeconds(5);
         scene.addKeyframe();
-        scene.world().setBlocks(sceneBuildingUtil.select().everywhere(), Blocks.AIR.defaultBlockState(), false);
 
+        scene.world().setBlocks(sceneBuildingUtil.select().everywhere(), Blocks.AIR.defaultBlockState(), false);
+        scene.idle(5);
 
         Selection mod = sceneBuildingUtil.select().fromTo(3, 0, 3, 3, 3, 3);
         Selection fc1 = sceneBuildingUtil.select().fromTo(3, 0, 4, 3, 3, 4);
@@ -65,19 +73,24 @@ public class NuclearScene {
         scene.world().showSection(fc3, Direction.UP);
         scene.world().setBlocks(fc4, BlockInit.FUEL_ASSEMBLY.getDefaultState(), false);
         scene.world().showSection(fc4, Direction.UP);
-        scene.overlay().showOutlineWithText(bb, 80).text("when enough fuel are close to each other with a moderator");
+        scene.overlay().showOutlineWithText(bb, 10 * 20).text("when enough fuel are close to each other with a moderator");
         scene.idleSeconds(2);
         scene.world().modifyBlocks(fc1, blockState -> blockState.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
         scene.world().modifyBlocks(fc2, blockState -> blockState.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
         scene.world().modifyBlocks(fc3, blockState -> blockState.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
         scene.world().modifyBlocks(fc4, blockState -> blockState.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
-        scene.idleSeconds(2);
-        scene.addKeyframe();
+        scene.idleSeconds(10);
+        //scene.addKeyframe();
+        scene.markAsFinished();
+    }
 
+    public static void reactorLayout(@NotNull SceneBuilder builder, @NotNull SceneBuildingUtil sceneBuildingUtil) {
+        CreateSceneBuilder scene = new CreateSceneBuilder(builder);
+        scene.title("reactor_layout", "Reactor Layout");
+        //sceneBuilder.setSceneOffsetY(-5);
+        scene.scaleSceneView(0.6f);
+        scene.setSceneOffsetY(-2f);
 
-        scene.idle(10);
-        scene.world().hideSection(sceneBuildingUtil.select().everywhere(), Direction.UP);
-        scene.world().setBlocks(sceneBuildingUtil.select().everywhere(), Blocks.AIR.defaultBlockState(), false);//clean slate
         scene.overlay().showText(60).text("like every hot blocks, you can use hot nuclear fuel to heat water");
         scene.idle(20);
 
@@ -96,12 +109,15 @@ public class NuclearScene {
         Selection slice = sceneBuildingUtil.select().fromTo(0, 3, 3, 8, 8, 8);
         // 3,4, 5, 3, 8, 5
         scene.world().showSection(slice, Direction.UP);
-        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().layers(1, 5), 100).text("it's recommended to make reactors in a chest board manner");
+        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().layers(1, 5), 100)
+                .text("it's recommended to make reactors in a chest board manner");
         scene.idleSeconds(5);
 
         scene.overlay().showOutlineWithText(he, 40).text("the higher the reactor, the more time the water will have to boil");
         scene.idleSeconds(3);
-        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().fromTo(5, 3, 3, 5, 6, 3), 60).text("fuel becomes red when it's hotter than 3000 degrees Kelvin, it explodes at 3500");
+        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().fromTo(5, 3, 3, 5, 6, 3), 60)
+                .text("fuel becomes red when it's hotter than 3000 degrees Kelvin, it explodes at 3500");
+        scene.idleSeconds(3);
         scene.markAsFinished();
     }
 }

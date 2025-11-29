@@ -53,7 +53,7 @@ public class ClientEvents {
                     float concentration = composition.getFloat(resourceLocation.toString());
                     components.add(
                             Component.translatable(resourceLocation.toLanguageKey("nucleus")).withStyle(ChatFormatting.YELLOW)
-                                    .append(Component.literal(String.format(" : %e %%", concentration)).withStyle(ChatFormatting.GRAY)));
+                                    .append(Component.literal(String.format(" : %.2f %%", concentration * 100)).withStyle(ChatFormatting.GRAY)));
                 }
             }
         }

@@ -30,6 +30,7 @@ public class UpdateSteamFlowPacket extends SimplePacketBase {
     public boolean handle(NetworkEvent.@NotNull Context context) {
         context.enqueueWork(() -> {
             if (context.getDirection().getReceptionSide().isClient()) {
+                assert tag != null;
                 SteamFlowData clientData = SteamFlowData.load(tag);
                 SteamFlowManager.setSavedData(clientData);
             }

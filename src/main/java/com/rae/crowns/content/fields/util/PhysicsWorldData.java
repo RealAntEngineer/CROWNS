@@ -28,7 +28,7 @@ public class PhysicsWorldData {//Only for the server
     //in the future hook into ChunkSection directly : easier for communication and initialisation
 
     private static final int DYNAMIC_RANGE = 2;
-    public static final int DATA_VERSION = 12;
+    public static final int DATA_VERSION = 13;
 
     // Generic unified map: one Long2ObjectMap per DataLayerType
     private final Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> layers = new HashMap<>();
@@ -49,12 +49,12 @@ public class PhysicsWorldData {//Only for the server
         registerLayer(DataLayerType.DEFAULT_TEMPERATURE);
         registerLayer(DataLayerType.CONDUCTION);
         registerLayer(DataLayerType.RESILIENCE);
-        registerLayer(DataLayerType.VX);
+        /*registerLayer(DataLayerType.VX);
         registerLayer(DataLayerType.BLOCKED_X);
         registerLayer(DataLayerType.VY);
         registerLayer(DataLayerType.BLOCKED_Y);
         registerLayer(DataLayerType.VZ);
-        registerLayer(DataLayerType.BLOCKED_Z);
+        registerLayer(DataLayerType.BLOCKED_Z);*/
     }
 
     private <T extends AbstractDataLayer> void registerLayer(DataLayerType<T> type) {
@@ -87,38 +87,8 @@ public class PhysicsWorldData {//Only for the server
     }
 
     // ------------------------------
-    //  EXISTING CONVENIENCE METHODS
-    // ------------------------------
-
-    public TemperatureDataLayer getTemperature(long section) {
-        return getLayer(DataLayerType.TEMPERATURE, section);
-    }
-
-    public TemperatureDataLayer getDefaultTemperature(long section) {
-        return getLayer(DataLayerType.DEFAULT_TEMPERATURE, section);
-    }
-
-    public ResilienceDataLayer getResilience(long section) {
-        return getLayer(DataLayerType.RESILIENCE, section);
-    }
-
-    public ConductionDataLayer getConduction(long section) {
-        return getLayer(DataLayerType.CONDUCTION, section);
-    }
-
-    // ------------------------------
     //  INITIALIZATION / PUT
     // ------------------------------
-
-    public void put(long section, TemperatureDataLayer temp, TemperatureDataLayer defTemp,
-                    ConductionDataLayer cond, ResilienceDataLayer res) {
-        putLayer(DataLayerType.TEMPERATURE, section, temp);
-        putLayer(DataLayerType.DEFAULT_TEMPERATURE, section, defTemp);
-        putLayer(DataLayerType.CONDUCTION, section, cond);
-        putLayer(DataLayerType.RESILIENCE, section, res);
-
-        loadedSections.add(section);
-    }
 
     public void putForInitialisation(long section) {
         if (toInitialise.contains(section)) return;
@@ -173,12 +143,12 @@ public class PhysicsWorldData {//Only for the server
             ConductionDataLayer conductionDataLayer = new ConductionDataLayer();
             ResilienceDataLayer resilienceDataLayer = new ResilienceDataLayer();
 
-            VelocityDataLayer vx = new VelocityDataLayer();
-            BlockedDataLayer blocked_x = new BlockedDataLayer();
-            VelocityDataLayer vy = new VelocityDataLayer();
-            BlockedDataLayer blocked_y = new BlockedDataLayer();
-            VelocityDataLayer vz = new VelocityDataLayer();
-            BlockedDataLayer blocked_z = new BlockedDataLayer();
+            //VelocityDataLayer vx = new VelocityDataLayer();
+            //BlockedDataLayer blocked_x = new BlockedDataLayer();
+            //VelocityDataLayer vy = new VelocityDataLayer();
+            //BlockedDataLayer blocked_y = new BlockedDataLayer();
+            //VelocityDataLayer vz = new VelocityDataLayer();
+            //BlockedDataLayer blocked_z = new BlockedDataLayer();
 
             BlockPos base = sectionPos.origin();
             boolean canBeDirty = false;
@@ -191,13 +161,14 @@ public class PhysicsWorldData {//Only for the server
                         BlockState blockState = level.getBlockState(pos);
 
                         float oldTemp = defaultTemp;//todo we can probably remove this it's the remanent of an old optimisation trick.
-                        defaultTemp = PhysicsSaveManager.getDefaultTemperature(level, pos);
+                        defaultTemp = PhysicsSaveManager.getDefaultTemperature(level, pos, blockState);
 
                         temperatureDataLayer.set(dx, dy, dz, defaultTemp);
                         defaultTemperatureDataLayer.set(dx, dy, dz, defaultTemp);
                         conductionDataLayer.set(dx, dy, dz, PhysicsSaveManager.getDefaultConduction(level, pos));
                         resilienceDataLayer.set(dx, dy, dz, PhysicsSaveManager.getDefaultResilience(level, pos));
 
+                        /*
                         vx.set(dx, dy, dz, 0);
                         vy.set(dx, dy, dz, 0);
                         vz.set(dx, dy, dz, 0);
@@ -222,7 +193,7 @@ public class PhysicsWorldData {//Only for the server
                                     case SOUTH, NORTH -> blocked_z.set(dx, dy, dz, blocked ? 1 : 0);
                                 }
                             }
-                        }
+                        }*/
 
                         if (oldTemp != -1 && oldTemp != defaultTemp) {
                             canBeDirty = true;
@@ -237,13 +208,15 @@ public class PhysicsWorldData {//Only for the server
             layers.get(DataLayerType.DEFAULT_TEMPERATURE).put(sectionLong, defaultTemperatureDataLayer);
             layers.get(DataLayerType.CONDUCTION).put(sectionLong, conductionDataLayer);
             layers.get(DataLayerType.RESILIENCE).put(sectionLong, resilienceDataLayer);
+
+            /*
             layers.get(DataLayerType.VX).put(sectionLong, vx);
             layers.get(DataLayerType.BLOCKED_X).put(sectionLong, blocked_x);
             layers.get(DataLayerType.VY).put(sectionLong, vy);
             layers.get(DataLayerType.BLOCKED_Y).put(sectionLong, blocked_y);
             layers.get(DataLayerType.VZ).put(sectionLong, vz);
             layers.get(DataLayerType.BLOCKED_Z).put(sectionLong, blocked_z);
-
+            */
             loadedSections.add(sectionLong);
 
             if (!canBeDirty && !nearDynamicSections.contains(sectionLong)) {
@@ -263,7 +236,7 @@ public class PhysicsWorldData {//Only for the server
                     PhysicsSaveManager.getDefaultConduction(level, pos), PhysicsSaveManager.getDefaultResilience(level, pos));
 
             // --- Update solid mask using PassThroughTester ---
-            updateBlockedFaces(level, pos, state);
+            //updateBlockedFaces(level, pos, state);
 
             setDirty(SectionPos.of(pos).asLong());
             if (System.currentTimeMillis() - initialTimeMS > 20) {
@@ -272,7 +245,7 @@ public class PhysicsWorldData {//Only for the server
         }
     }
 
-    private void updateBlockedFaces(ServerLevel level, BlockPos pos, BlockState state) {
+    /*private void updateBlockedFaces(ServerLevel level, BlockPos pos, BlockState state) {
         long packedSection = packSection(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4);
 
         BlockedDataLayer xPosLayer = getLayer(DataLayerType.BLOCKED_X, packedSection);
@@ -310,7 +283,7 @@ public class PhysicsWorldData {//Only for the server
                 case SOUTH, NORTH -> zPosLayer.set(lx, ly, lz, blocked ? 1 : 0);
             }
         }
-    }
+    }*/
 
     public void set(@NotNull BlockPos pos, float temperature, float conduction, float resilience) {
         // --- Compute packed section coordinates manually ---
@@ -320,11 +293,11 @@ public class PhysicsWorldData {//Only for the server
         long packedSection = packSection(sx, sy, sz);
 
         // --- Get layers ---
-        TemperatureDataLayer temperatureDataLayer = getTemperature(packedSection);
-        TemperatureDataLayer defaultTemperatureDataLayer = getDefaultTemperature(packedSection);
+        TemperatureDataLayer temperatureDataLayer = getLayer(DataLayerType.TEMPERATURE, packedSection);
+        TemperatureDataLayer defaultTemperatureDataLayer = getLayer(DataLayerType.DEFAULT_TEMPERATURE, packedSection);
 
-        ConductionDataLayer conductionDataLayer = getConduction(packedSection);
-        ResilienceDataLayer resilienceDataLayer = getResilience(packedSection);
+        ConductionDataLayer conductionDataLayer = getLayer(DataLayerType.CONDUCTION, packedSection);
+        ResilienceDataLayer resilienceDataLayer = getLayer(DataLayerType.RESILIENCE, packedSection);
 
         if (temperatureDataLayer != null && conductionDataLayer != null && resilienceDataLayer != null) {
             // --- Local coordinates inside the section ---
@@ -447,36 +420,36 @@ public class PhysicsWorldData {//Only for the server
 
         // --- Data maps ---
         var tempMap = layers.get(DataLayerType.TEMPERATURE);//todo we should have a synced boolean on the DataLayerType enum
-        var vxMap   = layers.get(DataLayerType.VX);
-        var vyMap   = layers.get(DataLayerType.VY);
-        var vzMap   = layers.get(DataLayerType.VZ);
+        //var vxMap   = layers.get(DataLayerType.VX);
+        //var vyMap   = layers.get(DataLayerType.VY);
+        //var vzMap   = layers.get(DataLayerType.VZ);
 
         for (int i = 0; i < changed.size(); i += batchSize) {
             int end = Math.min(i + batchSize, changed.size());
             List<Long> batch = changed.subList(i, end);
 
             Map<SectionPos, TemperatureDataLayer> tBatch = new HashMap<>();
-            Map<SectionPos, VelocityDataLayer> vxBatch = new HashMap<>();
-            Map<SectionPos, VelocityDataLayer> vyBatch = new HashMap<>();
-            Map<SectionPos, VelocityDataLayer> vzBatch = new HashMap<>();
+            //Map<SectionPos, VelocityDataLayer> vxBatch = new HashMap<>();
+            //Map<SectionPos, VelocityDataLayer> vyBatch = new HashMap<>();
+            //Map<SectionPos, VelocityDataLayer> vzBatch = new HashMap<>();
 
             for (long section : batch) {
                 SectionPos pos = SectionPos.of(section);
 
                 TemperatureDataLayer t = (TemperatureDataLayer) tempMap.get(section);
-                VelocityDataLayer vxL  = (VelocityDataLayer) vxMap.get(section);
-                VelocityDataLayer vyL  = (VelocityDataLayer) vyMap.get(section);
-                VelocityDataLayer vzL  = (VelocityDataLayer) vzMap.get(section);
+                //VelocityDataLayer vxL  = (VelocityDataLayer) vxMap.get(section);
+                //VelocityDataLayer vyL  = (VelocityDataLayer) vyMap.get(section);
+                //VelocityDataLayer vzL  = (VelocityDataLayer) vzMap.get(section);
 
                 if (t != null)  tBatch.put(pos, t);
-                if (vxL != null) vxBatch.put(pos, vxL);
-                if (vyL != null) vyBatch.put(pos, vyL);
-                if (vzL != null) vzBatch.put(pos, vzL);
+                //if (vxL != null) vxBatch.put(pos, vxL);
+                //if (vyL != null) vyBatch.put(pos, vyL);
+                //if (vzL != null) vzBatch.put(pos, vzL);
             }
 
-            if (tBatch.isEmpty() && vxBatch.isEmpty() && vyBatch.isEmpty() && vzBatch.isEmpty()) continue;
+            if (tBatch.isEmpty() /*&& vxBatch.isEmpty() && vyBatch.isEmpty() && vzBatch.isEmpty()*/) continue;
 
-            UpdateSectionsPacket packet = new UpdateSectionsPacket(tBatch, vxBatch, vyBatch, vzBatch);
+            UpdateSectionsPacket packet = new UpdateSectionsPacket(tBatch/*, vxBatch, vyBatch, vzBatch*/);
 
             // Send to all players (could be filtered by proximity if desired)
             for (ServerPlayer player : players) {

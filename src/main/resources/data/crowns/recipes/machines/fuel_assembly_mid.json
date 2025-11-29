@@ -7,7 +7,14 @@
   ],
   "key": {
     "U": {
-      "item": "crowns:fuel_rod"
+      "item": "crowns:fuel_rod",
+      "type": "forge:partial_nbt",
+      "nbt": {
+        "composition": {
+          "crowns:u235": 0.2,
+          "crowns:u238": 0.8
+        }
+      }
     },
     "I": {
       "item": "minecraft:iron_ingot"
@@ -18,8 +25,8 @@
     "type": "forge:partial_nbt",
     "nbt": {
       "composition": {
-        "crowns:u235": 0.5,
-        "crowns:u238": 0.5
+        "crowns:u235": 0.04,
+        "crowns:u238": 0.16
       }
     },
     "count": 1

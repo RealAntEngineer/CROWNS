@@ -18,7 +18,9 @@ public class PonderInit {
         PonderSceneRegistrationHelper<ItemProviderEntry<?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
 
 
-        HELPER.forComponents(BlockInit.FUEL_ASSEMBLY, BlockInit.HEAT_EXCHANGER).addStoryBoard("nuclear/reactor", NuclearScene::reactor);
+        HELPER.forComponents(BlockInit.FUEL_ASSEMBLY, BlockInit.HEAT_EXCHANGER)
+                .addStoryBoard("nuclear/reactor", NuclearScene::nuclearBasic)
+                .addStoryBoard("nuclear/reactor_v3", NuclearScene::reactorLayout);
         HELPER.forComponents(BlockInit.STEAM_INPUT, BlockInit.TURBINE_STAGE).addStoryBoard("thermal/turbine", ThermodynamicsScene::turbine);
 
     }

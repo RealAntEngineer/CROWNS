@@ -17,9 +17,11 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -38,9 +40,10 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     private static final int SYNC_RATE = 8;
     public float temperature = 300;
+    public float oldTemperature = 300;
     public float backgroundActivity = 12 * 3;//In MBq ( giga becquerels ) uranium is 12 Mbq per tonnes
-    public float oldNbrOfFission;
-    public float nbrOfFission;//nbr of fission/t
+    public float oldNbrOfFission = backgroundActivity;
+    public float nbrOfFission = backgroundActivity;//nbr of fission/t
     public float C = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
     public float additionalNeutronsAbsorbed = 0;
     public @NotNull HashMap<ResourceLocation, Float> radioactiveElements = new HashMap<>(
@@ -56,7 +59,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
-        nbrOfFission = backgroundActivity;
+        //nbrOfFission = backgroundActivity;
     }
 
     @Override
@@ -85,6 +88,20 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                     sendData();
             }
 
+            oldNbrOfFission = nbrOfFission;
+            nbrOfFission = additionalNeutronsAbsorbed *
+                    Math.max(1, (oldTemperature - 200) * CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF()) /
+                    Math.max(1, (temperature - 200) * CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF())
+                    //to take into account the current temperature not just the one when the radiation was updated
+                    + backgroundActivity;
+            if (Float.isNaN(nbrOfFission)) {
+                nbrOfFission = backgroundActivity;
+            }
+
+            power = (float) (nbrOfFission * fissionEnergy *
+                    CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());
+
+
             if (CROWNSConfigs.COMMON.nuclearParticle.get())
                 spawnRadiationParticles(level, getBlockPos(), nbrOfFission);
             temperature += power / C * 1 / 20f;
@@ -98,20 +115,11 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public void lazyTick() {
         if (!level.isClientSide()) {
             if (!PhysicsSaveManager.get((ServerLevel) level).isLoaded(SectionPos.of(getBlockPos()).asLong())) return;
-            oldNbrOfFission = nbrOfFission;
-            nbrOfFission = additionalNeutronsAbsorbed + backgroundActivity; //for now a 100% change of fission : no absorption
-            if (Float.isNaN(nbrOfFission)) {
-                nbrOfFission = backgroundActivity;
-            }
+            //move this to the tick
+            oldTemperature = temperature;
+
             additionalNeutronsAbsorbed = 0;
             BlockPos pos = getBlockPos();
-
-            //float thermal_loses = (temperature-300)*10;// ambient temperature = 300K make thermal loses in the conduct temperature
-
-            power = (float) (nbrOfFission * fissionEnergy *
-                    CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
-
-            //temperature += power/C;
 
 
             if (temperature > 3500) {
@@ -219,6 +227,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         tag.putFloat("nbrOfFission", nbrOfFission);
         tag.putFloat("additionalNeutrons", additionalNeutronsAbsorbed);
         tag.putFloat("temperature", temperature);
+        tag.putFloat("oldTemperature", oldTemperature);
         tag.putFloat("power", power);
         tag.put("composition", saveComposition());
 
@@ -230,6 +239,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         nbrOfFission = tag.getFloat("nbrOfFission");
         additionalNeutronsAbsorbed = tag.getFloat("additionalNeutrons");
         temperature = tag.getFloat("temperature");
+        oldTemperature = tag.getFloat("oldTemperature");
         power = tag.getFloat("power");
         setComposition(tag.getCompound("composition"));
         super.read(tag, clientPacket);
@@ -245,6 +255,17 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         FormicApiLang.formatTemperature(temperature)
                 .style(ChatFormatting.DARK_RED)
                 .forGoggles(tooltip, 1);
+
+
+        tooltip.add(Component.literal("composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
+        for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
+            if (radioactiveElements.containsKey(resourceLocation)) {
+                float concentration = radioactiveElements.get(resourceLocation);
+                tooltip.add(
+                        Component.translatable(resourceLocation.toLanguageKey("nucleus")).withStyle(ChatFormatting.YELLOW)
+                                .append(Component.literal(String.format(" : %.2f %%", concentration * 100)).withStyle(ChatFormatting.GRAY)));
+            }
+        }
 
         return true;
     }

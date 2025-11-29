@@ -1,6 +1,7 @@
 package com.rae.crowns.content.fields.util;
 
 import com.mojang.blaze3d.vertex.*;
+import com.rae.crowns.CROWNS;
 import com.rae.crowns.config.CROWNSConfigs;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.outliner.AABBOutline;
@@ -11,8 +12,11 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.QuartPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -45,6 +49,7 @@ public class DebugRenderer {
         Font font = mc.font;
         Level level = mc.level;
         BlockPos playerPos = mc.player.blockPosition();
+
         pruneCacheIfPlayerMoved(playerPos);
 
         PoseStack poseStack = event.getPoseStack();
@@ -56,7 +61,7 @@ public class DebugRenderer {
         poseStack.popPose();
         // Render temperature text
         renderTemperatureText(level, font, poseStack, playerPos);
-        renderVelocityVectors(level, poseStack, playerPos);
+        //renderVelocityVectors(level, poseStack, playerPos);
 
     }
     private static final int TICKING_SECTION_COLOR = 0x66CCFF; // light blue
@@ -92,6 +97,15 @@ public class DebugRenderer {
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
         Vec3 labelPos;
 
+        int qx = QuartPos.fromBlock(playerPos.getX());
+        int qy = QuartPos.fromBlock(playerPos.getY());
+        int qz = QuartPos.fromBlock(playerPos.getZ());
+
+        // Get the biome directly from the noise source
+        Holder<Biome> biome = level.getBiomeManager()
+                .getNoiseBiomeAtQuart(qx, qy, qz);
+        float defaultTemp =  CROWNS.BIOME_TEMPERATURES.getValue(biome.value(), 300f);
+
         for (int x = -RADIUS; x <= RADIUS; x++) {
             for (int y = -RADIUS; y <= RADIUS; y++) {
                 for (int z = -RADIUS; z <= RADIUS; z++) {
@@ -99,7 +113,7 @@ public class DebugRenderer {
                     if (!level.isLoaded(mutablePos)) continue;
 
                     float temp = LocalPhysicData.getTemperature(mutablePos);
-                    if (Math.abs(temp - 300f) < threshold) continue;
+                    if (Math.abs(temp - defaultTemp) < threshold) continue;
 
                     int color = temperatureToColor(temp);
                     labelPos = Vec3.atCenterOf(mutablePos);
@@ -128,7 +142,7 @@ public class DebugRenderer {
         poseStack.popPose();
     }
 
-    private static void renderVelocityVectors(@NotNull Level level, @NotNull PoseStack poseStack, @NotNull BlockPos playerPos) {
+    /*private static void renderVelocityVectors(@NotNull Level level, @NotNull PoseStack poseStack, @NotNull BlockPos playerPos) {
         float threshold = 0.01f; // Minimum speed to draw
         float scale = 0.25f;     // Arrow length scaling
         int color = 0x00A0FF;    // Blue for airflow
@@ -159,7 +173,7 @@ public class DebugRenderer {
                 }
             }
         }
-    }
+    }*/
 
     private static void renderArrow(PoseStack poseStack, Vec3 pos, Vec3 dir, int color, float scale, VertexConsumer buffer) {
         Vec3 start = pos;

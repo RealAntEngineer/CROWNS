@@ -44,14 +44,29 @@ public class CreativeModeTabsInit {
                                 output.accept(ItemInit.DEPLETED_URANIUM_NUGGET);
                                 output.accept(ItemInit.ENRICHED_URANIUM_INGOT);
                                 output.accept(ItemInit.ENRICHED_URANIUM_NUGGET);
-                                output.accept(ItemInit.FUEL_ROD);
+                                output.acceptAll(makeFuelAssembly().apply(ItemInit.FUEL_ROD.asItem()));
                             })
                             .build());
 
     private static @NotNull Function<Item, Collection<ItemStack>> makeFuelAssembly() {
         Map<Item, Function<Item, Collection<ItemStack>>> factories = new Reference2ReferenceOpenHashMap<>();
-        List<Float> uraniumGrades = List.of(7e-4f, 5e-3f, 0.2f, 0.9f);
+        List<Float> uraniumGrades = List.of(7e-3f, 0.2f, 0.9f);
         Map<ItemProviderEntry<?>, Function<Item, Collection<ItemStack>>> simpleFactories = Map.of(
+                ItemInit.FUEL_ROD, item -> {
+                    Collection<ItemStack> itemStacks = new ArrayList<>();
+                    for (Float grade : uraniumGrades) {
+                        ItemStack itemStack = item.getDefaultInstance();
+                        CompoundTag tag = itemStack.getOrCreateTag();
+                        CompoundTag compositionNBT = new CompoundTag();
+                        compositionNBT.putFloat("crowns:u235", grade );
+                        compositionNBT.putFloat("crowns:u238", (1 - grade));
+                        tag.put("composition", compositionNBT);
+                        itemStack.setTag(tag);
+                        itemStacks.add(itemStack);
+
+                    }
+                    return itemStacks;
+                },
                 BlockInit.FUEL_ASSEMBLY, item -> {
                     Collection<ItemStack> itemStacks = new ArrayList<>();
                     for (Float grade : uraniumGrades) {

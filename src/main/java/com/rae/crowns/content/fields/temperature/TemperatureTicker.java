@@ -36,10 +36,10 @@ public final class TemperatureTicker {
                                 DataLayerType.TEMPERATURE,
                                 DataLayerType.DEFAULT_TEMPERATURE,
                                 DataLayerType.CONDUCTION,
-                                DataLayerType.RESILIENCE,
-                                DataLayerType.VX,
-                                DataLayerType.VY,
-                                DataLayerType.VZ
+                                DataLayerType.RESILIENCE
+                                //DataLayerType.VX,
+                                //DataLayerType.VY,
+                                //DataLayerType.VZ
                         )
                 , visitor);
     }
@@ -106,15 +106,14 @@ public final class TemperatureTicker {
             float selfDefaultTemp = ctx.getData(1);
             float selfCond = ctx.getData(2);
             float res = ctx.getData(3);
-            float vx = ctx.getData(4);
-            float vy = ctx.getData(5);
-            float vz = ctx.getData(6);
+            //float vx = ctx.getData(4);
+            //float vy = ctx.getData(5);
+            //float vz = ctx.getData(6);
 
             // --- Prepare neighbor visitor ---
-            neighborVisitor.setContext(
-                    x, y, z,
-                    selfTemp, selfCond,
-                    vx, vy, vz
+            neighborVisitor.setContext(ctx,
+                    selfTemp, selfCond
+                    //vx, vy, vz
             );
 
             // --- Run neighbor iteration ---
@@ -156,55 +155,63 @@ public final class TemperatureTicker {
         private final PhysicsWorldData data;
 
         // Shared inputs (set before each forEachNeighbor call)
-        private int x, y, z;
+        //private int x, y, z;
         private float selfTemp, selfCond;
-        private float vx, vy, vz;
+        private SectionLooper.Context ctx;
+        //private float vx, vy, vz;
 
         // Accumulated result
         public float totalFlux;
+
 
         public TemperatureNeighborVisitor(PhysicsWorldData data) {
             this.data = data;
         }
 
-        public void setContext(int x, int y, int z,
-                               float selfTemp, float selfCond,
-                               float vx, float vy, float vz) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
+        public void setContext(SectionLooper.Context ctx, float selfTemp, float selfCond){
+                               //float vx, float vy, float vz) {
+            //this.x = x;
+            //this.y = y;
+            //this.z = z;
+            this.ctx = ctx;
             this.selfTemp = selfTemp;
             this.selfCond = selfCond;
-            this.vx = vx;
-            this.vy = vy;
-            this.vz = vz;
+            //this.vx = vx;
+            //this.vy = vy;
+            //this.vz = vz;
             this.totalFlux = 0f;
         }
 
         @Override
         public void accept(int nx, int ny, int nz, SectionLooper.NeighborRef ref) {
-            TemperatureDataLayer nTempLayer = data.getTemperature(ref.packedSection());
-            ConductionDataLayer nCondLayer = data.getConduction(ref.packedSection());
+            float neighborTemp;
+            float neighborCond;
+            if (ref.packedSection()!=ctx.packedSectionPos()) {
+                TemperatureDataLayer nTempLayer = data.getLayer(DataLayerType.TEMPERATURE,ref.packedSection());
+                ConductionDataLayer nCondLayer = data.getLayer(DataLayerType.CONDUCTION,ref.packedSection());
 
-            if (nTempLayer == null || nCondLayer == null)
-                return;
+                if (nTempLayer == null || nCondLayer == null)
+                    return;
 
-            float neighborTemp = nTempLayer.get(ref.localX(), ref.localY(), ref.localZ());
-            float neighborCond = nCondLayer.get(ref.localX(), ref.localY(), ref.localZ());
-
+                neighborTemp = nTempLayer.get(ref.localX(), ref.localY(), ref.localZ());
+                neighborCond = nCondLayer.get(ref.localX(), ref.localY(), ref.localZ());
+            }  else {
+                neighborTemp = ctx.getData(0, nx, ny, nz);
+                neighborCond = ctx.getData(2, nx, ny, nz);
+            }
             float k = (neighborCond * selfCond) / (neighborCond + selfCond);
 
             // Unit direction vector
-            int dx = nx - x;
-            int dy = ny - y;
-            int dz = nz - z;
+            //int dx = nx - x;
+            //int dy = ny - y;
+            //int dz = nz - z;
 
             // Advective term (velocity projected on neighbor direction)
-            float v = vx * dx + vy * dy + vz * dz;
+            //float v = -(vx * dx + vy * dy + vz * dz)*DT;
 
             float dTemp = neighborTemp - selfTemp;
 
-            totalFlux += dTemp * (k - v * TemperatureTicker.DT);
+            totalFlux += dTemp * (k );//(-v * DT
         }
     }
 }
