@@ -1,12 +1,14 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.CROWNS;
+import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.ISteamPressureChange;
 import com.rae.crowns.init.misc.BlockInit;
 import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
 import com.rae.formicapi.multiblock.MBStructureBlock;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.thermal_utilities.helper.WaterAsRealGaz;
 import com.rae.formicapi.thermal_utilities.helper.WaterTableBased;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.core.BlockPos;
@@ -260,15 +262,19 @@ public class SteamCurrent {
         newStateMap.put(injectorPos, previousState);
 
         SpecificRealGazState nextState = previousState;
+        boolean newModel = CROWNSConfigs.SERVER.kinetics.turbineNewModel.get();
+        float yield  = CROWNSConfigs.SERVER.kinetics.turbineIsentropicYield.getF();
         for (ISteamPressureChange stage : stages) {
             if (!(stage instanceof BlockEntity stageBe)) continue;
 
             float pressureRatio = stage.pressureRatio();
             try {
                 if (pressureRatio < 1f) {
-                    nextState = WaterTableBased.isentropicExpansion(previousState,1f / pressureRatio);
+                    nextState = newModel ? WaterTableBased.realExpansion(previousState,yield,1f / pressureRatio) :
+                            WaterAsRealGaz.standardExpansion(previousState, yield,1f / pressureRatio);
                 } else if (pressureRatio > 1f) {
-                    nextState = WaterTableBased.isentropicCompression(previousState, pressureRatio);
+                    nextState = newModel ? WaterTableBased.realCompression(previousState,yield,1f / pressureRatio) :
+                            WaterAsRealGaz.standardCompression(previousState, yield, pressureRatio);
                 }
             } catch (IllegalStateException error) {
                 CROWNS.LOGGER.error("{} caused by trying to compress water from {} with a ratio of {}", error.getMessage(), previousState, pressureRatio);

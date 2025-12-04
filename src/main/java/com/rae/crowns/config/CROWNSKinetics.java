@@ -10,7 +10,9 @@ public class CROWNSKinetics extends ConfigBase {
     public final ConfigBase.ConfigGroup turbineValues = group(0, "turbineValues", Comments.turbineStage);
 
     public final ConfigBase.ConfigFloat turbineCoefficient = f(1, 0, "turbineCoefficient", Comments.turbineCoefficient);
+    public final ConfigBase.ConfigFloat turbineIsentropicYield = f(1,0,1,"turbineIsentropicYield");
     public final ConfigBase.ConfigInt turbineSpeed = i(256, 1, 256, "turbineSpeed", Comments.turbineCoefficient);
+    public final ConfigBase.ConfigBool turbineNewModel = b(false, "newModel");
 
     @Override
     public @NotNull String getName() {

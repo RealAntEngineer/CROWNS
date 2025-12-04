@@ -32,7 +32,7 @@ public class CommandsInit {
                             .executes(context -> {
                                 ServerPlayer player = context.getSource().getPlayerOrException();
                                 long sectionPos = SectionPos.of(BlockPosArgument.getBlockPos(context, "pos")).asLong(); // <-- get the float argument
-                                PhysicsSaveManager.get((ServerLevel) player.level()).putForInitialisation(sectionPos);
+                                PhysicsSaveManager.get((ServerLevel) player.level()).scheduleInitialisation(sectionPos);
                                 return Command.SINGLE_SUCCESS;
                             })));
         }

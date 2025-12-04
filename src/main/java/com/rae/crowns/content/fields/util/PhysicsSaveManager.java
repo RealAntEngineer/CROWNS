@@ -28,29 +28,6 @@ public class PhysicsSaveManager {
     }
 
 
-    public static float getDefaultTemperature(@NotNull Level level, @NotNull BlockPos pos) {
-        FluidState fluid = level.getFluidState(pos);
-
-        // Convert to quart coordinates (biome resolution)
-        int qx = QuartPos.fromBlock(pos.getX());
-        int qy = QuartPos.fromBlock(pos.getY());
-        int qz = QuartPos.fromBlock(pos.getZ());
-
-        // Get the biome directly from the noise source
-        Holder<Biome> biome = level.getBiomeManager()
-                .getNoiseBiomeAtQuart(qx, qy, qz);
-
-        float defaultT = CROWNS.BIOME_TEMPERATURES.getValue(biome.value(), 300f);
-
-        // Priority: Fluid > Block > Biome
-        if (fluid.isEmpty()) {
-            BlockState blockState = level.getBlockState(pos);
-            return CROWNS.BLOCK_TEMPERATURES.getValue(blockState.getBlock(), defaultT);
-        } else {
-            return CROWNS.FLUID_TEMPERATURES.getValue(fluid.getType(), defaultT);
-        }
-    }
-
     /**
      * lock safe version.
      *
@@ -59,7 +36,7 @@ public class PhysicsSaveManager {
      * @param blockState block state at said position
      * @return the default temperature at the position.
      */
-    public static float getDefaultTemperature(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState blockState) {
+    public static float getDefaultTemperature(@NotNull Level level, @NotNull Vec3i pos, @NotNull BlockState blockState) {
         FluidState fluid = blockState.getFluidState();
         // Convert to quart coordinates (biome resolution)
         int qx = QuartPos.fromBlock(pos.getX());
@@ -80,22 +57,22 @@ public class PhysicsSaveManager {
         }
     }
 
-    public static float getDefaultConduction(@NotNull Level level, Vec3i pos) {
-        FluidState fluid = level.getFluidState((BlockPos) pos);
+    public static float getDefaultConduction(BlockState blockState) {
+        FluidState fluid = blockState.getFluidState();
         // Priority: Fluid > Block
         if (fluid.isEmpty()) {
-            return CROWNS.BLOCK_CONDUCTION.getValue(level.getBlockState((BlockPos) pos).getBlock(), 100);
+            return CROWNS.BLOCK_CONDUCTION.getValue(blockState.getBlock(), 100);
         } else {
             return CROWNS.FLUID_CONDUCTION.getValue(fluid.getType(), 100);
 
         }
     }
 
-    public static float getDefaultResilience(@NotNull Level level, @NotNull BlockPos pos) {
-        FluidState fluid = level.getFluidState(pos);
+    public static float getDefaultResilience(BlockState blockState) {
+        FluidState fluid = blockState.getFluidState();
         // Priority: Fluid > Block
         if (fluid.isEmpty()) {
-            return CROWNS.BLOCK_RESILIENCE.getValue(level.getBlockState(pos).getBlock(), 0f);
+            return CROWNS.BLOCK_RESILIENCE.getValue(blockState.getBlock(), 0f);
         } else {
             return CROWNS.FLUID_RESILIENCE.getValue(fluid.getType(), 0f);
 

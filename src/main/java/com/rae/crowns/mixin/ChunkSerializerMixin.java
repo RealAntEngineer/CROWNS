@@ -45,7 +45,7 @@ public class ChunkSerializerMixin {
             long sectionPos = SectionPos.of(chunk.getPos(), y).asLong();
 
             // --- Iterate over all registered DataLayerTypes ---
-
+            //should verify it's not corrupted before writing (same as the read)
             boolean exist = worldData.isLoaded(sectionPos);
             if (exist) {
                 for (DataLayerType<?> type : DataLayerType.REGISTRY.values()) {
@@ -61,7 +61,7 @@ public class ChunkSerializerMixin {
 
 
                 if (!worldData.isLoaded(sectionPos)) {
-                    worldData.dumpSection(sectionPos);
+                    //worldData.dumpSection(sectionPos);
                     CROWNS.LOGGER.info("unloading section : {}", SectionPos.of(chunk.getPos(), y));
                 }
 
@@ -92,25 +92,32 @@ public class ChunkSerializerMixin {
 
             // --- Iterate over all registered DataLayerTypes ---
             Map<DataLayerType<?>, AbstractDataLayer> layers = new HashMap<>();
+            boolean corrupted = false;
             for (DataLayerType<?> type : DataLayerType.REGISTRY.values()) {
                 if (sectionTag.contains(type.id)) {
                     byte[] bytes = sectionTag.getByteArray(type.id);
                     AbstractDataLayer layer = type.createLayer().fromBytes(bytes);
                     layers.put(type, layer);
                 } else {
-                    CROWNS.LOGGER.info("missing {} for {} at read", type.id, SectionPos.of(pos, y));
+                    layers.put(type, null);
                 }
             }
 
             // Put loaded layers into world data
-            for (Map.Entry<DataLayerType<?>, AbstractDataLayer> entry : layers.entrySet()) {
-                worldData.putLayer(entry.getKey(), sectionPos, entry.getValue());
-            }
+            if (!corrupted) {
+                for (Map.Entry<DataLayerType<?>, AbstractDataLayer> entry : layers.entrySet()) {
+                    if (entry.getValue() != null) {
+                        worldData.putLayer(entry.getKey(), sectionPos, entry.getValue());
+                    } else {
+                        worldData.scheduleInitialisation(sectionPos, entry.getKey());
+                    }
+                }
 
-            if (sectionTag.contains("TemperatureDirty") && sectionTag.getBoolean("TemperatureDirty")) {
-                worldData.setDirty(sectionPos);
-            } else {
-                worldData.setClean(sectionPos);
+                if (sectionTag.contains("TemperatureDirty") && sectionTag.getBoolean("TemperatureDirty")) {
+                    worldData.setDirty(sectionPos);
+                } else {
+                    worldData.setClean(sectionPos);
+                }
             }
 
             CROWNS.LOGGER.info("loading section : {}", SectionPos.of(pos, y));

@@ -9,6 +9,7 @@ import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.ChatFormatting;
@@ -40,12 +41,12 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     private static final int SYNC_RATE = 8;
     public float temperature = 300;
-    public float oldTemperature = 300;
+    private final int LAZY_TICK_RATE = 5;
     public float backgroundActivity = 12 * 3;//In MBq ( giga becquerels ) uranium is 12 Mbq per tonnes
-    public float oldNbrOfFission = backgroundActivity;
-    public float nbrOfFission = backgroundActivity;//nbr of fission/t
+    public float oldNbrOfFission;
+    public float nbrOfFission;//nbr of fission/t
     public float C = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
-    public float additionalNeutronsAbsorbed = 0;
+    public LerpedFloat additionalNeutronsAbsorbed = LerpedFloat.linear();
     public @NotNull HashMap<ResourceLocation, Float> radioactiveElements = new HashMap<>(
             Map.of(
                     CROWNS.resource("u235"), 0.014f * 0.2f,
@@ -59,7 +60,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
-        //nbrOfFission = backgroundActivity;
+        nbrOfFission = backgroundActivity;
+        setLazyTickRate(LAZY_TICK_RATE);
     }
 
     @Override
@@ -81,45 +83,59 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public void tick() {
         super.tick();
         if (!level.isClientSide()) {
-            if (!PhysicsSaveManager.get((ServerLevel) level).isLoaded(SectionPos.of(getBlockPos()).asLong())) return;
+            //debugPrintState(getBlockPos().toShortString());
+            if (!PhysicsSaveManager.get((ServerLevel) level).ticked(SectionPos.of(getBlockPos()).asLong())) return;
             if (syncCooldown > 0) {
                 syncCooldown--;
                 if (syncCooldown == 0 && queuedSync)
                     sendData();
             }
 
-            oldNbrOfFission = nbrOfFission;
-            nbrOfFission = additionalNeutronsAbsorbed *
-                    Math.max(1, (oldTemperature - 200) * CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF()) /
-                    Math.max(1, (temperature - 200) * CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF())
-                    //to take into account the current temperature not just the one when the radiation was updated
-                    + backgroundActivity;
-            if (Float.isNaN(nbrOfFission)) {
-                nbrOfFission = backgroundActivity;
-            }
-
-            power = (float) (nbrOfFission * fissionEnergy *
-                    CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());
-
-
             if (CROWNSConfigs.COMMON.nuclearParticle.get())
                 spawnRadiationParticles(level, getBlockPos(), nbrOfFission);
             temperature += power / C * 1 / 20f;
+            additionalNeutronsAbsorbed.tickChaser();
         }
         if (Float.isNaN(temperature)) {
             temperature = 300;
         }
     }
+    private void debugPrintState(String label) {
+        assert level != null;
+        String data = String.format(
+                "{\"time\":%d, \"pos\": \"%d %d %d\", \"temp\": %.3f, \"nbr\": %.6f, \"oldNbr\": %.6f, \"absorbed\": %.6f, \"power\": %.6f, \"composition\": %s, \"label\":\"%s\"}",
+                level.getGameTime(),
+                worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(),
+                temperature,
+                nbrOfFission, oldNbrOfFission,
+                additionalNeutronsAbsorbed.getValue(), power,
+                radioactiveElements,
+                label
+        );
+        CROWNS.LOGGER.info(data); // ← raw JSON line per tick
+    }
 
     @Override
     public void lazyTick() {
         if (!level.isClientSide()) {
-            if (!PhysicsSaveManager.get((ServerLevel) level).isLoaded(SectionPos.of(getBlockPos()).asLong())) return;
-            //move this to the tick
-            oldTemperature = temperature;
-
-            additionalNeutronsAbsorbed = 0;
+            if (!PhysicsSaveManager.get((ServerLevel) level).ticked(SectionPos.of(getBlockPos()).asLong())) return;
+            oldNbrOfFission = nbrOfFission;
+            nbrOfFission = additionalNeutronsAbsorbed.getValue() + backgroundActivity; //for now a 100% change of fission : no absorption
+            //this is fine here. because
+            if (Float.isNaN(nbrOfFission)) {
+                nbrOfFission = backgroundActivity;
+            }
+            //warning. it get impacted by the other blocks during ImpactEnv, not itself. It would be better if the neutron
+            // absorbed decay after lazy tick. here we are resting the goal every lazy tick. which means that if there is a block that impact us
+            // and that tick before use it get erased
             BlockPos pos = getBlockPos();
+
+            //float thermal_loses = (temperature-300)*10;// ambient temperature = 300K make thermal loses in the conduct temperature
+
+            power = (float) (nbrOfFission * fissionEnergy *
+                    CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
+
+            //temperature += power/C;
 
 
             if (temperature > 3500) {
@@ -225,9 +241,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         super.write(tag, clientPacket);
 
         tag.putFloat("nbrOfFission", nbrOfFission);
-        tag.putFloat("additionalNeutrons", additionalNeutronsAbsorbed);
+        tag.putFloat("additionalNeutrons", additionalNeutronsAbsorbed.getValue());
         tag.putFloat("temperature", temperature);
-        tag.putFloat("oldTemperature", oldTemperature);
         tag.putFloat("power", power);
         tag.put("composition", saveComposition());
 
@@ -237,9 +252,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     protected void read(@NotNull CompoundTag tag, boolean clientPacket) {
 
         nbrOfFission = tag.getFloat("nbrOfFission");
-        additionalNeutronsAbsorbed = tag.getFloat("additionalNeutrons");
+        additionalNeutronsAbsorbed.startWithValue(tag.getFloat("additionalNeutrons"));
         temperature = tag.getFloat("temperature");
-        oldTemperature = tag.getFloat("oldTemperature");
         power = tag.getFloat("power");
         setComposition(tag.getCompound("composition"));
         super.read(tag, clientPacket);
@@ -269,9 +283,19 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
         return true;
     }
-
+    int lastLazy = 0;
     @Override
     public @NotNull Couple<Float> absorbNeutrons(@NotNull Couple<Float> radiationFlux) {
+
+
+        assert level != null;
+        int oldLast = lastLazy;
+        lastLazy = Math.toIntExact(level.getGameTime() % LAZY_TICK_RATE);
+        if (oldLast != lastLazy) {//detect change of lazy tick.
+            additionalNeutronsAbsorbed.chaseTimed(0, LAZY_TICK_RATE);
+            //System.out.println("changed lazy tick");
+        }
+
         Float temperatureCoef = 1 / Math.max(1, (temperature - 200) * CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF());
         //System.out.println("temperature coef "+ temperatureCoef);
         float fastAbsorbed = 0f;
@@ -291,7 +315,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             fastAbsorbed += radiationFlux.getFirst() * temperatureCoef * fastAbsorptionChance;
             slowAbsorbed += radiationFlux.getSecond() * temperatureCoef * slowAbsorptionChance;
         }
-        additionalNeutronsAbsorbed += fastAbsorbed + slowAbsorbed;
+        additionalNeutronsAbsorbed.chaseTimed(additionalNeutronsAbsorbed.getChaseTarget()+ fastAbsorbed + slowAbsorbed,
+                LAZY_TICK_RATE);
         return Couple.create(radiationFlux.getFirst() - fastAbsorbed, radiationFlux.getSecond() - slowAbsorbed);
     }
 

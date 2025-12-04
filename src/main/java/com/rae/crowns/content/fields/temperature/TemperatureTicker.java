@@ -26,6 +26,8 @@ public final class TemperatureTicker {
 
     public static void tick(@NotNull Set<Long> tickingSections, @NotNull PhysicsWorldData data) {
 
+        data.resetTicked();
+
         updateDynamicData(data);
 
         // --- MAIN TICK LOOP ---
@@ -37,9 +39,6 @@ public final class TemperatureTicker {
                                 DataLayerType.DEFAULT_TEMPERATURE,
                                 DataLayerType.CONDUCTION,
                                 DataLayerType.RESILIENCE
-                                //DataLayerType.VX,
-                                //DataLayerType.VY,
-                                //DataLayerType.VZ
                         )
                 , visitor);
     }
@@ -63,11 +62,28 @@ public final class TemperatureTicker {
             ConductionDataLayer conductionData = data.getLayer(DataLayerType.CONDUCTION, packedSection);
             ResilienceDataLayer resilienceData = data.getLayer(DataLayerType.RESILIENCE, packedSection);
 
-            if (temperatureData == null || conductionData == null || resilienceData == null) {
-                CROWNS.LOGGER.warn("error trying to load temperature data at {}", SectionPos.of(packedSection));
-                data.putForInitialisation(packedSection); //data got corrupted.
-                return;
+            boolean corrupted = false;
+            if (temperatureData == null) {
+                CROWNS.LOGGER.warn("error trying to load temperature data at {}",SectionPos.of(packedSection));
+                data.scheduleInitialisation(packedSection, DataLayerType.TEMPERATURE); //data got corrupted.
+                corrupted = true;
             }
+            if (defaultTemperatureData == null) {
+                CROWNS.LOGGER.warn("error trying to load default temperature data at {}",SectionPos.of(packedSection));
+                data.scheduleInitialisation(packedSection, DataLayerType.DEFAULT_TEMPERATURE); //data got corrupted.
+                corrupted = true;
+            }
+            if (conductionData == null) {
+                CROWNS.LOGGER.warn("error trying to load conduction data at {}",SectionPos.of(packedSection));
+                data.scheduleInitialisation(packedSection, DataLayerType.CONDUCTION); //data got corrupted.
+                corrupted = true;
+            }
+            if (resilienceData == null) {
+                CROWNS.LOGGER.warn("error trying to load resilience data at {}",SectionPos.of(packedSection));
+                data.scheduleInitialisation(packedSection, DataLayerType.RESILIENCE); //data got corrupted.
+                corrupted = true;
+            }
+            if  (corrupted) return;
 
             int lx = pos.getX() & 15;
             int ly = pos.getY() & 15;
@@ -100,20 +116,17 @@ public final class TemperatureTicker {
 
         @Override
         public void visit(long packedSection, int sx, int sy, int sz, int x, int y, int z, SectionLooper.Context ctx) {
+            if (x == 1 && y == 1 && z == 1) data.addToTicked(packedSection);
             long pos = ctx.packedPos();
 
             float selfTemp = ctx.getData(0);
             float selfDefaultTemp = ctx.getData(1);
             float selfCond = ctx.getData(2);
             float res = ctx.getData(3);
-            //float vx = ctx.getData(4);
-            //float vy = ctx.getData(5);
-            //float vz = ctx.getData(6);
 
             // --- Prepare neighbor visitor ---
             neighborVisitor.setContext(ctx,
                     selfTemp, selfCond
-                    //vx, vy, vz
             );
 
             // --- Run neighbor iteration ---
@@ -155,10 +168,8 @@ public final class TemperatureTicker {
         private final PhysicsWorldData data;
 
         // Shared inputs (set before each forEachNeighbor call)
-        //private int x, y, z;
         private float selfTemp, selfCond;
         private SectionLooper.Context ctx;
-        //private float vx, vy, vz;
 
         // Accumulated result
         public float totalFlux;
@@ -169,16 +180,10 @@ public final class TemperatureTicker {
         }
 
         public void setContext(SectionLooper.Context ctx, float selfTemp, float selfCond){
-                               //float vx, float vy, float vz) {
-            //this.x = x;
-            //this.y = y;
-            //this.z = z;
+
             this.ctx = ctx;
             this.selfTemp = selfTemp;
             this.selfCond = selfCond;
-            //this.vx = vx;
-            //this.vy = vy;
-            //this.vz = vz;
             this.totalFlux = 0f;
         }
 
@@ -201,17 +206,9 @@ public final class TemperatureTicker {
             }
             float k = (neighborCond * selfCond) / (neighborCond + selfCond);
 
-            // Unit direction vector
-            //int dx = nx - x;
-            //int dy = ny - y;
-            //int dz = nz - z;
-
-            // Advective term (velocity projected on neighbor direction)
-            //float v = -(vx * dx + vy * dy + vz * dz)*DT;
-
             float dTemp = neighborTemp - selfTemp;
 
-            totalFlux += dTemp * (k );//(-v * DT
+            totalFlux += dTemp * (k );
         }
     }
 }

@@ -110,7 +110,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                 for (int i = 0; i < iteration; i++) {
                     float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) * dt / iteration;
                     WATER_TANK.heat(power);
-                    if (PhysicsSaveManager.get((ServerLevel) level).isLoaded(SectionPos.of(getBlockPos()).asLong())) {
+                    if (PhysicsSaveManager.get((ServerLevel) level).ticked(SectionPos.of(getBlockPos()).asLong())) {
                         this.addTemperature(-power / this.getThermalCapacity());
                     }
                 }
@@ -201,9 +201,9 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     }
 
     // an entity that is responsible for searching an linking blocks that have fluid between them ?
-    private static class HeatTransfertBehaviour extends StraightPipeBlockEntity.StraightPipeFluidTransportBehaviour {
+    private static class HeatTransferBehaviour extends StraightPipeBlockEntity.StraightPipeFluidTransportBehaviour {
 
-        public HeatTransfertBehaviour(SmartBlockEntity be) {
+        public HeatTransferBehaviour(SmartBlockEntity be) {
             super(be);
         }
 

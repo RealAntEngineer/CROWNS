@@ -1,14 +1,11 @@
 package com.rae.crowns.content.fields.util;
 
 import com.rae.crowns.CROWNS;
-import com.rae.crowns.content.fields.advection.BlockedDataLayer;
-import com.rae.crowns.content.fields.advection.VelocityDataLayer;
 import com.rae.crowns.content.fields.temperature.*;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.init.data.PacketInit;
 import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -19,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Collectors;
 
 import static com.rae.crowns.content.fields.util.PosPackingUtil.packSection;
 
@@ -35,11 +31,13 @@ public class PhysicsWorldData {//Only for the server
 
     // Dynamic and meta state
     private final Long2ObjectMap<IHaveTemperature> dynamicData = new Long2ObjectOpenHashMap<>();
-    private final LongSet toInitialise = new LongOpenHashSet();
+    private final Long2ObjectMap<DataLayerType<?>[]> toInitialise = new Long2ObjectOpenHashMap<>();
     private final Queue<BlockPos> changedBlocks = new ConcurrentLinkedQueue<>();
     private final LongSet changedSections = new LongOpenHashSet();
     private final LongSet dirty = new LongOpenHashSet();
     private final LongSet loadedSections = new LongOpenHashSet();
+    private final LongSet tickedSections = new LongOpenHashSet();
+
     private final Long2IntMap sectionDynamicCount = new Long2IntOpenHashMap();
     private final LongSet nearDynamicSections = new LongOpenHashSet();
 
@@ -49,12 +47,6 @@ public class PhysicsWorldData {//Only for the server
         registerLayer(DataLayerType.DEFAULT_TEMPERATURE);
         registerLayer(DataLayerType.CONDUCTION);
         registerLayer(DataLayerType.RESILIENCE);
-        /*registerLayer(DataLayerType.VX);
-        registerLayer(DataLayerType.BLOCKED_X);
-        registerLayer(DataLayerType.VY);
-        registerLayer(DataLayerType.BLOCKED_Y);
-        registerLayer(DataLayerType.VZ);
-        registerLayer(DataLayerType.BLOCKED_Z);*/
     }
 
     private <T extends AbstractDataLayer> void registerLayer(DataLayerType<T> type) {
@@ -90,9 +82,20 @@ public class PhysicsWorldData {//Only for the server
     //  INITIALIZATION / PUT
     // ------------------------------
 
-    public void putForInitialisation(long section) {
-        if (toInitialise.contains(section)) return;
-        toInitialise.add(section);
+    public void scheduleInitialisation(long section, DataLayerType<?>... layers) {
+        // Already scheduled? Just merge missing layers
+        if (toInitialise.containsKey(section)) {
+            DataLayerType<?>[] existing = toInitialise.get(section);
+
+            // Merge existing layers with new ones, avoiding duplicates
+            Set<DataLayerType<?>> merged = new LinkedHashSet<>(Arrays.asList(existing));
+            merged.addAll(Arrays.asList(layers));
+            toInitialise.put(section, merged.toArray(new DataLayerType<?>[0]));
+        } else {
+            toInitialise.put(section, layers);
+        }
+
+        unloading(section);
         setDirty(section);
     }
 
@@ -111,114 +114,65 @@ public class PhysicsWorldData {//Only for the server
     // ------------------------------
     //  SECTION INITIALIZATION
     // ------------------------------
-
     public void initialise(@NotNull ServerLevel level) {
         long startTime = System.nanoTime(); // More accurate timing
         int processed = 0;
 
-        // Use an iterator so we can remove safely
-        LongIterator iterator = toInitialise.iterator();
+        // Use an iterator so we can safely remove elements while iterating
+        LongIterator iterator = toInitialise.keySet().iterator();
+        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 
         while (iterator.hasNext() && processed < 10000) {
-            if ((System.nanoTime() - startTime) > 20_000_000L) { // 20 ms in nanoseconds
+            if ((System.nanoTime() - startTime) > 20_000_000L) { // 20 ms
                 CROWNS.LOGGER.warn("Exiting initialisation for this tick with {} more Sections to go", toInitialise.size());
                 break;
             }
 
-            long section = iterator.nextLong();
-            SectionPos sectionPos = SectionPos.of(section);
+            long sectionLong = iterator.nextLong();
+            DataLayerType<?>[] layersToInit = toInitialise.get(sectionLong);
 
-            // ⚠️ Skip this section if not loaded or not near a dynamic block, keep it in the set for later
-            if (!level.isLoaded(sectionPos.origin()) || !nearDynamicSections.contains(section)) {
+            SectionPos sectionPos = SectionPos.of(sectionLong);
+            BlockPos base = sectionPos.origin();
+
+            // Skip section if not loaded or not near dynamic blocks, but remove it from set
+            if (!level.isLoaded(base) || !nearDynamicSections.contains(sectionLong)) {
                 iterator.remove();
                 continue;
             }
 
-            // ✅ Only remove once we're actually processing it
+            // ✅ Remove from set once we are processing it
             iterator.remove();
 
-            TemperatureDataLayer temperatureDataLayer = new TemperatureDataLayer();
-            TemperatureDataLayer defaultTemperatureDataLayer = new TemperatureDataLayer();
-
-            ConductionDataLayer conductionDataLayer = new ConductionDataLayer();
-            ResilienceDataLayer resilienceDataLayer = new ResilienceDataLayer();
-
-            //VelocityDataLayer vx = new VelocityDataLayer();
-            //BlockedDataLayer blocked_x = new BlockedDataLayer();
-            //VelocityDataLayer vy = new VelocityDataLayer();
-            //BlockedDataLayer blocked_y = new BlockedDataLayer();
-            //VelocityDataLayer vz = new VelocityDataLayer();
-            //BlockedDataLayer blocked_z = new BlockedDataLayer();
-
-            BlockPos base = sectionPos.origin();
             boolean canBeDirty = false;
-            float defaultTemp = -1;
+            float lastTemp = -1;
 
-            for (int dx = 0; dx < 16; dx++) {//todo flatten this loop (iterate from 0 to 4095 on a short and do bit manipulation to have the dx,dy,dz)
-                for (int dy = 0; dy < 16; dy++) {
-                    for (int dz = 0; dz < 16; dz++) {
-                        BlockPos pos = base.offset(dx, dy, dz);//todo reduce the usage of object to a minimum.
-                        BlockState blockState = level.getBlockState(pos);
+            // Abstracted layer initialization
+            for (DataLayerType<?> type : layersToInit) {
+                AbstractDataLayer layer = type.createLayer();
 
-                        float oldTemp = defaultTemp;//todo we can probably remove this it's the remanent of an old optimisation trick.
-                        defaultTemp = PhysicsSaveManager.getDefaultTemperature(level, pos, blockState);
+                for (int i = 0; i < 4096; i++) {
+                    int dx = i & 15;
+                    int dy = (i >> 4) & 15;
+                    int dz = (i >> 8) & 15;
 
-                        temperatureDataLayer.set(dx, dy, dz, defaultTemp);
-                        defaultTemperatureDataLayer.set(dx, dy, dz, defaultTemp);
-                        conductionDataLayer.set(dx, dy, dz, PhysicsSaveManager.getDefaultConduction(level, pos));
-                        resilienceDataLayer.set(dx, dy, dz, PhysicsSaveManager.getDefaultResilience(level, pos));
+                    mutablePos.set(base.getX() + dx, base.getY() + dy, base.getZ() + dz);
+                    BlockState blockState = level.getBlockState(mutablePos);
+                    float value = type.getInitializer().apply(level, mutablePos, blockState);
+                    layer.set(dx, dy, dz, value);
 
-                        /*
-                        vx.set(dx, dy, dz, 0);
-                        vy.set(dx, dy, dz, 0);
-                        vz.set(dx, dy, dz, 0);
-
-                        // Always-pass blocks (transparent to airflow)
-                        if (PassThroughTester.shouldAlwaysPass(blockState)) {
-                            blocked_x.set(dx, dy, dz, 0);
-                            blocked_y.set(dx, dy, dz, 0);
-                            blocked_z.set(dx, dy, dz, 0);
-                        } else if (blockState.isSolid()) {
-                            blocked_x.set(dx, dy, dz, 1);
-                            blocked_y.set(dx, dy, dz, 1);
-                            blocked_z.set(dx, dy, dz, 1);
-                        } else {
-                            // For each direction, determine if the face is blocked
-                            for (Direction dir : Direction.values()) {
-                                double depth = PassThroughTester.findMaxDepth(blockState.getCollisionShape(level, pos), dir);
-                                boolean blocked = (depth > 0.0 && depth < Double.POSITIVE_INFINITY);
-                                switch (dir) {
-                                    case EAST, WEST -> blocked_x.set(dx, dy, dz, blocked ? 1 : 0);
-                                    case UP, DOWN -> blocked_y.set(dx, dy, dz, blocked ? 1 : 0);
-                                    case SOUTH, NORTH -> blocked_z.set(dx, dy, dz, blocked ? 1 : 0);
-                                }
-                            }
-                        }*/
-
-                        if (oldTemp != -1 && oldTemp != defaultTemp) {
-                            canBeDirty = true;
-                        }
+                    // Only track temperature changes for dirty check
+                    if (type == DataLayerType.TEMPERATURE) {
+                        if (lastTemp != -1 && lastTemp != value) canBeDirty = true;
+                        lastTemp = value;
                     }
                 }
+
+                layers.get(type).put(sectionLong, layer);
             }
 
-            //todo make this abstract (meaning it look at dataLayerType and get the initialise methode there)
-            long sectionLong = sectionPos.asLong();
-            layers.get(DataLayerType.TEMPERATURE).put(sectionLong, temperatureDataLayer);
-            layers.get(DataLayerType.DEFAULT_TEMPERATURE).put(sectionLong, defaultTemperatureDataLayer);
-            layers.get(DataLayerType.CONDUCTION).put(sectionLong, conductionDataLayer);
-            layers.get(DataLayerType.RESILIENCE).put(sectionLong, resilienceDataLayer);
-
-            /*
-            layers.get(DataLayerType.VX).put(sectionLong, vx);
-            layers.get(DataLayerType.BLOCKED_X).put(sectionLong, blocked_x);
-            layers.get(DataLayerType.VY).put(sectionLong, vy);
-            layers.get(DataLayerType.BLOCKED_Y).put(sectionLong, blocked_y);
-            layers.get(DataLayerType.VZ).put(sectionLong, vz);
-            layers.get(DataLayerType.BLOCKED_Z).put(sectionLong, blocked_z);
-            */
             loadedSections.add(sectionLong);
 
+            // Mark section clean if possible
             if (!canBeDirty && !nearDynamicSections.contains(sectionLong)) {
                 setClean(sectionLong);
             }
@@ -229,11 +183,14 @@ public class PhysicsWorldData {//Only for the server
 
     public void updateChangedBlocks(@NotNull ServerLevel level) {
         float initialTimeMS = System.currentTimeMillis();
+        DataLayerType<?>[] types = {DataLayerType.DEFAULT_TEMPERATURE, DataLayerType.CONDUCTION, DataLayerType.RESILIENCE};
+
         for (int i = 0; i < 10000 && !changedBlocks.isEmpty(); i++) {
             BlockPos pos = changedBlocks.poll();
             BlockState state = level.getBlockState(pos);
-            set(pos, PhysicsSaveManager.getDefaultTemperature(level, pos, state),
-                    PhysicsSaveManager.getDefaultConduction(level, pos), PhysicsSaveManager.getDefaultResilience(level, pos));
+
+            set(pos, types, PhysicsSaveManager.getDefaultTemperature(level, pos, state),
+                    PhysicsSaveManager.getDefaultConduction(state), PhysicsSaveManager.getDefaultResilience(state));
 
             // --- Update solid mask using PassThroughTester ---
             //updateBlockedFaces(level, pos, state);
@@ -245,76 +202,28 @@ public class PhysicsWorldData {//Only for the server
         }
     }
 
-    /*private void updateBlockedFaces(ServerLevel level, BlockPos pos, BlockState state) {
-        long packedSection = packSection(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4);
-
-        BlockedDataLayer xPosLayer = getLayer(DataLayerType.BLOCKED_X, packedSection);
-        BlockedDataLayer yPosLayer = getLayer(DataLayerType.BLOCKED_Y, packedSection);
-        BlockedDataLayer zPosLayer = getLayer(DataLayerType.BLOCKED_Z, packedSection);
-
-        if (xPosLayer == null || yPosLayer == null || zPosLayer == null)
-            return;
-
-        int lx = pos.getX() & 15;
-        int ly = pos.getY() & 15;
-        int lz = pos.getZ() & 15;
-
-        // Always-pass blocks (transparent to airflow)
-        if (PassThroughTester.shouldAlwaysPass(state)) {
-            xPosLayer.set(lx, ly, lz, 0);
-            yPosLayer.set(lx, ly, lz, 0);
-            zPosLayer.set(lx, ly, lz, 0);
-            return;
-        }
-        if (state.isSolid()) {
-            xPosLayer.set(lx, ly, lz, 1);
-            yPosLayer.set(lx, ly, lz, 1);
-            zPosLayer.set(lx, ly, lz, 1);
-            return;
+    public void set(@NotNull BlockPos pos, @NotNull DataLayerType<?>[] types, float... values) {
+        if (types.length != values.length) {
+            throw new IllegalArgumentException("Types and values arrays must have the same length");
         }
 
-        // For each direction, determine if the face is blocked
-        for (Direction dir : Direction.values()) {
-            double depth = PassThroughTester.findMaxDepth(state.getCollisionShape(level, pos), dir);
-            boolean blocked = (depth > 0.0 && depth < Double.POSITIVE_INFINITY);
-            switch (dir) {
-                case EAST, WEST -> xPosLayer.set(lx, ly, lz, blocked ? 1 : 0);
-                case UP, DOWN -> yPosLayer.set(lx, ly, lz, blocked ? 1 : 0);
-                case SOUTH, NORTH -> zPosLayer.set(lx, ly, lz, blocked ? 1 : 0);
-            }
-        }
-    }*/
-
-    public void set(@NotNull BlockPos pos, float temperature, float conduction, float resilience) {
-        // --- Compute packed section coordinates manually ---
+        // --- Compute packed section coordinates ---
         int sx = pos.getX() >> 4;
         int sy = pos.getY() >> 4;
         int sz = pos.getZ() >> 4;
         long packedSection = packSection(sx, sy, sz);
 
-        // --- Get layers ---
-        TemperatureDataLayer temperatureDataLayer = getLayer(DataLayerType.TEMPERATURE, packedSection);
-        TemperatureDataLayer defaultTemperatureDataLayer = getLayer(DataLayerType.DEFAULT_TEMPERATURE, packedSection);
+        // --- Local coordinates inside the section ---
+        int lx = pos.getX() & 15;
+        int ly = pos.getY() & 15;
+        int lz = pos.getZ() & 15;
 
-        ConductionDataLayer conductionDataLayer = getLayer(DataLayerType.CONDUCTION, packedSection);
-        ResilienceDataLayer resilienceDataLayer = getLayer(DataLayerType.RESILIENCE, packedSection);
-
-        if (temperatureDataLayer != null && conductionDataLayer != null && resilienceDataLayer != null) {
-            // --- Local coordinates inside the section ---
-            int lx = pos.getX() & 15;
-            int ly = pos.getY() & 15;
-            int lz = pos.getZ() & 15;
-
-            // --- Set values once ---
-            temperatureDataLayer.set(lx, ly, lz, temperature);
-            defaultTemperatureDataLayer.set(lx, ly, lz, temperature);
-            conductionDataLayer.set(lx, ly, lz, conduction);
-            resilienceDataLayer.set(lx, ly, lz, resilience);
-
-            // --- No need to put layers back if your map already stores references ---
-            // put(packedSection, temperatureDataLayer);
-            // put(packedSection, conductionDataLayer);
-            // put(packedSection, resilienceDataLayer);
+        // --- Set values dynamically ---
+        for (int i = 0; i < types.length; i++) {
+            AbstractDataLayer layer = getLayer(types[i], packedSection);
+            if (layer != null) {
+                layer.set(lx, ly, lz, values[i]);
+            }
         }
     }
 
@@ -322,6 +231,12 @@ public class PhysicsWorldData {//Only for the server
 
     public void putDynamic(@NotNull BlockPos pos, IHaveTemperature dynamic) {
         dynamicData.put(pos.asLong(), dynamic);
+        DataLayerType<?>[] layerTypes = {
+                DataLayerType.TEMPERATURE,
+                DataLayerType.DEFAULT_TEMPERATURE,
+                DataLayerType.CONDUCTION,
+                DataLayerType.RESILIENCE
+        };
 
         int sx = pos.getX() >> 4;
         int sy = pos.getY() >> 4;
@@ -338,14 +253,31 @@ public class PhysicsWorldData {//Only for the server
                         long packed = packSection(nsx, nsy, nsz);
                         nearDynamicSections.add(packed);
                         sectionDynamicCount.put(packed, sectionDynamicCount.getOrDefault(packed, 0) + 1);
-                        if (!loadedSections.contains(packed)) {
-                            putForInitialisation(packed);
+                        if (loadedSections.contains(packed)) {
+                            List<DataLayerType<?>> missingLayers = new ArrayList<>();
+
+                            for (DataLayerType<?> type : layerTypes) {
+                                if (!layers.get(type).containsKey(packed)) {
+                                    missingLayers.add(type);
+                                }
+                            }
+
+                            if (!missingLayers.isEmpty()) {
+                                // Schedule only missing layers
+                                scheduleInitialisation(packed, missingLayers.toArray(new DataLayerType<?>[0]));
+                            }
+                        } else {
+                            scheduleInitialisation(packed, layerTypes);
+                            System.out.print("resting the section");
+
                         }
                     }
                 }
             }
         }
     }
+
+
 
     public void removeDynamic(@NotNull BlockPos pos) {
         dynamicData.remove(pos.asLong());
@@ -420,36 +352,24 @@ public class PhysicsWorldData {//Only for the server
 
         // --- Data maps ---
         var tempMap = layers.get(DataLayerType.TEMPERATURE);//todo we should have a synced boolean on the DataLayerType enum
-        //var vxMap   = layers.get(DataLayerType.VX);
-        //var vyMap   = layers.get(DataLayerType.VY);
-        //var vzMap   = layers.get(DataLayerType.VZ);
 
         for (int i = 0; i < changed.size(); i += batchSize) {
             int end = Math.min(i + batchSize, changed.size());
             List<Long> batch = changed.subList(i, end);
 
             Map<SectionPos, TemperatureDataLayer> tBatch = new HashMap<>();
-            //Map<SectionPos, VelocityDataLayer> vxBatch = new HashMap<>();
-            //Map<SectionPos, VelocityDataLayer> vyBatch = new HashMap<>();
-            //Map<SectionPos, VelocityDataLayer> vzBatch = new HashMap<>();
 
             for (long section : batch) {
                 SectionPos pos = SectionPos.of(section);
 
                 TemperatureDataLayer t = (TemperatureDataLayer) tempMap.get(section);
-                //VelocityDataLayer vxL  = (VelocityDataLayer) vxMap.get(section);
-                //VelocityDataLayer vyL  = (VelocityDataLayer) vyMap.get(section);
-                //VelocityDataLayer vzL  = (VelocityDataLayer) vzMap.get(section);
 
                 if (t != null)  tBatch.put(pos, t);
-                //if (vxL != null) vxBatch.put(pos, vxL);
-                //if (vyL != null) vyBatch.put(pos, vyL);
-                //if (vzL != null) vzBatch.put(pos, vzL);
             }
 
-            if (tBatch.isEmpty() /*&& vxBatch.isEmpty() && vyBatch.isEmpty() && vzBatch.isEmpty()*/) continue;
+            if (tBatch.isEmpty() ) continue;
 
-            UpdateSectionsPacket packet = new UpdateSectionsPacket(tBatch/*, vxBatch, vyBatch, vzBatch*/);
+            UpdateSectionsPacket packet = new UpdateSectionsPacket(tBatch);
 
             // Send to all players (could be filtered by proximity if desired)
             for (ServerPlayer player : players) {
@@ -498,4 +418,16 @@ public class PhysicsWorldData {//Only for the server
     public boolean isLoaded(long sectionPos) {
         return loadedSections.contains(sectionPos);
     }
+
+    public boolean ticked(long sectionPos){
+        return tickedSections.contains(sectionPos);
+    }
+
+    public void addToTicked(long sectionPos){
+        tickedSections.add(sectionPos);
+    }
+    public void resetTicked(){
+        tickedSections.clear();
+    }
+
 }
