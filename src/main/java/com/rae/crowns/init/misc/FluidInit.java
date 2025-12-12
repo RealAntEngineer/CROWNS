@@ -44,6 +44,7 @@ public class FluidInit {
                     .bucket()
                     .build()
                     .register();
+
     private static final DeferredRegister<Fluid> FLUID_REGISTER =
             DeferredRegister.create(Registries.FLUID, CROWNS.MODID);
 

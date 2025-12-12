@@ -3,10 +3,10 @@ package com.rae.crowns.content.thermodynamics.turbine;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.sound.CrownsSoundScapes;
 import com.rae.crowns.content.thermodynamics.ISteamPressureChange;
-import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.utility.CreateLang;
+import net.createmod.catnip.animation.LerpedFloat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -23,12 +23,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implements ISteamPressureChange {
     public int initialTicks;
     //the turbine add itself to the SteamCurrent
     protected @NotNull List<SteamCurrent> flows = List.of();
-    float power;
+    LerpedFloat power = LerpedFloat.linear();
     int index;
 
     public TurbineStageBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -52,7 +53,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     public float getGeneratedSpeed() {
         //if flows is empty and power!=0 it means that the BE is being loaded, we need to trust only the power in that case
         //so there is no need to check for the flows.
-        return power == 0 ? 0 : CROWNSConfigs.SERVER.kinetics.turbineSpeed.get(); // * direction du flux
+        return power.getValue() == 0 ? 0 : CROWNSConfigs.SERVER.kinetics.turbineSpeed.get(); // * direction du flux
     }
 
     @Override
@@ -65,7 +66,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     private float getCombinedCapacity() {
         if (level == null) return 0;
 
-        return getGeneratedSpeed() == 0 ? power : power / getGeneratedSpeed();// capacity is
+        return getGeneratedSpeed() == 0 ? power.getValue() : power.getValue() / getGeneratedSpeed();// capacity is
     }
 
     @Override
@@ -81,6 +82,12 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
             CrownsSoundScapes.play(CrownsSoundScapes.AmbienceGroup.TURBINE, worldPosition, Mth.lerp(Math.abs(speed) / 256, 0.25f, 1));
         }
 
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        power.tickChaser();
     }
 
     @Override
@@ -101,12 +108,13 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
                 .getNormal()));
 
         flows = SteamFlowManager.getCurrentsInBounds(level.dimension().location(), bound);//level.getEntitiesOfClass(SteamCurrent.class, bound);
-        power = 0;
+        AtomicReference<Float> newPower = new AtomicReference<>((float) 0);
         flows.forEach(f -> {
             SteamCurrent.SPR spr = f.getPowerForStage(this);
-            power += spr.power();
+            newPower.updateAndGet(v -> v + spr.power());
             index = spr.stage();
         });
+        power.chaseTimed(newPower.get(), 20);
 
         updateGeneratedRotation();
     }
@@ -118,7 +126,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
 
     @Override
     protected void write(@NotNull CompoundTag compound, boolean clientPacket) {
-        compound.putFloat("power", power);
+        compound.putFloat("power", power.getValue());
         compound.putInt("index", index);
         super.write(compound, clientPacket);
     }
@@ -126,7 +134,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     @Override
     protected void read(@NotNull CompoundTag compound, boolean clientPacket) {
         super.read(compound, clientPacket);
-        power = compound.getFloat("power");
+        power.setValue(compound.getFloat("power"));
         index = compound.getInt("index");
     }
 

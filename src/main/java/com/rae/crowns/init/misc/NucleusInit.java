@@ -56,8 +56,6 @@ public class NucleusInit {
             0.23f * 20f // ~454 ticks
     );
 
-// ... repeat for DN3–DN6 with their half-lives
-
     // U-235 with prompt + delayed neutrons
     @NotNull Nucleus U235 = new Nucleus(
             235, 92,

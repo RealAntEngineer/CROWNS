@@ -34,8 +34,8 @@ public class SteamFlowManager {
             storage.steamCurrents.put(world.dimension().location(), new ArrayList<>());
         }
         storage.steamCurrents.get(world.dimension().location())
-                .removeIf(steamCurrent -> !steamCurrent.isValid(world));
-
+                .removeIf(steamCurrent -> steamCurrent!=null && !steamCurrent.isValid(world));
+        //there shouldn't be null values here.
         storage.steamCurrents.get(world.dimension().location())
                 .forEach(steamCurrent -> steamCurrent.tick(world));
 

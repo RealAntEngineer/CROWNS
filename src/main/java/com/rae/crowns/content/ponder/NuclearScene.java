@@ -2,6 +2,7 @@ package com.rae.crowns.content.ponder;
 
 import com.rae.crowns.content.nuclear.AssemblyBlock;
 import com.rae.crowns.init.misc.BlockInit;
+import com.rae.crowns.init.misc.FluidInit;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import net.createmod.ponder.api.scene.SceneBuilder;
@@ -75,49 +76,131 @@ public class NuclearScene {
         scene.world().showSection(fc4, Direction.UP);
         scene.overlay().showOutlineWithText(bb, 10 * 20).text("when enough fuel are close to each other with a moderator");
         scene.idleSeconds(2);
-        scene.world().modifyBlocks(fc1, blockState -> blockState.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
-        scene.world().modifyBlocks(fc2, blockState -> blockState.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
-        scene.world().modifyBlocks(fc3, blockState -> blockState.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
-        scene.world().modifyBlocks(fc4, blockState -> blockState.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
-        scene.idleSeconds(10);
-        //scene.addKeyframe();
-        scene.markAsFinished();
+        scene.world().modifyBlocks(fc1, s -> s.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.NONE), false);
+        scene.world().modifyBlocks(fc2, s -> s.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.NONE), false);
+        scene.world().modifyBlocks(fc3, s -> s.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.NONE), false);
+        scene.world().modifyBlocks(fc4, s -> s.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.NONE), false);
+
+        scene.overlay()
+                .showText(4 * 20)
+                .text("As fission continues, fuel assemblies begin to heat up...");
+        scene.idleSeconds(4);
+
+        // 🔶 Medium heat
+        scene.world().modifyBlocks(fc1, s -> s.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
+        scene.world().modifyBlocks(fc2, s -> s.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
+        scene.world().modifyBlocks(fc3, s -> s.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
+        scene.world().modifyBlocks(fc4, s -> s.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.LOW), false);
+
+        scene.idleSeconds(3);
+
+        // 🔴 Critical heat
+        scene.overlay()
+                .showText(4 * 20)
+                .text("Without proper cooling or control rods, temperature reaches critical levels.");
+        scene.world().modifyBlocks(fc1, s -> s.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.HIGH), false);
+        scene.world().modifyBlocks(fc2, s -> s.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.HIGH), false);
+        scene.world().modifyBlocks(fc3, s -> s.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.HIGH), false);
+        scene.world().modifyBlocks(fc4, s -> s.setValue(AssemblyBlock.ACTIVITY, AssemblyBlock.Activity.HIGH), false);
+
+        scene.idleSeconds(3);
+
+        scene.overlay()
+                .showText(4 * 20)
+                .text("The fuel catastrophically fails and melts into corium.");
+        scene.idleSeconds(2);
+
+        // 💥 Fuel collapses into corium
+        scene.world().setBlocks(fc1, FluidInit.CORIUM.get().getFlowing().defaultFluidState().createLegacyBlock(), false);
+        scene.world().setBlocks(fc2, FluidInit.CORIUM.get().getFlowing().defaultFluidState().createLegacyBlock(), false);
+        scene.world().setBlocks(fc3, FluidInit.CORIUM.get().getFlowing().defaultFluidState().createLegacyBlock(), false);
+        scene.world().setBlocks(fc4, FluidInit.CORIUM.get().getFlowing().defaultFluidState().createLegacyBlock(), false);
+
+        scene.idleSeconds(3);
     }
 
-    public static void reactorLayout(@NotNull SceneBuilder builder, @NotNull SceneBuildingUtil sceneBuildingUtil) {
+    public static void reactorLayout(@NotNull SceneBuilder builder, @NotNull SceneBuildingUtil util) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
         scene.title("reactor_layout", "Reactor Layout");
         //sceneBuilder.setSceneOffsetY(-5);
         scene.scaleSceneView(0.6f);
         scene.setSceneOffsetY(-2f);
 
-        scene.overlay().showText(60).text("like every hot blocks, you can use hot nuclear fuel to heat water");
+        scene.overlay()
+                .showText(60)
+                .text("Like all hot blocks, nuclear fuel can be used to heat water.");
         scene.idle(20);
 
-        scene.world().restoreBlocks(sceneBuildingUtil.select().everywhere());
-
-        Selection layer0 = sceneBuildingUtil.select().layers(0, 3);
+        // ✅ Reveal lower reactor casing
+        Selection layer0 = util.select().layers(0, 3);
         scene.world().showSection(layer0, Direction.DOWN);
-        //scene.idleSeconds(2);
+        scene.idleSeconds(2);
 
-
-        Selection he = sceneBuildingUtil.select().fromTo(4, 1, 3, 4, 7, 3);
-        scene.world().modifyBlocks(he, blockState -> blockState.setValue(ProperWaterloggedBlock.WATERLOGGED, false), false);
-        scene.world().restoreBlocks(sceneBuildingUtil.select().everywhere());
-        //scene.world().showSection(he, Direction.UP);
-
-        Selection slice = sceneBuildingUtil.select().fromTo(0, 3, 3, 8, 8, 8);
-        // 3,4, 5, 3, 8, 5
+        // ✅ Outline the full reactor interior
+        Selection slice = util.select().fromTo(0, 3, 3, 8, 8, 8);
         scene.world().showSection(slice, Direction.UP);
-        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().layers(1, 5), 100)
-                .text("it's recommended to make reactors in a chest board manner");
+
+        scene.overlay()
+                .showOutlineWithText(util.select().layers(1, 5), 100)
+                .text("It's recommended to build reactors in a concentric circles.");
         scene.idleSeconds(5);
 
-        scene.overlay().showOutlineWithText(he, 40).text("the higher the reactor, the more time the water will have to boil");
+        // ✅ Highlight full reactor height (boiling efficiency)
+        Selection reactorHeight = util.select().fromTo(4, 1, 3, 4, 7, 3);
+        scene.overlay()
+                .showOutlineWithText(reactorHeight, 40)
+                .text("The taller the reactor, the more time water has to boil.");
         scene.idleSeconds(3);
-        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().fromTo(5, 3, 3, 5, 6, 3), 60)
-                .text("fuel becomes red when it's hotter than 3000 degrees Kelvin, it explodes at 3500");
+
+        // ✅ Highlight overheated fuel cells
+        scene.overlay()
+                .showOutlineWithText(util.select().fromTo(5, 3, 3, 5, 6, 3), 60)
+                .text("Fuel turns red above 3000K and explodes at 3500K.");
         scene.idleSeconds(3);
+
         scene.markAsFinished();
+
     }
+
+    private static Selection getCircularReactorRing(SceneBuildingUtil util, int ringIndex) {
+        // Reactor interior bounds
+        int min = 1;
+        int max = 7;
+
+        int centerX = 4;
+        int centerZ = 4;
+
+        // 7x7 reactor radii
+        int outerRadius = 3 - ringIndex;
+        int innerRadius = outerRadius - 1;
+
+        Selection result = null;
+
+        for (int x = min; x <= max; x++) {
+            for (int z = min; z <= max; z++) {
+                int dx = x - centerX;
+                int dz = z - centerZ;
+
+                double distSq = dx * dx + dz * dz;
+
+                boolean insideOuter = distSq <= (outerRadius + 0.5) * (outerRadius + 0.5);
+                boolean outsideInner = innerRadius < 0
+                        || distSq > (innerRadius + 0.5) * (innerRadius + 0.5);
+
+                if (insideOuter && outsideInner) {
+                    Selection column = util.select().column(x, z);
+
+                    if (result == null) {
+                        result = column;        // ✅ seed
+                    } else {
+                        result = result.add(column);  // ✅ accumulate
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+
 }

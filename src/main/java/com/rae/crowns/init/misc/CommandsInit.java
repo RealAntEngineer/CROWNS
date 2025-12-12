@@ -3,6 +3,7 @@ package com.rae.crowns.init.misc;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.nuclear.NuclearExplosion;
 import net.minecraft.commands.CommandSourceStack;
@@ -15,25 +16,50 @@ import org.jetbrains.annotations.NotNull;
 
 public class CommandsInit {
 
-        public static void register(@NotNull CommandDispatcher<CommandSourceStack> dispatcher) {
-            dispatcher.register(Commands.literal("nuclearExplosion")
-                    .requires(source -> source.hasPermission(2)) // Requires operator level permission
-                    .then(Commands.argument("power", FloatArgumentType.floatArg(0.0F)) // you can set min/max here
-                            .executes(context -> {
-                                ServerPlayer player = context.getSource().getPlayerOrException();
-                                float power = FloatArgumentType.getFloat(context, "power"); // <-- get the float argument
-                                NuclearExplosion.nuclearExplosion(player.level(), player.getOnPos(), power);
-                                return Command.SINGLE_SUCCESS;
-                            })));
+    public static void register(@NotNull CommandDispatcher<CommandSourceStack> dispatcher) {
 
-            dispatcher.register(Commands.literal("reinitialiseSection")
-                    .requires(source -> source.hasPermission(2)) // Requires operator level permission
-                    .then(Commands.argument("pos", BlockPosArgument.blockPos())
-                            .executes(context -> {
-                                ServerPlayer player = context.getSource().getPlayerOrException();
-                                long sectionPos = SectionPos.of(BlockPosArgument.getBlockPos(context, "pos")).asLong(); // <-- get the float argument
-                                PhysicsSaveManager.get((ServerLevel) player.level()).scheduleInitialisation(sectionPos);
-                                return Command.SINGLE_SUCCESS;
-                            })));
-        }
+        // Root command: /crowns
+        dispatcher.register(Commands.literal("crowns")
+                .requires(source -> source.hasPermission(2)) // Operator permission for all subcommands
+
+                // /crowns nuclearExplosion <power>
+                .then(Commands.literal("nuclearExplosion")
+                        .then(Commands.argument("power", FloatArgumentType.floatArg(0.0F))
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    float power = FloatArgumentType.getFloat(context, "power");
+                                    NuclearExplosion.nuclearExplosion(
+                                            player.level(),
+                                            player.getOnPos(),
+                                            power
+                                    );
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+
+                // /crowns reinitialiseSection <pos>
+                .then(Commands.literal("reinitialiseSection")
+                        .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                                    long sectionPos = SectionPos.of(
+                                            BlockPosArgument.getBlockPos(context, "pos")
+                                    ).asLong();
+
+                                    PhysicsSaveManager.get((ServerLevel) player.level())
+                                            .scheduleInitialisation(
+                                                    sectionPos,
+                                                    DataLayerType.CONDUCTION,
+                                                    DataLayerType.DEFAULT_TEMPERATURE,
+                                                    DataLayerType.TEMPERATURE,
+                                                    DataLayerType.RESILIENCE
+                                            );
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+        );
+    }
 }
+

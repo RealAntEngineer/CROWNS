@@ -265,10 +265,12 @@ public class PhysicsWorldData {//Only for the server
                             if (!missingLayers.isEmpty()) {
                                 // Schedule only missing layers
                                 scheduleInitialisation(packed, missingLayers.toArray(new DataLayerType<?>[0]));
+                                System.out.printf("resting the section for %s\n", missingLayers);
+
                             }
                         } else {
-                            scheduleInitialisation(packed, layerTypes);
-                            System.out.print("resting the section");
+                            //scheduleInitialisation(packed, layerTypes);
+                            //System.out.print("resting the section\n");
 
                         }
                     }

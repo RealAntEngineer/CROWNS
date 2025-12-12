@@ -63,24 +63,25 @@ public final class TemperatureTicker {
             ResilienceDataLayer resilienceData = data.getLayer(DataLayerType.RESILIENCE, packedSection);
 
             boolean corrupted = false;
+
             if (temperatureData == null) {
-                CROWNS.LOGGER.warn("error trying to load temperature data at {}",SectionPos.of(packedSection));
-                data.scheduleInitialisation(packedSection, DataLayerType.TEMPERATURE); //data got corrupted.
+                //CROWNS.LOGGER.warn("error trying to load temperature data at {}",SectionPos.of(packedSection));
+                //data.scheduleInitialisation(packedSection, DataLayerType.TEMPERATURE); //data got corrupted.
                 corrupted = true;
             }
             if (defaultTemperatureData == null) {
-                CROWNS.LOGGER.warn("error trying to load default temperature data at {}",SectionPos.of(packedSection));
-                data.scheduleInitialisation(packedSection, DataLayerType.DEFAULT_TEMPERATURE); //data got corrupted.
+                //CROWNS.LOGGER.warn("error trying to load default temperature data at {}",SectionPos.of(packedSection));
+                //data.scheduleInitialisation(packedSection, DataLayerType.DEFAULT_TEMPERATURE); //data got corrupted.
                 corrupted = true;
             }
             if (conductionData == null) {
-                CROWNS.LOGGER.warn("error trying to load conduction data at {}",SectionPos.of(packedSection));
-                data.scheduleInitialisation(packedSection, DataLayerType.CONDUCTION); //data got corrupted.
+                //CROWNS.LOGGER.warn("error trying to load conduction data at {}",SectionPos.of(packedSection));
+                //data.scheduleInitialisation(packedSection, DataLayerType.CONDUCTION); //data got corrupted.
                 corrupted = true;
             }
             if (resilienceData == null) {
-                CROWNS.LOGGER.warn("error trying to load resilience data at {}",SectionPos.of(packedSection));
-                data.scheduleInitialisation(packedSection, DataLayerType.RESILIENCE); //data got corrupted.
+                //CROWNS.LOGGER.warn("error trying to load resilience data at {}",SectionPos.of(packedSection));
+                //data.scheduleInitialisation(packedSection, DataLayerType.RESILIENCE); //data got corrupted.
                 corrupted = true;
             }
             if  (corrupted) return;
