@@ -132,7 +132,7 @@ void main() {
 
         //bIdx = clamp(bIdx, ivec3(0), bricksCount - ivec3(1));
 
-        // --- brick skipping ---
+        // --- brick skipping --- doesn't work for some obscure reason
         /*if (bIdx != prevBrick) {
             prevBrick = bIdx;
             vec3 brickUV = (vec3(bIdx) + vec3(0.5)) / vec3(bricksCount);

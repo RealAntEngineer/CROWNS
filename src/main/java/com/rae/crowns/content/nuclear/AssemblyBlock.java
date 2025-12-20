@@ -55,15 +55,15 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
         return BlockEntityInit.FUEL_ASSEMBLY.get();
     }
 
-    @Nullable
+    /*@Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, BlockState state, BlockEntityType<T> type) {
-        return level.isClientSide() ? null : ($0, pos, $1, blockEntity) -> {
+        return  ($0, pos, $1, blockEntity) -> {
             if (blockEntity instanceof AssemblyBlockEntity assemblyBlockEntity) {
                 assemblyBlockEntity.tick();
             }
         };
-    }
+    }*/
 
     @Override
     @SuppressWarnings("deprecated")

@@ -1,4 +1,4 @@
-package com.rae.crowns.content.rendering;
+package com.rae.crowns.content.rendering.util;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -10,6 +10,7 @@ public class VolumeCubeMesh {
     public static VertexBuffer VBO;
 
     public static void init() {
+        System.out.println("initializing VBO for cube mesh");
         if (VBO != null) return;
 
         BufferBuilder builder = new BufferBuilder(256);
@@ -76,5 +77,7 @@ public class VolumeCubeMesh {
         VBO.bind();
         VBO.upload(builder.end());
         VertexBuffer.unbind();
+
+        System.out.println("finished initializing VBO for cube mesh");
     }
 }

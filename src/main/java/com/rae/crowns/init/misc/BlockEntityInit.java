@@ -20,6 +20,7 @@ import static com.rae.crowns.CROWNS.REGISTRATE;
 public class BlockEntityInit {
     public static final BlockEntityEntry<AssemblyBlockEntity> FUEL_ASSEMBLY = REGISTRATE
             .blockEntity("fuel_assembly", AssemblyBlockEntity::new)
+            //.renderer(() -> AssemblyBERenderer::new)
             .validBlock(BlockInit.FUEL_ASSEMBLY)
             .register();
 

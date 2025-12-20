@@ -1,8 +1,11 @@
 package com.rae.crowns.content.nuclear;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
+import com.rae.crowns.content.rendering.RGBAVolumeInstance;
+import com.rae.crowns.content.rendering.VolumeWorldRenderer;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.init.misc.FluidInit;
 import com.rae.formicapi.FormicApiLang;
@@ -22,10 +25,11 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,11 +61,56 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     protected boolean queuedSync;
     float power = 0;
 
+    RGBAVolumeInstance tcherenkov;
+    private void initializeClientTcherenkov() {
+        // Create simple 16^3 blue cube with density scaling with distance and centered in 0.5,0.5,0.5
+        int Nx = 16, Ny = 16, Nz = 16;
+        int brickSize = 4;
+        float[] volumeRGBA = new float[Nx * Ny * Nz * 4];
+
+        for (int z = 0; z < Nz; z++) {
+            float fz = (z + 0.5f) / Nz - 0.5f; // center at 8
+            for (int y = 0; y < Ny; y++) {
+                float fy = (y + 0.5f) / Ny - 0.5f; // center at 8
+                for (int x = 0; x < Nx; x++) {
+                    float fx = (x + 0.5f) / Nx - 0.5f; // center at 8
+
+                    float scaling = (float) Math.cos((fz*fz + fy*fy + fx*fx)/(0.25*3)*Math.PI/2);
+                    int idx = x + y*Nx + z*Nx*Ny;
+                    int off = idx * 4;
+
+                    if (fx < 0.1 && fy < 0.1 && fz < 0.1){
+                        volumeRGBA[off] = 0.7f; // R
+                        volumeRGBA[off + 1] = 0.1f; // G
+                        volumeRGBA[off + 2] = 0;       // B
+                        volumeRGBA[off + 3] = scaling;        // A
+
+                    } else {
+                        volumeRGBA[off] = 0; //0.2f; // R
+                        volumeRGBA[off + 1] = 0;//0.67f; // G
+                        volumeRGBA[off + 2] = 0;//0.9f;       // B
+                        volumeRGBA[off + 3] = 0;//scaling;        // A
+
+                    }
+
+                }
+            }
+        }
+
+
+        tcherenkov = new RGBAVolumeInstance(volumeRGBA, Nx, Ny, Nz, brickSize);
+        tcherenkov.position = new Vec3(worldPosition.getX()-0.5, worldPosition.getY()-0.5, worldPosition.getZ()-0.5);//start pos
+        tcherenkov.size = new Vec3(2.0, 2.0, 2.0);
+        VolumeWorldRenderer.add(tcherenkov);
+    }
+
 
     public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
         nbrOfFission = backgroundActivity;
         setLazyTickRate(LAZY_TICK_RATE);
+
+
     }
 
     @Override
@@ -77,6 +126,14 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+    }
+
+    @Override
+    public void initialize() {
+        super.initialize();
+        if (level != null && level.isClientSide) {
+            RenderSystem.recordRenderCall(this::initializeClientTcherenkov);
+        }
     }
 
     @Override
@@ -113,6 +170,13 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 label
         );
         CROWNS.LOGGER.info(data); // ← raw JSON line per tick
+    }
+
+    @Override
+    public void remove() {
+        super.remove();
+        VolumeWorldRenderer.remove(tcherenkov);
+        tcherenkov = null;//will get garbage collected
     }
 
     @Override
@@ -342,5 +406,10 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             }
         }
         return composition;
+    }
+
+    @Override
+    protected AABB createRenderBoundingBox() {
+        return super.createRenderBoundingBox().inflate(2);
     }
 }
