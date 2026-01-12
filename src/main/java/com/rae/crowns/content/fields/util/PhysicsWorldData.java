@@ -21,9 +21,9 @@ import static com.rae.crowns.content.fields.util.PosPackingUtil.packSection;
 
 public class PhysicsWorldData {//Only for the server
 
-    //in the future hook into ChunkSection directly : easier for communication and initialisation
+    //in the future hook into ChunkSection directly : easier for communication and initialization
 
-    private static final int DYNAMIC_RANGE = 2;
+    private static final int DYNAMIC_RANGE = 1;
     public static final int DATA_VERSION = 13;
 
     // Generic unified map: one Long2ObjectMap per DataLayerType
@@ -36,6 +36,7 @@ public class PhysicsWorldData {//Only for the server
     private final LongSet changedSections = new LongOpenHashSet();
     private final LongSet dirty = new LongOpenHashSet();
     private final LongSet loadedSections = new LongOpenHashSet();
+    private final LongSet worldLoadedSections = new LongOpenHashSet();
     private final LongSet tickedSections = new LongOpenHashSet();
 
     private final Long2IntMap sectionDynamicCount = new Long2IntOpenHashMap();
@@ -95,7 +96,7 @@ public class PhysicsWorldData {//Only for the server
             toInitialise.put(section, layers);
         }
 
-        unloading(section);
+        loadedSections.remove(section);
         setDirty(section);
     }
 
@@ -136,7 +137,7 @@ public class PhysicsWorldData {//Only for the server
 
             // Skip section if not loaded or not near dynamic blocks, but remove it from set
             if (!level.isLoaded(base) || !nearDynamicSections.contains(sectionLong)) {
-                iterator.remove();
+                //iterator.remove();
                 continue;
             }
 
@@ -230,6 +231,7 @@ public class PhysicsWorldData {//Only for the server
     //IHaveTemperature management
 
     public void putDynamic(@NotNull BlockPos pos, IHaveTemperature dynamic) {
+        //System.out.println("setting dynamic data at "+ pos);
         dynamicData.put(pos.asLong(), dynamic);
         DataLayerType<?>[] layerTypes = {
                 DataLayerType.TEMPERATURE,
@@ -265,11 +267,11 @@ public class PhysicsWorldData {//Only for the server
                             if (!missingLayers.isEmpty()) {
                                 // Schedule only missing layers
                                 scheduleInitialisation(packed, missingLayers.toArray(new DataLayerType<?>[0]));
-                                System.out.printf("resting the section for %s\n", missingLayers);
+                                //System.out.printf("resting the section for %s\n", missingLayers);
 
                             }
-                        } else {
-                            //scheduleInitialisation(packed, layerTypes);
+                        } else if (!toInitialise.containsKey(packed)){
+                            scheduleInitialisation(packed, layerTypes);
                             //System.out.print("resting the section\n");
 
                         }
@@ -415,6 +417,7 @@ public class PhysicsWorldData {//Only for the server
 
     public void unloading(long pos) {
         loadedSections.remove(pos);
+        worldLoadedSections.remove(pos);
     }
 
     public boolean isLoaded(long sectionPos) {
@@ -432,4 +435,42 @@ public class PhysicsWorldData {//Only for the server
         tickedSections.clear();
     }
 
+    public void addToWorldLoaded(long sectionPos) {
+        worldLoadedSections.add(sectionPos);
+    }
+
+    public boolean worldLoaded(long sectionPos) {
+        return worldLoadedSections.contains(sectionPos);
+    }
+
+    public boolean checkValidity(long sectionPos) {
+        TemperatureDataLayer temperatureData = getLayer(DataLayerType.TEMPERATURE, sectionPos);
+        TemperatureDataLayer defaultTemperatureData = getLayer(DataLayerType.DEFAULT_TEMPERATURE, sectionPos);
+        ConductionDataLayer conductionData = getLayer(DataLayerType.CONDUCTION, sectionPos);
+        ResilienceDataLayer resilienceData = getLayer(DataLayerType.RESILIENCE, sectionPos);
+
+        boolean corrupted = false;
+
+        if (temperatureData == null) {
+            CROWNS.LOGGER.warn("error trying to load temperature data at {}",SectionPos.of(sectionPos));
+            scheduleInitialisation(sectionPos, DataLayerType.TEMPERATURE); //data got corrupted.
+            corrupted = true;
+        }
+        if (defaultTemperatureData == null) {
+            CROWNS.LOGGER.warn("error trying to load default temperature data at {}",SectionPos.of(sectionPos));
+            scheduleInitialisation(sectionPos, DataLayerType.DEFAULT_TEMPERATURE); //data got corrupted.
+            corrupted = true;
+        }
+        if (conductionData == null) {
+            CROWNS.LOGGER.warn("error trying to load conduction data at {}",SectionPos.of(sectionPos));
+            scheduleInitialisation(sectionPos, DataLayerType.CONDUCTION); //data got corrupted.
+            corrupted = true;
+        }
+        if (resilienceData == null) {
+            CROWNS.LOGGER.warn("error trying to load resilience data at {}",SectionPos.of(sectionPos));
+            scheduleInitialisation(sectionPos, DataLayerType.RESILIENCE); //data got corrupted.
+            corrupted = true;
+        }
+        return !corrupted;
+    }
 }

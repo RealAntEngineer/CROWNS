@@ -5,8 +5,8 @@
     "dstrgb": "1-srcalpha"
   },
 
-  "vertex": "crowns:volume_v2",
-  "fragment": "crowns:volume_depth_stop",
+  "vertex": "crowns:volume",
+  "fragment": "crowns:volume",
 
   "attributes": [
     "Position"

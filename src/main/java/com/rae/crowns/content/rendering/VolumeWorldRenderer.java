@@ -20,22 +20,25 @@ public class VolumeWorldRenderer {
         volumes.add(volume);
     }
 
-    public static void render(PoseStack poseStack, MultiBufferSource buffers, ShaderInstance shader, Vec3 cameraPos, int maxSteps) {
+    public static void render(PoseStack poseStack, MultiBufferSource buffers, ShaderInstance shader, Vec3 cameraPos) {
         RenderSystem.setShader(() -> shader);
         RenderSystem.enableBlend();
         //RenderSystem.defaultBlendFunc();
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+        //RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
+        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_COLOR, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+        //RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.DST_ALPHA);
         RenderSystem.depthMask(false); // don't write depth
         RenderSystem.enableDepthTest();
         RenderSystem.enableCull();
         if (VolumeCubeMesh.VBO == null) VolumeCubeMesh.init();
         synchronized(GLGuard.GL_LOCK) {
             for (RGBAVolumeInstance v : volumes) {
-                v.render(poseStack, shader, cameraPos, maxSteps);
+                v.render(poseStack, shader, cameraPos);
             }
         }
         RenderSystem.depthMask(true); // don't write depth
+        RenderSystem.disableBlend();
         RenderSystem.defaultBlendFunc();
 
         //if (buffers instanceof MultiBufferSource.BufferSource bufferSource)bufferSource.endBatch();

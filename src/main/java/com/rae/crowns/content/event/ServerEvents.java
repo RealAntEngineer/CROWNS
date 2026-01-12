@@ -26,7 +26,7 @@ public class ServerEvents {
         data.initialise(serverLevel);
         data.updateChangedBlocks(serverLevel);
         if (tickCounter % (TemperatureTicker.TICK_PERIOD) == 0) {
-            //this is too long...
+            //this is too long... do the gathering of section to tick every few iteration (10 ticks ?)
             LongSet loadedSections = data.getLoadedSections(); // LongSet view of keys
             LongSet nearDynamicSections = data.getNearDynamic();
             LongSet toTick = new LongOpenHashSet();
@@ -34,7 +34,8 @@ public class ServerEvents {
             // Compute intersection efficiently
             for (long packed : nearDynamicSections) {
                 if (loadedSections.contains(packed)) {
-                    if (data.isDirty(packed)) {
+                    //verify data
+                    if (data.checkValidity(packed) ){//&& data.isDirty(packed)) {
                         toTick.add(packed);
                     }
                 }

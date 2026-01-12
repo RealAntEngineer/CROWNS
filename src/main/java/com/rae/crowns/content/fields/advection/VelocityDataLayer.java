@@ -25,7 +25,7 @@ public class VelocityDataLayer extends AbstractDataLayer {
     private final short[] data = new short[SIZE];
 
     @Override
-    public VelocityDataLayer fromBytes(byte @NotNull [] bytes) {
+    public @NotNull VelocityDataLayer fromBytes(byte @NotNull [] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         for (int i = 0; i < SIZE; i++) data[i] = buffer.getShort();
         //for (int i = 0; i < SIZE; i++) defaultData[i] = buffer.getInt();

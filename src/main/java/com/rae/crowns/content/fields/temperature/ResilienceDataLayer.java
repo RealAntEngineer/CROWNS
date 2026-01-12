@@ -20,9 +20,9 @@ public class ResilienceDataLayer extends AbstractDataLayer {
     }
 
     @Override
-    public ResilienceDataLayer fromBytes(byte @NotNull [] bytes) {
+    public @NotNull ResilienceDataLayer fromBytes(byte @NotNull [] bytes) {
         System.arraycopy(bytes, 0, data, 0, Math.min(bytes.length, SIZE));
-        return null;
+        return this;
     }
 
     @Override

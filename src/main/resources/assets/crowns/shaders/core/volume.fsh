@@ -1,28 +1,45 @@
 #version 150
-
-#define DEBUG_STEPS 0
-#define DEBUG_BRICKS 0
-#define DEBUG_TFETCH 0
+#define EPS 1e-3
 
 in vec3 vWorldPos; // from vertex shader
 out vec4 fragColor;
 
 uniform sampler3D colorVolume;   // main 3D texture (RGBA)
-uniform sampler3D brickMinMax;   // brick occupancy texture (R=min, G=max)
+uniform sampler3D brickMinMax;   // main 3D texture (RGBA)
+uniform sampler2D sceneDepth;
+uniform vec2 ScreenSize;
+
+uniform mat4 InvProjMat;    // inverse projection
+uniform mat4 InvViewMat;    // from Java
+//uniform mat4 ModelViewMat;  // model × view
 
 uniform vec3 cameraPos;
 uniform vec3 volumeMin;          // world-space volume bounds
 uniform vec3 volumeMax;
-uniform ivec3 bricksCount;       // number of bricks along each axis
-
-
-uniform vec3 boxMin;             // optional tight bounding box
-uniform vec3 boxMax;
+uniform ivec3 volumesCount;       // number of volume voxel along each axis
 
 uniform int maxSteps;
-uniform float stepScale;
 uniform float skipThreshold;
 
+vec3 depthToWorldPos(vec2 uv, float depth)
+{
+    // 1. Convert UV to NDC [-1, 1]
+    float x = uv.x * 2.0 - 1.0;
+    float y = uv.y * 2.0 - 1.0;
+    float z = depth * 2.0 - 1.0; // assuming depth texture is default non-linear [0,1]
+
+    // 2. Reconstruct clip space
+    vec4 clip = vec4(x, y, z, 1.0);
+
+    // 3. Transform to view space
+    vec4 view = InvProjMat * clip;
+    view.xyz /= view.w;  // perspective divide
+
+    // 4. Transform to world space
+    vec4 world = InvViewMat * vec4(view.xyz, 1.0);
+
+    return world.xyz;
+}
 bool intersectBox(vec3 ro, vec3 rd, vec3 bMin, vec3 bMax, out float tEnter, out float tExit)
 {
     vec3 invDir = 1.0 / rd;
@@ -37,113 +54,80 @@ bool intersectBox(vec3 ro, vec3 rd, vec3 bMin, vec3 bMax, out float tEnter, out 
 
 // Compute world-space size of a single brick
 vec3 volumeSize() { return volumeMax - volumeMin; }
-vec3 brickSizeWorld() { return volumeSize() / vec3(bricksCount); }
 
-// Compute AABB of a brick
-void brickAABB(ivec3 bIdx, out vec3 bMin, out vec3 bMax) {
-    vec3 bs = brickSizeWorld();
-    bMin = volumeMin + vec3(bIdx) * bs;
-    bMax = bMin + bs;
+void volumeAABB(ivec3 vIdx, out vec3 vMin, out vec3 vMax) {
+    vec3 bs = volumeSize() / vec3(volumesCount);
+    vMin = volumeMin + vec3(vIdx) * bs;
+    vMax = vMin + bs;
 }
 
 void main() {
 
     int stepCount = 0;
-    int brickSkips = 0;
     int texFetches = 0;
 
-    vec3 startPos = vWorldPos;
-    vec3 rayDir = normalize(vWorldPos - cameraPos);
+    //vec3 startPos = vWorldPos;
+    //vec3 rayDir = normalize(vWorldPos - cameraPos);
+    vec3 ro = cameraPos;
+    vec3 rd = normalize(vWorldPos - cameraPos);
 
+    vec3 rayDirInv = 1 / rd;
     // --- ray-box intersection with optional tight box ---
     float tEnter, tExit;
-    if (!intersectBox(startPos, rayDir, boxMin, boxMax, tEnter, tExit)) discard;
+    if (!intersectBox(ro,rd, volumeMin, volumeMax, tEnter, tExit)) discard;
 
-    float t = tEnter + 1e-6;
+    float t = tEnter + EPS;
     vec3 accumColor = vec3(0.0);
     float accumAlpha = 0.0;
 
-    float rayLength = tExit - tEnter;
-    float baseStep = (1 / float(maxSteps)) * stepScale;
-    //float baseStep = (1.0 / float(maxSteps)) * stepScale * 2.0;
-    ivec3 prevBrick = ivec3(-1); // invalid initial value
+    // Clamp against scene
+    vec2 uv = gl_FragCoord.xy / ScreenSize;
+    float sceneDepthRaw = texture(sceneDepth, uv).r;
+    vec3 sceneWorldPos = depthToWorldPos(uv, sceneDepthRaw);
+    float tScene = dot(sceneWorldPos - ro, rd);
 
+    //need to be absolute
+    tExit = min(tExit, tScene);
+    //fragColor = vec4(vec3(tExit/10), 1.0);
+    //return;
 
-    for (int i = 0; i < maxSteps && t < tExit; i++) {
+    while (t < tExit && accumAlpha < 0.999 && stepCount < maxSteps) {
         stepCount++;
-        vec3 pos = startPos + rayDir * t;
+        vec3 pos = ro + rd * t;
 
         // --- compute brick index ---
         vec3 rel = (pos - volumeMin) / (volumeMax - volumeMin);
-        ivec3 bIdx = ivec3(floor(rel * vec3(bricksCount)));
-        bIdx = clamp(bIdx, ivec3(0), bricksCount - ivec3(1));
 
-        // --- brick skipping ---
-        if (bIdx != prevBrick) {
-            prevBrick = bIdx;
-            vec3 brickUV = (vec3(bIdx) + vec3(0.5)) / vec3(bricksCount);
-            vec2 mm = texture(brickMinMax, brickUV).rg; texFetches++;
-            if (mm.g < skipThreshold) {
-                vec3 bMin, bMax;
-                brickAABB(bIdx, bMin, bMax);
-                float bt0, bt1;
-                if (intersectBox(startPos, rayDir, bMin, bMax, bt0, bt1)) {
-                    if (bt1 > t + 1e-6) {
-                        brickSkips++;
-                        t = bt1 + 1e-6;
-                        continue;
-                    }
-                }
-            }
+        ivec3 vIdx = ivec3(floor(rel * vec3(volumesCount)));
+        vIdx = clamp(vIdx, ivec3(0), volumesCount - ivec3(1));
+
+        vec3 volumeUV = (vec3(vIdx) + vec3(0.5)) / vec3(volumesCount);
+        //fragColor = vec4(pos, 1);
+        //return;
+        vec4 vol = texture(colorVolume, volumeUV);texFetches++;
+
+        vec3 vMin, vMax;
+        volumeAABB(vIdx, vMin, vMax);
+        float vt0, vt1;
+        if (intersectBox(ro, rd, vMin, vMax, vt0, vt1)) {
+            t = vt1 + EPS;
         }
 
 
-        // --- volume sampling ---
-        vec3 volumeUV = (pos - volumeMin) / (volumeMax - volumeMin);  // map to 0-1
-        vec4 vol = texture(colorVolume, volumeUV);texFetches++;
+        float L = vt1 - vt0;
 
-        //fragColor = texture(colorVolume, vec3(0.5));
-        //return;
         vec3 col = vol.rgb;
         float density = vol.a;
 
-        // directional gradient (cheap)
-        float eps = baseStep;
-        float d0 = density;
-        vec3 posNext = pos + rayDir * eps;
-        vec3 uvNext = (posNext - volumeMin) / (volumeMax - volumeMin);
-        float d1 = texture(colorVolume, uvNext).a; texFetches++;
-        float gradAlongRay = abs(d1 - d0) / eps;
+        // --- analytic integration ---
+        float alphaSeg = 1.0 - exp(-density * L * 10);
 
-        float adapt = mix(1.0, 0.25, clamp(gradAlongRay * 10.0, 0.0, 1.0));
-        float stepSize = clamp(baseStep * adapt, baseStep * 0.25, baseStep * 2.0);
+        vec3 Cseg = col * alphaSeg;
 
-        //fragColor = vec4(vol);
-        //return;
-        // accumulate color
-        accumColor += (1.0 - accumAlpha) * col;
-        accumAlpha += (1.0 - accumAlpha) * density;
-
-        if (accumAlpha > 0.99) break;
-
-        t += stepSize;
-
+        float oneMinus = 1.0 - accumAlpha;
+        accumColor += oneMinus * Cseg;
+        accumAlpha += oneMinus * alphaSeg;
     }
-
-    #if DEBUG_STEPS || DEBUG_BRICKS || DEBUG_TFETCH
-    float r = 0.0, g = 0.0, b = 0.0;
-    #if DEBUG_BRICKS
-        r = float(brickSkips) / 8.0;
-    #endif
-    #if DEBUG_TFETCH
-        g = float(texFetches) / 256.0;
-    #endif
-    #if DEBUG_STEPS
-        b = float(stepCount) / float(maxSteps);
-    #endif
-    fragColor = vec4(r, g, b, 1);//t/(baseStep * 4));
-    return;
-    #endif
 
     fragColor = vec4(accumColor, accumAlpha);
 }

@@ -3,8 +3,6 @@ package com.rae.crowns.content.fields.advection;
 import com.rae.crowns.content.fields.util.AbstractDataLayer;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.ByteBuffer;
-
 
 /**
  * Compact solid-face mask.
@@ -16,7 +14,7 @@ public class BlockedDataLayer extends AbstractDataLayer {
     private final byte[] data = new byte[BYTES];
 
     @Override
-    public BlockedDataLayer fromBytes(byte @NotNull [] bytes) {
+    public @NotNull BlockedDataLayer fromBytes(byte @NotNull [] bytes) {
         int len = Math.min(bytes.length, BYTES);
         System.arraycopy(bytes, 0, data, 0, len);
         return this;

@@ -28,7 +28,7 @@ public class TemperatureDataLayer extends AbstractDataLayer {
     //private final int[] defaultData = new int[SIZE];
 
     @Override
-    public TemperatureDataLayer fromBytes(byte @NotNull [] bytes) {
+    public @NotNull TemperatureDataLayer fromBytes(byte @NotNull [] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         for (int i = 0; i < SIZE; i++) data[i] = (float) ((buffer.getShort() - Short.MIN_VALUE)/SCALE);
         //for (int i = 0; i < SIZE; i++) defaultData[i] = buffer.getInt();

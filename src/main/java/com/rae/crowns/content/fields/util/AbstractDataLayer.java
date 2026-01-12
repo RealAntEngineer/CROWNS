@@ -1,5 +1,7 @@
 package com.rae.crowns.content.fields.util;
 
+import org.jetbrains.annotations.NotNull;
+
 public abstract class AbstractDataLayer {
     public static final int SIZE = 16 * 16 * 16;
 
@@ -19,7 +21,7 @@ public abstract class AbstractDataLayer {
      *
      * @return child
      */
-    public abstract AbstractDataLayer fromBytes(byte[] bytes);
+    public abstract @NotNull AbstractDataLayer fromBytes(byte[] bytes);
 
     /** Serialize to bytes. */
     public abstract byte[] toBytes();

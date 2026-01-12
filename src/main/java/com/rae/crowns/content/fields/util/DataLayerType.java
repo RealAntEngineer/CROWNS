@@ -45,5 +45,8 @@ public final class DataLayerType<T extends AbstractDataLayer> {
         return type;
     }
 
-
+    @Override
+    public String toString() {
+        return "DataLayerType{id='%s'}".formatted(id);
+    }
 }

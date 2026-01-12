@@ -16,9 +16,9 @@ public class ConductionDataLayer extends AbstractDataLayer {
     public static final float MAX_VALUE = 1.75f * (1L << 47);    // 1.75 * 2^47
 
     @Override
-    public ConductionDataLayer fromBytes(byte @NotNull [] bytes) {
+    public @NotNull ConductionDataLayer fromBytes(byte @NotNull [] bytes) {
         System.arraycopy(bytes, 0, data, 0, Math.min(bytes.length, SIZE));
-        return null;
+        return this;
     }
 
     @Override

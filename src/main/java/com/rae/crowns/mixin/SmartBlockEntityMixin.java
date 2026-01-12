@@ -2,10 +2,15 @@ package com.rae.crowns.mixin;
 
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
+import com.rae.crowns.content.fields.util.PosPackingUtil;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -13,29 +18,29 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * Automatically registers and unregisters block entities implementing
  * {@link IHaveTemperature} in {@link PhysicsWorldData}.
- * <p>
- * This mixin hooks into {@link SmartBlockEntity#initialize()} and
- * {@link SmartBlockEntity#destroy()} so that temperature-aware entities
- * automatically manage their presence in the temperature world data.
- * </p>
  */
 @Mixin(SmartBlockEntity.class)
 public abstract class SmartBlockEntityMixin {
-
+    @Unique
+    boolean cROWNS_1_20_1$registrationDone = false;
     /**
-     * Called after {@link SmartBlockEntity#initialize()}.
+     * Called after {@link SmartBlockEntity#tick()}.
      * Registers temperature-aware entities into {@link PhysicsWorldData}.
+     * only try to load if the section has gone through the read method
      */
-    @Inject(method = "initialize", at = @At("TAIL"), remap = false)
-    private void onInitialize(CallbackInfo ci) {
+    @Inject(method = "tick", at = @At("TAIL"), remap = false)
+    private void onTick(CallbackInfo ci) {
         SmartBlockEntity self = (SmartBlockEntity)(Object)this;
+        if (cROWNS_1_20_1$registrationDone) return;
 
         if (self instanceof IHaveTemperature ht && self.getLevel() instanceof ServerLevel serverLevel) {
             PhysicsWorldData data = PhysicsSaveManager.get(serverLevel);
-            if (data != null) {
+            BlockPos pos = self.getBlockPos();
+            if (data != null && data.worldLoaded(SectionPos.asLong(pos))) {
                 data.putDynamic(self.getBlockPos(), ht);
+                cROWNS_1_20_1$registrationDone = true;
             }
-        }
+        } else cROWNS_1_20_1$registrationDone = true;
     }
 
     /**

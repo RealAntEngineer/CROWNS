@@ -26,7 +26,7 @@ public abstract class Texture3D {
     public Texture3D(float[] buffer, int width, int height, int depth, int dataSize) {
         synchronized(GLGuard.GL_LOCK) {//we are accessing raw GL parameters so we need to protect it.
             GL42.glMemoryBarrier(GL42.GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-            System.out.println("sending a 3d texture");
+            //System.out.println("sending a 3d texture");
 
             this.width = width;
             this.height = height;

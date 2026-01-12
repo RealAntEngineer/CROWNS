@@ -3,8 +3,8 @@ package com.rae.crowns.content.rendering;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.rae.crowns.content.rendering.util.SceneDepth;
 import com.rae.crowns.content.rendering.util.VolumeCubeMesh;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -20,15 +20,11 @@ public abstract class VolumeInstance {
     public final void bind(ShaderInstance shader, Vec3 cameraPos, int maxSteps) {
         RenderSystem.assertOnRenderThread();
 
-        additionalBindings(shader, cameraPos, maxSteps);
+        additionalBindings(shader, cameraPos);
 
-        int depthTex = Minecraft.getInstance()
-                .getMainRenderTarget()
-                .getDepthTextureId();
-
-        RenderSystem.activeTexture(GL13.GL_TEXTURE2);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, depthTex);
-        shader.safeGetUniform("sceneDepth").set(2);
+        RenderSystem.activeTexture(GL13.GL_TEXTURE1);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, SceneDepth.getDepthTextureId());
+        shader.setSampler("sceneDepth", SceneDepth.getDepthTextureId());
 
         // Volume bounds
 
@@ -46,10 +42,10 @@ public abstract class VolumeInstance {
         shader.safeGetUniform("cameraPos").set((float) (cameraPos.x), (float) (cameraPos.y), (float) (cameraPos.z));
     }
 
-    public void additionalBindings(ShaderInstance shader, Vec3 cameraPos, int maxSteps) {
+    public void additionalBindings(ShaderInstance shader, Vec3 cameraPos) {
     }
 
-    public final void render(PoseStack poseStack, ShaderInstance shader, Vec3 cameraPos, int maxSteps) {
+    public final void render(PoseStack poseStack, ShaderInstance shader, Vec3 cameraPos) {
         poseStack.pushPose();
 
         // Apply instance transform
@@ -69,8 +65,9 @@ public abstract class VolumeInstance {
         shader.safeGetUniform("ModelMat").set(modelMat);
 
         // Compute inverse view: InvViewMat = inverse(ModelMat) × inverse(ModelViewMat)
-        Matrix4f invViewMat = new Matrix4f(modelMat).invert();
-        invViewMat.mul(new Matrix4f(modelViewMat).invert());
+        Matrix4f viewMat = new Matrix4f(modelViewMat);
+        viewMat.mul(new Matrix4f(modelMat).invert()); // ViewMat = ModelViewMat * ModelMat^-1
+        Matrix4f invViewMat = new Matrix4f(viewMat).invert(); // InvViewMat = inverse(ViewMat)
         shader.safeGetUniform("InvViewMat").set(invViewMat);
 
         Matrix4f projMat = RenderSystem.getProjectionMatrix();
@@ -80,7 +77,7 @@ public abstract class VolumeInstance {
 
 
         // Bind textures and uniforms
-        bind(shader, cameraPos, maxSteps);
+        bind(shader, cameraPos, 256);
 
         // Draw the unit cube (surface only)
         //RenderSystem.getModelViewMatrix().set(mat);  // poseStack last pose

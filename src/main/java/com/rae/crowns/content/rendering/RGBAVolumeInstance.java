@@ -11,18 +11,18 @@ import org.lwjgl.opengl.GL13;
 
 public class RGBAVolumeInstance extends  VolumeInstance {
 
-    // ✅ GPU textures
+    // GPU textures
     public final RGBA3D volumeColors;
     public final MinMaxDensity3D bricks;
 
-    // ✅ Volume resolution
+    // Volume resolution
     public final int Nx, Ny, Nz;
 
-    // ✅ Brick resolution
+    // Brick resolution
     public final int Bx, By, Bz;
     public final int brickSize;
 
-    // ✅ Transform
+    // Transform
     public float yaw, pitch, roll;
 
 
@@ -111,16 +111,16 @@ public class RGBAVolumeInstance extends  VolumeInstance {
         return brickData;
     }
 
-    public void additionalBindings(ShaderInstance shader, Vec3 cameraPos, int maxSteps) {
-        // Volume → unit 0
+    public void additionalBindings(ShaderInstance shader, Vec3 cameraPos) {
+        // Volume → unit 1
         RenderSystem.activeTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL12.GL_TEXTURE_3D, volumeColors.texId);
-        shader.safeGetUniform("colorVolume").set(0);
+        shader.setSampler("colorVolume", 0);//volumeColors.texId);
 
         // Brick → unit 1
-        RenderSystem.activeTexture(GL13.GL_TEXTURE1);
+        /*RenderSystem.activeTexture(GL13.GL_TEXTURE1);
         GL11.glBindTexture(GL12.GL_TEXTURE_3D, bricks.texId);
-        shader.safeGetUniform("brickMinMax").set(1);
+        shader.setSampler("brickMinMax", bricks.texId);*/
 
         // Brick parameters
         shader.safeGetUniform("bricksCount").set(Bx, By, Bz);
