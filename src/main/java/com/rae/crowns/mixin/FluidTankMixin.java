@@ -1,5 +1,6 @@
 package com.rae.crowns.mixin;
 
+import com.rae.formicapi.thermal_utilities.FullTableBased;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.FluidTags;
@@ -13,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.rae.formicapi.thermal_utilities.helper.WaterTableBased.DEFAULT_STATE;
-import static com.rae.formicapi.thermal_utilities.helper.WaterTableBased.mix;
+import static com.rae.formicapi.thermal_utilities.FullTableBased.DEFAULT_STATE;
+import static com.rae.formicapi.thermal_utilities.FullTableBased.mix;
 
 @Mixin(value = FluidTank.class)
 public abstract class FluidTankMixin {
@@ -33,7 +34,7 @@ public abstract class FluidTankMixin {
             if (oldStateNBT != null && !oldStateNBT.isEmpty()) {
                 oldState = new SpecificRealGazState(oldStateNBT);
             } else {
-                oldState = DEFAULT_STATE;
+                oldState = FullTableBased.DEFAULT_STATE;
             }
 
             CompoundTag newStateNBT = resource.getChildTag("realGazState");
@@ -41,7 +42,7 @@ public abstract class FluidTankMixin {
             if (newStateNBT != null && !newStateNBT.isEmpty()) {
                 newState = new SpecificRealGazState(newStateNBT);
             } else {
-                newState = DEFAULT_STATE;
+                newState = FullTableBased.DEFAULT_STATE;
             }
             //too much duplication it's unreadable.
             if (newStateNBT != null && !newStateNBT.isEmpty() || oldStateNBT != null && !oldStateNBT.isEmpty()) {
@@ -49,7 +50,7 @@ public abstract class FluidTankMixin {
                 CompoundTag mergedTag = fluid.getOrCreateTag();
 
                 mergedTag.put("realGazState",
-                        mix(newState, resource.getAmount(), oldState, getFluidAmount()).serialize()
+                        FullTableBased.mix(newState, resource.getAmount(), oldState, getFluidAmount()).serialize()
                 );
                 fluid.setTag(mergedTag);
 

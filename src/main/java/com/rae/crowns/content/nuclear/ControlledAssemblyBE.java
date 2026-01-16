@@ -28,8 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.rae.crowns.Constants.barnNa;
-import static com.rae.crowns.Constants.fissionEnergy;
+import static com.rae.crowns.Constants.*;
 import static com.rae.crowns.content.nuclear.NuclearExplosion.nuclearExplosion;
 
 public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
@@ -112,12 +111,11 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
 
             //float thermal_loses = (temperature-300)*10;// ambient temperature = 300K make thermal loses in the conduct temperature
 
-            float power = (float) (nbrOfFission * fissionEnergy *
-                    CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
+            float power = nbrOfFission * fissionEnergy * realismCoefficient;// - thermal_loses;
 
             temperature += power / C;
 
-            if (temperature > 3500) {
+            if (temperature > 3500 && CROWNSConfigs.SERVER.nuclear.explosion.get()) {
                 if (power > 100000000) {
                     standardExplosion(pos, 50);
                 } else {

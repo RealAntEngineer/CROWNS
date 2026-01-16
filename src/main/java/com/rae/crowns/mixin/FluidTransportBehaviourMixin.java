@@ -1,7 +1,7 @@
 package com.rae.crowns.mixin;
 
+import com.rae.formicapi.thermal_utilities.FullTableBased;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
-import com.rae.formicapi.thermal_utilities.helper.WaterTableBased;
 import com.simibubi.create.content.fluids.FluidReactions;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
 import com.simibubi.create.content.fluids.PipeConnection;
@@ -112,19 +112,19 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
                     //modified part
                     singleSource = null;
                     CompoundTag inFlowTag = fluidInFlow.getTag();
-                    SpecificRealGazState inFlowState = WaterTableBased.DEFAULT_STATE;
+                    SpecificRealGazState inFlowState = FullTableBased.DEFAULT_STATE;
                     if (inFlowTag != null && inFlowTag.contains("realGazState")) {
                         inFlowState = new SpecificRealGazState((CompoundTag) inFlowTag.get("realGazState"));
                     }
                     CompoundTag availableTag = availableFlow.getTag();
-                    SpecificRealGazState availableState = WaterTableBased.DEFAULT_STATE;
+                    SpecificRealGazState availableState = FullTableBased.DEFAULT_STATE;
                     if (availableTag != null && availableTag.contains("realGazState")) {
                         availableState = new SpecificRealGazState((CompoundTag) availableTag.get("realGazState"));
                     } else {
                         availableTag = new CompoundTag();
                     }
 
-                    SpecificRealGazState mixedState = WaterTableBased.mix(availableState, availableFlow.getAmount(),
+                    SpecificRealGazState mixedState = FullTableBased.mix(availableState, availableFlow.getAmount(),
                             inFlowState, fluidInFlow.getAmount());
 
                     availableFlow = fluidInFlow;

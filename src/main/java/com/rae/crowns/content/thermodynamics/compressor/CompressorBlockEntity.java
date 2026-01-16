@@ -4,7 +4,7 @@ import com.rae.crowns.Constants;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
-import com.rae.formicapi.thermal_utilities.helper.WaterTableBased;
+import com.rae.formicapi.thermal_utilities.FullTableBased;
 import com.simibubi.create.content.kinetics.KineticNetwork;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class CompressorBlockEntity extends KineticBlockEntity {
-    //really heavy -> to optimise and run less by second
+    //really heavy -> to optimize and run less by second
     private static final int SYNC_RATE = 8;
     //for later maybe ? to make the code simpler to understand
     private final StateFluidTank INPUT_WATER_TANK = new StateFluidTank(1000, (f) -> {
@@ -171,7 +171,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
             SpecificRealGazState inputState = INPUT_WATER_TANK.getState();
             FluidStack water = INPUT_WATER_TANK.drain((int) Math.abs(speed), IFluidHandler.FluidAction.SIMULATE);
             if (!water.isEmpty()) {
-                SpecificRealGazState outputState = WaterTableBased.isentropicCompression(inputState, pressureRatio());
+                SpecificRealGazState outputState = FullTableBased.isentropicCompression(inputState, pressureRatio());
                 power = (int) (outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount() / Constants.whatSU;
 
                 CompoundTag tag = new CompoundTag();

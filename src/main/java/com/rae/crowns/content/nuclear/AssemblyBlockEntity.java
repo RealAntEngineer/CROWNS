@@ -37,8 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.rae.crowns.Constants.barnNa;
-import static com.rae.crowns.Constants.fissionEnergy;
+import static com.rae.crowns.Constants.*;
 import static com.rae.crowns.content.nuclear.NuclearExplosion.nuclearExplosion;
 
 public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
@@ -196,13 +195,12 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
             //float thermal_loses = (temperature-300)*10;// ambient temperature = 300K make thermal loses in the conduct temperature
 
-            power = (float) (nbrOfFission * fissionEnergy *
-                    CROWNSConfigs.SERVER.nuclear.realismCoefficient.get());// - thermal_loses;
+            power = nbrOfFission * fissionEnergy * realismCoefficient;// - thermal_loses;
 
             //temperature += power/C;
 
 
-            if (temperature > 3500) {
+            if (temperature > 3500 && CROWNSConfigs.SERVER.nuclear.explosion.get()) {
                 if (power > 1e9) {
                     standardExplosion(pos, 10);
                 } else {
@@ -290,13 +288,13 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public float getRadioactiveActivity() {
-        float easeCoef = CROWNSConfigs.SERVER.nuclear.easeCoef.getF(); //TODO config
+        float easeCoef = CROWNSConfigs.SERVER.nuclear.neutronFluxMultiplicator.getF(); //TODO config
         return backgroundActivity + nbrOfFission * 2.5f * easeCoef;
     }
 
     @Override
     public float getEffectiveK() {
-        float easeCoef = CROWNSConfigs.SERVER.nuclear.easeCoef.getF(); //TODO config
+        float easeCoef = CROWNSConfigs.SERVER.nuclear.neutronFluxMultiplicator.getF(); //TODO config
         return (backgroundActivity + nbrOfFission * 2.5f * easeCoef) / (backgroundActivity + oldNbrOfFission * 2.5f * easeCoef);
     }
 
@@ -309,6 +307,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         tag.putFloat("temperature", temperature);
         tag.putFloat("power", power);
         tag.put("composition", saveComposition());
+        tag.putInt("lastLazy", lastLazy);
 
     }
 
@@ -319,6 +318,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         additionalNeutronsAbsorbed.startWithValue(tag.getFloat("additionalNeutrons"));
         temperature = tag.getFloat("temperature");
         power = tag.getFloat("power");
+        lastLazy = tag.getInt("lastLazy");
         setComposition(tag.getCompound("composition"));
         super.read(tag, clientPacket);
     }
@@ -354,10 +354,9 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
         assert level != null;
         int oldLast = lastLazy;
-        lastLazy = Math.toIntExact(level.getGameTime() % LAZY_TICK_RATE);
+        lastLazy = Math.toIntExact(level.getGameTime() / LAZY_TICK_RATE);
         if (oldLast != lastLazy) {//detect change of lazy tick.
             additionalNeutronsAbsorbed.chaseTimed(0, LAZY_TICK_RATE);
-            //System.out.println("changed lazy tick");
         }
 
         Float temperatureCoef = 1 / Math.max(1, (temperature - 200) * CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF());
@@ -377,7 +376,9 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             //System.out.println("fastC : "+ fastAbsorptionChance);
             //System.out.println("slowC : "+ slowAbsorptionChance);
             fastAbsorbed += radiationFlux.getFirst() * temperatureCoef * fastAbsorptionChance;
+            //System.out.println("fast absorbed "+fastAbsorbed);
             slowAbsorbed += radiationFlux.getSecond() * temperatureCoef * slowAbsorptionChance;
+            //System.out.println("slow absorbed "+slowAbsorbed);
         }
         additionalNeutronsAbsorbed.chaseTimed(additionalNeutronsAbsorbed.getChaseTarget()+ fastAbsorbed + slowAbsorbed,
                 LAZY_TICK_RATE);
@@ -406,6 +407,13 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             }
         }
         return composition;
+    }
+
+    @Override
+    public void onChunkUnloaded() {
+        super.onChunkUnloaded();
+        VolumeWorldRenderer.remove(tcherenkov);
+        tcherenkov = null;//will get garbage collected
     }
 
     @Override

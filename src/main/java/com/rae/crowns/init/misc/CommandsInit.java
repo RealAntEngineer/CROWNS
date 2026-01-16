@@ -3,6 +3,7 @@ package com.rae.crowns.init.misc;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.nuclear.NuclearExplosion;
@@ -58,6 +59,24 @@ public class CommandsInit {
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
+                )
+
+                .then(Commands.literal("recordAssembly")
+                        .then(Commands.argument("pos",  BlockPosArgument.blockPos()).then(
+                                Commands.argument("ticks",IntegerArgumentType.integer(0))
+                                        .executes(
+                                                context -> {
+
+
+                                                    return Command.SINGLE_SUCCESS;
+                                                }
+                                        )
+
+
+                        ))
+
+
+
                 )
         );
     }

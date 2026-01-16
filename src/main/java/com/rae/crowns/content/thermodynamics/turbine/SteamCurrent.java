@@ -7,9 +7,9 @@ import com.rae.crowns.init.misc.BlockInit;
 import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
 import com.rae.formicapi.multiblock.MBStructureBlock;
+
+import com.rae.formicapi.thermal_utilities.FullTableBased;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
-import com.rae.formicapi.thermal_utilities.helper.WaterAsRealGaz;
-import com.rae.formicapi.thermal_utilities.helper.WaterTableBased;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.rae.crowns.Constants.whatSU;
+import static com.rae.formicapi.thermal_utilities.FullTableBased.DEFAULT_STATE;
 
 public class SteamCurrent {
 
@@ -262,7 +263,6 @@ public class SteamCurrent {
         newStateMap.put(injectorPos, previousState);
 
         SpecificRealGazState nextState = previousState;
-        boolean newModel = CROWNSConfigs.SERVER.kinetics.turbineNewModel.get();
         float yield  = CROWNSConfigs.SERVER.kinetics.turbineIsentropicYield.getF();
         for (ISteamPressureChange stage : stages) {
             if (!(stage instanceof BlockEntity stageBe)) continue;
@@ -270,11 +270,9 @@ public class SteamCurrent {
             float pressureRatio = stage.pressureRatio();
             try {
                 if (pressureRatio < 1f) {
-                    nextState = newModel ? WaterTableBased.realExpansion(previousState,yield,1f / pressureRatio) :
-                            WaterAsRealGaz.standardExpansion(previousState, yield,1f / pressureRatio);
+                    nextState = FullTableBased.isentropicExpansion(previousState,1f / pressureRatio);
                 } else if (pressureRatio > 1f) {
-                    nextState = newModel ? WaterTableBased.realCompression(previousState,yield,1f / pressureRatio) :
-                            WaterAsRealGaz.standardCompression(previousState, yield, pressureRatio);
+                    nextState = FullTableBased.isentropicCompression(previousState,pressureRatio);
                 }
             } catch (IllegalStateException error) {
                 CROWNS.LOGGER.error("{} caused by trying to compress water from {} with a ratio of {}", error.getMessage(), previousState, pressureRatio);
@@ -302,12 +300,12 @@ public class SteamCurrent {
         if (be instanceof SteamInputBlockEntity) {
             inputFluidState = ((SteamInputBlockEntity) be).getState();
         }
-        if (inputFluidState == null) inputFluidState = WaterTableBased.DEFAULT_STATE;
+        if (inputFluidState == null) inputFluidState = DEFAULT_STATE;
         return inputFluidState;
     }
 
     public @NotNull SpecificRealGazState getOutputFluidState() {
-        if (outputFluidState == null) outputFluidState = WaterTableBased.DEFAULT_STATE;
+        if (outputFluidState == null) outputFluidState = DEFAULT_STATE;
         return outputFluidState;
     }
 

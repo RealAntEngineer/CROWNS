@@ -83,7 +83,7 @@ public class Nucleus {
         public @NotNull NuclearTransformationResult compute(float advancement) {
             Map<Nucleus, Float> elements = new HashMap<>();
             element_map.forEach((element, quantity) -> elements.put(VALUES.get(element), quantity * advancement));
-            return new NuclearTransformationResult(elements, neutron_yielded * advancement * CROWNSConfigs.SERVER.nuclear.easeCoef.getF(),
+            return new NuclearTransformationResult(elements, neutron_yielded * advancement * CROWNSConfigs.SERVER.nuclear.neutronFluxMultiplicator.getF(),
                     energy_yielded * advancement);
         }
 

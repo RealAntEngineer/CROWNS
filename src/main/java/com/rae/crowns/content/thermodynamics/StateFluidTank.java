@@ -1,7 +1,7 @@
 package com.rae.crowns.content.thermodynamics;
 
+import com.rae.formicapi.thermal_utilities.FullTableBased;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
-import com.rae.formicapi.thermal_utilities.helper.WaterTableBased;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fluids.FluidStack;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-import static com.rae.formicapi.thermal_utilities.helper.WaterTableBased.DEFAULT_STATE;
+import static com.rae.formicapi.thermal_utilities.FullTableBased.DEFAULT_STATE;
 
 
 public class StateFluidTank extends SmartFluidTank {
@@ -28,7 +28,7 @@ public class StateFluidTank extends SmartFluidTank {
             } else {
                 oldState = DEFAULT_STATE;
             }
-            SpecificRealGazState state = WaterTableBased.isobaricTransfer(oldState, amount / getFluidAmount());
+            SpecificRealGazState state = FullTableBased.isobaricTransfer(oldState, amount / getFluidAmount());
             tag.put("realGazState", state.serialize());
             fluid.setTag(tag);
         }
@@ -45,7 +45,7 @@ public class StateFluidTank extends SmartFluidTank {
             } else {
                 oldState = DEFAULT_STATE;
             }
-            SpecificRealGazState state = WaterTableBased.isentropicCompression(oldState, ratio);
+            SpecificRealGazState state = FullTableBased.isentropicCompression(oldState, ratio);
             tag.put("realGazState", state.serialize());
             fluid.setTag(tag);
         }
