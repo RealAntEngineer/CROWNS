@@ -1,4 +1,4 @@
-package com.rae.crowns.content.nuclear;
+package com.rae.crowns.content.nuclear.display;
 
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.formicapi.FormicApiLang;

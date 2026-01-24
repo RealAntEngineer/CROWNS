@@ -1,4 +1,4 @@
-package com.rae.crowns.content.nuclear;
+package com.rae.crowns.content.nuclear.uranium;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;

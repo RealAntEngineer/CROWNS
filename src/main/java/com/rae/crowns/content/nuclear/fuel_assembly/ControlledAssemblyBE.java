@@ -1,7 +1,9 @@
-package com.rae.crowns.content.nuclear;
+package com.rae.crowns.content.nuclear.fuel_assembly;
 
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.crowns.content.nuclear.IAmFissileMaterial;
+import com.rae.crowns.content.nuclear.IAmRadioactiveSource;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;

@@ -83,7 +83,7 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    //mavenLocal()
+    mavenLocal()
     maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
     maven { url = "https://maven.tterrag.com" } // Registrate
 
@@ -145,7 +145,8 @@ dependencies {
 
     annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor"
 
-    implementation fg.deobf('com.github.RealAntEngineer:FormicAPI:v1.20.1-1.6.2:slim')
+    //implementation fg.deobf('com.github.RealAntEngineer:FormicAPI:v1.20.1-1.6.2:slim')
+    implementation fg.deobf('com.rae.formicapi:FormicAPI:1.20.1-1.6.4:slim')
 
     //unit test tool
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'

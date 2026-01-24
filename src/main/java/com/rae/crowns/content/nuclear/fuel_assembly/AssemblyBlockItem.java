@@ -1,4 +1,4 @@
-package com.rae.crowns.content.nuclear;
+package com.rae.crowns.content.nuclear.fuel_assembly;
 
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;

@@ -1,6 +1,8 @@
-package com.rae.crowns.content.nuclear;
+package com.rae.crowns.content.nuclear.display;
 
 import com.rae.crowns.CROWNSLang;
+import com.rae.crowns.content.nuclear.IAmFissileMaterial;
+import com.rae.crowns.content.nuclear.IAmRadioactiveSource;
 import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.behaviour.display.DisplaySource;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkContext;

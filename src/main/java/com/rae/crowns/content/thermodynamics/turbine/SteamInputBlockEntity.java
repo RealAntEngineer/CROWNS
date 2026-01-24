@@ -1,5 +1,6 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
+import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
@@ -13,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -110,27 +112,30 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
             if (updateSteamFlow) {
                 updateSteamFlow = false;
 
-                if (steamCurrent != null) {
+                /*if (steamCurrent != null) {
                     Direction facing = getBlockState().getValue(SteamInputBlock.FACING);
                     steamCurrent.setDirection(facing);
                     steamCurrent.setInputFluidState(WATER_TANK.getState());
                     steamCurrent.rebuild(level);
                     //steamCurrent.initialize(worldPosition, facing, 16);
+                }*/
+                //if (steamCurrent == null) {
+                Direction facing = getBlockState().getValue(SteamInputBlock.FACING);
+                List<SteamCurrent> currents = SteamFlowManager.getCurrentsInBounds((ServerLevel) level, new AABB(worldPosition.relative(facing)));
+                if (currents.isEmpty()) {
+                    steamCurrent = new SteamCurrent(worldPosition, facing, 16);
+                    //steamCurrent.setPos(worldPosition.relative(facing).getX(), worldPosition.relative(facing).getY(), worldPosition.relative(facing).getZ());
+                    steamCurrent.setInputFluidState(WATER_TANK.getState());
+                    steamCurrent.rebuild(level);
+                    SteamFlowManager.addSteamCurrent((ServerLevel) level, steamCurrent);//level.addFreshEntity(steamCurrent);
+                    //steamCurrent.initialize(worldPosition, facing, 16);
+                } else {
+                    steamCurrent = currents.get(0);
+                    steamCurrent.setDirection(facing);
+                    steamCurrent.setInputFluidState(WATER_TANK.getState());
+                    steamCurrent.rebuild(level);
                 }
-                if (steamCurrent == null) {
-                    Direction facing = getBlockState().getValue(SteamInputBlock.FACING);
-                    List<SteamCurrent> currents = SteamFlowManager.getCurrentsInBounds(level.dimension().location(), new AABB(worldPosition.relative(facing)));
-                    if (currents.isEmpty()) {
-                        steamCurrent = new SteamCurrent(worldPosition, facing, 16);
-                        //steamCurrent.setPos(worldPosition.relative(facing).getX(), worldPosition.relative(facing).getY(), worldPosition.relative(facing).getZ());
-                        steamCurrent.setInputFluidState(WATER_TANK.getState());
-                        steamCurrent.rebuild(level);
-                        SteamFlowManager.addSteamCurrent(level.dimension().location(), steamCurrent);//level.addFreshEntity(steamCurrent);
-                        //steamCurrent.initialize(worldPosition, facing, 16);
-                    } else {
-                        steamCurrent = currents.get(0);
-                    }
-                }
+                //}
             }
             if (steamCurrent != null) {
                 steamCurrent.setInputFluidState(WATER_TANK.getState());
@@ -163,13 +168,7 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
     @Override
     public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
         SpecificRealGazState newState = getState();
-        FormicApiLang.formatTemperature(newState.temperature())
-                .text(" | ")
-                .add(FormicApiLang.formatPressure(newState.pressure()).component())
-                .text(" | ")
-                .add(
-                        Component.literal("x = " + (int) (newState.vaporQuality() * 100) + "%")
-                )
+        CROWNSLang.specificRealFluidState(newState)
                 .forGoggles(tooltip, 1);
         CreateLang.builder().add(
                 Component.literal(" Flow = " + flow + "/ 1000")

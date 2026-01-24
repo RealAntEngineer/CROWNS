@@ -275,11 +275,11 @@ public class SteamCurrent {
                     nextState = FullTableBased.isentropicCompression(previousState,pressureRatio);
                 }
             } catch (IllegalStateException error) {
-                CROWNS.LOGGER.error("{} caused by trying to compress water from {} with a ratio of {}", error.getMessage(), previousState, pressureRatio);
+                CROWNS.LOGGER.error("{} caused by trying to expand water from {} with a ratio of {}", error.getMessage(), previousState, pressureRatio);
                 throw error;
             }
 
-            float power = (previousState.specificEnthalpy() - nextState.specificEnthalpy()) * getFlow(level) * 20f / whatSU;
+            float power = (previousState.specificEnthalpy() - nextState.specificEnthalpy()) * getFlow(level) * 20f / whatSU * yield;
             powerForStage.put(stageBe.getBlockPos(), Float.isNaN(power) ? 0f : power);
 
             previousState = nextState;

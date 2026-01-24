@@ -25,6 +25,9 @@ public class RGBAVolumeInstance extends  VolumeInstance {
     // Transform
     public float yaw, pitch, roll;
 
+    //scaling
+    public float opacityScale = 1f;
+
 
     /**
      * Constructs a volumetric instance with its color volume and automatically computed brick min/max.
@@ -125,6 +128,7 @@ public class RGBAVolumeInstance extends  VolumeInstance {
         // Brick parameters
         shader.safeGetUniform("bricksCount").set(Bx, By, Bz);
         shader.safeGetUniform("volumesCount").set(Nx, Ny, Nz);
+        shader.safeGetUniform("opacity").set(opacityScale);
     }
 
 }

@@ -5,7 +5,7 @@ in vec3 vWorldPos; // from vertex shader
 out vec4 fragColor;
 
 uniform sampler3D colorVolume;   // main 3D texture (RGBA)
-uniform sampler3D brickMinMax;   // main 3D texture (RGBA)
+//uniform sampler3D brickMinMax;   // secondary 3D texture (R)
 uniform sampler2D sceneDepth;
 uniform vec2 ScreenSize;
 
@@ -17,9 +17,11 @@ uniform vec3 cameraPos;
 uniform vec3 volumeMin;          // world-space volume bounds
 uniform vec3 volumeMax;
 uniform ivec3 volumesCount;       // number of volume voxel along each axis
+//uniform ivec3 bricksCount;       // number of brick voxel along each axis
 
 uniform int maxSteps;
 uniform float skipThreshold;
+uniform float opacityScale;
 
 vec3 depthToWorldPos(vec2 uv, float depth)
 {
@@ -70,6 +72,8 @@ void main() {
     //vec3 rayDir = normalize(vWorldPos - cameraPos);
     vec3 ro = cameraPos;
     vec3 rd = normalize(vWorldPos - cameraPos);
+    //fragColor = vec4(0.5 + 0.5*rd, 1);
+    //return;
 
     vec3 rayDirInv = 1 / rd;
     // --- ray-box intersection with optional tight box ---
@@ -117,7 +121,7 @@ void main() {
         float L = vt1 - vt0;
 
         vec3 col = vol.rgb;
-        float density = vol.a;
+        float density = vol.a * opacityScale;
 
         // --- analytic integration ---
         float alphaSeg = 1.0 - exp(-density * L * 10);

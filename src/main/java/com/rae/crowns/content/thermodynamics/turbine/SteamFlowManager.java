@@ -1,7 +1,6 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.init.data.PacketInit;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,14 +12,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SteamFlowManager {
 
     static @Nullable SteamFlowData storage = null;
 
-    public static void addSteamCurrent(ResourceLocation dimension, SteamCurrent steamCurrent) {
+    public static void addSteamCurrent(ServerLevel level, SteamCurrent steamCurrent) {
         if (storage == null) return;
-        storage.steamCurrents.computeIfAbsent(dimension, d -> new ArrayList<>())
+        storage.steamCurrents.computeIfAbsent(level.dimension().location(), d -> new ArrayList<>())
                 .add(steamCurrent);
         storage.setDirty(); // replace with markDirty() if your class uses that name
 
@@ -34,7 +34,12 @@ public class SteamFlowManager {
             storage.steamCurrents.put(world.dimension().location(), new ArrayList<>());
         }
         storage.steamCurrents.get(world.dimension().location())
-                .removeIf(steamCurrent -> steamCurrent!=null && !steamCurrent.isValid(world));
+                .removeIf(steamCurrent -> {
+                    if (steamCurrent == null) {
+                        return true;
+                    }
+                    return false;
+                });
         //there shouldn't be null values here.
         storage.steamCurrents.get(world.dimension().location())
                 .forEach(steamCurrent -> steamCurrent.tick(world));
@@ -50,13 +55,15 @@ public class SteamFlowManager {
 
     }
 
-    public static @NotNull List<SteamCurrent> getCurrentsInBounds(ResourceLocation dimension, @NotNull AABB bound) {
+    public static @NotNull List<SteamCurrent> getCurrentsInBounds(ServerLevel level, @NotNull AABB bound) {
         List<SteamCurrent> collector = new ArrayList<>();
         if (storage == null) return collector;
-        storage.steamCurrents.getOrDefault(dimension, List.of()).forEach((steamCurrent) ->
+        storage.steamCurrents.getOrDefault(level.dimension().location(), List.of()).forEach((steamCurrent) ->
         {
-            if (steamCurrent.intersects(bound))
+            if (steamCurrent.intersects(bound)) {
                 collector.add(steamCurrent);
+                steamCurrent.rebuild(level);
+            }
         });
         return collector;
     }

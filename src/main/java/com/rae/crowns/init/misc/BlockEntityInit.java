@@ -1,6 +1,8 @@
 package com.rae.crowns.init.misc;
 
-import com.rae.crowns.content.nuclear.AssemblyBlockEntity;
+import com.rae.crowns.content.nuclear.display.ReactorMonitorBE;
+import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBERenderer;
+import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlockEntity;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlockEntity;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorRenderer;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlockEntity;
@@ -22,6 +24,12 @@ public class BlockEntityInit {
             .blockEntity("fuel_assembly", AssemblyBlockEntity::new)
             //.renderer(() -> AssemblyBERenderer::new)
             .validBlock(BlockInit.FUEL_ASSEMBLY)
+            .register();
+
+    public static final BlockEntityEntry<ReactorMonitorBE> REACTOR_MONITOR = REGISTRATE
+            .blockEntity("reactor_monitor", ReactorMonitorBE::new)
+            //.renderer(() -> AssemblyBERenderer::new)
+            .validBlock(BlockInit.REACTOR_MONITOR)
             .register();
 
     public static final BlockEntityEntry<TurbineStageBlockEntity> TURBINE_STAGE = REGISTRATE

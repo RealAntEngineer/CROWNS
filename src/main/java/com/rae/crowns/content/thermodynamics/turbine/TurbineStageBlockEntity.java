@@ -5,13 +5,16 @@ import com.rae.crowns.content.sound.CrownsSoundScapes;
 import com.rae.crowns.content.thermodynamics.ISteamPressureChange;
 import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import com.simibubi.create.foundation.utility.CreateCodecs;
 import com.simibubi.create.foundation.utility.CreateLang;
+import com.simibubi.create.infrastructure.config.AllConfigs;
 import net.createmod.catnip.animation.LerpedFloat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -53,7 +56,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     public float getGeneratedSpeed() {
         //if flows is empty and power!=0 it means that the BE is being loaded, we need to trust only the power in that case
         //so there is no need to check for the flows.
-        return power.getValue() == 0 ? 0 : CROWNSConfigs.SERVER.kinetics.turbineSpeed.get(); // * direction du flux
+        return power.getValue() == 0 ? 0 : Math.min(CROWNSConfigs.SERVER.kinetics.turbineSpeed.get(), AllConfigs.server().kinetics.maxRotationSpeed.get()); // * direction du flux
     }
 
     @Override
@@ -107,7 +110,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
         bound = bound.expandTowards(Vec3.atLowerCornerOf(Direction.get(Direction.AxisDirection.POSITIVE, plane.get(1))
                 .getNormal()));
 
-        flows = SteamFlowManager.getCurrentsInBounds(level.dimension().location(), bound);//level.getEntitiesOfClass(SteamCurrent.class, bound);
+        flows = SteamFlowManager.getCurrentsInBounds((ServerLevel) level, bound);//level.getEntitiesOfClass(SteamCurrent.class, bound);
         AtomicReference<Float> newPower = new AtomicReference<>((float) 0);
         flows.forEach(f -> {
             SteamCurrent.SPR spr = f.getPowerForStage(this);

@@ -1,6 +1,10 @@
 package com.rae.crowns.mixin;
 
+import com.rae.crowns.CROWNSLang;
+import com.rae.crowns.config.CROWNSCfgClient;
+import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.formicapi.FormicApiLang;
+import com.rae.formicapi.thermal_utilities.FullTableBased;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.lang.LangBuilder;
@@ -20,14 +24,7 @@ public class LangMixin {
         CompoundTag newStateNBT = stack.getChildTag("realGazState");
         if (newStateNBT != null && !newStateNBT.isEmpty()) {
             SpecificRealGazState newState = new SpecificRealGazState(newStateNBT);
-            cir.setReturnValue(cir.getReturnValue().add(Component.literal(" ")).add(
-                    FormicApiLang.formatTemperature(newState.temperature()).component()
-                            .append(" | ")
-                            .append(FormicApiLang.formatPressure(newState.pressure()).component())
-                            .append(" | ")
-                            .append(
-                                    Component.literal("x = " + (int) (newState.vaporQuality() * 100) + "%")
-                            )));
+            cir.setReturnValue(cir.getReturnValue().add(CROWNSLang.specificRealFluidState(newState)));
         }
 
     }

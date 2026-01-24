@@ -1,7 +1,8 @@
 package com.rae.crowns.init.misc;
 
-import com.rae.crowns.content.nuclear.AssemblyBlock;
-import com.rae.crowns.content.nuclear.UraniumOreBlock;
+import com.rae.crowns.content.nuclear.display.ReactorMonitorBlock;
+import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
+import com.rae.crowns.content.nuclear.uranium.UraniumOreBlock;
 import com.rae.crowns.content.nuclear.corium.SolidCoriumBlock;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlock;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
@@ -12,7 +13,6 @@ import com.rae.formicapi.multiblock.MBItem;
 import com.rae.formicapi.multiblock.MBStructureBlock;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntry;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -41,6 +41,15 @@ public class BlockInit {
             .item()
             .build()
             .register();
+
+    public static final BlockEntry<ReactorMonitorBlock> REACTOR_MONITOR = REGISTRATE
+            .block("reactor_monitor", ReactorMonitorBlock::new)
+            .initialProperties(SharedProperties::softMetal)
+            .properties(BlockBehaviour.Properties::noOcclusion)
+            .item()
+            .build()
+            .register();
+
     public static final BlockEntry<SteamInputBlock> STEAM_INPUT = REGISTRATE.block(
                     "steam_input", SteamInputBlock::new)
             .initialProperties(SharedProperties::softMetal)
@@ -98,6 +107,7 @@ public class BlockInit {
             }))
             .transform(displaySource(DisplaySourceInit.ACTIVITY))
             .transform(displaySource(DisplaySourceInit.TEMPERATURE))
+            .transform(displaySource(DisplaySourceInit.FULL_STACK))
             .item()
             .build()
             .register();

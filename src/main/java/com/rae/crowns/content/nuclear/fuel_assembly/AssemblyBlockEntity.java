@@ -1,9 +1,11 @@
-package com.rae.crowns.content.nuclear;
+package com.rae.crowns.content.nuclear.fuel_assembly;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
+import com.rae.crowns.content.nuclear.IAmFissileMaterial;
+import com.rae.crowns.content.nuclear.IAmRadioactiveSource;
 import com.rae.crowns.content.rendering.RGBAVolumeInstance;
 import com.rae.crowns.content.rendering.VolumeWorldRenderer;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
@@ -91,7 +93,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                         volumeRGBA[off + 3] = 0.03f;//1f;        // A
 
                     }
-
                 }
             }
         }
@@ -131,6 +132,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public void initialize() {
         super.initialize();
         if (level != null && level.isClientSide) {
+            this.lazyTickCounter = Math.toIntExact(LAZY_TICK_RATE - level.getGameTime() % LAZY_TICK_RATE);
             RenderSystem.recordRenderCall(this::initializeClientTcherenkov);
         }
     }
@@ -138,6 +140,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public void tick() {
         super.tick();
+        assert level != null;
         if (!level.isClientSide()) {
             //debugPrintState(getBlockPos().toShortString());
             if (!PhysicsSaveManager.get((ServerLevel) level).ticked(SectionPos.of(getBlockPos()).asLong())) return;
@@ -151,7 +154,14 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 spawnRadiationParticles(level, getBlockPos(), nbrOfFission);
             temperature += power / C * 1 / 20f;
             additionalNeutronsAbsorbed.tickChaser();
+            if (Math.toIntExact(level.getGameTime() % LAZY_TICK_RATE) == 0){
+                fakeLazyTick();
+            }
+        } else {
+            if (tcherenkov!=null)
+                tcherenkov.opacityScale = Math.min(getRadioactiveActivity()/1e6f, 1);
         }
+
         if (Float.isNaN(temperature)) {
             temperature = 300;
         }
@@ -178,8 +188,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         tcherenkov = null;//will get garbage collected
     }
 
-    @Override
-    public void lazyTick() {
+    public void fakeLazyTick() {
+        assert level != null;
         if (!level.isClientSide()) {
             if (!PhysicsSaveManager.get((ServerLevel) level).ticked(SectionPos.of(getBlockPos()).asLong())) return;
             oldNbrOfFission = nbrOfFission;

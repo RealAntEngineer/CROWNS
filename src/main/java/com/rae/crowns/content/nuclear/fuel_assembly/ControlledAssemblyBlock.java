@@ -1,4 +1,4 @@
-package com.rae.crowns.content.nuclear;
+package com.rae.crowns.content.nuclear.fuel_assembly;
 
 import com.simibubi.create.content.kinetics.base.IRotate;
 import net.minecraft.core.BlockPos;

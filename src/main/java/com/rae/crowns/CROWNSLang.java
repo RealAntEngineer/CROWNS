@@ -1,5 +1,10 @@
 package com.rae.crowns;
 
+import com.rae.crowns.config.CROWNSCfgClient;
+import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.formicapi.FormicApiLang;
+import com.rae.formicapi.thermal_utilities.FullTableBased;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import net.createmod.catnip.lang.Lang;
 import net.createmod.catnip.lang.LangBuilder;
 import net.createmod.catnip.lang.LangNumberFormat;
@@ -68,6 +73,41 @@ public class CROWNSLang extends Lang {
     @Deprecated // Use while implementing and replace all references with Lang.translate
     public static @NotNull LangBuilder temporaryText(@NotNull String text) {
         return builder().text(text);
+    }
+
+
+    public static @NotNull LangBuilder specificRealFluidState(@NotNull SpecificRealGazState state) {
+        CROWNSCfgClient.FluidVisualMode mode = CROWNSConfigs.CLIENT.fluidStateVisualMode.get();
+
+        return switch (mode) {
+            case TPX -> builder().add(Component.literal(" ")).add(
+                    FormicApiLang.formatTemperature(state.temperature()).component()
+                            .append(" | ")
+                            .append(FormicApiLang.formatPressure(state.pressure()).component())
+                            .append(" | ")
+                            .append(
+                                    Component.literal("x = " + (int) (state.vaporQuality() * 100) + "%")
+                            ));
+            case PH -> builder().add(Component.literal(" ")).add(
+                    FormicApiLang.formatPressure(state.pressure()).component()
+                            .append(" | ")
+                            .append(state.specificEnthalpy() + " J/Kg"));
+            case PS -> builder().add(Component.literal(" ")).add(
+                    FormicApiLang.formatPressure(state.pressure()).component()
+                            .append(" | ")
+                            .append(FullTableBased.getS(state.specificEnthalpy(), state.pressure()) + "J/Kg/K"));
+            case PHTSX -> builder().add(Component.literal(" ")).add(
+                    FormicApiLang.formatPressure(state.pressure()).component()
+                            .append(" | ")
+                            .append(state.specificEnthalpy() + " J/Kg")
+                            .append(" | ")
+                            .append(FormicApiLang.formatTemperature(state.temperature()).component())
+                            .append(" | ")
+                            .append(FullTableBased.getS(state.specificEnthalpy(), state.pressure()) + "J/Kg/K")
+                            .append(" | ")
+                            .append(
+                                    Component.literal("x = " + (int) (state.vaporQuality() * 100) + "%")));
+        };
     }
 
 

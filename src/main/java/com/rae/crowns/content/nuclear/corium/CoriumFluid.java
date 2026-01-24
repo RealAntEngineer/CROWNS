@@ -5,6 +5,7 @@ import com.rae.crowns.init.misc.BlockInit;
 import com.rae.crowns.init.misc.TagsInit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
@@ -47,7 +48,7 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
                 continue;
             BlockPos adjacentPos = pos.relative(direction);
             BlockState adjacentState = level.getBlockState(adjacentPos);
-            if (!adjacentState.isAir() && !adjacentState.liquid() && !TagsInit.CustomBlockTags.UNDESTRUCTABLE.matches(adjacentState)) {
+            if (!adjacentState.isAir() && (!adjacentState.liquid() && !TagsInit.CustomBlockTags.UNDESTRUCTABLE.matches(adjacentState))) {
                 int power = state.getValue(POWER);
                 if (power > 2 && (level.random.nextFloat() * 15 < power * (direction == Direction.DOWN ? 10 : 1))) {
                     state = this.getFlowing(state.getAmount(), power - 1, false);
@@ -56,9 +57,8 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
                 }
             }
         }
-        this.spread(level, pos, state);
         //power diffusion
-        /*int currentPower = state.getValue(POWER);
+        int currentPower = state.getValue(POWER);
         for (Direction direction : Direction.values()) {
             FluidState adjState = level.getFluidState(pos.relative(direction));
 
@@ -68,27 +68,28 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
                     level.setBlock(pos.relative(direction), this.getFlowing(adjState.getAmount(), adjPower + 1, false).createLegacyBlock(), 3);
                     currentPower-=1;
                 }
+            } else if (adjState.is(FluidTags.WATER)) {
+                level.setBlock(pos.relative(direction), Blocks.AIR.defaultBlockState(), 3);
+                currentPower-=1;
+
             }
         }
-        level.setBlock(pos, state.createLegacyBlock().setValue(POWER, currentPower), 3);
 
-         */
-    }
+        if (level.getRandom().nextFloat() <= 0.5f){
+            if (currentPower <= 1) {
+                level.setBlock(pos, BlockInit.SOLID_CORIUM.getDefaultState(), 3);
+                return;
+            } else {
+                currentPower = state.getValue(POWER) - 1;
 
-    @Override
-    protected void randomTick(Level level, BlockPos pos, FluidState state, RandomSource random) {
-        if (state.getValue(POWER) <= 1) {
-            level.setBlock(pos, BlockInit.SOLID_CORIUM.getDefaultState(), 3);
-        } else {
-            state.setValue(POWER, state.getValue(POWER) - 1);
-            level.setBlock(pos, state.createLegacyBlock(), 3);
-
+            }
         }
-    }
-
-    @Override
-    protected boolean isRandomlyTicking() {
-        return true;
+        if (state.hasProperty(POWER)) {
+            currentPower = Mth.clamp(currentPower, 0, 15);
+            state.setValue(POWER, currentPower);
+        }
+        level.setBlock(pos, state.createLegacyBlock(), 3);
+        this.spread(level, pos, state);
     }
 
     @Override
@@ -104,7 +105,7 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
     @Override
     protected boolean canSpreadTo(BlockGetter level, BlockPos fromPos, BlockState fromBlockState, Direction direction, BlockPos toPos, BlockState toBlockState, FluidState toFluidState, Fluid fluid) {
         if (toBlockState.isAir() || toBlockState.liquid()) {
-            return toFluidState.getType().isSame(this) || toFluidState.isEmpty();
+            return toFluidState.getType().isSame(this) || toFluidState.isEmpty() || toFluidState.is(FluidTags.WATER);
         }
         return false;
     }

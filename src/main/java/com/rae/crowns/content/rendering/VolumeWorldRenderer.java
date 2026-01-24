@@ -34,7 +34,8 @@ public class VolumeWorldRenderer {
         if (VolumeCubeMesh.VBO == null) VolumeCubeMesh.init();
         synchronized(GLGuard.GL_LOCK) {
             for (RGBAVolumeInstance v : volumes) {
-                v.render(poseStack, shader, cameraPos);
+                if (v.opacityScale > 0.01f)
+                    v.render(poseStack, shader, cameraPos);
             }
         }
         RenderSystem.depthMask(true); // don't write depth

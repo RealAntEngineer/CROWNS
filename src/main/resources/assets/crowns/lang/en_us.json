@@ -9,16 +9,20 @@
   "block.crowns.turbine_stage": "Turbine Stage",
   "block.crowns.compressor": "Compressor",
 
-  "item.crowns.uranium_ingot": "Uranium Ingot",
-  "item.crowns.uranium_nugget": "Uranium Nugget",
+  "item.crowns.uranium_ingot": "Natural Uranium Ingot",
+  "item.crowns.uranium_nugget": "Natural Uranium Nugget",
   "item.crowns.depleted_uranium_ingot": "Depleted Uranium Ingot",
   "item.crowns.depleted_uranium_nugget": "Depleted Uranium Nugget",
   "item.crowns.enriched_uranium_ingot": "Enriched Uranium Ingot",
   "item.crowns.enriched_uranium_nugget": "Enriched Uranium Nugget",
 
+  "item.crowns.corium_bucket": "Corium Bucket",
   "item.crowns.fuel_rod": "Fuel Rod",
 
   "item.crowns.raw_uranium": "Raw Uranium",
+
+  "fluid.crowns.corium": "Corium",
+  "fluid.crowns.uranium_hexafluoride": "Uranium Hexafluoride",
 
   "itemGroup.crowns.nuclear": "CROWNS",
 
@@ -47,7 +51,7 @@
   "crowns.display_source.radiation_source.k_eff": "Effective Factor: ",
   "crowns.display_source.radiation_source": "Radiation Source",
   "crowns.display_source.temperature": "Temperature",
-
+  "crowns.display_source.full_stack": "Fuel Assembly Stack Temperature",
   "crowns.units.pressure.symbol.pascals": "Pa",
   "crowns.units.pressure.symbol.bar": "bar",
   "crowns.units.pressure.symbol.atmospheres" : "atm",

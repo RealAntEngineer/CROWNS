@@ -14,7 +14,6 @@
 
   "samplers": [
     { "name": "colorVolume" },
-    { "name": "brickMinMax" },
     { "name": "sceneDepth" }
 
   ],
@@ -55,10 +54,10 @@
     { "name": "volumeMin",  "type": "float", "count": 3, "values": [0,0,0] },
     { "name": "volumeMax",  "type": "float", "count": 3, "values": [1,1,1] },
     { "name": "ScreenSize", "type": "float", "count": 2, "values" : [1,1]},
-    { "name":  "bricksCount", "type" :  "int" , "count" :  3, "values" :  [1,1,1]},
     { "name":  "volumesCount", "type" :  "int" , "count" :  3, "values" :  [1,1,1]},
 
     { "name": "maxSteps",   "type": "int",   "count": 1, "values": [256] },
+    { "name": "opacityScale",   "type": "float",   "count": 1, "values": [1] },
 
     { "name": "skipThreshold","type": "float",   "count": 1, "values": [0.01] }
   ]

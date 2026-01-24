@@ -1,6 +1,8 @@
 package com.rae.crowns.content.thermodynamics.compressor;
 
+import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.Constants;
+import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
@@ -77,11 +79,6 @@ public class CompressorBlockEntity extends KineticBlockEntity {
         return speed == 0 ? 0 : Math.abs(power / speed);// ? it's weird to do that but...
     }
 
-    public float pressureRatio() {
-        //depend on speed ?
-        return 8;
-    }
-
     @Override
     public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
         super.addToGoggleTooltip(tooltip, isPlayerSneaking);
@@ -89,24 +86,12 @@ public class CompressorBlockEntity extends KineticBlockEntity {
         CreateLang.builder().add(
                         Component.literal("input : ")
                                 .append(
-                                        FormicApiLang.formatTemperature(inputState.temperature()).component()
-                                                .append(" | ")
-                                                .append(FormicApiLang.formatPressure(inputState.pressure()).component())
-                                                .append(" | ")
-                                                .append(
-                                                        Component.literal("x = " + (int) (inputState.vaporQuality() * 100) + "%")
-                                                )))
+                                        CROWNSLang.specificRealFluidState(inputState).component()))
                 .forGoggles(tooltip, 1);
         SpecificRealGazState outputState = OUTPUT_WATER_TANK.getState();
         CreateLang.builder().add(
                         Component.literal("output : ").append(
-                                FormicApiLang.formatTemperature(outputState.temperature()).component()
-                                        .append(" | ")
-                                        .append(FormicApiLang.formatPressure(outputState.pressure()).component())
-                                        .append(" | ")
-                                        .append(
-                                                Component.literal("x = " + (int) (outputState.vaporQuality() * 100) + "%")
-                                        )))
+                                CROWNSLang.specificRealFluidState(outputState).component()))
                 .forGoggles(tooltip, 1);
         return true;
     }
@@ -169,10 +154,18 @@ public class CompressorBlockEntity extends KineticBlockEntity {
                     sendData();
             }
             SpecificRealGazState inputState = INPUT_WATER_TANK.getState();
-            FluidStack water = INPUT_WATER_TANK.drain((int) Math.abs(speed), IFluidHandler.FluidAction.SIMULATE);
+            int flow = (int) Math.abs(speed);
+            FluidStack water = INPUT_WATER_TANK.drain(flow, IFluidHandler.FluidAction.SIMULATE);
+            float speedRef = CROWNSConfigs.SERVER.kinetics.compressorSpeedRef.getF();
+            float flowRef = CROWNSConfigs.SERVER.kinetics.compressorFlowRef.getF();
+            float pRef = CROWNSConfigs.SERVER.kinetics.compressorPressureRef.getF();
+            float yield = CROWNSConfigs.SERVER.kinetics.compressorIsentropicYield.getF();
             if (!water.isEmpty()) {
-                SpecificRealGazState outputState = FullTableBased.isentropicCompression(inputState, pressureRatio());
-                power = (int) (outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount() / Constants.whatSU;
+                //depend on speed ?
+
+                float pressureDelta =  pRef * (Math.abs(speed)*Math.abs(speed) / (speedRef * speedRef))* (1 - (flow / flowRef)*(flow / flowRef));
+                SpecificRealGazState outputState = FullTableBased.isentropicCompression(inputState, (inputState.pressure()+pressureDelta)/inputState.pressure() );
+                power = (int) ((outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount() * 20f / Constants.whatSU / yield);
 
                 CompoundTag tag = new CompoundTag();
                 tag.put("realGazState", outputState.serialize());
