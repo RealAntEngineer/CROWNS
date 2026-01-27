@@ -1,6 +1,7 @@
 package com.rae.crowns.content.ponder;
 
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
+import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
 import com.rae.crowns.init.misc.BlockInit;
 import com.rae.crowns.init.misc.FluidInit;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
@@ -16,10 +17,12 @@ public class NuclearScene {
     public static void nuclearBasic(@NotNull SceneBuilder builder, @NotNull SceneBuildingUtil sceneBuildingUtil) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
         scene.title("nuclear_basics", "Nuclear Rectors");
+        scene.configureBasePlate(0,0,7);
         //sceneBuilder.setSceneOffsetY(-5);
         scene.scaleSceneView(0.6f);
         scene.setSceneOffsetY(-2f);
         scene.world().setBlocks(sceneBuildingUtil.select().everywhere(), Blocks.AIR.defaultBlockState(), false);//clean slate
+        scene.showBasePlate();
         BlockPos centerFuel = new BlockPos(5, 0, 3);
         BlockPos exteriorFuel = new BlockPos(2, 0, 3);
         scene.world().setBlock(centerFuel, BlockInit.FUEL_ASSEMBLY.getDefaultState(), false);
@@ -131,46 +134,69 @@ public class NuclearScene {
         scene.idle(20);
 
         // ✅ Reveal lower reactor casing
-        Selection layer0 = util.select().layers(0, 3);
+        Selection layer0 = util.select().layers(0, 7);
         scene.world().showSection(layer0, Direction.DOWN);
         scene.idleSeconds(2);
 
-        // ✅ Outline the full reactor interior
-        Selection slice = util.select().fromTo(0, 3, 3, 8, 8, 8);
-        scene.world().showSection(slice, Direction.UP);
-
         scene.overlay()
-                .showOutlineWithText(util.select().layers(1, 5), 100)
+                .showOutlineWithText(util.select().layers(0, 5), 100)
                 .text("It's recommended to build reactors in a concentric circles.");
         scene.idleSeconds(5);
 
-        // ✅ Highlight full reactor height (boiling efficiency)
-        Selection reactorHeight = util.select().fromTo(4, 1, 3, 4, 7, 3);
+        Selection heatExchanger = util.select().fromTo(5, 0, 3, 5, 4, 3).add(
+                util.select().fromTo(5, 0, 5, 5, 4, 5)
+        ).add(
+                util.select().fromTo(3, 0, 5, 3, 4, 5)
+        ).add(
+                util.select().fromTo(3, 0, 3, 3, 4, 3)
+        );
+        scene.world().modifyBlocks(heatExchanger, s -> BlockInit.HEAT_EXCHANGER.getDefaultState()
+                .setValue(HeatExchangerBlock.FACING, Direction.UP).setValue(HeatExchangerBlock.WATERLOGGED, true), false);
         scene.overlay()
-                .showOutlineWithText(reactorHeight, 40)
-                .text("The taller the reactor, the more time water has to boil.");
+                .showOutlineWithText(heatExchanger, 40)
+                .text("Heat exchanger can be placed inside");
         scene.idleSeconds(3);
 
-        // ✅ Highlight overheated fuel cells
+
+        Selection controlRod = util.select().fromTo(4, 0, 3, 4, 4, 3).add(
+                util.select().fromTo(3, 0, 4, 3, 4, 4)
+        ).add(
+                util.select().fromTo(5, 0, 4, 5, 4, 4)
+        ).add(
+                util.select().fromTo(4, 0, 5, 4, 4, 5)
+        );;
+        scene.world().modifyBlocks(controlRod, s -> Blocks.GOLD_BLOCK.defaultBlockState(), false);
         scene.overlay()
-                .showOutlineWithText(util.select().fromTo(5, 3, 3, 5, 6, 3), 60)
-                .text("Fuel turns red above 3000K and explodes at 3500K.");
+                .showOutlineWithText(controlRod, 60)
+                .text("Control rod can be placed beside them");
         scene.idleSeconds(3);
+
+        Selection wool = util.select().fromTo(0, 0, 3, 0, 4, 5);
+        Selection wool2 = getCircularReactorRing(util, 4);
+        scene.overlay()
+                .showText(60)
+                .text("Wool insulate the reactor and increase the efficiency");
+        scene.idleSeconds(3);
+
+        scene.overlay()
+                .showText(60)
+                .text("The taller the reactor the more time water has to boil; also increase the power by a small amount");
+        scene.idle(20);
 
         scene.markAsFinished();
 
     }
 
-    private static Selection getCircularReactorRing(SceneBuildingUtil util, int ringIndex) {
+    private static Selection getCircularReactorRing(SceneBuildingUtil util, int radius) {
         // Reactor interior bounds
-        int min = 1;
-        int max = 7;
+        int min = 0;
+        int max = 4;
 
         int centerX = 4;
         int centerZ = 4;
 
         // 7x7 reactor radii
-        int outerRadius = 3 - ringIndex;
+        int outerRadius = radius;
         int innerRadius = outerRadius - 1;
 
         Selection result = null;

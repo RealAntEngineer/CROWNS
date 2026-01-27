@@ -18,16 +18,16 @@ import java.util.stream.Stream;
 
 public class RadiationSourceDisplaySource extends DisplaySource {
     public static final List<MutableComponent> notEnoughSpaceSingle =
-            List.of(CROWNSLang.translateDirect("display_source.radiation_source.not_enough_space")
-                    .append(CROWNSLang.translateDirect("display_source.radiation_source.for_activity_status")));
+            List.of(CROWNSLang.translate("display_source.radiation_source.not_enough_space")
+                    .add(CROWNSLang.translate("display_source.radiation_source.for_activity_status")).component());
 
     public static final List<MutableComponent> notEnoughSpaceDouble =
-            List.of(CROWNSLang.translateDirect("display_source.radiation_source.not_enough_space"),
-                    CROWNSLang.translateDirect("display_source.radiation_source.for_activity_status"));
+            List.of(CROWNSLang.translate("display_source.radiation_source.not_enough_space").component(),
+                    CROWNSLang.translate("display_source.radiation_source.for_activity_status").component());
 
     public static final List<List<MutableComponent>> notEnoughSpaceFlap =
-            List.of(List.of(CROWNSLang.translateDirect("display_source.radiation_source.not_enough_space")),
-                    List.of(CROWNSLang.translateDirect("display_source.radiation_source.for_activity_status")));
+            List.of(List.of(CROWNSLang.translate("display_source.radiation_source.not_enough_space").component()),
+                    List.of(CROWNSLang.translate("display_source.radiation_source.for_activity_status").component()));
     static final int ENTRIES_PER_PAGE = 8;
 
     @Override
@@ -61,7 +61,7 @@ public class RadiationSourceDisplaySource extends DisplaySource {
         List<MutableComponent> values = new ArrayList<>();
         values.add(FormicApiLang.formatRadiationFlux(radioactiveSource.getRadioactiveActivity() * 20).component());//the radiation flux is in /ticks and we are displaying per sec
         if (sourceBE instanceof IAmFissileMaterial fissileMaterial) {
-            values.add(CROWNSLang.translateDirect("display_source.radiation_source.k_eff").append(String.valueOf(fissileMaterial.getEffectiveK())));
+            values.add(CROWNSLang.translate("display_source.radiation_source.k_eff").text(String.valueOf(fissileMaterial.getEffectiveK())).component());
         }
 
         return values

@@ -6,14 +6,19 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
+import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.nuclear.NuclearExplosion;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.SectionPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CommandsInit {
 
@@ -71,12 +76,28 @@ public class CommandsInit {
                                                     return Command.SINGLE_SUCCESS;
                                                 }
                                         )
-
-
                         ))
+                )
+                .then(Commands.literal("dumpThermodynamicStatus")
+                        .executes(
+                                context -> {
+                                    PhysicsWorldData data = PhysicsSaveManager.get(context.getSource().getLevel());
+                                    Map<DataLayerType<?>,Integer> initialise = data.remainingInitialise();
+                                    context.getSource().sendSystemMessage(Component.literal(
+                                            "___________thermodynamic simulation status___________\n"+
+                                                    "   -"+ data.getDynamicData().size()+ " dynamic data blocks\n"+
+                                                    "   -"+ data.getLoadedSections().size() + " loaded chunk sections\n"+
+                                                    "   -"+ data.getLoadedSections().stream().filter(data::ticked).toList().size()+ " ticked sections\n"+
+                                                    "   -initialization :\n"+
+                                                    "      -"+DataLayerType.CONDUCTION.id+ " "+ initialise.getOrDefault(DataLayerType.CONDUCTION, 0)+ "\n"+
+                                                    "      -"+DataLayerType.RESILIENCE.id+ " "+ initialise.getOrDefault(DataLayerType.RESILIENCE, 0)+"\n"+
+                                                    "      -"+DataLayerType.TEMPERATURE.id+ " "+ initialise.getOrDefault(DataLayerType.TEMPERATURE, 0)+"\n"+
+                                                    "      -"+DataLayerType.DEFAULT_TEMPERATURE.id+ " "+ initialise.getOrDefault(DataLayerType.DEFAULT_TEMPERATURE, 0)
 
-
-
+                                    ));
+                                    return Command.SINGLE_SUCCESS;
+                                }
+                        )
                 )
         );
     }

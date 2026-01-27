@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CROWNSCfgClient extends ConfigBase {
 
-    public final ConfigBase.ConfigBool thermalVisualisation = b(true, "thermal_visualisation", CROWNSCfgClient.Comments.thermalVisualisation);
+    public final ConfigBase.ConfigBool thermalVisualisation = b(false, "thermal_visualisation", CROWNSCfgClient.Comments.thermalVisualisation);
     public final ConfigBase.ConfigFloat visualisationThreshold = f(0.1f, 1e-5f, "visualisation_threshold", CROWNSCfgClient.Comments.visualisationThreshold);
     public final ConfigBase.ConfigEnum<FluidVisualMode> fluidStateVisualMode = e(FluidVisualMode.TPX, "fluid_state_visual_mode");
 

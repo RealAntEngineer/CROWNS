@@ -142,7 +142,7 @@ public class PhysicsWorldData {//Only for the server
             }
 
             // ✅ Remove from set once we are processing it
-            iterator.remove();
+            iterator.remove();//it seems that this doesn't remove it from the toInitialise longMap
 
             boolean canBeDirty = false;
             float lastTemp = -1;
@@ -472,5 +472,16 @@ public class PhysicsWorldData {//Only for the server
             corrupted = true;
         }
         return !corrupted;
+    }
+
+    public Map<DataLayerType<?>,Integer> remainingInitialise(){
+        HashMap<DataLayerType<?>,Integer> collector = new HashMap<>();
+        toInitialise.forEach((sectionPos, dataLayerType) -> {
+            for (DataLayerType<?> layerType : dataLayerType) {
+                collector.put(layerType, collector.getOrDefault(layerType, 0)+1);
+
+            }
+        });
+        return collector;
     }
 }

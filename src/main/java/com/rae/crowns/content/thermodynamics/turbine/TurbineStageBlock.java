@@ -1,5 +1,6 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
+import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
 import com.rae.crowns.init.client.ShapesInit;
 import com.rae.crowns.init.misc.BlockEntityInit;
 import com.rae.formicapi.multiblock.MBKineticController;
@@ -11,8 +12,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -20,8 +24,17 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 public class TurbineStageBlock extends MBKineticController implements IBE<TurbineStageBlockEntity> {
+
+    public static final BooleanProperty CASING = BooleanProperty.create("casing");
     public TurbineStageBlock(@NotNull Properties pProperties, MBStructureBlock structure) {
         super(pProperties, structure);
+        this.registerDefaultState(this.defaultBlockState()
+                .setValue(CASING, true));
+    }
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(CASING);
+        super.createBlockStateDefinition(builder);
     }
 
     public static @NotNull Couple<Integer> getSpeedRange() {

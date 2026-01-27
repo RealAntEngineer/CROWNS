@@ -1,5 +1,6 @@
 package com.rae.crowns.content.ponder;
 
+import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
 import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
@@ -9,6 +10,8 @@ import net.createmod.ponder.api.scene.SceneBuilder;
 import net.createmod.ponder.api.scene.SceneBuildingUtil;
 import net.createmod.ponder.api.scene.Selection;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.RedstoneTorchBlock;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,9 +21,14 @@ public class ThermodynamicsScene {
     public static void turbine(@NotNull SceneBuilder builder, @NotNull SceneBuildingUtil sceneBuildingUtil) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
         scene.title("turbine", "Turbines");
-        scene.configureBasePlate(0, -2, 7);
+        scene.configureBasePlate(4, 4, 7);
         scene.rotateCameraY(10);
         scene.world().showSection(sceneBuildingUtil.select().everywhere(), Direction.DOWN);
+        scene.world().modifyBlocks(sceneBuildingUtil.select().everywhere(), s -> {
+            if (s.hasProperty(TurbineStageBlock.CASING))
+                s = s.setValue(TurbineStageBlock.CASING,false);
+            return s;
+        }, false);
 
         Selection pipeInput = sceneBuildingUtil.select().fromTo(4, 1, 1, 7, 1, 1);
         scene.overlay().showOutlineWithText(pipeInput, 30).text("input vapor into the steam inputs");
@@ -29,73 +37,70 @@ public class ThermodynamicsScene {
         Selection turbines = sceneBuildingUtil.select().fromTo(0, 1, 1, 2, 1, 1);
         scene.overlay().showOutlineWithText(turbines, 30).text("if the vapor has sufficient quality (x > 0%) it will make the turbine turns");
 
-        for (int i = 0; i < 10; i++) {
-            FlowLine spline1 =
-                    new FlowLine(List.of(new Vec3(2.5, 2.5, 1.5), new Vec3(0, 2.5, 1.5))
-                            ,
-                            List.of(0.1d),
-                            List.of(new Color(0f, 0f, 1f, 1f))
-                    );
-            FlowLine spline2 =
-                    new FlowLine(List.of(new Vec3(2.5, 0.5, 1.5), new Vec3(0, 0.5, 1.5))
-                            ,
-                            List.of(0.1d),
-                            List.of(new Color(0f, 0f, 1f, 1f))
-                    );
-            FlowLine spline3 =
-                    new FlowLine(List.of(new Vec3(2.5, 1.5, 0.5), new Vec3(0, 1.5, 0.5))
-                            ,
-                            List.of(0.1d),
-                            List.of(new Color(0f, 0f, 1f, 1f))
-                    );
-            FlowLine spline4 =
-                    new FlowLine(List.of(new Vec3(2.5, 1.5, 2.5), new Vec3(0, 2.5, 1.5))
-                            ,
-                            List.of(0.1d),
-                            List.of(new Color(0f, 0f, 1f, 1f))
-                    );
+        double startX = 10.5;
+        for (int i = 0; i < 40; i++) {
             scene.addInstruction(ponderScene -> {
                 PonderLevel world = ponderScene.getWorld();
-                world.addParticle(new FlowParticleData(spline1, 0.1), 2, 2, 1, -1, 0, 0);
-                world.addParticle(new FlowParticleData(spline2, 0.1), 2, 2, 1, -1, 0, 0);
-                world.addParticle(new FlowParticleData(spline3, 0.1), 2, 2, 1, -1, 0, 0);
-                world.addParticle(new FlowParticleData(spline4, 0.1), 2, 2, 1, -1, 0, 0);
+
+                Vec3 spawn = new Vec3(2, 2, 1);
+
+                spawnFlow(world,
+                        new Vec3(startX, 2.5, 1.5),
+                        new Vec3(2,   2.5, 1.5),
+                        spawn,List.of(new Color(0f, 0f, 1f, 1f))
+                );
+
+                spawnFlow(world,
+                        new Vec3(startX, 0.5, 1.5),
+                        new Vec3(2,   0.5, 1.5),
+                        spawn,List.of(new Color(0f, 0f, 1f, 1f))
+                );
+
+                spawnFlow(world,
+                        new Vec3(startX, 1.5, 0.5),
+                        new Vec3(2,   1.5, 0.5),
+                        spawn,List.of(new Color(0f, 0f, 1f, 1f))
+                );
+
+                spawnFlow(world,
+                        new Vec3(startX, 1.5, 2.5),
+                        new Vec3(2,   1.5, 2.5),
+                        spawn,List.of(new Color(0f, 0f, 1f, 1f))
+                );
             });
             scene.idle(1);
         }
         scene.idle(10);
         scene.world().setKineticSpeed(turbines, 256);
-        for (int i = 0; i < 30; i++) {
-            FlowLine spline1 =
-                    new FlowLine(List.of(new Vec3(2.5, 2.5, 1.5), new Vec3(0, 2.5, 1.5))
-                            ,
-                            List.of(0.1d),
-                            List.of(Color.WHITE)
-                    );
-            FlowLine spline2 =
-                    new FlowLine(List.of(new Vec3(2.5, 0.5, 1.5), new Vec3(0, 0.5, 1.5))
-                            ,
-                            List.of(0.1d),
-                            List.of(Color.WHITE)
-                    );
-            FlowLine spline3 =
-                    new FlowLine(List.of(new Vec3(2.5, 1.5, 0.5), new Vec3(0, 1.5, 0.5))
-                            ,
-                            List.of(0.1d),
-                            List.of(Color.WHITE)
-                    );
-            FlowLine spline4 =
-                    new FlowLine(List.of(new Vec3(2.5, 1.5, 2.5), new Vec3(0, 2.5, 1.5))
-                            ,
-                            List.of(0.1d),
-                            List.of(Color.WHITE)
-                    );
+        for (int i = 0; i < 40; i++) {
             scene.addInstruction(ponderScene -> {
                 PonderLevel world = ponderScene.getWorld();
-                world.addParticle(new FlowParticleData(spline1, 0.1), 2, 2, 1, -1, 0, 0);
-                world.addParticle(new FlowParticleData(spline2, 0.1), 2, 2, 1, -1, 0, 0);
-                world.addParticle(new FlowParticleData(spline3, 0.1), 2, 2, 1, -1, 0, 0);
-                world.addParticle(new FlowParticleData(spline4, 0.1), 2, 2, 1, -1, 0, 0);
+
+                Vec3 spawn = new Vec3(2, 2, 1);
+
+                spawnFlow(world,
+                        new Vec3(startX, 2.5, 1.5),
+                        new Vec3(0,   2.5, 1.5),
+                        spawn,List.of(Color.WHITE)
+                );
+
+                spawnFlow(world,
+                        new Vec3(startX, 0.5, 1.5),
+                        new Vec3(0,   0.5, 1.5),
+                        spawn,List.of(Color.WHITE)
+                );
+
+                spawnFlow(world,
+                        new Vec3(startX, 1.5, 0.5),
+                        new Vec3(0,   1.5, 0.5),
+                        spawn,List.of(Color.WHITE)
+                );
+
+                spawnFlow(world,
+                        new Vec3(startX, 1.5, 2.5),
+                        new Vec3(0,   1.5, 2.5),
+                        spawn,List.of(Color.WHITE)
+                );
             });
             scene.idle(1);
         }
@@ -103,4 +108,25 @@ public class ThermodynamicsScene {
 
         scene.markAsFinished();
     }
+
+    private static void spawnFlow(
+            PonderLevel world,
+            Vec3 from,
+            Vec3 to,
+            Vec3 spawnPos,
+            List<Color> colors
+    ) {
+        FlowLine spline = new FlowLine(
+                List.of(from, to),
+                List.of(0.1d),
+                colors
+        );
+
+        world.addParticle(
+                new FlowParticleData(spline, 0.1),
+                spawnPos.x, spawnPos.y, spawnPos.z,
+                -1, 0, 0
+        );
+    }
+
 }
