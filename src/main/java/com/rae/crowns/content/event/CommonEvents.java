@@ -39,6 +39,7 @@ public class CommonEvents {
         LivingEntity entity = event.getEntity();
         if (entity.level() instanceof  ServerLevel level) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) entity.level());
+            if (data == null) return;
             AtomicReference<Float> cumlTemp = new AtomicReference<>(0f);
             AtomicReference<Integer> numberOfTemps = new AtomicReference<>(0);
             BlockPos.betweenClosedStream(entity.getBoundingBox()).forEach(blockPos -> {

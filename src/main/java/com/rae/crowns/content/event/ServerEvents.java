@@ -23,6 +23,7 @@ public class ServerEvents {
         if (!(event.phase == TickEvent.Phase.END && event.level instanceof ServerLevel serverLevel)) return;
         if (!event.haveTime()) return;
         PhysicsWorldData data = PhysicsSaveManager.get(serverLevel);
+        if (data == null) return;
         data.initialise(serverLevel);
         data.updateChangedBlocks(serverLevel);
         if (tickCounter % (TemperatureTicker.TICK_PERIOD) == 0) {

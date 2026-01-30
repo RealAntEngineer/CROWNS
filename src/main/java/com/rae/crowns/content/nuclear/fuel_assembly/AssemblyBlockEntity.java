@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
+import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.nuclear.IAmFissileMaterial;
 import com.rae.crowns.content.nuclear.IAmRadioactiveSource;
 import com.rae.crowns.content.rendering.RGBAVolumeInstance;
@@ -143,7 +144,10 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         assert level != null;
         if (!level.isClientSide()) {
             //debugPrintState(getBlockPos().toShortString());
-            if (!PhysicsSaveManager.get((ServerLevel) level).ticked(SectionPos.of(getBlockPos()).asLong())) return;
+            PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) level);
+
+            if (data!=null && !data
+                    .ticked(SectionPos.of(getBlockPos()).asLong())) return;
             if (syncCooldown > 0) {
                 syncCooldown--;
                 if (syncCooldown == 0 && queuedSync)
@@ -191,7 +195,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public void fakeLazyTick() {
         assert level != null;
         if (!level.isClientSide()) {
-            if (!PhysicsSaveManager.get((ServerLevel) level).ticked(SectionPos.of(getBlockPos()).asLong())) return;
+            PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) level);
+            if (data==null || !data.ticked(SectionPos.of(getBlockPos()).asLong())) return;
             oldNbrOfFission = nbrOfFission;
             nbrOfFission = additionalNeutronsAbsorbed.getValue() + backgroundActivity; //for now a 100% change of fission : no absorption
             //this is fine here. because
@@ -319,6 +324,18 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         tag.put("composition", saveComposition());
         tag.putInt("lastLazy", lastLazy);
 
+    }
+
+    @Override
+    public void writeSafe(CompoundTag tag) {
+        super.writeSafe(tag);
+
+        tag.putFloat("nbrOfFission", nbrOfFission);
+        tag.putFloat("additionalNeutrons", additionalNeutronsAbsorbed.getValue());
+        tag.putFloat("temperature", temperature);
+        tag.putFloat("power", power);
+        tag.put("composition", saveComposition());
+        tag.putInt("lastLazy", lastLazy);
     }
 
     @Override

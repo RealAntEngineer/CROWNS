@@ -42,6 +42,7 @@ public class AirCurrentMixin {
         if (!(world instanceof ServerLevel serverLevel)) return;
 
         PhysicsWorldData data = PhysicsSaveManager.get(serverLevel);
+        if (data == null) return;
         Direction dir = direction;
 
         // --- Key fix: reverse the starting point ---

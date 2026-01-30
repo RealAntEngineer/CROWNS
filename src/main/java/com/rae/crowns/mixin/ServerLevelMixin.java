@@ -1,6 +1,7 @@
 package com.rae.crowns.mixin;
 
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
+import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
@@ -34,7 +35,9 @@ public abstract class ServerLevelMixin extends Level {
     @Inject(method = "onBlockStateChange", at = @At("HEAD"))
     private void onSetBlockState(@NotNull BlockPos pos, @NotNull BlockState oldState, BlockState newState, CallbackInfo ci) {
         if (!oldState.equals(newState)) {
-            PhysicsSaveManager.get(getLevel()).registerChanged(pos.immutable());
+            PhysicsWorldData data = PhysicsSaveManager.get(getLevel());
+            if (data==null) return;
+            data.registerChanged(pos.immutable());
         }
     }
 }

@@ -41,6 +41,7 @@ public final class TemperatureTicker {
                                 DataLayerType.RESILIENCE
                         )
                 , visitor);
+        data.setDirty();
     }
 
     private static void updateDynamicData(@NotNull PhysicsWorldData data) {

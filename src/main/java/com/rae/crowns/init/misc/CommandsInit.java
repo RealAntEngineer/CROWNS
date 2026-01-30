@@ -2,6 +2,7 @@ package com.rae.crowns.init.misc;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.rae.crowns.content.fields.util.DataLayerType;
@@ -17,7 +18,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class CommandsInit {
@@ -79,26 +81,41 @@ public class CommandsInit {
                         ))
                 )
                 .then(Commands.literal("dumpThermodynamicStatus")
+                        .then(Commands.argument("detailed", BoolArgumentType.bool())
                         .executes(
                                 context -> {
                                     PhysicsWorldData data = PhysicsSaveManager.get(context.getSource().getLevel());
-                                    Map<DataLayerType<?>,Integer> initialise = data.remainingInitialise();
+                                    if (data == null){
+                                        context.getSource().sendSystemMessage(
+                                                Component.literal("grid not loaded")
+                                        );
+                                        return Command.SINGLE_SUCCESS;
+                                    }
+                                    Map<DataLayerType<?>,List<Long>> initialise = data.remainingInitialise();
                                     context.getSource().sendSystemMessage(Component.literal(
                                             "___________thermodynamic simulation status___________\n"+
                                                     "   -"+ data.getDynamicData().size()+ " dynamic data blocks\n"+
                                                     "   -"+ data.getLoadedSections().size() + " loaded chunk sections\n"+
                                                     "   -"+ data.getLoadedSections().stream().filter(data::ticked).toList().size()+ " ticked sections\n"+
                                                     "   -initialization :\n"+
-                                                    "      -"+DataLayerType.CONDUCTION.id+ " "+ initialise.getOrDefault(DataLayerType.CONDUCTION, 0)+ "\n"+
-                                                    "      -"+DataLayerType.RESILIENCE.id+ " "+ initialise.getOrDefault(DataLayerType.RESILIENCE, 0)+"\n"+
-                                                    "      -"+DataLayerType.TEMPERATURE.id+ " "+ initialise.getOrDefault(DataLayerType.TEMPERATURE, 0)+"\n"+
-                                                    "      -"+DataLayerType.DEFAULT_TEMPERATURE.id+ " "+ initialise.getOrDefault(DataLayerType.DEFAULT_TEMPERATURE, 0)
+                                                    "      -"+DataLayerType.CONDUCTION.id+ " "+ initialise.getOrDefault(DataLayerType.CONDUCTION, new ArrayList<>()).size()+ "\n"+
+                                                    "      -"+DataLayerType.RESILIENCE.id+ " "+ initialise.getOrDefault(DataLayerType.RESILIENCE, new ArrayList<>()).size()+"\n"+
+                                                    "      -"+DataLayerType.TEMPERATURE.id+ " "+ initialise.getOrDefault(DataLayerType.TEMPERATURE, new ArrayList<>()).size()+"\n"+
+                                                    "      -"+DataLayerType.DEFAULT_TEMPERATURE.id+ " "+ initialise.getOrDefault(DataLayerType.DEFAULT_TEMPERATURE, new ArrayList<>()).size()
 
                                     ));
+
+                                    if (BoolArgumentType.getBool(context, "detailed")) {
+                                        for (Map.Entry<DataLayerType<?>, List<Long>> entry : initialise.entrySet()) {
+                                            context.getSource().sendSystemMessage(Component.literal(
+                                                    entry.getValue().stream().map(SectionPos::of).toList().toString()
+                                            ));
+                                        }
+                                    }
                                     return Command.SINGLE_SUCCESS;
                                 }
                         )
-                )
+                ))
         );
     }
 }

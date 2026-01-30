@@ -24,15 +24,6 @@ public abstract class BlazeBurnerMixin extends SmartBlockEntity implements IHave
     public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
 
     @Override
-    public void initialize() {
-        super.initialize();
-        /*if (level instanceof ServerLevel serverLevel) {
-            TemperatureWorldData data = TemperatureManager.get(serverLevel);
-            data.putDynamic(getBlockPos(), this);
-        }*/
-    }
-
-    @Override
     public float getThermalCapacity() {
         return 1000;
     }

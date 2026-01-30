@@ -27,6 +27,7 @@ import java.util.Map;
 
 @Mixin(ChunkSerializer.class)
 public class ChunkSerializerMixin {
+/*
 
     @Inject(method = "write", at = @At("RETURN"), cancellable = true)
     private static void onWriteInject(
@@ -58,15 +59,13 @@ public class ChunkSerializerMixin {
                 }
                 sectionTag.putBoolean("TemperatureDirty", worldData.isDirty(sectionPos));
                 sectionTag.putInt("ThermalDataVersion", PhysicsWorldData.DATA_VERSION);
-
-
-                if (!worldData.isLoaded(sectionPos)) {
-                    worldData.dumpSection(sectionPos);
-                    CROWNS.LOGGER.debug("unloading section : {}", SectionPos.of(chunk.getPos(), y));
-                }
-
-                sections.set(i, sectionTag);
             }
+            if (!worldData.isLoaded(sectionPos)) {
+                worldData.dumpSection(sectionPos);
+                CROWNS.LOGGER.debug("unloading section : {}", SectionPos.of(chunk.getPos(), y));
+            }
+
+            sections.set(i, sectionTag);
         }
 
         root.put("sections", sections);
@@ -124,6 +123,5 @@ public class ChunkSerializerMixin {
 
             }
         }
-    }
+    }*/
 }
-

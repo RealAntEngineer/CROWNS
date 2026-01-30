@@ -2,16 +2,10 @@ package com.rae.crowns.content.event;
 
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
-import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
-import net.minecraft.core.SectionPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.level.ChunkEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -22,42 +16,10 @@ import org.jetbrains.annotations.NotNull;
 @Mod.EventBusSubscriber(modid = CROWNS.MODID)
 public class DataEvents {
     //put this inside the Physics world data, that way we will have access to the private maps
-    @SubscribeEvent
-    public static void onChunkUnload(ChunkEvent.@NotNull Unload event) {
-        if (event.getLevel() instanceof ServerLevel serverLevel) {
-            ChunkAccess chunk = event.getChunk();
-            PhysicsWorldData worldData = PhysicsSaveManager.get(serverLevel);
 
-            // Dump all sections for this chunk
-            int chunkX = chunk.getPos().x;
-            int chunkZ = chunk.getPos().z;
-
-            for (int sectionY = 0; sectionY < chunk.getSectionsCount(); sectionY++) {
-                SectionPos sectionPos = SectionPos.of(chunkX, sectionY, chunkZ);
-                worldData.unloading(sectionPos.asLong());
-            }
-        }
-    }
 
     @SubscribeEvent
-    public static void onChunkLoad(ChunkEvent.@NotNull Load event) {
-        if (event.getLevel() instanceof ServerLevel serverLevel) {
-            PhysicsWorldData worldData = PhysicsSaveManager.get(serverLevel);
-            if (event.isNewChunk()) {//if it's an old world the ChunkSerializer should take care of it.
-                ChunkAccess chunk = event.getChunk();
-                ChunkPos chunkPos = chunk.getPos();
-                for (int i = chunk.getMinSection(); i < chunk.getMaxSection(); i++) {
-                    //maybe it's better to only initialise the neighbors of the player and dynamic data.
-                    //worldData.putForInitialisation(SectionPos.of(chunkPos, i).asLong());
-                    //CROWNS.LOGGER.info("putting chunk {} to initialisation", SectionPos.of(chunkPos, i).asLong());
-                }
-            }
-        }
-
-    }
-
-    @SubscribeEvent
-    public static void onPlayerJoin(PlayerEvent.@NotNull PlayerLoggedInEvent event) {
+    public static void onPlayerJoin(@NotNull PlayerEvent.PlayerLoggedInEvent event) {
         Player player = event.getEntity();
         if (player instanceof ServerPlayer serverPlayer)
             SteamFlowManager.playerLoaded(serverPlayer);
@@ -65,11 +27,12 @@ public class DataEvents {
     }
 
     @SubscribeEvent
-    public static void onServerStopping(ServerStoppedEvent event) {
-        //TemperatureManager.reset();//this in important to clean the data after leaving.
+    public static void onServerStopped(ServerStoppedEvent event) {
+        PhysicsSaveManager.reset();//this in important to clean the data after leaving.
     }
     @SubscribeEvent
     public static void onServerStarted(@NotNull ServerStartedEvent event) {
         SteamFlowManager.serverStarted(event.getServer());
+        PhysicsSaveManager.serverStarted(event.getServer());
     }
 }
