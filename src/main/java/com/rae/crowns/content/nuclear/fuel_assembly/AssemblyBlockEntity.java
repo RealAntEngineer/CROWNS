@@ -63,49 +63,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     protected boolean queuedSync;
     float power = 0;
 
-    //RGBAVolumeInstance tcherenkov;
-    /*private void initializeClientTcherenkov() {
-        // Create simple 16^3 blue cube with density scaling with distance and centered in 0.5,0.5,0.5
-        int Nx = 4, Ny = 4, Nz = 4;
-        int brickSize = 4;
-        float[] volumeRGBA = new float[Nx * Ny * Nz * 4];
-
-        for (int z = 0; z < Nz; z++) {
-            float fz = (z + 0.5f) / Nz - 0.5f; // center at 8
-            for (int y = 0; y < Ny; y++) {
-                float fy = (y + 0.5f) / Ny - 0.5f; // center at 8
-                for (int x = 0; x < Nx; x++) {
-                    float fx = (x + 0.5f) / Nx - 0.5f; // center at 8
-
-                    //float scaling = (1+3 * 0.25f)/(1+fz*fz + fy*fy + fx*fx);//Mth.clamp((float) Math.cos((fz*fz + fy*fy + fx*fx)/(3 * 0.25)/Math.PI/2* 2), 0, 1)*0.5f;
-                    int idx = x + y*Nx + z*Nx*Ny;
-                    int off = idx * 4;
-
-                    if (fx * fx < 0.25 * 0.25 && fy * fy < 0.25 * 0.25 && fz * fz < 0.25 * 0.25){
-                        volumeRGBA[off] = 0f; // R
-                        volumeRGBA[off + 1] = 0f; // G
-                        volumeRGBA[off + 2] = 0;       // B
-                        volumeRGBA[off + 3] = 0f;        // A
-
-                    } else {
-                        volumeRGBA[off] = 0.2f; // R
-                        volumeRGBA[off + 1] = 0.67f; // G
-                        volumeRGBA[off + 2] = 0.9f;       // B
-                        volumeRGBA[off + 3] = 0.03f;//1f;        // A
-
-                    }
-                }
-            }
-        }
-
-
-        tcherenkov = new RGBAVolumeInstance(volumeRGBA, Nx, Ny, Nz, brickSize);
-        tcherenkov.position = new Vec3(worldPosition.getX()-0.5, worldPosition.getY()-0.5, worldPosition.getZ()-0.5);//start pos
-        tcherenkov.size = new Vec3(2.0, 2.0, 2.0);
-        VolumeWorldRenderer.add(tcherenkov);
-    }*/
-
-
     public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
         nbrOfFission = backgroundActivity;

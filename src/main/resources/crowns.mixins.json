@@ -8,7 +8,6 @@
   "mixins": [
     "AirCurrentMixin",
     "BlazeBurnerMixin",
-    "ChunkSerializerMixin",
     "FluidStackMixin",
     "FluidTankMixin",
     "FluidTransportBehaviourMixin",

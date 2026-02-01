@@ -42,14 +42,6 @@ public class BlockInit {
             .build()
             .register();
 
-    public static final BlockEntry<ReactorMonitorBlock> REACTOR_MONITOR = REGISTRATE
-            .block("reactor_monitor", ReactorMonitorBlock::new)
-            .initialProperties(SharedProperties::softMetal)
-            .properties(BlockBehaviour.Properties::noOcclusion)
-            .item()
-            .build()
-            .register();
-
     public static final BlockEntry<SteamInputBlock> STEAM_INPUT = REGISTRATE.block(
                     "steam_input", SteamInputBlock::new)
             .initialProperties(SharedProperties::softMetal)
