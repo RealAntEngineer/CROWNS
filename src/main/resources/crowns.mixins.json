@@ -16,6 +16,7 @@
     "SmartBlockEntityMixin"
   ],
   "client": [
+    "ModelBlockRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

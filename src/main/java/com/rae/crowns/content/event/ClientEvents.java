@@ -1,15 +1,8 @@
 package com.rae.crowns.content.event;
 
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.rae.crowns.content.nuclear.IAmFissileMaterial;
-import com.rae.crowns.content.rendering.VolumeWorldRenderer;
-import com.rae.crowns.content.rendering.util.SceneDepth;
 import com.rae.crowns.content.sound.CrownsSoundScapes;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
-import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
-import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
@@ -18,21 +11,14 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
 
 import java.util.List;
-
-import static com.rae.crowns.init.client.ShaderInit.volumeShader;
-import static net.minecraftforge.client.event.RenderLevelStageEvent.Stage.AFTER_PARTICLES;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class ClientEvents {
@@ -52,58 +38,7 @@ public class ClientEvents {
         SteamFlowManager.tick(world);
     }
 
-    @SubscribeEvent
-    public static void captureSolidDepth(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS) {
-            return;
-        }
 
-        Minecraft mc = Minecraft.getInstance();
-        RenderTarget main = mc.getMainRenderTarget();
-
-        RenderSystem.assertOnRenderThread();
-
-        // Ensure our depth texture matches screen size
-        SceneDepth.resize(main.width, main.height);
-
-        // Bind main framebuffer for reading
-        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, main.frameBufferId);
-
-        // Copy depth buffer into our standalone texture
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, SceneDepth.depthTexture);
-
-        GL11.glCopyTexSubImage2D(
-                GL11.GL_TEXTURE_2D,
-                0,              // mip level
-                0, 0,           // texture offset
-                0, 0,           // framebuffer offset
-                main.width,
-                main.height
-        );
-
-        // Cleanup
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, 0);
-
-        // IMPORTANT:
-        // Do NOT bind this texture as a framebuffer attachment anywhere else.
-    }
-    /** Render every frame */
-    @SubscribeEvent
-    public static void render(RenderLevelStageEvent event) {
-
-        if (volumeShader == null || event.getStage() != AFTER_PARTICLES) return;
-
-        PoseStack poseStack = event.getPoseStack();
-        SuperRenderTypeBuffer buffers = DefaultSuperRenderTypeBuffer.getInstance();
-
-        Vec3 cameraPos = event.getCamera().getPosition();
-
-        VolumeWorldRenderer.render(poseStack, buffers, volumeShader, cameraPos);
-
-        buffers.draw();
-
-    }
     @SubscribeEvent
     public static void addToItemTooltip(@NotNull ItemTooltipEvent event) {
         if (event.getEntity() == null)

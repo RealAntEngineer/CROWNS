@@ -1,4 +1,4 @@
-package com.rae.crowns.content.fields.util;
+package com.rae.crowns.content.fields.util.client;
 
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import net.minecraft.core.BlockPos;
@@ -36,6 +36,7 @@ public class LocalPhysicData {
                 lastTicked.remove(section);
             }
         }
+        TemperatureColorCache.markDirty();
     }
 
     public static float getTemperature(@NotNull Vec3i pos) {

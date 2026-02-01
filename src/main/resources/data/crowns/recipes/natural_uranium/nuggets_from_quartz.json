@@ -1,0 +1,14 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "minecraft:quartz"
+    }
+  ],
+  "results": [
+    {
+      "chance": 0.05,
+      "item": "crowns:natural_uranium_nugget"
+    }
+  ]
+}

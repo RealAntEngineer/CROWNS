@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "count": 9,
+      "item": "crowns:natural_uranium_nugget"
+    }
+  ],
+  "result": {
+    "item": "crowns:uranium_ingot"
+  }
+}

@@ -1,4 +1,4 @@
-package com.rae.crowns.content.fields.util;
+package com.rae.crowns.content.fields.util.client;
 
 import com.mojang.blaze3d.vertex.*;
 import com.rae.crowns.CROWNS;
