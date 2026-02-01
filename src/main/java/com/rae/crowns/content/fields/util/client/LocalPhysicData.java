@@ -36,7 +36,6 @@ public class LocalPhysicData {
                 lastTicked.remove(section);
             }
         }
-        TemperatureColorCache.markDirty();
     }
 
     public static float getTemperature(@NotNull Vec3i pos) {
