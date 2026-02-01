@@ -50,7 +50,11 @@
 
   "crowns.ponder.turbine.header": "Turbines",
   "crowns.ponder.turbine.text_1": "Input vapor into the Steam Inputs",
-  "crowns.ponder.turbine.text_2": "If the vapor has sufficient quality (x > 0), it will be able to spin Turbines",
+  "crowns.ponder.turbine.text_2": "If the water is not hot enough the turbine will not turn",
+  "crowns.ponder.turbine.text_3": "Once the water is boiling and has some vapor in it the turbine will spin",
+  "crowns.ponder.turbine.text_4": "The color show the vapor quality",
+  "crowns.ponder.turbine.text_5": "From pure steam (x = 100%)",
+  "crowns.ponder.turbine.text_6": "To pure liquid water (x = 0%)",
 
   "crowns.display_source.radiation_source.activity": "Radiation: ",
   "crowns.display_source.radiation_source.k_eff": "Effective Factor: ",

@@ -63,8 +63,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     protected boolean queuedSync;
     float power = 0;
 
-    RGBAVolumeInstance tcherenkov;
-    private void initializeClientTcherenkov() {
+    //RGBAVolumeInstance tcherenkov;
+    /*private void initializeClientTcherenkov() {
         // Create simple 16^3 blue cube with density scaling with distance and centered in 0.5,0.5,0.5
         int Nx = 4, Ny = 4, Nz = 4;
         int brickSize = 4;
@@ -103,7 +103,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         tcherenkov.position = new Vec3(worldPosition.getX()-0.5, worldPosition.getY()-0.5, worldPosition.getZ()-0.5);//start pos
         tcherenkov.size = new Vec3(2.0, 2.0, 2.0);
         VolumeWorldRenderer.add(tcherenkov);
-    }
+    }*/
 
 
     public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
@@ -134,7 +134,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         super.initialize();
         if (level != null && level.isClientSide) {
             this.lazyTickCounter = Math.toIntExact(LAZY_TICK_RATE - level.getGameTime() % LAZY_TICK_RATE);
-            RenderSystem.recordRenderCall(this::initializeClientTcherenkov);
+            //RenderSystem.recordRenderCall(this::initializeClientTcherenkov);
         }
     }
 
@@ -162,8 +162,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 fakeLazyTick();
             }
         } else {
-            if (tcherenkov!=null)
-                tcherenkov.opacityScale = Math.min(getRadioactiveActivity()/1e6f, 1);
+            /*if (tcherenkov!=null)
+                tcherenkov.opacityScale = Math.min(getRadioactiveActivity()/1e6f, 1);*/
         }
 
         if (Float.isNaN(temperature)) {
@@ -188,8 +188,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public void remove() {
         super.remove();
-        VolumeWorldRenderer.remove(tcherenkov);
-        tcherenkov = null;//will get garbage collected
+        //VolumeWorldRenderer.remove(tcherenkov);
+        //tcherenkov = null;//will get garbage collected
     }
 
     public void fakeLazyTick() {
@@ -439,8 +439,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public void onChunkUnloaded() {
         super.onChunkUnloaded();
-        VolumeWorldRenderer.remove(tcherenkov);
-        tcherenkov = null;//will get garbage collected
+        //VolumeWorldRenderer.remove(tcherenkov);
+        //tcherenkov = null;//will get garbage collected
     }
 
     @Override
