@@ -2,7 +2,6 @@ package com.rae.crowns;
 
 import com.rae.crowns.config.CROWNSCfgClient;
 import com.rae.crowns.config.CROWNSConfigs;
-import com.rae.formicapi.FormicAPI;
 import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.thermal_utilities.FullTableBased;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
@@ -10,15 +9,7 @@ import net.createmod.catnip.lang.Lang;
 import net.createmod.catnip.lang.LangBuilder;
 import net.createmod.catnip.lang.LangNumberFormat;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CROWNSLang extends Lang {
     //blatant copy of CreateLang

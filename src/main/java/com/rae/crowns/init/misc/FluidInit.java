@@ -7,7 +7,6 @@ import com.rae.crowns.content.nuclear.corium.CoriumLiquidBlock;
 import com.tterrag.registrate.util.entry.FluidEntry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fluids.FluidInteractionRegistry;

@@ -30,7 +30,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import static com.rae.crowns.Constants.whatSU;
 import static com.rae.formicapi.thermal_utilities.FullTableBased.DEFAULT_STATE;

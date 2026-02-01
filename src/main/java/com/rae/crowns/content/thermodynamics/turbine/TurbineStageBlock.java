@@ -1,6 +1,5 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
-import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
 import com.rae.crowns.init.client.ShapesInit;
 import com.rae.crowns.init.misc.BlockEntityInit;
 import com.rae.formicapi.multiblock.MBKineticController;

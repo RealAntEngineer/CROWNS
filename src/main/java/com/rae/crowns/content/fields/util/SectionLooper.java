@@ -1,7 +1,5 @@
 package com.rae.crowns.content.fields.util;
 
-import com.rae.crowns.content.fields.temperature.TemperatureTicker;
-
 import java.util.Set;
 import java.util.function.Function;
 

@@ -1,7 +1,6 @@
     package com.rae.crowns.content.fields.util;
 
 import com.mojang.datafixers.util.Function3;
-import com.rae.crowns.content.fields.advection.BlockedDataLayer;
 import com.rae.crowns.content.fields.temperature.ConductionDataLayer;
 import com.rae.crowns.content.fields.temperature.ResilienceDataLayer;
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
@@ -25,8 +24,6 @@ public final class DataLayerType<T extends AbstractDataLayer> {
     public static final DataLayerType<ConductionDataLayer> CONDUCTION = register("conduction", ConductionDataLayer::new,
             (level, pos, blockState) -> PhysicsSaveManager.getDefaultConduction(blockState));
 
-    public static final DataLayerType<BlockedDataLayer> BLOCKED = register("blocked", BlockedDataLayer::new,
-            ($1,$2,$3) -> 0f);
 
     public final String id;
     private final Supplier<T> factory;

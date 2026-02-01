@@ -4,7 +4,6 @@ import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.Constants;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
-import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.rae.formicapi.thermal_utilities.FullTableBased;
 import com.simibubi.create.content.kinetics.KineticNetwork;
