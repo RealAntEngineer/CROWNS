@@ -1,17 +1,27 @@
 package com.rae.crowns.mixin;
 
-import com.rae.crowns.content.thermodynamics.conduction.IHaveTemperature;
+import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
+import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(BlazeBurnerBlockEntity.class)
-public abstract class BlazeBurnerMixin implements IHaveTemperature {
+public abstract class BlazeBurnerMixin extends SmartBlockEntity implements IHaveTemperature {
 
-    @Shadow(remap = false) protected abstract BlazeBurnerBlock.HeatLevel getHeatLevel();
+    public BlazeBurnerMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+    }
 
-    @Shadow(remap = false) public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
+    @Shadow(remap = false)
+    protected abstract BlazeBurnerBlock.HeatLevel getHeatLevel();
+
+    @Shadow(remap = false)
+    public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
 
     @Override
     public float getThermalCapacity() {
@@ -25,7 +35,7 @@ public abstract class BlazeBurnerMixin implements IHaveTemperature {
 
     @Override
     public float getTemperature() {
-        return switch (getHeatLevelFromBlock()){
+        return switch (getHeatLevelFromBlock()) {
             case NONE -> 300f;
             case SMOULDERING -> 500F;
             case FADING -> 900F;

@@ -1,7 +1,7 @@
 package com.rae.crowns.content.thermodynamics;
 
-import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
-import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
+import com.rae.formicapi.thermal_utilities.FullTableBased;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fluids.FluidStack;
@@ -9,30 +9,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-import static com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper.DEFAULT_STATE;
+import static com.rae.formicapi.thermal_utilities.FullTableBased.DEFAULT_STATE;
 
 
 public class StateFluidTank extends SmartFluidTank {
     public StateFluidTank(int capacity, Consumer<FluidStack> updateCallback) {
         super(capacity, updateCallback);
     }
-    public void heat(float amount){
-        if (fluid.getAmount() > 0) {
 
-            CompoundTag tag = fluid.getOrCreateTag();
-            CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
-            SpecificRealGazState oldState;
-            if (oldStateNBT != null) {
-                oldState = new SpecificRealGazState(oldStateNBT);
-            } else {
-                oldState = DEFAULT_STATE;
-            }
-            SpecificRealGazState state = WaterAsRealGazTransformationHelper.isobaricTransfert(oldState, amount / getFluidAmount());
-            tag.put("realGazState", state.serialize());
-            fluid.setTag(tag);
-        }
-    }
-    public void compress(float ratio){
+    public void heat(float amount) {
         if (fluid.getAmount() > 0) {
 
             CompoundTag tag = new CompoundTag();
@@ -43,16 +28,33 @@ public class StateFluidTank extends SmartFluidTank {
             } else {
                 oldState = DEFAULT_STATE;
             }
-            SpecificRealGazState state = WaterAsRealGazTransformationHelper.standardCompression(oldState, ratio);
+            SpecificRealGazState state = FullTableBased.isobaricTransfer(oldState, amount / getFluidAmount());
             tag.put("realGazState", state.serialize());
             fluid.setTag(tag);
         }
     }
 
-    public SpecificRealGazState getState(){
+    public void compress(float ratio) {
+        if (fluid.getAmount() > 0) {
+
+            CompoundTag tag = new CompoundTag();
+            CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
+            SpecificRealGazState oldState;
+            if (oldStateNBT != null) {
+                oldState = new SpecificRealGazState(oldStateNBT);
+            } else {
+                oldState = DEFAULT_STATE;
+            }
+            SpecificRealGazState state = FullTableBased.isentropicCompression(oldState, ratio);
+            tag.put("realGazState", state.serialize());
+            fluid.setTag(tag);
+        }
+    }
+
+    public @NotNull SpecificRealGazState getState() {
         CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
         SpecificRealGazState oldState;
-        if (oldStateNBT!=null){
+        if (oldStateNBT != null) {
             oldState = new SpecificRealGazState(oldStateNBT);
         } else {
             oldState = DEFAULT_STATE;

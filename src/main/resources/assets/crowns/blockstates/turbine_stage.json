@@ -1,27 +1,63 @@
 {
-  "variants": {
-    "facing=down": {
-      "model": "crowns:block/turbine/casing",
-      "x": 90
+  "multipart": [
+    {
+      "when": {
+        "casing": "true",
+        "facing": "down"
+      },
+      "apply": {
+        "model": "crowns:block/turbine/casing",
+        "x": 90
+      }
     },
-    "facing=east": {
-      "model": "crowns:block/turbine/casing",
-      "y": 90
+    {
+      "when": {
+        "casing": "true",
+        "facing": "up"
+      },
+      "apply": {
+        "model": "crowns:block/turbine/casing",
+        "x": 270
+      }
     },
-    "facing=north": {
-      "model": "crowns:block/turbine/casing"
+    {
+      "when": {
+        "casing": "true",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "crowns:block/turbine/casing"
+      }
     },
-    "facing=south": {
-      "model": "crowns:block/turbine/casing",
-      "y": 180
+    {
+      "when": {
+        "casing": "true",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "crowns:block/turbine/casing",
+        "y": 180
+      }
     },
-    "facing=up": {
-      "model": "crowns:block/turbine/casing",
-      "x": 270
+    {
+      "when": {
+        "casing": "true",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "crowns:block/turbine/casing",
+        "y": 90
+      }
     },
-    "facing=west": {
-      "model": "crowns:block/turbine/casing",
-      "y": 270
+    {
+      "when": {
+        "casing": "true",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "crowns:block/turbine/casing",
+        "y": 270
+      }
     }
-  }
+  ]
 }

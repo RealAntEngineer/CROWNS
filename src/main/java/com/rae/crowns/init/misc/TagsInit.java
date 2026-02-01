@@ -19,9 +19,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("ALL")
 public class TagsInit extends AllTags {
+
+    public static void init() {
+        CustomBlockTags.init();
+        CustomItemTags.init();
+        CustomEntityTag.init();
+        CustomFluidTags.init();
+    }
 
     public enum CustomNameSpace {
 
@@ -44,8 +53,13 @@ public class TagsInit extends AllTags {
             this.alwaysDatagenDefault = alwaysDatagenDefault;
         }
     }
+
     public enum CustomBlockTags {
-        TURBINE_BLADE(),GOLD_BLOCK(CustomNameSpace.FORGE,"storage_blocks/gold"),COAL_BLOCK(CustomNameSpace.FORGE,"storage_blocks/coal");
+        TURBINE_BLADE(),
+        GOLD_BLOCK(CustomNameSpace.FORGE, "storage_blocks/gold"),
+        COAL_BLOCK(CustomNameSpace.FORGE, "storage_blocks/coal"),
+        REFACTORY_BLOCK(CustomNameSpace.MOD, "nuclear/refactory"),
+        UNDESTRUCTABLE(CustomNameSpace.MOD, "nuclear/undestructable");
 
         public final TagKey<Block> tag;
         public final boolean alwaysDatagen;
@@ -54,19 +68,19 @@ public class TagsInit extends AllTags {
             this(CustomNameSpace.MOD);
         }
 
-        CustomBlockTags(CustomNameSpace namespace) {
+        CustomBlockTags(@NotNull CustomNameSpace namespace) {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomBlockTags(CustomNameSpace namespace, String path) {
+        CustomBlockTags(@NotNull CustomNameSpace namespace, String path) {
             this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomBlockTags(CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
+        CustomBlockTags(@NotNull CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
             this(namespace, null, optional, alwaysDatagen);
         }
 
-        CustomBlockTags(CustomNameSpace namespace, String path, boolean optional, boolean alwaysDatagen) {
+        CustomBlockTags(@NotNull CustomNameSpace namespace, @Nullable String path, boolean optional, boolean alwaysDatagen) {
             ResourceLocation id = new ResourceLocation(namespace.id, path == null ? Lang.asId(name()) : path);
             if (optional) {
                 tag = optionalTag(ForgeRegistries.BLOCKS, id);
@@ -76,23 +90,25 @@ public class TagsInit extends AllTags {
             this.alwaysDatagen = alwaysDatagen;
         }
 
+        private static void init() {
+        }
+
         @SuppressWarnings("deprecation")
-        public boolean matches(Block block) {
+        public boolean matches(@NotNull Block block) {
             return block.builtInRegistryHolder()
                     .is(tag);
         }
 
-        public boolean matches(ItemStack stack) {
+        public boolean matches(@Nullable ItemStack stack) {
             return stack != null && stack.getItem() instanceof BlockItem blockItem && matches(blockItem.getBlock());
         }
 
-        public boolean matches(BlockState state) {
+        public boolean matches(@NotNull BlockState state) {
             return state.is(tag);
         }
 
-        private static void init() {}
-
     }
+
     public enum CustomItemTags {
         ;
 
@@ -102,22 +118,24 @@ public class TagsInit extends AllTags {
         CustomItemTags() {
             this(CustomNameSpace.MOD);
         }
+
         CustomItemTags(String path) {
-            this(CustomNameSpace.MOD,path);
+            this(CustomNameSpace.MOD, path);
         }
-        CustomItemTags(CustomNameSpace namespace) {
+
+        CustomItemTags(@NotNull CustomNameSpace namespace) {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomItemTags(CustomNameSpace namespace, String path) {
+        CustomItemTags(@NotNull CustomNameSpace namespace, String path) {
             this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomItemTags(CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
+        CustomItemTags(@NotNull CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
             this(namespace, null, optional, alwaysDatagen);
         }
 
-        CustomItemTags(CustomNameSpace namespace, String path, boolean optional, boolean alwaysDatagen) {
+        CustomItemTags(@NotNull CustomNameSpace namespace, @Nullable String path, boolean optional, boolean alwaysDatagen) {
             ResourceLocation id = new ResourceLocation(namespace.id, path == null ? Lang.asId(name()) : path);
             if (optional) {
                 tag = optionalTag(ForgeRegistries.ITEMS, id);
@@ -127,20 +145,21 @@ public class TagsInit extends AllTags {
             this.alwaysDatagen = alwaysDatagen;
         }
 
+        private static void init() {
+        }
+
         @SuppressWarnings("deprecation")
-        public boolean matches(Item item) {
+        public boolean matches(@NotNull Item item) {
             return item.builtInRegistryHolder()
                     .is(tag);
         }
 
-        public boolean matches(ItemStack stack) {
+        public boolean matches(@NotNull ItemStack stack) {
             return stack.is(tag);
         }
 
-        private static void init() {
-        }
-
     }
+
     public enum CustomEntityTag {
         ;
 
@@ -151,19 +170,19 @@ public class TagsInit extends AllTags {
             this(CustomNameSpace.MOD);
         }
 
-        CustomEntityTag(CustomNameSpace namespace) {
+        CustomEntityTag(@NotNull CustomNameSpace namespace) {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomEntityTag(CustomNameSpace namespace, String path) {
+        CustomEntityTag(@NotNull CustomNameSpace namespace, String path) {
             this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomEntityTag(CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
+        CustomEntityTag(@NotNull CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
             this(namespace, null, optional, alwaysDatagen);
         }
 
-        CustomEntityTag(CustomNameSpace namespace, String path, boolean optional, boolean alwaysDatagen) {
+        CustomEntityTag(@NotNull CustomNameSpace namespace, @Nullable String path, boolean optional, boolean alwaysDatagen) {
             ResourceLocation id = new ResourceLocation(namespace.id, path == null ? Lang.asId(name()) : path);
             if (optional) {
                 tag = optionalTag(ForgeRegistries.ENTITY_TYPES, id);
@@ -173,14 +192,16 @@ public class TagsInit extends AllTags {
             this.alwaysDatagen = alwaysDatagen;
         }
 
-        public boolean matches(Entity entity) {
+        private static void init() {
+        }
+
+        public boolean matches(@NotNull Entity entity) {
             return entity.getType()
                     .is(tag);
         }
 
-        private static void init() {}
-
     }
+
     public enum CustomFluidTags {
         ;
 
@@ -191,19 +212,19 @@ public class TagsInit extends AllTags {
             this(CustomNameSpace.MOD);
         }
 
-        CustomFluidTags(CustomNameSpace namespace) {
+        CustomFluidTags(@NotNull CustomNameSpace namespace) {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomFluidTags(CustomNameSpace namespace, String path) {
+        CustomFluidTags(@NotNull CustomNameSpace namespace, String path) {
             this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomFluidTags(CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
+        CustomFluidTags(@NotNull CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
             this(namespace, null, optional, alwaysDatagen);
         }
 
-        CustomFluidTags(CustomNameSpace namespace, String path, boolean optional, boolean alwaysDatagen) {
+        CustomFluidTags(@NotNull CustomNameSpace namespace, @Nullable String path, boolean optional, boolean alwaysDatagen) {
             ResourceLocation id = new ResourceLocation(namespace.id, path == null ? Lang.asId(name()) : path);
             if (optional) {
                 tag = optionalTag(ForgeRegistries.FLUIDS, id);
@@ -213,24 +234,17 @@ public class TagsInit extends AllTags {
             this.alwaysDatagen = alwaysDatagen;
         }
 
-        @SuppressWarnings("deprecation")
-        public boolean matches(Fluid fluid) {
-            return fluid.is(tag);
-        }
-
-        public boolean matches(FluidState state) {
-            return state.is(tag);
-        }
-
         private static void init() {
         }
 
-    }
+        @SuppressWarnings("deprecation")
+        public boolean matches(@NotNull Fluid fluid) {
+            return fluid.is(tag);
+        }
 
-    public static void init() {
-        CustomBlockTags.init();
-        CustomItemTags.init();
-        CustomEntityTag.init();
-        CustomFluidTags.init();
+        public boolean matches(@NotNull FluidState state) {
+            return state.is(tag);
+        }
+
     }
 }

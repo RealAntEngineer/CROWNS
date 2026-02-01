@@ -1,6 +1,8 @@
 package com.rae.crowns.init.misc;
 
-import com.rae.crowns.content.nuclear.AssemblyBlockEntity;
+import com.rae.crowns.content.nuclear.display.ReactorMonitorBE;
+import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBERenderer;
+import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlockEntity;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlockEntity;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorRenderer;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlockEntity;
@@ -20,7 +22,14 @@ import static com.rae.crowns.CROWNS.REGISTRATE;
 public class BlockEntityInit {
     public static final BlockEntityEntry<AssemblyBlockEntity> FUEL_ASSEMBLY = REGISTRATE
             .blockEntity("fuel_assembly", AssemblyBlockEntity::new)
+            //.renderer(() -> AssemblyBERenderer::new)
             .validBlock(BlockInit.FUEL_ASSEMBLY)
+            .register();
+
+    public static final BlockEntityEntry<ReactorMonitorBE> REACTOR_MONITOR = REGISTRATE
+            .blockEntity("reactor_monitor", ReactorMonitorBE::new)
+            //.renderer(() -> AssemblyBERenderer::new)
+            .validBlock(BlockInit.REACTOR_MONITOR)
             .register();
 
     public static final BlockEntityEntry<TurbineStageBlockEntity> TURBINE_STAGE = REGISTRATE
@@ -38,7 +47,7 @@ public class BlockEntityInit {
             .register();
 
     public static final BlockEntityEntry<SteamInputBlockEntity> STEAM_INPUT = REGISTRATE.blockEntity(
-            "steam_input",SteamInputBlockEntity::new)
+                    "steam_input", SteamInputBlockEntity::new)
             .validBlock(BlockInit.STEAM_INPUT)
             .register();
     public static final BlockEntityEntry<SteamCollectorBlockEntity> STEAM_COLLECTOR = REGISTRATE.blockEntity(
@@ -46,10 +55,12 @@ public class BlockEntityInit {
             .validBlock(BlockInit.STEAM_COLLECTOR)
             .register();
     public static final BlockEntityEntry<HeatExchangerBlockEntity> HEAT_EXCHANGER = REGISTRATE.blockEntity(
-                    "heat_exchanger",HeatExchangerBlockEntity::new)
+                    "heat_exchanger", HeatExchangerBlockEntity::new)
             .renderer(() -> HeatExchangerRenderer::new)
             .validBlock(BlockInit.HEAT_EXCHANGER)
             .register();
-    public static void register() {}
+
+    public static void register() {
+    }
 
 }

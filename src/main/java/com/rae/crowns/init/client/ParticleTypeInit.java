@@ -13,13 +13,14 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
 public enum ParticleTypeInit {
     FLOW_PARTICLE(FlowParticleData::new);
 
-    private final ParticleEntry<?> entry;
+    private final @NotNull ParticleEntry<?> entry;
 
     <D extends ParticleOptions> ParticleTypeInit(Supplier<? extends ICustomParticleData<D>> typeFactory) {
         String name = Lang.asId(name());
@@ -36,7 +37,7 @@ public enum ParticleTypeInit {
             particle.entry.registerFactory(event);
     }
 
-    public ParticleType<?> get() {
+    public @NotNull ParticleType<?> get() {
         return entry.object.get();
     }
 

@@ -1,6 +1,6 @@
 package com.rae.crowns.init.data;
 
-import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializer;
@@ -13,9 +13,9 @@ public class StateMapSerializer implements EntityDataSerializer<HashMap<BlockPos
     }
 
     @Override
-    public void write(FriendlyByteBuf byteBuf, HashMap<BlockPos, SpecificRealGazState> stateMap) {
+    public void write(@NotNull FriendlyByteBuf byteBuf, @NotNull HashMap<BlockPos, SpecificRealGazState> stateMap) {
         byteBuf.writeInt(stateMap.size());
-        stateMap.forEach((key, value)->{
+        stateMap.forEach((key, value) -> {
             byteBuf.writeBlockPos(key);
             byteBuf.writeFloat(value.temperature());
             byteBuf.writeFloat(value.pressure());
@@ -26,11 +26,11 @@ public class StateMapSerializer implements EntityDataSerializer<HashMap<BlockPos
     }
 
     @Override
-    public @NotNull HashMap<BlockPos, SpecificRealGazState> read(FriendlyByteBuf byteBuf) {
+    public @NotNull HashMap<BlockPos, SpecificRealGazState> read(@NotNull FriendlyByteBuf byteBuf) {
         HashMap<BlockPos, SpecificRealGazState> stateMap = new HashMap<>();
         int size = byteBuf.readInt();
         for (int i = 0; i < size; i++) {
-            stateMap.put(byteBuf.readBlockPos(), new SpecificRealGazState(byteBuf.readFloat(),byteBuf.readFloat(),byteBuf.readFloat(),byteBuf.readFloat()));
+            stateMap.put(byteBuf.readBlockPos(), new SpecificRealGazState(byteBuf.readFloat(), byteBuf.readFloat(), byteBuf.readFloat(), byteBuf.readFloat()));
 
         }
         return stateMap;

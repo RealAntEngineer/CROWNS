@@ -10,11 +10,13 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 public class CompressorBlock extends DirectionalKineticBlock implements IBE<CompressorBlockEntity>, ICogWheel {
-    public CompressorBlock(Properties pProperties) {
+    public CompressorBlock(@NotNull Properties pProperties) {
         super(pProperties);
     }
+
     @Override
     public float getShadeBrightness(BlockState pState, BlockGetter pLevel, BlockPos pPos) {
         return 1.0F;
@@ -24,27 +26,29 @@ public class CompressorBlock extends DirectionalKineticBlock implements IBE<Comp
     public boolean propagatesSkylightDown(BlockState pState, BlockGetter pReader, BlockPos pPos) {
         return true;
     }
+
     @Override
     public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
-        return face.getAxis() == state.getValue(FACING).getAxis();
+        return false;//face.getAxis() == state.getValue(FACING).getAxis();
     }
 
     @Override
-    public Direction.Axis getRotationAxis(BlockState state) {
+    public Direction.@NotNull Axis getRotationAxis(@NotNull BlockState state) {
         return state.getValue(FACING).getAxis();
     }
+
     @Override
     public boolean showCapacityWithAnnotation() {
         return true;
     }
 
     @Override
-    public Class<CompressorBlockEntity> getBlockEntityClass() {
+    public @NotNull Class<CompressorBlockEntity> getBlockEntityClass() {
         return CompressorBlockEntity.class;
     }
 
     @Override
-    public BlockEntityType<? extends CompressorBlockEntity> getBlockEntityType() {
+    public @NotNull BlockEntityType<? extends CompressorBlockEntity> getBlockEntityType() {
         return BlockEntityInit.COMPRESSOR.get();
     }
 }

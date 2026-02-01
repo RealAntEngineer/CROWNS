@@ -1,7 +1,7 @@
 package com.rae.crowns.mixin;
 
-import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
-import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
+import com.rae.formicapi.thermal_utilities.FullTableBased;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.simibubi.create.content.fluids.FluidReactions;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
 import com.simibubi.create.content.fluids.PipeConnection;
@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fluids.FluidStack;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,18 +31,21 @@ import java.util.function.Predicate;
 public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour {
 
 
-    @Shadow(remap = false) public Map<Direction, PipeConnection> interfaces;
+    @Shadow(remap = false)
+    public Map<Direction, PipeConnection> interfaces;
 
-    @Shadow(remap = false) public FluidTransportBehaviour.UpdatePhase phase;
-
-    @Shadow(remap = false) public abstract boolean canPullFluidFrom(FluidStack fluid, BlockState state, Direction direction);
+    @Shadow(remap = false)
+    public FluidTransportBehaviour.UpdatePhase phase;
 
     public FluidTransportBehaviourMixin(SmartBlockEntity be) {
         super(be);
     }
 
-    @Inject(method = "tick", at = @At("HEAD"),cancellable = true, remap = false)
-    public void replaceTick(CallbackInfo ci) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    @Shadow(remap = false)
+    public abstract boolean canPullFluidFrom(FluidStack fluid, BlockState state, Direction direction);
+
+    @Inject(method = "tick", at = @At("HEAD"), cancellable = true, remap = false)
+    public void replaceTick(@NotNull CallbackInfo ci) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         super.tick();
         Level world = getWorld();
         BlockPos pos = getPos();
@@ -108,26 +112,28 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
                     //modified part
                     singleSource = null;
                     CompoundTag inFlowTag = fluidInFlow.getTag();
-                    SpecificRealGazState inFlowState = WaterAsRealGazTransformationHelper.DEFAULT_STATE;
-                    if (inFlowTag!=null && inFlowTag.contains("realGazState")){
+                    SpecificRealGazState inFlowState = FullTableBased.DEFAULT_STATE;
+                    if (inFlowTag != null && inFlowTag.contains("realGazState")) {
                         inFlowState = new SpecificRealGazState((CompoundTag) inFlowTag.get("realGazState"));
                     }
                     CompoundTag availableTag = availableFlow.getTag();
-                    SpecificRealGazState availableState = WaterAsRealGazTransformationHelper.DEFAULT_STATE;
-                    if (availableTag!=null && availableTag.contains("realGazState")){
+                    SpecificRealGazState availableState = FullTableBased.DEFAULT_STATE;
+                    if (availableTag != null && availableTag.contains("realGazState")) {
                         availableState = new SpecificRealGazState((CompoundTag) availableTag.get("realGazState"));
-                    }
-                    else {
+                    } else {
                         availableTag = new CompoundTag();
                     }
 
-                    SpecificRealGazState mixedState = WaterAsRealGazTransformationHelper.mix(availableState, availableFlow.getAmount(),
-                            inFlowState,fluidInFlow.getAmount());
+                    SpecificRealGazState mixedState = FullTableBased.mix(availableState, availableFlow.getAmount(),
+                            inFlowState, fluidInFlow.getAmount());
 
                     availableFlow = fluidInFlow;
-                    availableTag.put("realGazState", mixedState.serialize());
-                    availableFlow.setTag(availableTag);
 
+                    //don't create it if there is no thermal data in both flow.
+                    if (availableTag.contains("realGazState") || inFlowTag != null && inFlowTag.contains("realGazState")) {
+                        availableTag.put("realGazState", mixedState.serialize());
+                        availableFlow.setTag(availableTag);
+                    }
                     continue;
                     //end of modified part
                 }

@@ -1,6 +1,7 @@
 package com.rae.crowns.mixin;
 
-import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.thermal_utilities.FullTableBased;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.FluidTags;
 import net.minecraftforge.fluids.FluidStack;
@@ -13,40 +14,48 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper.DEFAULT_STATE;
-import static com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper.mix;
+import static com.rae.formicapi.thermal_utilities.FullTableBased.DEFAULT_STATE;
+import static com.rae.formicapi.thermal_utilities.FullTableBased.mix;
 
 @Mixin(value = FluidTank.class)
 public abstract class FluidTankMixin {
-    @Shadow(remap = false) @NotNull protected FluidStack fluid;
+    @Shadow(remap = false)
+    @NotNull
+    protected FluidStack fluid;
 
-    @Shadow(remap = false) public abstract int getFluidAmount();
+    @Shadow(remap = false)
+    public abstract int getFluidAmount();
 
-    @Inject(method = "fill", at = @At(value = "HEAD"),remap = false)
-    public void mergeStateNBT(FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
+    @Inject(method = "fill", at = @At(value = "HEAD"), remap = false)
+    public void mergeStateNBT(@NotNull FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
         if (!fluid.isEmpty() && fluid.isFluidEqual(resource) && fluid.getFluid().is(FluidTags.WATER)) {
-            CompoundTag newStateNBT = resource.getChildTag("realGazState");
-            SpecificRealGazState newState;
-            if (newStateNBT != null && !newStateNBT.isEmpty()) {
-                newState = new SpecificRealGazState(newStateNBT);
-            } else {
-                newState = DEFAULT_STATE;
-            }
             CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
             SpecificRealGazState oldState;
             if (oldStateNBT != null && !oldStateNBT.isEmpty()) {
                 oldState = new SpecificRealGazState(oldStateNBT);
             } else {
-                oldState = DEFAULT_STATE;
+                oldState = FullTableBased.DEFAULT_STATE;
             }
-            CompoundTag mergedTag = fluid.getOrCreateTag();
 
-            mergedTag.put("realGazState",
-                    mix(newState, resource.getAmount(), oldState, getFluidAmount()).serialize()
-            );
-            fluid.setTag(mergedTag);
+            CompoundTag newStateNBT = resource.getChildTag("realGazState");
+            SpecificRealGazState newState;
+            if (newStateNBT != null && !newStateNBT.isEmpty()) {
+                newState = new SpecificRealGazState(newStateNBT);
+            } else {
+                newState = FullTableBased.DEFAULT_STATE;
+            }
+            //too much duplication it's unreadable.
+            if (newStateNBT != null && !newStateNBT.isEmpty() || oldStateNBT != null && !oldStateNBT.isEmpty()) {
 
-            resource.setTag(fluid.getTag());//to ensure correct merge
+                CompoundTag mergedTag = fluid.getOrCreateTag();
+
+                mergedTag.put("realGazState",
+                        FullTableBased.mix(newState, resource.getAmount(), oldState, getFluidAmount()).serialize()
+                );
+                fluid.setTag(mergedTag);
+
+                resource.setTag(fluid.getTag());//to ensure correct merge
+            }
         }
     }
 }

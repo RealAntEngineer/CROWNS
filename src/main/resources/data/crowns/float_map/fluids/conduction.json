@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": {
+    "minecraft:water": 4000,
+    "minecraft:flowing_water": 20000,
+
+    "minecraft:lava": 4000,
+    "minecraft:flowing_lava": 20000
+
+  }
+}

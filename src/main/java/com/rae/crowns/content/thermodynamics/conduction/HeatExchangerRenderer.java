@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 public class HeatExchangerRenderer extends SafeBlockEntityRenderer<HeatExchangerBlockEntity> {
     public HeatExchangerRenderer(BlockEntityRendererProvider.Context context) {
@@ -19,7 +20,7 @@ public class HeatExchangerRenderer extends SafeBlockEntityRenderer<HeatExchanger
     }
 
     @Override
-    protected void renderSafe(HeatExchangerBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
+    protected void renderSafe(@NotNull HeatExchangerBlockEntity be, float partialTicks, @NotNull PoseStack ms, @NotNull MultiBufferSource buffer,
                               int light, int overlay) {
         //if (Backend.canUseInstancing(be.getLevel())) return;
 
@@ -31,10 +32,10 @@ public class HeatExchangerRenderer extends SafeBlockEntityRenderer<HeatExchanger
 
         if (state.getValue(HeatExchangerBlock.OUT)) {
             ms.pushPose();
-            ms.translate(direction.getStepX()* 0.001f,direction.getStepY()*0.001f,direction.getStepZ()*0.001f);
+            ms.translate(direction.getStepX() * 0.001f, direction.getStepY() * 0.001f, direction.getStepZ() * 0.001f);
             SuperByteBuffer outRim =
                     CachedBuffers.partialFacing(AllPartialModels.PIPE_ATTACHMENTS.get(
-                            FluidTransportBehaviour.AttachmentTypes.ComponentPartials.RIM).get(direction), be.getBlockState(), Direction.SOUTH)
+                                    FluidTransportBehaviour.AttachmentTypes.ComponentPartials.RIM).get(direction), be.getBlockState(), Direction.SOUTH)
                             .light(light).overlay(overlay);
             outRim.renderInto(ms, vb);
 
@@ -43,8 +44,8 @@ public class HeatExchangerRenderer extends SafeBlockEntityRenderer<HeatExchanger
         }
         if (state.getValue(HeatExchangerBlock.IN)) {
             ms.pushPose();
-            ms.translate(direction.getOpposite().getStepX()* 0.001f,direction.getOpposite().getStepY()*0.001f,
-                    direction.getOpposite().getStepZ()*0.001f);
+            ms.translate(direction.getOpposite().getStepX() * 0.001f, direction.getOpposite().getStepY() * 0.001f,
+                    direction.getOpposite().getStepZ() * 0.001f);
             SuperByteBuffer inRim =
                     CachedBuffers.partialFacing(AllPartialModels.PIPE_ATTACHMENTS.get(
                                     FluidTransportBehaviour.AttachmentTypes.ComponentPartials.RIM).get(direction.getOpposite()), be.getBlockState(),

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " I ",
+    " I ",
+    " I "
+  ],
+  "key": {
+    "I": {
+      "item": "crowns:uranium_ingot"
+    }
+  },
+  "result": {
+    "item": "crowns:fuel_rod",
+    "type": "forge:partial_nbt",
+    "nbt": {
+      "composition": {
+        "crowns:u235": 0.007,
+        "crowns:u238": 0.983
+      }
+    },
+    "count": 8
+  }
+}

@@ -12,20 +12,22 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 public class TurbineStageRenderer extends KineticBlockEntityRenderer<TurbineStageBlockEntity> {
     public TurbineStageRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
+
     @Override
-    protected void renderSafe(TurbineStageBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
+    protected void renderSafe(@NotNull TurbineStageBlockEntity be, float partialTicks, @NotNull PoseStack ms, @NotNull MultiBufferSource buffer,
                               int light, int overlay) {
         if (VisualizationManager.supportsVisualization(be.getLevel())) return;
 
         //super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
         BlockState state = be.getBlockState();
 
-        Direction direction =  Direction.fromAxisAndDirection(((TurbineStageBlock)state.getBlock()).getRotationAxis(state), Direction.AxisDirection.POSITIVE);
+        Direction direction = Direction.fromAxisAndDirection(((TurbineStageBlock) state.getBlock()).getRotationAxis(state), Direction.AxisDirection.POSITIVE);
         VertexConsumer vb = buffer.getBuffer(RenderType.cutoutMipped());
         ms.pushPose();
         SuperByteBuffer memoryRoll =

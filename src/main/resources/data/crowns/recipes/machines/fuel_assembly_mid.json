@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "UUU",
+    "UIU",
+    "UUU"
+  ],
+  "key": {
+    "U": {
+      "item": "crowns:fuel_rod",
+      "type": "forge:partial_nbt",
+      "nbt": {
+        "composition": {
+          "crowns:u235": 0.2,
+          "crowns:u238": 0.8
+        }
+      }
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "crowns:fuel_assembly",
+    "type": "forge:partial_nbt",
+    "nbt": {
+      "composition": {
+        "crowns:u235": 0.04,
+        "crowns:u238": 0.16
+      }
+    },
+    "count": 1
+  }
+}

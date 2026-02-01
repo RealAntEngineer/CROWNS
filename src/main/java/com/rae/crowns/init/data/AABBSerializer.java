@@ -10,7 +10,7 @@ public class AABBSerializer implements EntityDataSerializer<AABB> {
     }
 
     @Override
-    public void write(FriendlyByteBuf byteBuf, AABB aabb) {
+    public void write(@NotNull FriendlyByteBuf byteBuf, @NotNull AABB aabb) {
         byteBuf.writeDouble(aabb.minX);
         byteBuf.writeDouble(aabb.minY);
         byteBuf.writeDouble(aabb.minZ);
@@ -20,8 +20,8 @@ public class AABBSerializer implements EntityDataSerializer<AABB> {
     }
 
     @Override
-    public @NotNull AABB read(FriendlyByteBuf byteBuf) {
-        return new AABB(byteBuf.readDouble(), byteBuf.readDouble(), byteBuf.readDouble(),byteBuf.readDouble(),byteBuf.readDouble(),byteBuf.readDouble());
+    public @NotNull AABB read(@NotNull FriendlyByteBuf byteBuf) {
+        return new AABB(byteBuf.readDouble(), byteBuf.readDouble(), byteBuf.readDouble(), byteBuf.readDouble(), byteBuf.readDouble(), byteBuf.readDouble());
     }
 
     @Override

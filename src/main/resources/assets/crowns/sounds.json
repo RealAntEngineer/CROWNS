@@ -1,0 +1,8 @@
+{
+  "turbine_sound": {
+    "subtitle": "crowns.subtitle.turbine_sound",
+    "sounds": [
+      "crowns:long_highpitch_loop"
+    ]
+  }
+}
