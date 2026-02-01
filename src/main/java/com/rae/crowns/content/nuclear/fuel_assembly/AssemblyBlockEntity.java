@@ -1,14 +1,11 @@
 package com.rae.crowns.content.nuclear.fuel_assembly;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.nuclear.IAmFissileMaterial;
 import com.rae.crowns.content.nuclear.IAmRadioactiveSource;
-import com.rae.crowns.content.rendering.RGBAVolumeInstance;
-import com.rae.crowns.content.rendering.VolumeWorldRenderer;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.init.misc.FluidInit;
 import com.rae.formicapi.FormicApiLang;
@@ -31,8 +28,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -91,7 +86,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         super.initialize();
         if (level != null && level.isClientSide) {
             this.lazyTickCounter = Math.toIntExact(LAZY_TICK_RATE - level.getGameTime() % LAZY_TICK_RATE);
-            //RenderSystem.recordRenderCall(this::initializeClientTcherenkov);
         }
     }
 
@@ -100,7 +94,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         super.tick();
         assert level != null;
         if (!level.isClientSide()) {
-            //debugPrintState(getBlockPos().toShortString());
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) level);
 
             if (data!=null && !data
@@ -118,35 +111,11 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             if (Math.toIntExact(level.getGameTime() % LAZY_TICK_RATE) == 0){
                 fakeLazyTick();
             }
-        } else {
-            /*if (tcherenkov!=null)
-                tcherenkov.opacityScale = Math.min(getRadioactiveActivity()/1e6f, 1);*/
         }
 
         if (Float.isNaN(temperature)) {
             temperature = 300;
         }
-    }
-    private void debugPrintState(String label) {
-        assert level != null;
-        String data = String.format(
-                "{\"time\":%d, \"pos\": \"%d %d %d\", \"temp\": %.3f, \"nbr\": %.6f, \"oldNbr\": %.6f, \"absorbed\": %.6f, \"power\": %.6f, \"composition\": %s, \"label\":\"%s\"}",
-                level.getGameTime(),
-                worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(),
-                temperature,
-                nbrOfFission, oldNbrOfFission,
-                additionalNeutronsAbsorbed.getValue(), power,
-                radioactiveElements,
-                label
-        );
-        CROWNS.LOGGER.info(data); // ← raw JSON line per tick
-    }
-
-    @Override
-    public void remove() {
-        super.remove();
-        //VolumeWorldRenderer.remove(tcherenkov);
-        //tcherenkov = null;//will get garbage collected
     }
 
     public void fakeLazyTick() {
@@ -356,13 +325,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             Float slowAbsorptionChance = Math.min(1,
                     IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getSecond()
                             * massFrac * cm * barnNa);
-            //System.out.println(resourceLocation);
-            //System.out.println("fastC : "+ fastAbsorptionChance);
-            //System.out.println("slowC : "+ slowAbsorptionChance);
             fastAbsorbed += radiationFlux.getFirst() * temperatureCoef * fastAbsorptionChance;
-            //System.out.println("fast absorbed "+fastAbsorbed);
             slowAbsorbed += radiationFlux.getSecond() * temperatureCoef * slowAbsorptionChance;
-            //System.out.println("slow absorbed "+slowAbsorbed);
         }
         additionalNeutronsAbsorbed.chaseTimed(additionalNeutronsAbsorbed.getChaseTarget()+ fastAbsorbed + slowAbsorbed,
                 LAZY_TICK_RATE);
@@ -391,17 +355,5 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             }
         }
         return composition;
-    }
-
-    @Override
-    public void onChunkUnloaded() {
-        super.onChunkUnloaded();
-        //VolumeWorldRenderer.remove(tcherenkov);
-        //tcherenkov = null;//will get garbage collected
-    }
-
-    @Override
-    protected AABB createRenderBoundingBox() {
-        return super.createRenderBoundingBox().inflate(2);
     }
 }

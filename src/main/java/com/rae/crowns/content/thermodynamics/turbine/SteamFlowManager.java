@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class SteamFlowManager {
 
@@ -68,10 +67,6 @@ public class SteamFlowManager {
         return collector;
     }
 
-    /*@OnlyIn(Dist.CLIENT)
-    public static void render(ClientLevel level) {
-
-    }*/
 
     public static void serverStarted(@Nullable MinecraftServer server) {
         if (server == null)

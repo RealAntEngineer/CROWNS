@@ -9,8 +9,6 @@ import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
@@ -25,8 +23,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -140,54 +136,6 @@ public class DebugRenderer {
                 Font.DisplayMode.SEE_THROUGH, 0, 15728880
         );
         poseStack.popPose();
-    }
-
-    /*private static void renderVelocityVectors(@NotNull Level level, @NotNull PoseStack poseStack, @NotNull BlockPos playerPos) {
-        float threshold = 0.01f; // Minimum speed to draw
-        float scale = 0.25f;     // Arrow length scaling
-        int color = 0x00A0FF;    // Blue for airflow
-        SuperRenderTypeBuffer bufferSource = DefaultSuperRenderTypeBuffer.getInstance();
-        VertexConsumer buffer = bufferSource.getBuffer(RenderType.lines());
-        Minecraft mc = Minecraft.getInstance();
-        Font font = mc.font;
-        Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
-
-        for (int x = -RADIUS; x <= RADIUS; x++) {
-            for (int y = -RADIUS; y <= RADIUS; y++) {
-                for (int z = -RADIUS; z <= RADIUS; z++) {
-                    BlockPos pos = playerPos.offset(x, y, z);
-                    if (!level.isLoaded(pos)) continue;
-
-                    Vec3 vel = LocalPhysicData.getV(pos);
-                    double mag = vel.length();
-
-                    if (mag < threshold) continue; // skip near-zero vectors
-
-                    //Vec3 dir = vel.scale(1.0 / mag); // normalize
-                    //Vec3 center = Vec3.atCenterOf(pos.offset(-x, -y, -z));
-                    Vec3 labelPos = Vec3.atCenterOf(pos).add(0,0.2f,0);
-
-                    renderFloatingText(poseStack, font, String.format("(%.1f %.1f %.1f)", vel.x, vel.y, vel.z), labelPos, color, cam, mc);
-
-                    //renderArrow(poseStack, center, dir, color, (float) (scale * mag * 5.0f), buffer);
-                }
-            }
-        }
-    }*/
-
-    private static void renderArrow(PoseStack poseStack, Vec3 pos, Vec3 dir, int color, float scale, VertexConsumer buffer) {
-        Vec3 start = pos;
-        Vec3 end = pos.add(dir.scale(scale));
-
-        float r = ((color >> 16) & 0xFF) / 255f;
-        float g = ((color >> 8) & 0xFF) / 255f;
-        float b = (color & 0xFF) / 255f;
-
-        Matrix4f matrix = poseStack.last().pose();
-        Matrix3f normal = poseStack.last().normal();
-
-        buffer.vertex(matrix, (float) start.x, (float) start.y, (float) start.z).color(r, g, b, 1f).normal(normal, 0, 1, 0).endVertex();
-        buffer.vertex(matrix, (float) end.x, (float) end.y, (float) end.z).color(r, g, b, 1f).normal(normal, 0, 1, 0).endVertex();
     }
 
     private static void pruneCacheIfPlayerMoved(@NotNull BlockPos playerPos) {

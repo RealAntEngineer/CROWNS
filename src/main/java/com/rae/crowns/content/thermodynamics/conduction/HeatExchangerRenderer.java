@@ -22,9 +22,7 @@ public class HeatExchangerRenderer extends SafeBlockEntityRenderer<HeatExchanger
     @Override
     protected void renderSafe(@NotNull HeatExchangerBlockEntity be, float partialTicks, @NotNull PoseStack ms, @NotNull MultiBufferSource buffer,
                               int light, int overlay) {
-        //if (Backend.canUseInstancing(be.getLevel())) return;
 
-        //super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
         BlockState state = be.getBlockState();
 
         Direction direction = state.getValue(HeatExchangerBlock.FACING);

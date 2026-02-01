@@ -1,7 +1,7 @@
 package com.rae.crowns.content.event;
 
 import com.rae.crowns.CROWNS;
-import com.rae.crowns.content.fields.advection.RANSTicker;
+
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.temperature.TemperatureTicker;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;

@@ -19,16 +19,6 @@ public class ClientEvents {
         FlowManager.getINSTANCE().tickFlow();
     }
 
-    /*@SubscribeEvent
-    public static void onRenderWorld(RenderLevelLastEvent event) {
-        PoseStack ms = event.getPoseStack();
-        ms.pushPose();
-        SuperRenderTypeBuffer buffer = SuperRenderTypeBuffer.getInstance();
-        float partialTicks = AnimationTickHolder.getPartialTicks();
-        Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera()
-                .getPosition();
-        FlowManager.getINSTANCE().renderFlow(ms, buffer, camera, partialTicks);
-    }*/
     protected static boolean isGameActive() {
         return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
     }

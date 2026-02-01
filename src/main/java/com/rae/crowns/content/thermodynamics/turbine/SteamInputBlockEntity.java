@@ -2,7 +2,6 @@ package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
-import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -112,30 +111,19 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
             if (updateSteamFlow) {
                 updateSteamFlow = false;
 
-                /*if (steamCurrent != null) {
-                    Direction facing = getBlockState().getValue(SteamInputBlock.FACING);
-                    steamCurrent.setDirection(facing);
-                    steamCurrent.setInputFluidState(WATER_TANK.getState());
-                    steamCurrent.rebuild(level);
-                    //steamCurrent.initialize(worldPosition, facing, 16);
-                }*/
-                //if (steamCurrent == null) {
                 Direction facing = getBlockState().getValue(SteamInputBlock.FACING);
                 List<SteamCurrent> currents = SteamFlowManager.getCurrentsInBounds((ServerLevel) level, new AABB(worldPosition.relative(facing)));
                 if (currents.isEmpty()) {
                     steamCurrent = new SteamCurrent(worldPosition, facing, 16);
-                    //steamCurrent.setPos(worldPosition.relative(facing).getX(), worldPosition.relative(facing).getY(), worldPosition.relative(facing).getZ());
                     steamCurrent.setInputFluidState(WATER_TANK.getState());
                     steamCurrent.rebuild(level);
-                    SteamFlowManager.addSteamCurrent((ServerLevel) level, steamCurrent);//level.addFreshEntity(steamCurrent);
-                    //steamCurrent.initialize(worldPosition, facing, 16);
+                    SteamFlowManager.addSteamCurrent((ServerLevel) level, steamCurrent);
                 } else {
                     steamCurrent = currents.get(0);
                     steamCurrent.setDirection(facing);
                     steamCurrent.setInputFluidState(WATER_TANK.getState());
                     steamCurrent.rebuild(level);
                 }
-                //}
             }
             if (steamCurrent != null) {
                 steamCurrent.setInputFluidState(WATER_TANK.getState());

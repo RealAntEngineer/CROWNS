@@ -27,9 +27,6 @@ import java.util.List;
 public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
     private static final int SYNC_RATE = 8;
-    //public SteamCurrent steamCurrent;
-    //protected int currentUpdateCooldown;
-    //protected boolean updateSteamFlow;
     protected LazyOptional<IFluidHandler> fluidCapability;
     protected int syncCooldown;
     protected boolean queuedSync;
@@ -50,8 +47,7 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
 
     public SteamCollectorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        //steamCurrent = null;
-        //updateSteamFlow = true;
+
     }
 
     @Override
