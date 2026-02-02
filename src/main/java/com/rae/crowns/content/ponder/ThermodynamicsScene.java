@@ -1,8 +1,12 @@
 package com.rae.crowns.content.ponder;
 
+import com.rae.crowns.content.thermodynamics.compressor.CompressorBlockEntity;
 import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
 import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
+import com.rae.formicapi.FormicApiLang;
+import com.rae.formicapi.config.FormicAPIConfigs;
+import com.rae.formicapi.units.Pressure;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import net.createmod.catnip.theme.Color;
 import net.createmod.ponder.api.level.PonderLevel;
@@ -32,19 +36,19 @@ public class ThermodynamicsScene {
                 .add(sceneBuildingUtil.select().position(10, 2, 2))
                 .add(sceneBuildingUtil.select().position(10, 3, 3))
                 .add(sceneBuildingUtil.select().position(10, 1, 3));
-        scene.overlay().showOutlineWithText(pipeInput, 30).text("input vapor into the steam inputs");
-        scene.idleSeconds(2);
+        scene.overlay().showOutlineWithText(pipeInput, 20 * 4).text("Input vapor into the steam inputs");
+        scene.idleSeconds(4);
 
         double startX = 10.5;
         double endX = 2;
         double turbineY = 2.5;
         double turbineZ = 3.5;
         Selection turbines = sceneBuildingUtil.select().fromTo((int) (startX-0.5), 2, 3, 2, 2, 3);
-        scene.overlay().showOutlineWithText(turbines, 30)
-                .text("if the water is not hot enough the turbine will not turn");
+        scene.overlay().showOutlineWithText(turbines, 20 * 5)
+                .text("If the water is not hot enough the turbine will not turn");
 
 
-        for (int i = 0; i < 40; i++) {
+        for (int i = 0; i < 20 * 5; i++) {
             scene.addInstruction(ponderScene -> {
                 PonderLevel world = ponderScene.getWorld();
 
@@ -78,9 +82,9 @@ public class ThermodynamicsScene {
         }
         scene.idle(10);
         scene.world().setKineticSpeed(turbines, 256);
-        scene.overlay().showOutlineWithText(turbines, 60)
-                .text("once the water is boiling and has some vapor in it the turbine will spin");
-        for (int i = 0; i < 60; i++) {
+        scene.overlay().showOutlineWithText(turbines, 20 * 6)
+                .text("Once the water is boiling and has some vapor in it the turbine will spin");
+        for (int i = 0; i < 20 * 7; i++) {
             scene.addInstruction(ponderScene -> {
                 PonderLevel world = ponderScene.getWorld();
 
@@ -113,15 +117,15 @@ public class ThermodynamicsScene {
             scene.idle(1);
         }
         scene.idle(10);
-        scene.overlay().showText( 90).text(
-                "the color show the vapor quality"
+        scene.overlay().showText( 20 * 6).text(
+                "The color shows the vapor quality"
         );
 
-        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(9,2,2), 90)
-                .text("from pure steam (x = 100%)");
-        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(3,2,2), 90)
-                .text("to pure liquid water (x = 0%)");
-        for (int i = 0; i < 120; i++) {
+        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(9,2,2), 20 * 6)
+                .text("From pure steam (x = 100%%)");
+        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(3,2,2), 20 * 6)
+                .text("To pure liquid water (x = 0%%)");
+        for (int i = 0; i < 20 * 8; i++) {
             scene.addInstruction(ponderScene -> {
                 PonderLevel world = ponderScene.getWorld();
 
@@ -156,6 +160,33 @@ public class ThermodynamicsScene {
 
 
         scene.markAsFinished();
+    }
+
+    public static void compressor(@NotNull SceneBuilder builder, @NotNull SceneBuildingUtil sceneBuildingUtil){
+        CreateSceneBuilder scene = new CreateSceneBuilder(builder);
+        scene.title("compressor", "Compressor");
+        scene.configureBasePlate(0, 0, 8);
+        scene.rotateCameraY(10);
+        scene.world().showSection(sceneBuildingUtil.select().everywhere(), Direction.DOWN);
+
+        scene.overlay().showText(20 * 4)
+                .text("Compressor increase the pressure of the incoming flow");
+        scene.idleSeconds(8);
+        scene.overlay().showText(20 * 4)
+                .text("At the difference of the turbine the increase in pressure depends on the speed");
+
+        Pressure unit = FormicAPIConfigs.CLIENT.units.pressure.get();
+        scene.idleSeconds(8);
+        scene.addKeyframe();
+        scene.overlay().showText(20 * 15)
+                .text("At 0 rpm it's %s\nAt 64 rpm it's %s\nAt 128 rpm it's %s\nAt 256 rpm it's %s",
+                        "ΔP = 0 "+unit.getSymbol().getString(),
+                        "Δ"+FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(64)).string(),
+                        "Δ"+FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(128)).string(),
+                        "Δ"+FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(256)).string()
+                        );
+        scene.markAsFinished();
+
     }
 
     private static void spawnFlow(
