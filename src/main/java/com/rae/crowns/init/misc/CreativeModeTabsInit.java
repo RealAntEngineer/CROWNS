@@ -36,6 +36,8 @@ public class CreativeModeTabsInit {
                                 output.accept(BlockInit.TURBINE_STAGE);
                                 output.accept(BlockInit.COMPRESSOR);
                                 output.acceptAll(makeFuelAssembly().apply(BlockInit.FUEL_ASSEMBLY.asItem()));
+                                output.accept(FluidInit.CORIUM.get().getBucket());
+                                output.accept(BlockInit.SOLID_CORIUM);
                                 output.accept(BlockInit.DEEP_URANIUM_ORE);
                                 output.accept(BlockInit.URANIUM_ORE);
                                 output.accept(ItemInit.RAW_URANIUM);
@@ -45,41 +47,53 @@ public class CreativeModeTabsInit {
                                 output.accept(ItemInit.DEPLETED_URANIUM_NUGGET);
                                 output.accept(ItemInit.ENRICHED_URANIUM_INGOT);
                                 output.accept(ItemInit.ENRICHED_URANIUM_NUGGET);
+                                output.accept(FluidInit.URANIUM_HEXAFLUORIDE.get().getBucket());
                                 output.acceptAll(makeFuelAssembly().apply(ItemInit.FUEL_ROD.asItem()));
                             })
                             .build());
 
     private static @NotNull Function<Item, Collection<ItemStack>> makeFuelAssembly() {
         Map<Item, Function<Item, Collection<ItemStack>>> factories = new Reference2ReferenceOpenHashMap<>();
-        List<Float> uraniumGrades = List.of(7e-3f, 0.2f, 0.9f);
+
+        // Ultra-clean, exact doubles
+        List<Double> uraniumGrades = List.of(
+                1.0 / 128.0, // 0.078125
+                3.0 / 16.0,  // 0.1875
+                7.0 / 8.0   // 0.875
+        );
+
+        final double ASSEMBLY_FACTOR = 1.0 / 4.0; // 0.25
+
         Map<ItemProviderEntry<?>, Function<Item, Collection<ItemStack>>> simpleFactories = Map.of(
                 ItemInit.FUEL_ROD, item -> {
                     Collection<ItemStack> itemStacks = new ArrayList<>();
-                    for (Float grade : uraniumGrades) {
+                    for (double grade : uraniumGrades) {
                         ItemStack itemStack = item.getDefaultInstance();
                         CompoundTag tag = itemStack.getOrCreateTag();
+
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putFloat("crowns:u235", grade );
-                        compositionNBT.putFloat("crowns:u238", (1 - grade));
+                        compositionNBT.putDouble("crowns:u235", grade);
+                        compositionNBT.putDouble("crowns:u238", 1.0 - grade);
+
                         tag.put("composition", compositionNBT);
                         itemStack.setTag(tag);
                         itemStacks.add(itemStack);
-
                     }
                     return itemStacks;
                 },
                 BlockInit.FUEL_ASSEMBLY, item -> {
                     Collection<ItemStack> itemStacks = new ArrayList<>();
-                    for (Float grade : uraniumGrades) {
+                    for (double grade : uraniumGrades) {
                         ItemStack itemStack = item.getDefaultInstance();
                         CompoundTag tag = itemStack.getOrCreateTag();
+
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putFloat("crowns:u235", grade * 0.2f);
-                        compositionNBT.putFloat("crowns:u238", (1 - grade) * 0.2f);
+                        compositionNBT.putDouble("crowns:u235", grade * ASSEMBLY_FACTOR);
+                        compositionNBT.putDouble("crowns:u238", (1.0 - grade) * ASSEMBLY_FACTOR);
+
                         tag.put("composition", compositionNBT);
                         itemStack.setTag(tag);
                         itemStacks.add(itemStack);
-
                     }
                     return itemStacks;
                 }
@@ -97,6 +111,7 @@ public class CreativeModeTabsInit {
             return Collections.singleton(new ItemStack(item));
         };
     }
+
 
     public static void register(IEventBus modEventBus) {
         TAB_REGISTER.register(modEventBus);

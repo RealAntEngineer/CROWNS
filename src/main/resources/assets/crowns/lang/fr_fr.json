@@ -7,6 +7,7 @@
   "block.crowns.uranium_ore": "Minerai d’uranium",
   "block.crowns.deepslate_uranium_ore": "Minerai d’uranium des abîmes",
   "block.crowns.turbine_stage": "Étage de turbine",
+  "block.crowns.turbine_stage_structure": "Structure d'étage de turbine",
   "block.crowns.compressor": "Compresseur",
 
   "item.crowns.uranium_ingot": "Lingot d’uranium naturel",
@@ -17,6 +18,8 @@
   "item.crowns.enriched_uranium_nugget": "Pépite d’uranium enrichi",
 
   "item.crowns.corium_bucket": "Seau de corium",
+  "item.crowns.uranium_hexafluoride_bucket": "Seau d'hexafluorure d’uranium",
+
   "item.crowns.fuel_rod": "Barre de combustible",
 
   "item.crowns.raw_uranium": "Uranium brut",
@@ -65,7 +68,7 @@
   "crowns.display_source.radiation_source.k_eff": "Facteur effectif : ",
   "crowns.display_source.radiation_source": "Source de radiation",
   "crowns.display_source.temperature": "Température",
-  "crowns.display_source.full_stack": "Température de la pile d’assemblages de combustible",
+  "crowns.display_source.full_stack": "Température de la pile de combustible",
 
   "crowns.units.pressure.symbol.pascals": "Pa",
   "crowns.units.pressure.symbol.bar": "bar",

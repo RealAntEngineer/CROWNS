@@ -151,6 +151,8 @@ dependencies {
     //unit test tool
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+
+    runtimeOnly fg.deobf("curse.maven:item-nbt-viewer-514135:4578522")
 }
 test {
     useJUnitPlatform()

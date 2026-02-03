@@ -11,8 +11,8 @@
       "type": "forge:partial_nbt",
       "nbt": {
         "composition": {
-          "crowns:u235": 0.007,
-          "crowns:u238": 0.983
+          "crowns:u235": 0.0078125,
+          "crowns:u238": 0.9921875
         }
       }
     },
@@ -25,8 +25,8 @@
     "type": "forge:partial_nbt",
     "nbt": {
       "composition": {
-        "crowns:u235": 0.0014,
-        "crowns:u238": 0.1966
+        "crowns:u235": 0.001953125,
+        "crowns:u238": 0.248046875
       }
     },
     "count": 1

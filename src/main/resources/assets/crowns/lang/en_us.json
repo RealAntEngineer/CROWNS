@@ -7,6 +7,7 @@
   "block.crowns.uranium_ore": "Uranium Ore",
   "block.crowns.deepslate_uranium_ore": "Deepslate Uranium Ore",
   "block.crowns.turbine_stage": "Turbine Stage",
+  "block.crowns.turbine_stage_structure": "Turbine Stage Structure",
   "block.crowns.compressor": "Compressor",
 
   "item.crowns.uranium_ingot": "Natural Uranium Ingot",
@@ -17,6 +18,7 @@
   "item.crowns.enriched_uranium_nugget": "Enriched Uranium Nugget",
 
   "item.crowns.corium_bucket": "Corium Bucket",
+  "item.crowns.uranium_hexafluoride_bucket": "Uranium Hexafluoride Bucket",
   "item.crowns.fuel_rod": "Fuel Rod",
 
   "item.crowns.raw_uranium": "Raw Uranium",
@@ -87,5 +89,5 @@
   "nucleus.crowns.p239": "Plutonium 239",
 
   "death.attack.crowns.high_temperature": "%s got cooked to death",
-  "death.attack.crowns.low_temperature": "%s got frozen"
+  "death.attack.crowns.low_temperature": "%s got turned into an ice cube"
 }

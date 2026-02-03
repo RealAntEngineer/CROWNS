@@ -48,11 +48,11 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public float nbrOfFission;//nbr of fission/t
     public float C = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
     public LerpedFloat additionalNeutronsAbsorbed = LerpedFloat.linear();
-    public @NotNull HashMap<ResourceLocation, Float> radioactiveElements = new HashMap<>(
+    public @NotNull HashMap<ResourceLocation, Double> radioactiveElements = new HashMap<>(
             Map.of(
-                    CROWNS.resource("u235"), 0.014f * 0.2f,
-                    CROWNS.resource("u238"), 0.986f * 0.2f,
-                    CROWNS.resource("p239"), 0.00f * 0.2f
+                    CROWNS.resource("u235"), 0.014 * 0.2,
+                    CROWNS.resource("u238"), 0.986 * 0.2,
+                    CROWNS.resource("p239"), 0.00 * 0.2
             ));//for U235,U358 and Plutonium -> percentage of total mass
     protected int syncCooldown;
     protected boolean queuedSync;
@@ -291,7 +291,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         tooltip.add(Component.literal("composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
         for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
             if (radioactiveElements.containsKey(resourceLocation)) {
-                float concentration = radioactiveElements.get(resourceLocation);
+                double concentration = radioactiveElements.get(resourceLocation);
                 tooltip.add(
                         Component.translatable(resourceLocation.toLanguageKey("nucleus")).withStyle(ChatFormatting.YELLOW)
                                 .append(Component.literal(String.format(" : %.2f %%", concentration * 100)).withStyle(ChatFormatting.GRAY)));
@@ -314,15 +314,15 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
         Float temperatureCoef = 1 / Math.max(1, (temperature - 200) * CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF());
         //System.out.println("temperature coef "+ temperatureCoef);
-        float fastAbsorbed = 0f;
-        float slowAbsorbed = 0f;
+        double fastAbsorbed = 0f;
+        double slowAbsorbed = 0f;
         for (ResourceLocation resourceLocation : radioactiveElements.keySet()) {
-            Float massFrac = radioactiveElements.get(resourceLocation);
+            Double massFrac = radioactiveElements.get(resourceLocation);
             Float cm = IAmFissileMaterial.molarConcentration.get(resourceLocation);
-            Float fastAbsorptionChance = Math.min(1,
+            Double fastAbsorptionChance = Math.min(1,
                     IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getFirst()
                             * massFrac * cm * barnNa);
-            Float slowAbsorptionChance = Math.min(1,
+            Double slowAbsorptionChance = Math.min(1,
                     IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getSecond()
                             * massFrac * cm * barnNa);
             fastAbsorbed += radiationFlux.getFirst() * temperatureCoef * fastAbsorptionChance;
@@ -330,7 +330,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         }
         additionalNeutronsAbsorbed.chaseTimed(additionalNeutronsAbsorbed.getChaseTarget()+ fastAbsorbed + slowAbsorbed,
                 LAZY_TICK_RATE);
-        return Couple.create(radiationFlux.getFirst() - fastAbsorbed, radiationFlux.getSecond() - slowAbsorbed);
+        return Couple.create((float)(radiationFlux.getFirst() - fastAbsorbed), (float)(radiationFlux.getSecond() - slowAbsorbed));
     }
 
     public void setComposition(@Nullable CompoundTag composition) {
@@ -338,7 +338,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             radioactiveElements = new HashMap<>();
             for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
                 if (composition.contains(resourceLocation.toString())) {
-                    float concentration = composition.getFloat(resourceLocation.toString());
+                    double concentration = composition.getDouble(resourceLocation.toString());
                     radioactiveElements.put(resourceLocation, concentration);
                 }
             }
@@ -349,9 +349,9 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         CompoundTag composition = new CompoundTag();
         for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
             if (radioactiveElements.containsKey(resourceLocation)) {
-                float concentration = radioactiveElements.get(resourceLocation);
+                double concentration = radioactiveElements.get(resourceLocation);
 
-                composition.putFloat(resourceLocation.toString(), concentration);
+                composition.putDouble(resourceLocation.toString(), concentration);
             }
         }
         return composition;
