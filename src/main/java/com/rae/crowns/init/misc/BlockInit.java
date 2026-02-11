@@ -1,9 +1,9 @@
 package com.rae.crowns.init.misc;
 
-import com.rae.colony_api.multiblock.MBItem;
-import com.rae.colony_api.multiblock.MBStructureBlock;
-import com.rae.crowns.content.nuclear.AssemblyBlock;
-import com.rae.crowns.content.nuclear.UraniumOreBlock;
+import com.rae.formicapi.multiblock.MBItem;
+import com.rae.formicapi.multiblock.MBStructureBlock;
+import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
+import com.rae.crowns.content.nuclear.uranium.UraniumOreBlock;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlock;
 import com.rae.crowns.content.thermodynamics.turbine.SteamCollectorBlock;

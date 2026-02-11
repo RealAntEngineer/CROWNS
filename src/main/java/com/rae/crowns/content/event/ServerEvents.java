@@ -1,20 +1,58 @@
 package com.rae.crowns.content.event;
 
 import com.rae.crowns.CROWNS;
+
+import com.rae.crowns.content.fields.util.PhysicsSaveManager;
+import com.rae.crowns.content.fields.temperature.TemperatureTicker;
+import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.server.level.ServerLevel;
+
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import org.jetbrains.annotations.NotNull;
 
 @EventBusSubscriber(modid = CROWNS.MODID)
 public class ServerEvents {
+    private static int tickCounter = 1;
+
     @SubscribeEvent
-    public static void onServerLevelTick(LevelTickEvent.Post event) {
+    public static void onServerLevelTick(@NotNull LevelTickEvent.Post event) {
         if (!(event.getLevel() instanceof ServerLevel serverLevel)) return;
+        if (!event.hasTime()) return;
+        PhysicsWorldData data = PhysicsSaveManager.get(serverLevel);
+        if (data == null) return;
+        data.initialise(serverLevel);
+        data.updateChangedBlocks(serverLevel);
+        if (tickCounter % (TemperatureTicker.TICK_PERIOD) == 0) {
+            //this is too long... do the gathering of section to tick every few iteration (10 ticks ?)
+            LongSet loadedSections = data.getLoadedSections(); // LongSet view of keys
+            LongSet nearDynamicSections = data.getNearDynamic();
+            LongSet toTick = new LongOpenHashSet();
 
+            // Compute intersection efficiently
+            for (long packed : nearDynamicSections) {
+                if (loadedSections.contains(packed)) {
+                    //verify data
+                    if (data.checkValidity(packed) ){//&& data.isDirty(packed)) {
+                        toTick.add(packed);
+                    }
+                }
+            }
+
+            TemperatureTicker.tick(toTick, data);
+            //RANSTicker.tick(toTick, data);
+
+        }
+
+        if (tickCounter % (20) == 0) {
+            PhysicsSaveManager.sendUpdate(serverLevel);
+        }
         SteamFlowManager.tick(serverLevel);
-
+        tickCounter++;
     }
 
 }

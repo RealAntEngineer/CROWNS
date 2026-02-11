@@ -4,7 +4,7 @@ import com.rae.crowns.content.thermodynamics.compressor.CompressorBlockEntity;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorRenderer;
 import com.rae.crowns.content.thermodynamics.turbine.*;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerRenderer;
-import com.rae.crowns.content.nuclear.AssemblyBlockEntity;
+import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlockEntity;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlockEntity;
 import com.rae.crowns.init.client.PartialModelInit;
 import com.simibubi.create.AllPartialModels;

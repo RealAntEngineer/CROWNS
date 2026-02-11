@@ -1,7 +1,7 @@
 package com.rae.crowns.init.misc;
 
-import com.rae.crowns.content.nuclear.RadiationSourceDisplaySource;
-import com.rae.crowns.content.nuclear.TemperatureDisplaySource;
+import com.rae.crowns.content.nuclear.display.RadiationSourceDisplaySource;
+import com.rae.crowns.content.nuclear.display.TemperatureDisplaySource;
 import com.simibubi.create.api.behaviour.display.DisplaySource;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 

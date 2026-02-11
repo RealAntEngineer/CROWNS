@@ -1,7 +1,7 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
-import com.rae.colony_api.multiblock.MBKineticController;
-import com.rae.colony_api.multiblock.MBStructureBlock;
+import com.rae.formicapi.multiblock.MBKineticController;
+import com.rae.formicapi.multiblock.MBStructureBlock;
 import com.rae.crowns.init.client.ShapesInit;
 import com.rae.crowns.init.misc.BlockEntityInit;
 import com.simibubi.create.foundation.block.IBE;

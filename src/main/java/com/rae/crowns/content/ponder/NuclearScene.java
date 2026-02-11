@@ -1,6 +1,6 @@
 package com.rae.crowns.content.ponder;
 
-import com.rae.crowns.content.nuclear.AssemblyBlock;
+import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
 import com.rae.crowns.init.misc.BlockInit;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;

@@ -45,7 +45,12 @@ public class TagsInit extends AllTags {
         }
     }
     public enum CustomBlockTags {
-        TURBINE_BLADE(),GOLD_BLOCK(CustomNameSpace.COMMUN,"storage_blocks/gold"),COAL_BLOCK(CustomNameSpace.COMMUN,"storage_blocks/coal");
+        //TODO this is poor coding, use a float map instead.
+        GOLD_BLOCK(CustomNameSpace.COMMUN,"storage_blocks/gold"),
+        COAL_BLOCK(CustomNameSpace.COMMUN,"storage_blocks/coal"),
+        REFACTORY_BLOCK(CustomNameSpace.MOD, "nuclear/refactory"),
+        UNDESTRUCTABLE(CustomNameSpace.MOD, "nuclear/undestructable"),
+        ;
 
         public final TagKey<Block> tag;
         public final boolean alwaysDatagen;
