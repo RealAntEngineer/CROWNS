@@ -9,6 +9,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +18,10 @@ import java.util.List;
 class SoundScape {
     List<ContinuousSound> continuous;
     List<RepeatingSound> repeating;
-    private float pitch;
-    private CrownsSoundScapes.AmbienceGroup group;
-    private Vec3 meanPos;
-    private CrownsSoundScapes.PitchGroup pitchGroup;
+    private final float pitch;
+    private final CrownsSoundScapes.AmbienceGroup group;
+    private @Nullable Vec3 meanPos;
+    private final CrownsSoundScapes.PitchGroup pitchGroup;
 
     public SoundScape(float pitch, CrownsSoundScapes.AmbienceGroup group) {
         this.pitchGroup = CrownsSoundScapes.getGroupFromPitch(pitch);
@@ -37,12 +39,12 @@ class SoundScape {
         return add(new RepeatingSound(sound, this, pitch * relativePitch, relativeVolume, delay));
     }
 
-    public SoundScape add(ContinuousSound continuousSound) {
+    public @NotNull SoundScape add(ContinuousSound continuousSound) {
         continuous.add(continuousSound);
         return this;
     }
 
-    public SoundScape add(RepeatingSound repeatingSound) {
+    public @NotNull SoundScape add(RepeatingSound repeatingSound) {
         repeating.add(repeatingSound);
         return this;
     }

@@ -1,8 +1,8 @@
 package com.rae.crowns.mixin;
 
-import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
-import com.rae.colony_api.thermal_utilities.WaterAsRealGazTransformationHelper;
 import com.rae.crowns.init.data.DataComponentsInit;
+import com.rae.formicapi.thermal_utilities.FullTableBased;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.simibubi.create.content.fluids.FluidReactions;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
 import com.simibubi.create.content.fluids.PipeConnection;
@@ -110,10 +110,10 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
                     //modified part
                     singleSource = null;
                     PatchedDataComponentMap inFlowTag = fluidInFlow.getComponents();
-                    SpecificRealGazState inFlowState = inFlowTag.getOrDefault(DataComponentsInit.REAL_GAZ_STATE,WaterAsRealGazTransformationHelper.DEFAULT_STATE);
+                    SpecificRealGazState inFlowState = inFlowTag.getOrDefault(DataComponentsInit.REAL_GAZ_STATE,FullTableBased.DEFAULT_STATE);
                     PatchedDataComponentMap availableTag = availableFlow.getComponents();
-                    SpecificRealGazState availableState = availableTag.getOrDefault(DataComponentsInit.REAL_GAZ_STATE, WaterAsRealGazTransformationHelper.DEFAULT_STATE);
-                    SpecificRealGazState mixedState = WaterAsRealGazTransformationHelper.mix(availableState, availableFlow.getAmount(),
+                    SpecificRealGazState availableState = availableTag.getOrDefault(DataComponentsInit.REAL_GAZ_STATE, FullTableBased.DEFAULT_STATE);
+                    SpecificRealGazState mixedState = FullTableBased.mix(availableState, availableFlow.getAmount(),
                             inFlowState,fluidInFlow.getAmount());
 
                     availableFlow = fluidInFlow;

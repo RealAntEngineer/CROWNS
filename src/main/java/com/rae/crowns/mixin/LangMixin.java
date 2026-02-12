@@ -1,11 +1,9 @@
 package com.rae.crowns.mixin;
 
-import com.rae.colony_api.thermal_utilities.SpecificRealGazState;
-import com.rae.colony_api.units.Pressure;
-import com.rae.colony_api.units.Temperature;
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.init.data.DataComponentsInit;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.lang.LangBuilder;
 import net.minecraft.network.chat.Component;
@@ -21,14 +19,7 @@ public class LangMixin {
     private static void addWaterStateInfo(FluidStack stack, CallbackInfoReturnable<LangBuilder> cir){
         SpecificRealGazState newState = stack.get(DataComponentsInit.REAL_GAZ_STATE);
         if (newState != null) {
-            cir.setReturnValue(cir.getReturnValue().add(
-                    CROWNSLang.formatTemperature(newState.temperature()).component()
-                            .append( " | ")
-                            .append(CROWNSLang.formatPressure(newState.pressure()).component())
-                            .append(" | ")
-                            .append(
-                                    Component.literal("x = " +(int) (newState.vaporQuality() *100) + "%")
-                            )));
+            cir.setReturnValue(cir.getReturnValue().add(CROWNSLang.specificRealFluidState(newState)));
         }
 
     }

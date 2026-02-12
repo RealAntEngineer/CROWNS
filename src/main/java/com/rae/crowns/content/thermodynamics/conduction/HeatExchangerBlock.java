@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -22,7 +23,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 //todo replace by a straight pipe block -> see the seethrough pipe
 public class HeatExchangerBlock extends WrenchableDirectionalBlock implements ProperWaterloggedBlock, IBE<HeatExchangerBlockEntity> {
-    public HeatExchangerBlock(Properties properties) {
+    public static final BooleanProperty IN = BooleanProperty.create("in");
+    public static final BooleanProperty OUT = BooleanProperty.create("out");
+    public HeatExchangerBlock(@NotNull Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState()
                 .setValue(FACING, Direction.NORTH)
@@ -30,38 +33,34 @@ public class HeatExchangerBlock extends WrenchableDirectionalBlock implements Pr
                 .setValue(IN, true)
                 .setValue(OUT, true));
     }
-    public static final BooleanProperty IN = BooleanProperty.create("in");
-    public static final BooleanProperty OUT = BooleanProperty.create("out");
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder.add(WATERLOGGED,IN,OUT));
+    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder.add(WATERLOGGED, IN, OUT));
 
     }
+
     @Override
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         BlockState state = withWater(this.defaultBlockState().setValue(FACING, context.getClickedFace()), context);
         BlockState clickedState = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace(), -1));
         BlockState oppositeState = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace(), 1));
 
-        if (clickedState.is(BlockInit.HEAT_EXCHANGER.get())  && clickedState.getValue(FACING).getAxis() == context.getClickedFace().getAxis()){
+        if (clickedState.is(BlockInit.HEAT_EXCHANGER.get()) && clickedState.getValue(FACING).getAxis() == context.getClickedFace().getAxis()) {
             state.setValue(FACING, clickedState.getValue(FACING));
-            if (clickedState.getValue(FACING).getAxisDirection() ==  context.getClickedFace().getAxisDirection()){
+            if (clickedState.getValue(FACING).getAxisDirection() == context.getClickedFace().getAxisDirection()) {
                 state = state.setValue(IN, false);
-            }
-            else {
+            } else {
                 state = state.setValue(OUT, false);
 
             }
-        }
-        else if (oppositeState.is(BlockInit.HEAT_EXCHANGER.get()) && oppositeState.getValue(FACING).getAxis() == context.getClickedFace().getAxis()){
+        } else if (oppositeState.is(BlockInit.HEAT_EXCHANGER.get()) && oppositeState.getValue(FACING).getAxis() == context.getClickedFace().getAxis()) {
             state.setValue(FACING, oppositeState.getValue(FACING));
         }
-        if (oppositeState.is(BlockInit.HEAT_EXCHANGER.get()) && oppositeState.getValue(FACING).getAxis() == context.getClickedFace().getAxis()){
-            if (oppositeState.getValue(FACING).getAxisDirection() ==  context.getClickedFace().getAxisDirection()){
+        if (oppositeState.is(BlockInit.HEAT_EXCHANGER.get()) && oppositeState.getValue(FACING).getAxis() == context.getClickedFace().getAxis()) {
+            if (oppositeState.getValue(FACING).getAxisDirection() == context.getClickedFace().getAxisDirection()) {
                 state = state.setValue(OUT, false);
-            }
-            else {
+            } else {
                 state = state.setValue(IN, false);
 
             }
@@ -73,67 +72,68 @@ public class HeatExchangerBlock extends WrenchableDirectionalBlock implements Pr
     public @NotNull FluidState getFluidState(@NotNull BlockState pState) {
         return fluidState(pState);
     }
+
     @Override
     public @NotNull BlockState updateShape(@NotNull BlockState pState, @NotNull Direction pDirection, @NotNull BlockState pNeighborState,
                                            @NotNull LevelAccessor pLevel, @NotNull BlockPos pCurrentPos, @NotNull BlockPos pNeighborPos) {
         updateWater(pLevel, pState, pCurrentPos);
-        //we should only update if it's in the axis of this block.
-        if (pState.getValue(FACING).getAxis() == pDirection.getAxis()) {
-            //todo this is not great : we should only do that with wrench : if we wrench we can reverse a column at once.
-            // or even better. it will be a pipe.... -> no directionality. (but we need to have a very robust water heating for it to work
-            if (pNeighborState.is(this.asBlock())) {
+        if (pNeighborState.is(this.asBlock())) {
+            boolean changed = false;
+            if (pState.getValue(FACING) != pNeighborState.getValue(FACING) && (pState.getValue(FACING).getAxis() == pNeighborState.getValue(FACING).getAxis())) {
+                pState = pState.setValue(FACING, pNeighborState.getValue(FACING));
+                changed = true;
+            }
+
+            if (pState.getValue(FACING).getAxis() == pDirection.getAxis() && pState.getValue(FACING) == pNeighborState.getValue(FACING)) {
+                if (pDirection == pState.getValue(FACING)) {
+                    pState = pState.setValue(OUT, false);
+                } else {
+                    pState = pState.setValue(IN, false);
+                }
+                changed = true;
+
+            }
+
+            if (changed) pLevel.setBlock(pCurrentPos, pState, 3);
+
+        } else {
+            if (pState.getValue(FACING).getAxis() == pDirection.getAxis()) {
                 boolean changed = false;
-                if (pState.getValue(FACING) != pNeighborState.getValue(FACING) && (pState.getValue(FACING).getAxis() == pNeighborState.getValue(FACING).getAxis())) {
-                    pState = pState.setValue(FACING, pNeighborState.getValue(FACING));
-                    changed = true;
-                }
 
-                if (pState.getValue(FACING).getAxis() == pDirection.getAxis() && pState.getValue(FACING) == pNeighborState.getValue(FACING)) {
-                    if (pDirection == pState.getValue(FACING)) {
-                        pState = pState.setValue(OUT, false);
-                    } else {
-                        pState = pState.setValue(IN, false);
+                if (pDirection == pState.getValue(FACING)) {
+                    if (!pState.getValue(OUT)) {
+                        pState = pState.setValue(OUT, true);
+                        changed = true;
                     }
-                    changed = true;
-
+                } else {
+                    if (!pState.getValue(IN)) {
+                        pState = pState.setValue(IN, true);
+                        changed = true;
+                    }
                 }
-
                 if (changed) pLevel.setBlock(pCurrentPos, pState, 3);
 
-            } else {
-                if (pState.getValue(FACING).getAxis() == pDirection.getAxis()) {//it's for if it's removed.
-                    boolean changed = false;
-
-                    if (pDirection == pState.getValue(FACING)) {
-                        if (!pState.getValue(OUT)) {
-                            pState = pState.setValue(OUT, true);
-                            changed = true;
-                        }
-                    } else {
-                        if (!pState.getValue(IN)) {
-                            pState = pState.setValue(IN, true);
-                            changed = true;
-                        }
-                    }
-                    if (changed) pLevel.setBlock(pCurrentPos, pState, 3);
-
-                }
             }
         }
         return pState;
     }
 
-    public @NotNull VoxelShape getShape(BlockState pState, @NotNull BlockGetter pLevel, @NotNull BlockPos pPos, @NotNull CollisionContext pContext) {
+    public @NotNull VoxelShape getShape(@NotNull BlockState pState, @NotNull BlockGetter pLevel, @NotNull BlockPos pPos, @NotNull CollisionContext pContext) {
         return AllShapes.EIGHT_VOXEL_POLE.get(pState.getValue(FACING).getAxis());
     }
 
     @Override
-    public Class<HeatExchangerBlockEntity> getBlockEntityClass() {
+    public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
+        IBE.onRemove(pState, pLevel, pPos, pNewState);
+    }
+
+    @Override
+    public @NotNull Class<HeatExchangerBlockEntity> getBlockEntityClass() {
         return HeatExchangerBlockEntity.class;
     }
 
     @Override
-    public BlockEntityType<? extends HeatExchangerBlockEntity> getBlockEntityType() {
+    public @NotNull BlockEntityType<? extends HeatExchangerBlockEntity> getBlockEntityType() {
         return BlockEntityInit.HEAT_EXCHANGER.get();
     }
 }

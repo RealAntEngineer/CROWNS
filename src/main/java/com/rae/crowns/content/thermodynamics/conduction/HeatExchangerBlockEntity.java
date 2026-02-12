@@ -2,11 +2,15 @@ package com.rae.crowns.content.thermodynamics.conduction;
 
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.crowns.content.fields.util.PhysicsSaveManager;
+import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.misc.BlockEntityInit;
 import com.rae.crowns.init.misc.BlockInit;
-
+import com.rae.formicapi.FormicApiLang;
+import com.rae.formicapi.thermal_utilities.FullTableBased;
+import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.fluids.pipes.*;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -27,6 +31,8 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -93,31 +99,34 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                     WATER_TANK.drain(handler.fill(stack, IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE);
                 }
             }
+
+            //if not loaded we keep the same temperature.
+            //internal conduction
             float dt = 1/20f;
-            conductTemperature(getBlockPos(),level, dt);
-            double k = getInternalConductivity()/getThermalCapacity();
+            double k = getInternalConductivity()/getThermalCapacity() * CROWNSConfigs.SERVER.conduction.heatExchangerIterations.get();
             if (!WATER_TANK.isEmpty()) {//we don't heat it if empty
-                int iteration = Math.max(1,(int) k);
+                int iteration = Math.max(1,(int) k * 1000/WATER_TANK.getFluidAmount());
                 for (int i = 0; i < iteration; i++) {
                     float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) * dt / iteration;
                     WATER_TANK.heat(power);
-                    this.addTemperature( -power / this.getThermalCapacity());
+                    PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) level);
+                    if (data!=null && data.ticked(SectionPos.of(getBlockPos()).asLong())) {
+                        this.addTemperature(-power / this.getThermalCapacity());
+                    }
                 }
             }
-
-            // the fact that it changes too often make it bugged ->
-            // maybe if it's directly in  the fluidTransport behaviour
-            sendData();
         }
     }
-
-
 
     @Override
     public void lazyTick() {
         //What the fuck is going on here ?
         super.lazyTick();
 
+
+        // the fact that it changes too often make it bugged ->
+        // maybe if it's directly in  the fluidTransport behavior
+        sendData();
     }
 
     @Override
@@ -166,7 +175,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
         CreateLang.builder().add(Component.literal("exchanger "))
-                .add(CROWNSLang.formatTemperature(temperature))
+                .add(FormicApiLang.formatTemperature(temperature))
                 .style(ChatFormatting.DARK_RED)
                 .forGoggles(tooltip, 1);
         containedFluidTooltip(tooltip, isPlayerSneaking, WATER_TANK);
@@ -191,17 +200,98 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                 }
         );
     }
-    // an entity that is responsible for searching an linking blocks that have fluid between them ?
-    public static class FluidThermalConduction  extends StraightPipeBlockEntity.StraightPipeFluidTransportBehaviour {
 
-        public FluidThermalConduction(SmartBlockEntity be) {
+    // a Fluid Transport behavior that heat up water when going through. we need to modify the FluidNetwork to make it work.
+    private static class HeatTransferBehaviour
+            extends StraightPipeBlockEntity.StraightPipeFluidTransportBehaviour {
+
+        public HeatTransferBehaviour(SmartBlockEntity be) {
             super(be);
         }
 
         @Override
-        public FluidStack getProvidedOutwardFluid(Direction side) {
-            //we have a
-            return super.getProvidedOutwardFluid(side);
+        public boolean canHaveFlowToward(BlockState state, Direction direction) {
+            return state.hasProperty(DirectionalBlock.FACING)
+                    && state.getValue(DirectionalBlock.FACING).getAxis() == direction.getAxis();
         }
+
+        @Override
+        public FluidStack getProvidedOutwardFluid(Direction side) {
+            FluidStack original = super.getProvidedOutwardFluid(side);
+
+            return applyHeating(original);
+        }
+
+        private @NotNull FluidStack applyHeating(FluidStack original) {
+            if (original.isEmpty())
+                return original;
+
+            if (!(blockEntity.getLevel() instanceof ServerLevel level))
+                return original;
+
+            if (!original.getFluid().isSame(Fluids.WATER))
+                return original;
+
+            FluidStack heated = original.copy();
+
+            HeatExchangerBlockEntity exchanger = (HeatExchangerBlockEntity) blockEntity;
+
+            float dt = 1 / 20f;
+
+            double k = exchanger.getInternalConductivity()
+                    / exchanger.getThermalCapacity()
+                    * CROWNSConfigs.SERVER.conduction.heatExchangerIterations.get();
+
+            int fluidAmount = heated.getAmount();
+            int iteration = Math.max(1, (int) (k * 1000 / fluidAmount));
+
+            PhysicsWorldData data = PhysicsSaveManager.get(level);
+            boolean canCoolBlock =
+                    data != null && data.ticked(SectionPos.of(exchanger.getBlockPos()).asLong());
+
+            for (int i = 0; i < iteration; i++) {
+                // ENERGY, not temperature
+                float power =
+                        (float) (exchanger.getInternalConductivity()
+                                * (exchanger.getTemperature()
+                                - getFluidTemperature(heated)) // see helper below
+                                * dt / iteration);
+
+                // --- APPLY HEAT USING YOUR LOGIC ---
+                heatFluidStack(heated, power);
+
+                if (canCoolBlock) {
+                    exchanger.addTemperature(-power / exchanger.getThermalCapacity());
+                }
+            }
+
+            return heated;
+        }
+
+        private static void heatFluidStack(FluidStack stack, float amount) {
+            if (stack.getAmount() <= 0)
+                return;
+
+            CompoundTag tag = stack.getOrCreateTag();
+
+            CompoundTag oldStateNBT = tag.getCompound("realGazState");
+            SpecificRealGazState oldState =
+                    oldStateNBT.isEmpty()
+                            ? DEFAULT_STATE
+                            : new SpecificRealGazState(oldStateNBT);
+
+            SpecificRealGazState newState =
+                    FullTableBased.isobaricTransfer(oldState, amount / stack.getAmount());
+
+            tag.put("realGazState", newState.serialize());
+        }
+        private static float getFluidTemperature(FluidStack stack) {
+            CompoundTag tag = stack.getTag();
+            if (tag == null || !tag.contains("realGazState"))
+                return DEFAULT_STATE.temperature();
+
+            return new SpecificRealGazState(tag.getCompound("realGazState")).temperature();
+        }
+
     }
 }

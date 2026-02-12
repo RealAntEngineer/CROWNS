@@ -4,14 +4,15 @@ import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import org.jetbrains.annotations.NotNull;
 
 public class ContinuousSound extends AbstractTickableSoundInstance {
 
-    private float sharedPitch;
-    private SoundScape scape;
-    private float relativeVolume;
+    private final float sharedPitch;
+    private final SoundScape scape;
+    private final float relativeVolume;
 
-    protected ContinuousSound(SoundEvent event, SoundScape scape, float sharedPitch, float relativeVolume) {
+    protected ContinuousSound(@NotNull SoundEvent event, SoundScape scape, float sharedPitch, float relativeVolume) {
         super(event, SoundSource.AMBIENT, SoundInstance.createUnseededRandom());
         this.scape = scape;
         this.sharedPitch = sharedPitch;

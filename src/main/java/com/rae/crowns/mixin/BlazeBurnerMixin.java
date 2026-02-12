@@ -1,7 +1,5 @@
 package com.rae.crowns.mixin;
 
-import com.rae.crowns.content.fields.temperature.TemperatureManager;
-import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
@@ -20,26 +18,19 @@ public abstract class BlazeBurnerMixin extends SmartBlockEntity implements IHave
         super(type, pos, state);
     }
 
-    @Override
-    public void initialize() {
-        super.initialize();
-        if (level instanceof ServerLevel serverLevel) {
-            TemperatureWorldData data = TemperatureManager.get(serverLevel);
-            if (data != null) {
-                data.putDynamic(getBlockPos(), this);
-            }
-        }
-    }
+    @Shadow(remap = false)
+    protected abstract BlazeBurnerBlock.HeatLevel getHeatLevel();
 
-    @Shadow() public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
+    @Shadow(remap = false)
+    public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
 
     @Override
-    public int getThermalCapacity() {
+    public float getThermalCapacity() {
         return 1000;
     }
 
     @Override
-    public int getThermalConductivity() {
+    public float getThermalConductivity() {
         return 100000;
     }
 
