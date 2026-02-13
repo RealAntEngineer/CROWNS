@@ -34,6 +34,7 @@ public abstract class SmartBlockEntityMixin {
         if (self instanceof IHaveTemperature ht && self.getLevel() instanceof ServerLevel serverLevel) {
             PhysicsWorldData data = PhysicsSaveManager.get(serverLevel);
             BlockPos pos = self.getBlockPos();
+            SectionPos sectionPos = SectionPos.of(pos);
             if (data!=null && PhysicsSaveManager.isLoaded(serverLevel.dimension(),SectionPos.asLong(pos))) {
                 data.putDynamic(self.getBlockPos(), ht);
                 cROWNS_1_20_1$registrationDone = true;

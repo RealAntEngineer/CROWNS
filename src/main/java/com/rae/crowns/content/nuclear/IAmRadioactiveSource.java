@@ -2,18 +2,20 @@ package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.content.RayTraceUtil;
 import com.rae.crowns.init.misc.TagsInit;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.createmod.catnip.data.Couple;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface IAmRadioactiveSource {
@@ -54,33 +56,58 @@ public interface IAmRadioactiveSource {
      * @param level : a server level
      * @param range :  the range of impact
      */
-    private static void traceNeutron(@NotNull BlockPos pos, @NotNull Level level, Double range, @NotNull Vec3 vec, Float fastNeutrons) {
-        Vec3 newVec = vec.scale((double) 1 / range);
+    private static void traceNeutron(@NotNull BlockPos pos, @NotNull Level level, double range, @NotNull Vec3 vec, float fastNeutrons) {
         //the surface isn't really a constant so a bit wrong
-        //TODO make the surface a variable
-        Couple<Float> radiationFlux = Couple.create((float) (50 * fastNeutrons / (4 * Math.PI * range * range)), 0f);
+        //TODO make the surface a variable + why 50 ?
+        //Couple<Float> radiationFlux = Couple.create((float) (50 * fastNeutrons / (4 * Math.PI * range * range)), 0f);
+        double dx = vec.x;
+        double dy = vec.y;
+        double dz = vec.z;
+
+        double cx = pos.getX();
+        double cy = pos.getY();
+        double cz = pos.getZ();
+
+        float fast = (float)(50 * fastNeutrons / (4 * Math.PI * range * range));
+        float thermal = 0f;
+
+        BlockPos.MutableBlockPos child = new BlockPos.MutableBlockPos();
         for (int i = 1; i <= range; i++) {
-            Vec3i partialVec = new Vec3i((int) (newVec.x() * i), (int) (newVec.y() * i), (int) (newVec.z() * i));
-            BlockPos child = pos.offset(partialVec);
-            BlockEntity childBE = level.getBlockEntity(child);
-            if (childBE instanceof IAmFissileMaterial fissileMaterial) {
-                radiationFlux = fissileMaterial.absorbNeutrons(radiationFlux);
+            cx += dx;
+            cy += dy;
+            cz += dz;
 
-            }
+            child.set((int) cx, (int) cy, (int) cz);
+
             BlockState state = level.getBlockState(child);
+            if (state.hasBlockEntity()) {
+                BlockEntity childBE = level.getBlockEntity(child);
+                if (childBE instanceof IAmFissileMaterial fissileMaterial) {
+                    Couple<Float> result = fissileMaterial.absorbNeutrons(Couple.create(fast, thermal));
+                    fast = result.getFirst();
+                    thermal = result.getSecond();
 
-            if (TagsInit.CustomBlockTags.COAL_BLOCK.matches(state)) {
-                radiationFlux = Couple.create(radiationFlux.getFirst() * (1 - 0.7f), radiationFlux.getSecond() + radiationFlux.getFirst() * (Float) 0.7f);
+                }
             }
-            if (TagsInit.CustomBlockTags.GOLD_BLOCK.matches(state)) {
-                //radiationFlux = Couple.create(0f,0f);//Couple.create(radiationFlux.getFirst()*0.5f, radiationFlux.getSecond()*0.5f);
-                break;
+            if (!state.isAir()) {
+                if (TagsInit.CustomBlockTags.COAL_BLOCK.matches(state)) {
+                    float slowed = fast * 0.7f;
+                    fast -= slowed;
+                    thermal += slowed;
+                    //radiationFlux = Couple.create(radiationFlux.getFirst() * (1 - 0.7f), radiationFlux.getSecond() + radiationFlux.getFirst() * 0.7f);
+                } else if (TagsInit.CustomBlockTags.GOLD_BLOCK.matches(state)) {
+                    //radiationFlux = Couple.create(0f,0f);//Couple.create(radiationFlux.getFirst()*0.5f, radiationFlux.getSecond()*0.5f);
+                    break;
+                }
             }
-            FluidState fluidState = level.getFluidState(child);
+
+            FluidState fluidState = state.getFluidState();
             if (!fluidState.isEmpty()) {
                 if (fluidState.is(FluidTags.WATER)) {
-
-                    radiationFlux = Couple.create(radiationFlux.getFirst() * (1 - 0.5f), radiationFlux.getSecond() + radiationFlux.getFirst() * (Float) 0.5f);
+                    float absorbed = fast * 0.5f;
+                    fast -= absorbed;
+                    thermal += absorbed;
+                    //radiationFlux = Couple.create(radiationFlux.getFirst() * (1 - 0.5f), radiationFlux.getSecond() + radiationFlux.getFirst() * (Float) 0.5f);
                 }
             }
         }
@@ -91,36 +118,123 @@ public interface IAmRadioactiveSource {
      */
     float getRadioactiveActivity();
 
-    default void moreOptimizedImpactEnv(@NotNull BlockPos pos, @NotNull Level level, @NotNull Double range) {
-        Float fastNeutrons = getRadioactiveActivity();
-        Float slowNeutrons = 0f;
+    default int impactEnv(@NotNull BlockPos pos, @NotNull Level level, @NotNull Double range) {
+        float fastNeutrons = getRadioactiveActivity();
+        float slowNeutrons = 0f;
+        int rays = 0;
         //should impact itself
         List<BlockPos> frontier = RayTraceUtil.getSphereSurface(BlockPos.ZERO, range.intValue(), true);
+        double rangeInverse = 1/range;
         for (BlockPos frontierPos : frontier) {
 
-            Vec3 vec = new Vec3(frontierPos.getX(), frontierPos.getY(), frontierPos.getZ());
+            Vec3 vec = new Vec3(frontierPos.getX(), frontierPos.getY(), frontierPos.getZ()).scale(rangeInverse);
             traceNeutron(pos, level, range, vec, fastNeutrons);
+            rays++;
 
         }
+        return rays;
     }
 
-    private @NotNull List<BlockPos> getSphere(@NotNull BlockPos center, int radius, boolean empty) {
-        List<BlockPos> blocks = new ArrayList<>();
+    default int moreOptimizedImpactEnv(@NotNull BlockPos pos, @NotNull Level level, @NotNull Double range) {
 
-        int bx = center.getX();
-        int by = center.getY();
-        int bz = center.getZ();
+        float fastNeutrons = getRadioactiveActivity();
+        int rays = 0;
 
-        for (int x = bx - radius; x <= bx + radius; x++) {
-            for (int y = by - radius; y <= by + radius; y++) {
-                for (int z = bz - radius; z <= bz + radius; z++) {
-                    double distance = ((bx - x) * (bx - x) + (bz - z) * (bz - z) + (by - y) * (by - y));
-                    if (distance < radius * radius && (!empty || distance >= (radius - 1) * (radius - 1))) {
-                        blocks.add(new BlockPos(x, y, z));
+        int steps = range.intValue();
+        double rangeInverse = 1 / range;
+
+        List<BlockPos> frontier = RayTraceUtil.getSphereSurface(BlockPos.ZERO, steps, true);
+
+        // ---- caches ----
+        Long2ObjectOpenHashMap<BlockEntity> beCache =
+                new Long2ObjectOpenHashMap<>();
+
+        Object2BooleanOpenHashMap<Block> fissileBlockCache =
+                new Object2BooleanOpenHashMap<>();
+
+        BlockPos.MutableBlockPos child = new BlockPos.MutableBlockPos();
+
+        for (BlockPos frontierPos : frontier) {
+
+            double dx = frontierPos.getX() * rangeInverse;
+            double dy = frontierPos.getY() * rangeInverse;
+            double dz = frontierPos.getZ() * rangeInverse;
+
+            double cx = pos.getX();
+            double cy = pos.getY();
+            double cz = pos.getZ();
+
+            float fast = (float)(50 * fastNeutrons / (4 * Math.PI * range * range));
+            float thermal = 0f;
+
+            for (int i = 0; i < steps; i++) {
+
+                cx += dx;
+                cy += dy;
+                cz += dz;
+
+                int bx = (int) cx;
+                int by = (int) cy;
+                int bz = (int) cz;
+
+                child.set(bx, by, bz);
+
+                BlockState state = level.getBlockState(child);
+                Block block = state.getBlock();
+
+                // ---------- fissile BE logic ----------
+                boolean fissileBlock = fissileBlockCache.computeIfAbsent(
+                        block,
+                        b -> state.hasBlockEntity() // fast prefilter
+                );
+
+                if (fissileBlock) {
+
+                    long key = child.asLong();
+
+                    BlockEntity be = beCache.get(key);
+
+                    if (be == null && !beCache.containsKey(key)) {
+                        be = level.getBlockEntity(child);
+                        beCache.put(key, be);
+                    }
+
+                    if (be instanceof IAmFissileMaterial fissile) {
+                        Couple<Float> result =
+                                fissile.absorbNeutrons(Couple.create(fast, thermal));
+                        fast = result.getFirst();
+                        thermal = result.getSecond();
                     }
                 }
+
+                // ---------- coal ----------
+                if (!state.isAir()) {
+                    if (TagsInit.CustomBlockTags.COAL_BLOCK.matches(state)) {
+                        float slowed = fast * 0.7f;
+                        fast -= slowed;
+                        thermal += slowed;
+                    }
+
+                    // ---------- gold ----------
+                    else if (TagsInit.CustomBlockTags.GOLD_BLOCK.matches(state)) {
+                        break;
+                    }
+                }
+
+                // ---------- water ----------
+                FluidState fluid = state.getFluidState();
+                if (!fluid.isEmpty() && fluid.is(FluidTags.WATER)) {
+                    float absorbed = fast * 0.5f;
+                    fast -= absorbed;
+                    thermal += absorbed;
+                }
+
+                if (fast < 1e-5f) break;
             }
+
+            rays++;
         }
-        return blocks;
+
+        return rays;
     }
 }

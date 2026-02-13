@@ -285,9 +285,13 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             SectionPos sectionPos = SectionPos.of(sectionLong);
             BlockPos base = sectionPos.origin();
 
-            // Skip section if not loaded or not near dynamic blocks, but remove it from set
-            if (!level.isLoaded(base) || !nearDynamicSections.contains(sectionLong)) {
+            // Skip section if not loaded or not near dynamic blocks, but don't remove it from set
+            if (!level.isLoaded(base)) {
                 //iterator.remove();
+                continue;
+            }
+            if  (!nearDynamicSections.contains(sectionLong)){
+                iterator.remove();
                 continue;
             }
 

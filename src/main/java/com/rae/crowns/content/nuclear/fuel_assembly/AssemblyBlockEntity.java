@@ -66,6 +66,12 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     }
 
+    static int rayCount = 0;
+    public static void resetRayCounter() {
+        //System.out.println(rayCount);
+        rayCount = 0;
+    }
+
     @Override
     public void sendData() {
         if (syncCooldown > 0) {
@@ -157,7 +163,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
                 }
             }
-            moreOptimizedImpactEnv(pos, level, CROWNSConfigs.SERVER.nuclear.radiationRange.get());
+            rayCount += moreOptimizedImpactEnv(pos, level, CROWNSConfigs.SERVER.nuclear.radiationRange.get());
 
             notifyUpdate();
 
@@ -300,34 +306,42 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
         return true;
     }
+    private static float negativeThermalCoef = 0.0075f;
+    public static void reloadConfig(){
+        negativeThermalCoef = CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF();
+    }
+    double fastAbsorptionChance;
+    double slowAbsorptionChance;
+    public void computeAbsorptionChances(){
+        fastAbsorptionChance = 0;
+        slowAbsorptionChance = 0;
+        for (ResourceLocation resourceLocation : radioactiveElements.keySet()) {
+            double massFrac = radioactiveElements.get(resourceLocation);
+            float cm = IAmFissileMaterial.molarConcentration.get(resourceLocation);
+            fastAbsorptionChance += Math.min(1,
+                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getFirst()
+                            * massFrac * cm * barnNa);
+            slowAbsorptionChance += Math.min(1,
+                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getSecond()
+                            * massFrac * cm * barnNa);
+        }
+    }
     int lastLazy = 0;
+
+    //maybe replace with an array so it's more memory efficient
     @Override
     public @NotNull Couple<Float> absorbNeutrons(@NotNull Couple<Float> radiationFlux) {
-
-
-        assert level != null;
-        int oldLast = lastLazy;
+        int oldLast = lastLazy;//needed cause it could be hit by ray coming from a block that tick before us
         lastLazy = Math.toIntExact(level.getGameTime() / LAZY_TICK_RATE);
         if (oldLast != lastLazy) {//detect change of lazy tick.
             additionalNeutronsAbsorbed.chaseTimed(0, LAZY_TICK_RATE);
         }
 
-        Float temperatureCoef = 1 / Math.max(1, (temperature - 200) * CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF());
+        float temperatureCoef = 1 / Math.max(1, (temperature - 200) * negativeThermalCoef);
         //System.out.println("temperature coef "+ temperatureCoef);
-        double fastAbsorbed = 0f;
-        double slowAbsorbed = 0f;
-        for (ResourceLocation resourceLocation : radioactiveElements.keySet()) {
-            Double massFrac = radioactiveElements.get(resourceLocation);
-            Float cm = IAmFissileMaterial.molarConcentration.get(resourceLocation);
-            Double fastAbsorptionChance = Math.min(1,
-                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getFirst()
-                            * massFrac * cm * barnNa);
-            Double slowAbsorptionChance = Math.min(1,
-                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getSecond()
-                            * massFrac * cm * barnNa);
-            fastAbsorbed += radiationFlux.getFirst() * temperatureCoef * fastAbsorptionChance;
-            slowAbsorbed += radiationFlux.getSecond() * temperatureCoef * slowAbsorptionChance;
-        }
+        double fastAbsorbed = radiationFlux.getFirst() * temperatureCoef * fastAbsorptionChance;
+        double slowAbsorbed = radiationFlux.getSecond() * temperatureCoef * slowAbsorptionChance;
+
         additionalNeutronsAbsorbed.chaseTimed(additionalNeutronsAbsorbed.getChaseTarget()+ fastAbsorbed + slowAbsorbed,
                 LAZY_TICK_RATE);
         return Couple.create((float)(radiationFlux.getFirst() - fastAbsorbed), (float)(radiationFlux.getSecond() - slowAbsorbed));
@@ -343,6 +357,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 }
             }
         }
+        computeAbsorptionChances();
     }
 
     public @NotNull CompoundTag saveComposition() {

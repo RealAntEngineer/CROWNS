@@ -9,6 +9,7 @@ import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.nuclear.NuclearExplosion;
+import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
@@ -66,6 +67,15 @@ public class CommandsInit {
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
+                )
+
+                .then(Commands.literal("clearSteamCurrents")
+                                .executes(context -> {
+                                    ServerPlayer player = context.getSource().getPlayerOrException();
+
+                                    SteamFlowManager.clear();
+                                    return Command.SINGLE_SUCCESS;
+                                })
                 )
 
                 .then(Commands.literal("recordAssembly")

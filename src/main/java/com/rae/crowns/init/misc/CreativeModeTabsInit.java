@@ -55,7 +55,7 @@ public class CreativeModeTabsInit {
     private static @NotNull Function<Item, Collection<ItemStack>> makeFuelAssembly() {
         Map<Item, Function<Item, Collection<ItemStack>>> factories = new Reference2ReferenceOpenHashMap<>();
 
-        // Ultra-clean, exact doubles
+        // exact doubles
         List<Double> uraniumGrades = List.of(
                 1.0 / 128.0, // 0.078125
                 3.0 / 16.0,  // 0.1875

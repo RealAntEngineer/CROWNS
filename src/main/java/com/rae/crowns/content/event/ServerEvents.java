@@ -5,6 +5,7 @@ import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.temperature.TemperatureTicker;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
+import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlockEntity;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -21,6 +22,7 @@ public class ServerEvents {
     @SubscribeEvent
     public static void onServerLevelTick(TickEvent.@NotNull LevelTickEvent event) {
         if (!(event.phase == TickEvent.Phase.END && event.level instanceof ServerLevel serverLevel)) return;
+        AssemblyBlockEntity.resetRayCounter();
         if (!event.haveTime()) return;
         PhysicsWorldData data = PhysicsSaveManager.get(serverLevel);
         if (data == null) return;
