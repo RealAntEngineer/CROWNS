@@ -1,11 +1,11 @@
 package com.rae.crowns.content.thermodynamics.conduction;
 
-import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
+import com.rae.crowns.init.data.DataComponentsInit;
 import com.rae.crowns.init.misc.BlockEntityInit;
 import com.rae.crowns.init.misc.BlockInit;
 import com.rae.formicapi.FormicApiLang;
@@ -20,21 +20,25 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+
+import static com.rae.formicapi.thermal_utilities.FullTableBased.DEFAULT_STATE;
 
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
     //transform the IHaveTemperature interface into a behavior
@@ -272,25 +276,20 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             if (stack.getAmount() <= 0)
                 return;
 
-            CompoundTag tag = stack.getOrCreateTag();
-
-            CompoundTag oldStateNBT = tag.getCompound("realGazState");
-            SpecificRealGazState oldState =
-                    oldStateNBT.isEmpty()
-                            ? DEFAULT_STATE
-                            : new SpecificRealGazState(oldStateNBT);
+            SpecificRealGazState oldState = stack.get(DataComponentsInit.REAL_GAZ_STATE);
+            if (oldState == null) oldState = DEFAULT_STATE;
 
             SpecificRealGazState newState =
                     FullTableBased.isobaricTransfer(oldState, amount / stack.getAmount());
 
-            tag.put("realGazState", newState.serialize());
+            stack.set(DataComponentsInit.REAL_GAZ_STATE, newState);
         }
         private static float getFluidTemperature(FluidStack stack) {
-            CompoundTag tag = stack.getTag();
-            if (tag == null || !tag.contains("realGazState"))
+            SpecificRealGazState state = stack.get(DataComponentsInit.REAL_GAZ_STATE);
+            if (state == null)
                 return DEFAULT_STATE.temperature();
 
-            return new SpecificRealGazState(tag.getCompound("realGazState")).temperature();
+            return state.temperature();
         }
 
     }

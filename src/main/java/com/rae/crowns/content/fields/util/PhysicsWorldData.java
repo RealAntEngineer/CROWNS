@@ -6,17 +6,19 @@ import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.init.data.PacketInit;
 import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -139,8 +141,10 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         registerLayer(DataLayerType.RESILIENCE);
     }
 
+
+
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, @NotNull HolderLookup.Provider provider) {
         CompoundTag nbt = new CompoundTag();
         nbt.putLong("DataLayerVersion", DATA_VERSION);
         nbt.put("layers", serializeLayers(layers));
@@ -154,7 +158,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
     public static @NotNull PhysicsWorldData loadData(@NotNull ServerLevel server) {
         return server.getDataStorage()
-                .computeIfAbsent(PhysicsWorldData::load, PhysicsWorldData::new, "thermal_grid");
+                .computeIfAbsent(new Factory<>(PhysicsWorldData::new, (c, p) -> PhysicsWorldData.load(c)), "thermal_grid");
     }
 
     public static @NotNull PhysicsWorldData load(@NotNull CompoundTag nbt) {
@@ -529,10 +533,8 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
             // Send to all players (could be filtered by proximity if desired)
             for (ServerPlayer player : players) {
-                PacketInit.getChannel().send(
-                        PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
-                        packet
-                );
+
+                        PacketDistributor.sendToPlayer(player, (CustomPacketPayload) packet);
             }
 
             // Remove sent sections from dirty set

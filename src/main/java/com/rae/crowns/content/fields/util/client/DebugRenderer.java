@@ -17,17 +17,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class DebugRenderer {
 
     private static final int RADIUS = 8;
@@ -73,8 +74,8 @@ public class DebugRenderer {
 
             // One AABB per section
             BlockPos min = new BlockPos(baseX, baseY, baseZ);
-            BlockPos max = new BlockPos(baseX + 16, baseY + 16, baseZ + 16);
-            AABB box = new AABB(min, max);
+            BlockPos max = new BlockPos(baseX + 17, baseY + 17, baseZ + 17);
+            AABB box = new AABB(Vec3.atLowerCornerOf(min), Vec3.atLowerCornerOf(max));
 
             AABBOutline outline = CACHE.computeIfAbsent(min, p -> new AABBOutline(box));
             outline.getParams().colored(TICKING_SECTION_COLOR).lineWidth(1 / 16f);

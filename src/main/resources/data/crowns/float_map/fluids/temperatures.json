@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": {
+    "minecraft:lava": 900,
+    "minecraft:flowing_lava": 900,
+    "crowns:flowing_corium": 1500,
+    "crowns:corium": 1500
+  }
+}

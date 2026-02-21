@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": {
+    "#minecraft:base_stone_overworld": 0.5,
+    "#minecraft:base_stone_nether": 0.5,
+    "#forge:cobblestone": 0.5,
+    "#forge:sand": 0.4,
+    "#forge:dirt": 0.3,
+    "minecraft:exposed_copper": 0.1,
+    "minecraft:waxed_exposed_copper": 0.1,
+    "minecraft:magma_block": 0.95,
+    "minecraft:ice": 0.2,
+    "minecraft:packed_ice": 0.5,
+    "minecraft:blue_ice": 1,
+    "minecraft:air": 0.3,
+    "crowns:solid_corium": 0.9
+  }
+}

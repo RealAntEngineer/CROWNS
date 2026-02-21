@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.fluids.ForgeFlowingFluid;
+import net.neoforged.neoforge.fluids.BaseFlowingFluid;
 import org.lwjgl.system.NonnullDefault;
 
 import java.util.ArrayList;
@@ -30,10 +30,10 @@ import java.util.ArrayList;
  * - spreading to a refactory block add a decay of 2
  */
 @NonnullDefault
-public abstract class CoriumFluid extends ForgeFlowingFluid {
+public abstract class CoriumFluid extends BaseFlowingFluid {
     public static final IntegerProperty POWER = IntegerProperty.create("power", 0, 15);
 
-    protected CoriumFluid(ForgeFlowingFluid.Properties properties) {
+    protected CoriumFluid(BaseFlowingFluid.Properties properties) {
         super(properties);
     }
 

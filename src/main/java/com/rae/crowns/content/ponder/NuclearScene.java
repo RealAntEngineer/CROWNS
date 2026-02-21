@@ -113,10 +113,10 @@ public class NuclearScene {
         scene.idleSeconds(2);
 
         // 💥 Fuel collapses into corium
-        scene.world().setBlocks(fc1, FluidInit.CORIUM.get().getFlowing().defaultFluidState().createLegacyBlock(), false);
-        scene.world().setBlocks(fc2, FluidInit.CORIUM.get().getFlowing().defaultFluidState().createLegacyBlock(), false);
-        scene.world().setBlocks(fc3, FluidInit.CORIUM.get().getFlowing().defaultFluidState().createLegacyBlock(), false);
-        scene.world().setBlocks(fc4, FluidInit.CORIUM.get().getFlowing().defaultFluidState().createLegacyBlock(), false);
+        scene.world().setBlocks(fc1, FluidInit.CORIUM.getSource().defaultFluidState().createLegacyBlock(), false);
+        scene.world().setBlocks(fc2, FluidInit.CORIUM.getSource().defaultFluidState().createLegacyBlock(), false);
+        scene.world().setBlocks(fc3, FluidInit.CORIUM.getSource().defaultFluidState().createLegacyBlock(), false);
+        scene.world().setBlocks(fc4, FluidInit.CORIUM.getSource().defaultFluidState().createLegacyBlock(), false);
 
         scene.idleSeconds(3);
     }

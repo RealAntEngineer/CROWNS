@@ -15,9 +15,10 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.event.level.ChunkEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.level.ChunkEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +27,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 
-@Mod.EventBusSubscriber(modid = CROWNS.MODID)
+@EventBusSubscriber(modid = CROWNS.MODID)
 public class PhysicsSaveManager {
     private static final Map<ResourceKey<Level>, PhysicsWorldData> worldDataMap = new WeakHashMap<>();
     private static final Map<ResourceKey<Level>, LongSet> worldLoadedSections = new HashMap<>();

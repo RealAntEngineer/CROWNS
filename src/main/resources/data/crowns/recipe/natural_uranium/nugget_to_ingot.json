@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "crowns:natural_uranium_nugget"
+    }
+  },
+  "pattern": [
+  "###",
+  "###",
+  "###"
+],
+  "result": {
+    "item": "crowns:uranium_ingot"
+  }
+}

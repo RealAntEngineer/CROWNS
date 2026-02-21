@@ -1,0 +1,9 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "crowns:block/solid_corium_animated"
+      }
+    ]
+  }
+}
