@@ -69,7 +69,6 @@ public class CROWNS {
         CROWNSConfigs.registerConfigs(modLoadingContext);
         CROWNSContraptionType.prepare();
         MovementCheckInit.register();
-        //CreativeModeTabsInit.init();
 
         forgeEventBus.addListener(CROWNS::onAddReloadListeners);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> CROWNSClient.clientRegister(modEventBus));
