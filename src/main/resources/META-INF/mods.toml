@@ -6,7 +6,7 @@ license="MIT"
 
 [[mods]]
 modId="crowns"
-version="2.0.29"
+version="2.1.1"
 displayName="Creating Rotation Operated With Nuclear Science"
 logoFile="logo.png"
 credits='''
@@ -27,11 +27,6 @@ side="BOTH"
 [[dependencies.crowns]]
 modId="formicapi"
 mandatory=true
-versionRange="[1.6.4,)"
+versionRange="[1.6.6,)"
 ordering="NONE"
 side="BOTH"
-
-
-
-
-

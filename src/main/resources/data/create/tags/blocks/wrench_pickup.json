@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "crowns:fuel_assembly",
+    "crowns:turbine_stage",
     "crowns:heat_exchanger",
     "crowns:steam_input",
     "crowns:steam_collector",

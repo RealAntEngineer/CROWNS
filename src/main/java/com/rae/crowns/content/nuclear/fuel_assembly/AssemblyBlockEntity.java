@@ -53,11 +53,11 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public float nbrOfFission;//nbr of fission/t
     public float C = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
     public LerpedFloat additionalNeutronsAbsorbed = LerpedFloat.linear();
-    public @NotNull HashMap<ResourceLocation, Float> radioactiveElements = new HashMap<>(
+    public @NotNull HashMap<ResourceLocation, Double> radioactiveElements = new HashMap<>(
             Map.of(
-                    CROWNS.resource("u235"), 0.014f * 0.2f,
-                    CROWNS.resource("u238"), 0.986f * 0.2f,
-                    CROWNS.resource("p239"), 0.00f * 0.2f
+                    CROWNS.resource("u235"), 0.014 * 0.2,
+                    CROWNS.resource("u238"), 0.986 * 0.2,
+                    CROWNS.resource("p239"), 0.00 * 0.2
             ));//for U235,U358 and Plutonium -> percentage of total mass
     protected int syncCooldown;
     protected boolean queuedSync;
@@ -114,6 +114,12 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     }
 
+    static int rayCount = 0;
+    public static void resetRayCounter() {
+        //System.out.println(rayCount);
+        rayCount = 0;
+    }
+
     @Override
     public void sendData() {
         if (syncCooldown > 0) {
@@ -134,7 +140,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         super.initialize();
         if (level != null && level.isClientSide) {
             this.lazyTickCounter = Math.toIntExact(LAZY_TICK_RATE - level.getGameTime() % LAZY_TICK_RATE);
-            //RenderSystem.recordRenderCall(this::initializeClientTcherenkov);
         }
     }
 
@@ -143,7 +148,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         super.tick();
         assert level != null;
         if (!level.isClientSide()) {
-            //debugPrintState(getBlockPos().toShortString());
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) level);
 
             if (data!=null && !data
@@ -161,35 +165,11 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             if (Math.toIntExact(level.getGameTime() % LAZY_TICK_RATE) == 0){
                 fakeLazyTick();
             }
-        } else {
-            /*if (tcherenkov!=null)
-                tcherenkov.opacityScale = Math.min(getRadioactiveActivity()/1e6f, 1);*/
         }
 
         if (Float.isNaN(temperature)) {
             temperature = 300;
         }
-    }
-    private void debugPrintState(String label) {
-        assert level != null;
-        String data = String.format(
-                "{\"time\":%d, \"pos\": \"%d %d %d\", \"temp\": %.3f, \"nbr\": %.6f, \"oldNbr\": %.6f, \"absorbed\": %.6f, \"power\": %.6f, \"composition\": %s, \"label\":\"%s\"}",
-                level.getGameTime(),
-                worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(),
-                temperature,
-                nbrOfFission, oldNbrOfFission,
-                additionalNeutronsAbsorbed.getValue(), power,
-                radioactiveElements,
-                label
-        );
-        CROWNS.LOGGER.info(data); // ← raw JSON line per tick
-    }
-
-    @Override
-    public void remove() {
-        super.remove();
-        //VolumeWorldRenderer.remove(tcherenkov);
-        //tcherenkov = null;//will get garbage collected
     }
 
     public void fakeLazyTick() {
@@ -231,7 +211,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
                 }
             }
-            moreOptimizedImpactEnv(pos, level, CROWNSConfigs.SERVER.nuclear.radiationRange.get());
+            rayCount += moreOptimizedImpactEnv(pos, level, CROWNSConfigs.SERVER.nuclear.radiationRange.get());
 
             notifyUpdate();
 
@@ -365,7 +345,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         tooltip.add(Component.literal("composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
         for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
             if (radioactiveElements.containsKey(resourceLocation)) {
-                float concentration = radioactiveElements.get(resourceLocation);
+                double concentration = radioactiveElements.get(resourceLocation);
                 tooltip.add(
                         Component.translatable(resourceLocation.toLanguageKey("nucleus")).withStyle(ChatFormatting.YELLOW)
                                 .append(Component.literal(String.format(" : %.2f %%", concentration * 100)).withStyle(ChatFormatting.GRAY)));
@@ -374,42 +354,45 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
         return true;
     }
+    private static float negativeThermalCoef = 0.0075f;
+    public static void reloadConfig(){
+        negativeThermalCoef = CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF();
+    }
+    double fastAbsorptionChance;
+    double slowAbsorptionChance;
+    public void computeAbsorptionChances(){
+        fastAbsorptionChance = 0;
+        slowAbsorptionChance = 0;
+        for (ResourceLocation resourceLocation : radioactiveElements.keySet()) {
+            double massFrac = radioactiveElements.get(resourceLocation);
+            float cm = IAmFissileMaterial.molarConcentration.get(resourceLocation);
+            fastAbsorptionChance += Math.min(1,
+                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getFirst()
+                            * massFrac * cm * barnNa);
+            slowAbsorptionChance += Math.min(1,
+                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getSecond()
+                            * massFrac * cm * barnNa);
+        }
+    }
     int lastLazy = 0;
+
+    //maybe replace with an array so it's more memory efficient
     @Override
     public @NotNull Couple<Float> absorbNeutrons(@NotNull Couple<Float> radiationFlux) {
-
-
-        assert level != null;
-        int oldLast = lastLazy;
+        int oldLast = lastLazy;//needed cause it could be hit by ray coming from a block that tick before us
         lastLazy = Math.toIntExact(level.getGameTime() / LAZY_TICK_RATE);
         if (oldLast != lastLazy) {//detect change of lazy tick.
             additionalNeutronsAbsorbed.chaseTimed(0, LAZY_TICK_RATE);
         }
 
-        Float temperatureCoef = 1 / Math.max(1, (temperature - 200) * CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF());
+        float temperatureCoef = 1 / Math.max(1, (temperature - 200) * negativeThermalCoef);
         //System.out.println("temperature coef "+ temperatureCoef);
-        float fastAbsorbed = 0f;
-        float slowAbsorbed = 0f;
-        for (ResourceLocation resourceLocation : radioactiveElements.keySet()) {
-            Float massFrac = radioactiveElements.get(resourceLocation);
-            Float cm = IAmFissileMaterial.molarConcentration.get(resourceLocation);
-            Float fastAbsorptionChance = Math.min(1,
-                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getFirst()
-                            * massFrac * cm * barnNa);
-            Float slowAbsorptionChance = Math.min(1,
-                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getSecond()
-                            * massFrac * cm * barnNa);
-            //System.out.println(resourceLocation);
-            //System.out.println("fastC : "+ fastAbsorptionChance);
-            //System.out.println("slowC : "+ slowAbsorptionChance);
-            fastAbsorbed += radiationFlux.getFirst() * temperatureCoef * fastAbsorptionChance;
-            //System.out.println("fast absorbed "+fastAbsorbed);
-            slowAbsorbed += radiationFlux.getSecond() * temperatureCoef * slowAbsorptionChance;
-            //System.out.println("slow absorbed "+slowAbsorbed);
-        }
+        double fastAbsorbed = radiationFlux.getFirst() * temperatureCoef * fastAbsorptionChance;
+        double slowAbsorbed = radiationFlux.getSecond() * temperatureCoef * slowAbsorptionChance;
+
         additionalNeutronsAbsorbed.chaseTimed(additionalNeutronsAbsorbed.getChaseTarget()+ fastAbsorbed + slowAbsorbed,
                 LAZY_TICK_RATE);
-        return Couple.create(radiationFlux.getFirst() - fastAbsorbed, radiationFlux.getSecond() - slowAbsorbed);
+        return Couple.create((float)(radiationFlux.getFirst() - fastAbsorbed), (float)(radiationFlux.getSecond() - slowAbsorbed));
     }
 
     public void setComposition(@Nullable CompoundTag composition) {
@@ -417,20 +400,21 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             radioactiveElements = new HashMap<>();
             for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
                 if (composition.contains(resourceLocation.toString())) {
-                    float concentration = composition.getFloat(resourceLocation.toString());
+                    double concentration = composition.getDouble(resourceLocation.toString());
                     radioactiveElements.put(resourceLocation, concentration);
                 }
             }
         }
+        computeAbsorptionChances();
     }
 
     public @NotNull CompoundTag saveComposition() {
         CompoundTag composition = new CompoundTag();
         for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
             if (radioactiveElements.containsKey(resourceLocation)) {
-                float concentration = radioactiveElements.get(resourceLocation);
+                double concentration = radioactiveElements.get(resourceLocation);
 
-                composition.putFloat(resourceLocation.toString(), concentration);
+                composition.putDouble(resourceLocation.toString(), concentration);
             }
         }
         return composition;

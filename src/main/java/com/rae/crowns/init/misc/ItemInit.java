@@ -14,6 +14,7 @@ public class ItemInit {
 
     public static final ItemEntry<Item>
             URANIUM_INGOT = REGISTRATE.item("uranium_ingot", Item::new).register(),
+            NATURAL_URANIUM_NUGGET = REGISTRATE.item("natural_uranium_nugget", Item::new).register(),
             FUEL_ROD = REGISTRATE.item("fuel_rod", Item::new).register(),
             DEPLETED_URANIUM_INGOT = REGISTRATE.item("depleted_uranium_ingot", Item::new).register(),
             ENRICHED_URANIUM_NUGGET = REGISTRATE.item("enriched_uranium_nugget", Item::new).register(),

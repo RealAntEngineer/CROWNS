@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 public class CROWNSClient {
     public static void clientRegister(@NotNull IEventBus eventBus) {
         PonderIndex.addPlugin(new CROWNSPonderPlugin());
-
+        PartialModelInit.init();
         eventBus.addListener(ParticleTypeInit::registerFactories);
     }
 }

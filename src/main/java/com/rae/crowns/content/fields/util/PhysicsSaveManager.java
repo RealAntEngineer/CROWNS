@@ -41,7 +41,7 @@ public class PhysicsSaveManager {
             int chunkX = chunk.getPos().x;
             int chunkZ = chunk.getPos().z;
 
-            for (int sectionY = 0; sectionY < chunk.getSectionsCount(); sectionY++) {
+            for (int sectionY = event.getLevel().getMinSection(); sectionY < event.getLevel().getMaxSection(); sectionY++) {
                 SectionPos sectionPos = SectionPos.of(chunkX, sectionY, chunkZ);
                 worldLoadedSections.computeIfAbsent(serverLevel.dimension(), k -> new LongOpenHashSet()).remove(sectionPos.asLong());
             }
@@ -59,14 +59,15 @@ public class PhysicsSaveManager {
             int chunkX = chunk.getPos().x;
             int chunkZ = chunk.getPos().z;
 
-            for (int sectionY = 0; sectionY < chunk.getSectionsCount(); sectionY++) {
+            for (int sectionY = event.getLevel().getMinSection(); sectionY < event.getLevel().getMaxSection(); sectionY++) {
                 SectionPos sectionPos = SectionPos.of(chunkX, sectionY, chunkZ);
                 worldLoadedSections.computeIfAbsent(serverLevel.dimension(), k -> new LongOpenHashSet()).add(sectionPos.asLong());            }
         }
     }
 
     public static boolean isLoaded(ResourceKey<Level> level, long section) {
-        return worldLoadedSections.computeIfAbsent(level, d -> new LongOpenHashSet()).contains(section);
+        LongSet set = worldLoadedSections.get(level);
+        return set != null && set.contains(section);
     }
 
     public static @Nullable PhysicsWorldData get(@NotNull ServerLevel level) {

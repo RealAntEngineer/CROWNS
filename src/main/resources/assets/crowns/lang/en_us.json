@@ -7,16 +7,18 @@
   "block.crowns.uranium_ore": "Uranium Ore",
   "block.crowns.deepslate_uranium_ore": "Deepslate Uranium Ore",
   "block.crowns.turbine_stage": "Turbine Stage",
+  "block.crowns.turbine_stage_structure": "Turbine Stage Structure",
   "block.crowns.compressor": "Compressor",
 
   "item.crowns.uranium_ingot": "Natural Uranium Ingot",
-  "item.crowns.uranium_nugget": "Natural Uranium Nugget",
+  "item.crowns.natural_uranium_nugget": "Natural Uranium Nugget",
   "item.crowns.depleted_uranium_ingot": "Depleted Uranium Ingot",
   "item.crowns.depleted_uranium_nugget": "Depleted Uranium Nugget",
   "item.crowns.enriched_uranium_ingot": "Enriched Uranium Ingot",
   "item.crowns.enriched_uranium_nugget": "Enriched Uranium Nugget",
 
   "item.crowns.corium_bucket": "Corium Bucket",
+  "item.crowns.uranium_hexafluoride_bucket": "Uranium Hexafluoride Bucket",
   "item.crowns.fuel_rod": "Fuel Rod",
 
   "item.crowns.raw_uranium": "Raw Uranium",
@@ -30,11 +32,11 @@
   "crowns.ponder.nuclear_basics.header": "Nuclear Reactors",
   "crowns.ponder.nuclear_basics.text_1": "Nuclear Fuel naturally produces fast neutrons",
   "crowns.ponder.nuclear_basics.text_2": "Fast neutrons are unlikely to induce fission",
-  "crowns.ponder.nuclear_basics.text_3": "Add a Moderator to transform them into thermal neutrons that can induce fission and produce more neutrons",
-  "crowns.ponder.nuclear_basics.text_4": "In short a moderator make the reactor hotter",
+  "crowns.ponder.nuclear_basics.text_3": "Add a moderator to transform them into thermal neutrons which can induce fission and produce more neutrons",
+  "crowns.ponder.nuclear_basics.text_4": "In short a moderator makes the reactor hotter",
   "crowns.ponder.nuclear_basics.text_5": "Coal has 70%% efficiency",
   "crowns.ponder.nuclear_basics.text_6": "Water has 50%% efficiency",
-  "crowns.ponder.nuclear_basics.text_7": "Gold has the opposite effect and can be used as a control rod. It blocks every radiation",
+  "crowns.ponder.nuclear_basics.text_7": "Gold has the opposite effect and can be used as a control rod. It blocks all radiation",
   "crowns.ponder.nuclear_basics.text_8": "When enough fuel-type blocks are in one place with a Moderator, the reaction will skyrocket",
   "crowns.ponder.nuclear_basics.text_9": "As fission continues, fuel assemblies begin to heat up...",
   "crowns.ponder.nuclear_basics.text_10": "Without proper cooling or control rods, temperature reaches critical levels.",
@@ -52,9 +54,16 @@
   "crowns.ponder.turbine.text_1": "Input vapor into the Steam Inputs",
   "crowns.ponder.turbine.text_2": "If the water is not hot enough the turbine will not turn",
   "crowns.ponder.turbine.text_3": "Once the water is boiling and has some vapor in it the turbine will spin",
-  "crowns.ponder.turbine.text_4": "The color show the vapor quality",
-  "crowns.ponder.turbine.text_5": "From pure steam (x = 100%)",
-  "crowns.ponder.turbine.text_6": "To pure liquid water (x = 0%)",
+  "crowns.ponder.turbine.text_4": "The color shows the vapor quality",
+  "crowns.ponder.turbine.text_5": "From pure steam (x = 100%%)",
+  "crowns.ponder.turbine.text_6": "To pure liquid water (x = 0%%)",
+
+  "crowns.ponder.compressor.header": "Compressor",
+  "crowns.ponder.compressor.text_1": "Compressor increase the pressure of the incoming flow",
+  "crowns.ponder.compressor.text_2": "At the difference of the turbine the increase in pressure depends on the speed",
+  "crowns.ponder.compressor.text_3": "At 0 rpm it's %s\nAt 64 rpm it's %s\nAt 128 rpm it's %s\nAt 256 rpm it's %s",
+  "crowns.ponder.compressor.text_4": "High pressure water boil at higher temperature",
+
 
   "crowns.display_source.radiation_source.activity": "Radiation: ",
   "crowns.display_source.radiation_source.k_eff": "Effective Factor: ",
@@ -75,7 +84,10 @@
   "crowns.units.radiation_flux.symbol.rad_per_seconds": "Rad/s",
   "crowns.units.radiation_flux.symbol.sievert_per_seconds": "Sv/s",
 
+  "nucleus.crowns.u235": "Uranium 235",
+  "nucleus.crowns.u238": "Uranium 238",
+  "nucleus.crowns.p239": "Plutonium 239",
 
   "death.attack.crowns.high_temperature": "%s got cooked to death",
-  "death.attack.crowns.low_temperature": "%s got frozen"
+  "death.attack.crowns.low_temperature": "%s got turned into an ice cube"
 }

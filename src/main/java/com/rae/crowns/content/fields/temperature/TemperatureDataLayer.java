@@ -2,7 +2,6 @@ package com.rae.crowns.content.fields.temperature;
 
 
 import com.rae.crowns.content.fields.util.AbstractDataLayer;
-import com.rae.crowns.content.fields.util.DataLayerType;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;

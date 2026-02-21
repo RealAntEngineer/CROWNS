@@ -29,10 +29,6 @@ public class BlockInit {
 
     //to do list -> uranium ore (enrichment ?) + plutonium (created from 235) + depletion of fuel
     // control bar
-    // thermal exchanger pipe ( entry, exit and middle : fluid tanks on both side entry and exit -> flow rate ? pressure loss ?)
-
-    // turbine contraption ? -> turbine blade model + entry and exit ports
-    // compressor ?
 
     public static final BlockEntry<HeatExchangerBlock> HEAT_EXCHANGER = REGISTRATE
             .block("heat_exchanger", HeatExchangerBlock::new)
@@ -62,9 +58,11 @@ public class BlockInit {
                     "steam_collector", SteamCollectorBlock::new)
             .initialProperties(SharedProperties::softMetal)
             .properties(BlockBehaviour.Properties::noOcclusion)
+            .transform(displaySource(DisplaySourceInit.TEMPERATURE))
             .item()
             .build()
             .register();
+
     public static final BlockEntry<MBStructureBlock> TURBINE_STAGE_STRUCTURE =
             REGISTRATE.block("turbine_stage_structure", MBStructureBlock::new)
                     .initialProperties(SharedProperties::softMetal)
@@ -72,6 +70,7 @@ public class BlockInit {
                     .item()
                     .build()
                     .register();
+
     public static final BlockEntry<TurbineStageBlock> TURBINE_STAGE =
             REGISTRATE.block("turbine_stage", (p) -> new TurbineStageBlock(p, TURBINE_STAGE_STRUCTURE.get()))
                     .initialProperties(SharedProperties::softMetal)
@@ -111,6 +110,7 @@ public class BlockInit {
             .item()
             .build()
             .register();
+
     public static final BlockEntry<UraniumOreBlock> DEEP_URANIUM_ORE = REGISTRATE
             .block("deepslate_uranium_ore", UraniumOreBlock::new)
             .initialProperties(() -> Blocks.DEEPSLATE)
@@ -118,6 +118,7 @@ public class BlockInit {
             .item()
             .build()
             .register();
+
     public static final BlockEntry<UraniumOreBlock> URANIUM_ORE = REGISTRATE
             .block("uranium_ore", UraniumOreBlock::new)
             .initialProperties(SharedProperties::stone)

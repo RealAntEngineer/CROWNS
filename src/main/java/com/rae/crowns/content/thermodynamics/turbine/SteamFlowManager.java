@@ -92,4 +92,11 @@ public class SteamFlowManager {
             storage.steamCurrents = savedData.steamCurrents;
         }
     }
+
+    public static void clear() {
+        if (storage == null){
+            return;
+        }
+        storage.steamCurrents.clear();
+    }
 }
