@@ -2,17 +2,18 @@
   "type": "create:mixing",
   "ingredients": [
     {
-      "fluid": "crowns:uranium_hexafluoride",
+      "type": "fluid_stack",
+      "id": "crowns:uranium_hexafluoride",
       "amount": 100
     }
   ],
   "results": [
     {
-      "item": "crowns:enriched_uranium_nugget",
+      "id": "crowns:enriched_uranium_nugget",
       "count": 3
     },
     {
-      "item": "crowns:depleted_uranium_nugget",
+      "id": "crowns:depleted_uranium_nugget",
       "count": 6
     }
   ]

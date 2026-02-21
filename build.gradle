@@ -1,17 +1,8 @@
-
-buildscript {
-    repositories {
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public' }
-    }
-    dependencies {
-        classpath "org.spongepowered:mixingradle:${mixingradle_version}"
-    }
-}
 plugins {
     id 'idea'
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.78'
+    id 'net.neoforged.moddev' version '2.0.107'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -23,7 +14,7 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-version = mod_version
+version = minecraft_version + "-" + mod_version
 group = mod_group_id
 
 

@@ -11,12 +11,13 @@
     }
   },
   "result": {
-    "item": "crowns:fuel_rod",
-    "type": "forge:partial_nbt",
-    "nbt": {
-      "composition": {
-        "crowns:u235": 0.875,
-        "crowns:u238": 0.125
+    "id": "crowns:fuel_rod",
+    "components": {
+      "minecraft:custom_data": {
+        "composition": {
+          "crowns:u235": 0.875,
+          "crowns:u238": 0.125
+        }
       }
     },
     "count": 8

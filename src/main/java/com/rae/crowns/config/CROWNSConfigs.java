@@ -18,8 +18,7 @@ import java.util.function.Supplier;
 
 // An example config class. This is not required, but it's a good idea to have one to keep your config organized.
 // Demonstrates how to use Forge's config APIs
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
-
+@EventBusSubscriber
 public class CROWNSConfigs
 {
     private static final Map<ModConfig.Type, ConfigBase> CONFIGS = new EnumMap<>(ModConfig.Type.class);

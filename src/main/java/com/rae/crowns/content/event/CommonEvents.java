@@ -41,7 +41,7 @@ public class CommonEvents {
         CommandsInit.register(event.getDispatcher());
     }
     @SubscribeEvent
-    public static void onEntityTick(@NotNull EntityTickEvent event) {
+    public static void onEntityTick(@NotNull EntityTickEvent.Pre event) {
         Entity entity = event.getEntity();
         if (entity.level() instanceof  ServerLevel level && entity instanceof LivingEntity) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) entity.level());

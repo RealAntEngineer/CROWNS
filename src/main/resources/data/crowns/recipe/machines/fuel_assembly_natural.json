@@ -8,11 +8,12 @@
   "key": {
     "U": {
       "item": "crowns:fuel_rod",
-      "type": "forge:partial_nbt",
-      "nbt": {
-        "composition": {
-          "crowns:u235": 0.0078125,
-          "crowns:u238": 0.9921875
+      "components": {
+        "minecraft:custom_data": {
+          "composition": {
+            "crowns:u235": 0.0078125,
+            "crowns:u238": 0.9921875
+          }
         }
       }
     },
@@ -21,12 +22,13 @@
     }
   },
   "result": {
-    "item": "crowns:fuel_assembly",
-    "type": "forge:partial_nbt",
-    "nbt": {
-      "composition": {
-        "crowns:u235": 0.001953125,
-        "crowns:u238": 0.248046875
+    "id": "crowns:fuel_assembly",
+    "components": {
+      "minecraft:custom_data": {
+        "composition": {
+          "crowns:u235": 0.001953125,
+          "crowns:u238": 0.248046875
+        }
       }
     },
     "count": 1

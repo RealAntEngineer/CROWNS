@@ -109,8 +109,8 @@ public class SteamCurrent {
         // Geometry + config
         BlockPos injectorPos = BlockPos.of(nbt.getLong("injectorPos"));
         AABB boundingBox = new AABB(
-                BlockPos.of(nbt.getLong("startPos")),
-                BlockPos.of(nbt.getLong("endPos"))
+                Vec3.atLowerCornerOf(BlockPos.of(nbt.getLong("startPos"))),
+                Vec3.atLowerCornerWithOffset(BlockPos.of(nbt.getLong("endPos")), 1,1,1)
         );
 
         float maxDistance = nbt.getFloat("maxDistance");

@@ -2,7 +2,8 @@
   "type": "create:mixing",
   "ingredients": [
     {
-      "fluid": "minecraft:water",
+      "type": "fluid_stack",
+      "id": "minecraft:water",
       "amount": 100
     },
     {

@@ -31,7 +31,7 @@ public class FluidInit {
                     .build()
                     .register();
 
-    public static final FluidEntry<BaseFlowingFluid.Flowing> URANIUM_HEXAFLUOR =
+    public static final FluidEntry<BaseFlowingFluid.Flowing> URANIUM_HEXAFLUORIDE =
             CROWNS.REGISTRATE.fluid("uranium_hexafluoride" ,CROWNS.resource("fluid/uranium_hexafluoride_still"), CROWNS.resource("fluid/uranium_hexafluoride_flowing"))
                     .lang("Uranium_Hexafluoride")
                     .properties(b -> b.viscosity(2000)

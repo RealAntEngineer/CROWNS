@@ -8,7 +8,7 @@
   "results": [
     {
       "chance": 0.05,
-      "item": "crowns:natural_uranium_nugget"
+      "id": "crowns:natural_uranium_nugget"
     }
   ]
 }
