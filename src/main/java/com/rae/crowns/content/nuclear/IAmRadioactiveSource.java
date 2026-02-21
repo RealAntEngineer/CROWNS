@@ -134,7 +134,7 @@ public interface IAmRadioactiveSource {
         }
         return rays;
     }
-
+    //inline ray tracing for radiation
     default int moreOptimizedImpactEnv(@NotNull BlockPos pos, @NotNull Level level, @NotNull Double range) {
 
         float fastNeutrons = getRadioactiveActivity();
@@ -228,8 +228,6 @@ public interface IAmRadioactiveSource {
                     fast -= absorbed;
                     thermal += absorbed;
                 }
-
-                if (fast < 1e-5f) break;
             }
 
             rays++;
