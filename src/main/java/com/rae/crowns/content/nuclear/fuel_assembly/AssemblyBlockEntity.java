@@ -14,7 +14,6 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.theme.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -27,7 +26,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -231,7 +229,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public float getRadioactiveActivity() {
-        float easeCoef = CROWNSConfigs.SERVER.nuclear.neutronFluxMultiplicator.getF(); //TODO config
+        float easeCoef = CROWNSConfigs.SERVER.nuclear.neutronFluxMultiplicator.getF();
         return backgroundActivity + nbrOfFission * 2.5f * easeCoef;
     }
     @Override
@@ -267,7 +265,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     @Override
-    protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+    protected void read(@NotNull CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
 
         nbrOfFission = tag.getFloat("nbrOfFission");
         additionalNeutronsAbsorbed.startWithValue(tag.getFloat("additionalNeutrons"));
@@ -279,7 +277,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     @Override
-    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+    public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
 
         FormicApiLang.formatRadiationFlux(getRadioactiveActivity() * 20)
                 .style(ChatFormatting.DARK_GREEN)

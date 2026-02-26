@@ -3,16 +3,21 @@ package com.rae.crowns.content.fields.util.client;
 import com.mojang.blaze3d.vertex.*;
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.config.CROWNSConfigs;
+import com.simibubi.create.content.redstone.nixieTube.NixieTubeRenderer;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.outliner.AABBOutline;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.font.glyphs.BakedGlyph;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.AABB;
@@ -38,7 +43,7 @@ public class DebugRenderer {
 
     @SubscribeEvent
     public static void onRenderWorld(@NotNull RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return;
 
         Minecraft mc = Minecraft.getInstance();
 
@@ -74,7 +79,7 @@ public class DebugRenderer {
 
             // One AABB per section
             BlockPos min = new BlockPos(baseX, baseY, baseZ);
-            BlockPos max = new BlockPos(baseX + 17, baseY + 17, baseZ + 17);
+            BlockPos max = new BlockPos(baseX + 16, baseY + 16, baseZ + 16);
             AABB box = new AABB(Vec3.atLowerCornerOf(min), Vec3.atLowerCornerOf(max));
 
             AABBOutline outline = CACHE.computeIfAbsent(min, p -> new AABBOutline(box));
@@ -101,8 +106,9 @@ public class DebugRenderer {
         // Get the biome directly from the noise source
         Holder<Biome> biome = level.getBiomeManager()
                 .getNoiseBiomeAtQuart(qx, qy, qz);
+        MultiBufferSource.BufferSource buffer =
+                mc.renderBuffers().bufferSource();
         float defaultTemp =  CROWNS.BIOME_TEMPERATURES.getValue(biome.value(), 300f);
-
         for (int x = -RADIUS; x <= RADIUS; x++) {
             for (int y = -RADIUS; y <= RADIUS; y++) {
                 for (int z = -RADIUS; z <= RADIUS; z++) {
@@ -114,13 +120,21 @@ public class DebugRenderer {
 
                     int color = temperatureToColor(temp);
                     labelPos = Vec3.atCenterOf(mutablePos);
-                    renderFloatingText(poseStack, font, String.format("%.1fK", temp), labelPos, color, cam, mc);
+                    renderFloatingText(poseStack, font, String.format("%.1fK", temp), labelPos, color, cam, mc, buffer);
                 }
             }
         }
+        if (buffer instanceof MultiBufferSource.BufferSource) {
+            Font fontRenderer = Minecraft.getInstance().font;
+            BakedGlyph texturedGlyph = fontRenderer.getFontSet(Style.DEFAULT_FONT)
+                    .whiteGlyph();
+            buffer.endBatch(texturedGlyph.renderType(Font.DisplayMode.NORMAL));
+        }
     }
 
-    private static void renderFloatingText(@NotNull PoseStack poseStack, @NotNull Font font, @NotNull String text, @NotNull Vec3 worldPos, int color, @NotNull Vec3 cam, @NotNull Minecraft mc) {
+    private static void renderFloatingText(@NotNull PoseStack poseStack, @NotNull Font font, @NotNull String text,
+                                           @NotNull Vec3 worldPos, int color, @NotNull Vec3 cam, @NotNull Minecraft mc,
+                                           MultiBufferSource.BufferSource buffer) {
         double dx = worldPos.x - cam.x;
         double dy = worldPos.y - cam.y;
         double dz = worldPos.z - cam.z;
@@ -128,14 +142,17 @@ public class DebugRenderer {
         poseStack.pushPose();
         poseStack.translate(dx, dy, dz);
         poseStack.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
-        poseStack.scale(-0.02F, -0.02F, 0.02F);
+        poseStack.scale(-1,-1,1);
+        //poseStack.scale(-0.02F, -0.02F, 0.02F);
+        //poseStack.translate(0,-1,0);
+
+        Font fontRenderer = Minecraft.getInstance().font;
 
         float width = font.width(text) / 2f;
-        font.drawInBatch(
-                text, -width, 0, color, false,
-                poseStack.last().pose(), mc.renderBuffers().bufferSource(),
-                Font.DisplayMode.SEE_THROUGH, 0, 15728880
-        );
+        fontRenderer.drawInBatch(text, 0, 0, color, false, poseStack.last()
+                .pose(), buffer, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
+
+
         poseStack.popPose();
     }
 

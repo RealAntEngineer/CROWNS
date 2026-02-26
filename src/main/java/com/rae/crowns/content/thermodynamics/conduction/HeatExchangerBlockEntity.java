@@ -169,6 +169,13 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
     }
 
+
+    @Override
+    public void writeSafe(CompoundTag tag, HolderLookup.Provider registries) {
+        super.writeSafe(tag, registries);
+        tag.put("water_tank", WATER_TANK.writeToNBT(registries, new CompoundTag()));
+    }
+
     @Override
     protected void read(CompoundTag tag,HolderLookup.Provider registries, boolean clientPacket) {
         temperature = tag.getFloat("temperature");

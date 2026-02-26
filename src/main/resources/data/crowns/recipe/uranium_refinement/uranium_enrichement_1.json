@@ -2,8 +2,8 @@
   "type": "create:mixing",
   "ingredients": [
     {
-      "type": "fluid_stack",
-      "id": "crowns:uranium_hexafluoride",
+      "type": "neoforge:single",
+      "fluid": "crowns:uranium_hexafluoride",
       "amount": 100
     }
   ],
