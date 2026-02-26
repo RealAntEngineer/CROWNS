@@ -1,7 +1,5 @@
 package com.rae.crowns.content.rendering.util;
 
-import com.mojang.blaze3d.pipeline.TextureTarget;
-import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
@@ -44,7 +42,7 @@ public class SceneDepth {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
     }
 
-    public static int getDepthTextureId(){
+    public static int getDepthTextureId() {
         return depthTexture;
     }
 }

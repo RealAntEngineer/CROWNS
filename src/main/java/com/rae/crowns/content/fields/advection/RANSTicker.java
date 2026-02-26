@@ -1,22 +1,15 @@
 package com.rae.crowns.content.fields.advection;
 
-import com.rae.crowns.content.fields.util.DataLayerType;
-import com.rae.crowns.content.fields.util.PhysicsWorldData;
-import com.rae.crowns.content.fields.util.SectionLooper;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Set;
-
 /**
  * CFD / RANS-style ticker that updates VX/VY/VZ using a simple viscous diffusion + damping model.
- *
+ * <p>
  * Expected layers passed to SectionLooper.iterate (per section):
- *   0 -> VX (float layer)
- *   1 -> BLOCKED_X (blocked mask, 1f = blocked)
- *   2 -> VY
- *   3 -> BLOCKED_Y
- *   4 -> VZ
- *   5 -> BLOCKED_Z
+ * 0 -> VX (float layer)
+ * 1 -> BLOCKED_X (blocked mask, 1f = blocked)
+ * 2 -> VY
+ * 3 -> BLOCKED_Y
+ * 4 -> VZ
+ * 5 -> BLOCKED_Z
  */
 public class RANSTicker {
     /*

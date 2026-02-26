@@ -1,12 +1,10 @@
 package com.rae.crowns.content.fields.util;
 
-import com.rae.crowns.content.fields.advection.VelocityDataLayer;
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -88,7 +86,7 @@ public class LocalPhysicData {
         return new Vec3(vx.get(localX, localY, localZ),vy.get(localX, localY, localZ),vz.get(localX, localY, localZ));
     }*/
 
-    public static @NotNull Set<SectionPos> getTickingSections(){
+    public static @NotNull Set<SectionPos> getTickingSections() {
         return tickingSections;
     }
 }

@@ -1,6 +1,7 @@
 package com.rae.crowns.content.fields.util;
 
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.config.CROWNSConfigs;
 import net.createmod.catnip.animation.AnimationTickHolder;
@@ -9,8 +10,6 @@ import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
@@ -37,6 +36,7 @@ public class DebugRenderer {
     private static final int RADIUS = 8;
     private static final int CACHE_PRUNE_DISTANCE = 4;
     private static final Map<BlockPos, AABBOutline> CACHE = new HashMap<>();
+    private static final int TICKING_SECTION_COLOR = 0x66CCFF; // light blue
     private static @Nullable BlockPos lastPlayerPos = null;
 
     @SubscribeEvent
@@ -64,7 +64,18 @@ public class DebugRenderer {
         //renderVelocityVectors(level, poseStack, playerPos);
 
     }
-    private static final int TICKING_SECTION_COLOR = 0x66CCFF; // light blue
+
+    private static void pruneCacheIfPlayerMoved(@NotNull BlockPos playerPos) {
+        if (lastPlayerPos == null) {
+            lastPlayerPos = playerPos;
+            return;
+        }
+
+        if (playerPos.distManhattan(lastPlayerPos) > CACHE_PRUNE_DISTANCE) {
+            lastPlayerPos = playerPos;
+            CACHE.keySet().removeIf(pos -> !pos.closerThan(playerPos, RADIUS + 4));
+        }
+    }
 
     private static void renderTickingSectionsAABB(@NotNull PoseStack poseStack, @NotNull Vec3 cameraPos, float pt) {
         SuperRenderTypeBuffer buffer = DefaultSuperRenderTypeBuffer.getInstance();
@@ -104,7 +115,7 @@ public class DebugRenderer {
         // Get the biome directly from the noise source
         Holder<Biome> biome = level.getBiomeManager()
                 .getNoiseBiomeAtQuart(qx, qy, qz);
-        float defaultTemp =  CROWNS.BIOME_TEMPERATURES.getValue(biome.value(), 300f);
+        float defaultTemp = CROWNS.BIOME_TEMPERATURES.getValue(biome.value(), 300f);
 
         for (int x = -RADIUS; x <= RADIUS; x++) {
             for (int y = -RADIUS; y <= RADIUS; y++) {
@@ -121,25 +132,6 @@ public class DebugRenderer {
                 }
             }
         }
-    }
-
-    private static void renderFloatingText(@NotNull PoseStack poseStack, @NotNull Font font, @NotNull String text, @NotNull Vec3 worldPos, int color, @NotNull Vec3 cam, @NotNull Minecraft mc) {
-        double dx = worldPos.x - cam.x;
-        double dy = worldPos.y - cam.y;
-        double dz = worldPos.z - cam.z;
-
-        poseStack.pushPose();
-        poseStack.translate(dx, dy, dz);
-        poseStack.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
-        poseStack.scale(-0.02F, -0.02F, 0.02F);
-
-        float width = font.width(text) / 2f;
-        font.drawInBatch(
-                text, -width, 0, color, false,
-                poseStack.last().pose(), mc.renderBuffers().bufferSource(),
-                Font.DisplayMode.SEE_THROUGH, 0, 15728880
-        );
-        poseStack.popPose();
     }
 
     /*private static void renderVelocityVectors(@NotNull Level level, @NotNull PoseStack poseStack, @NotNull BlockPos playerPos) {
@@ -175,6 +167,33 @@ public class DebugRenderer {
         }
     }*/
 
+    private static int temperatureToColor(float temperature) {
+        float t = Math.min(1f, Math.max(0f, (temperature - 200f) / 200f));
+        int r = (int) (t * 255);
+        int g = (int) ((1 - Math.abs(t - 0.5f) * 2) * 255);
+        int b = (int) ((1 - t) * 255);
+        return (r << 16) | (g << 8) | b;
+    }
+
+    private static void renderFloatingText(@NotNull PoseStack poseStack, @NotNull Font font, @NotNull String text, @NotNull Vec3 worldPos, int color, @NotNull Vec3 cam, @NotNull Minecraft mc) {
+        double dx = worldPos.x - cam.x;
+        double dy = worldPos.y - cam.y;
+        double dz = worldPos.z - cam.z;
+
+        poseStack.pushPose();
+        poseStack.translate(dx, dy, dz);
+        poseStack.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
+        poseStack.scale(-0.02F, -0.02F, 0.02F);
+
+        float width = font.width(text) / 2f;
+        font.drawInBatch(
+                text, -width, 0, color, false,
+                poseStack.last().pose(), mc.renderBuffers().bufferSource(),
+                Font.DisplayMode.SEE_THROUGH, 0, 15728880
+        );
+        poseStack.popPose();
+    }
+
     private static void renderArrow(PoseStack poseStack, Vec3 pos, Vec3 dir, int color, float scale, VertexConsumer buffer) {
         Vec3 start = pos;
         Vec3 end = pos.add(dir.scale(scale));
@@ -188,25 +207,5 @@ public class DebugRenderer {
 
         buffer.vertex(matrix, (float) start.x, (float) start.y, (float) start.z).color(r, g, b, 1f).normal(normal, 0, 1, 0).endVertex();
         buffer.vertex(matrix, (float) end.x, (float) end.y, (float) end.z).color(r, g, b, 1f).normal(normal, 0, 1, 0).endVertex();
-    }
-
-    private static void pruneCacheIfPlayerMoved(@NotNull BlockPos playerPos) {
-        if (lastPlayerPos == null) {
-            lastPlayerPos = playerPos;
-            return;
-        }
-
-        if (playerPos.distManhattan(lastPlayerPos) > CACHE_PRUNE_DISTANCE) {
-            lastPlayerPos = playerPos;
-            CACHE.keySet().removeIf(pos -> !pos.closerThan(playerPos, RADIUS + 4));
-        }
-    }
-
-    private static int temperatureToColor(float temperature) {
-        float t = Math.min(1f, Math.max(0f, (temperature - 200f) / 200f));
-        int r = (int) (t * 255);
-        int g = (int) ((1 - Math.abs(t - 0.5f) * 2) * 255);
-        int b = (int) ((1 - t) * 255);
-        return (r << 16) | (g << 8) | b;
     }
 }

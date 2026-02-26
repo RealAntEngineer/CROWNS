@@ -32,7 +32,7 @@ public class VolumeWorldRenderer {
         RenderSystem.enableDepthTest();
         RenderSystem.enableCull();
         if (VolumeCubeMesh.VBO == null) VolumeCubeMesh.init();
-        synchronized(GLGuard.GL_LOCK) {
+        synchronized (GLGuard.GL_LOCK) {
             for (RGBAVolumeInstance v : volumes) {
                 if (v.opacityScale > 0.01f)
                     v.render(poseStack, shader, cameraPos);

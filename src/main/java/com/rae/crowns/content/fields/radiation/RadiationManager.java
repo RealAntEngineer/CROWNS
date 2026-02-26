@@ -16,10 +16,6 @@ public class RadiationManager {
     private static final int MAX_UPDATES_PER_TICK = 100;
     private static final Map<ServerLevel, RadiationWorldData> worldDataMap = new WeakHashMap<>();
 
-    public static void enqueue(ServerLevel level, @NotNull BlockPos pos) {
-        updateQueue.add(pos.immutable());
-    }
-
     public static void tick(@NotNull ServerLevel level) {
         RadiationWorldData data = worldDataMap.computeIfAbsent(level, k -> new RadiationWorldData());
 
@@ -60,5 +56,9 @@ public class RadiationManager {
                 }
             }
         }
+    }
+
+    public static void enqueue(ServerLevel level, @NotNull BlockPos pos) {
+        updateQueue.add(pos.immutable());
     }
 }

@@ -4,7 +4,9 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.rae.crowns.content.rendering.util.GLGuard;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL30;
 
 import java.nio.FloatBuffer;
 
@@ -21,7 +23,7 @@ public abstract class Texture3D {
     private final FloatBuffer cpuBuffer;
 
     public Texture3D(float[] buffer, int width, int height, int depth, int dataSize) {
-        synchronized(GLGuard.GL_LOCK) {//we are accessing raw GL parameters so we need to protect it.
+        synchronized (GLGuard.GL_LOCK) {//we are accessing raw GL parameters so we need to protect it.
             //GL42.glMemoryBarrier(GL42.GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
             //System.out.println("sending a 3d texture");
 
@@ -43,7 +45,7 @@ public abstract class Texture3D {
             GL11.glTexParameteri(GL12.GL_TEXTURE_3D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
             GL11.glTexParameteri(GL12.GL_TEXTURE_3D, GL12.GL_TEXTURE_WRAP_R, GL12.GL_CLAMP_TO_EDGE);
 
-            this.glPixelFormat = switch (dataSize){
+            this.glPixelFormat = switch (dataSize) {
                 case 1 -> GL11.GL_RED;
                 case 2 -> GL30.GL_RG;
                 case 3 -> GL11.GL_RGB;
@@ -51,7 +53,7 @@ public abstract class Texture3D {
                 default -> throw new IllegalStateException("Invalid data size: " + dataSize);
             };
 
-            int glImageFormat = switch (dataSize){
+            int glImageFormat = switch (dataSize) {
                 case 1 -> GL30.GL_R32F;
                 case 2 -> GL30.GL_RG32F;
                 case 3 -> GL30.GL_RGB32F;
@@ -71,9 +73,10 @@ public abstract class Texture3D {
             );
         }
     }
+
     // ✅ FAST UPDATE WITHOUT REALLOCATION
     public void reupload() {
-        synchronized(GLGuard.GL_LOCK) {
+        synchronized (GLGuard.GL_LOCK) {
 
             RenderSystem.assertOnRenderThread();
             glBindTexture(GL_TEXTURE_3D, texId);

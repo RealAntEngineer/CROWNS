@@ -19,6 +19,12 @@ public class SteamFlowData extends SavedData {
     static final Codec<List<ResourceLocation>> KEYS_CODEC = Codec.list(ResourceLocation.CODEC);
     Map<ResourceLocation, List<SteamCurrent>> steamCurrents = new HashMap<>();
 
+    public static @NotNull SteamFlowData loadData(@NotNull MinecraftServer server) {
+        return server.overworld()
+                .getDataStorage()
+                .computeIfAbsent(SteamFlowData::load, SteamFlowData::new, "steam_currents");
+    }
+
     public static @NotNull SteamFlowData load(@NotNull CompoundTag nbt) {
         SteamFlowData savedData = new SteamFlowData();
         List<ResourceLocation> dimensionKeys = KEYS_CODEC.parse(NbtOps.INSTANCE, nbt.get("dimensions")).result().orElse(List.of());
@@ -34,12 +40,6 @@ public class SteamFlowData extends SavedData {
         /*savedData.steamCurrents = new HashMap<>(CODEC.parse(NbtOps.INSTANCE, nbt.get("currents"))
                 .result().orElse(new HashMap<>()));*/
         return savedData;
-    }
-
-    public static @NotNull SteamFlowData loadData(@NotNull MinecraftServer server) {
-        return server.overworld()
-                .getDataStorage()
-                .computeIfAbsent(SteamFlowData::load, SteamFlowData::new, "steam_currents");
     }
 
     @Override

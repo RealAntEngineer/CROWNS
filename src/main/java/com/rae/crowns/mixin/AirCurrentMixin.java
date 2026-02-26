@@ -1,6 +1,7 @@
 package com.rae.crowns.mixin;
 
-import com.rae.crowns.content.fields.temperature.*;
+import com.rae.crowns.content.fields.temperature.ConductionDataLayer;
+import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
@@ -10,18 +11,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Mixin(AirCurrent.class)
 public class AirCurrentMixin {
@@ -60,7 +56,7 @@ public class AirCurrentMixin {
 
         BlockPos fanPos = source.getAirCurrentPos(); // fan block itself
         SectionPos startSection = SectionPos.of(fanPos);
-        TemperatureDataLayer sTempLayer = data.getLayer(DataLayerType.TEMPERATURE,startSection.asLong());
+        TemperatureDataLayer sTempLayer = data.getLayer(DataLayerType.TEMPERATURE, startSection.asLong());
         if (sTempLayer == null) return;
 
         double streamTemp = sTempLayer.get(fanPos.getX() & 15, fanPos.getY() & 15, fanPos.getZ() & 15);
@@ -72,8 +68,8 @@ public class AirCurrentMixin {
             if (!world.isLoaded(pos)) break;
 
             SectionPos section = SectionPos.of(pos);
-            TemperatureDataLayer tempLayer = data.getLayer(DataLayerType.TEMPERATURE,section.asLong());
-            ConductionDataLayer condLayer = data.getLayer(DataLayerType.CONDUCTION,section.asLong());
+            TemperatureDataLayer tempLayer = data.getLayer(DataLayerType.TEMPERATURE, section.asLong());
+            ConductionDataLayer condLayer = data.getLayer(DataLayerType.CONDUCTION, section.asLong());
             if (tempLayer == null || condLayer == null) continue;
 
             int rx = pos.getX() & 15;
@@ -91,7 +87,7 @@ public class AirCurrentMixin {
 
                 SectionPos nSection = SectionPos.of(neighbor);
                 TemperatureDataLayer nTempLayer = data.getLayer(DataLayerType.TEMPERATURE, nSection.asLong());
-                ConductionDataLayer nCondLayer = data.getLayer(DataLayerType.CONDUCTION,nSection.asLong());
+                ConductionDataLayer nCondLayer = data.getLayer(DataLayerType.CONDUCTION, nSection.asLong());
                 if (nTempLayer == null || nCondLayer == null) continue;
 
                 int nrx = neighbor.getX() & 15;

@@ -1,7 +1,6 @@
 package com.rae.crowns.content.fields.advection;
 
 import com.rae.crowns.content.fields.util.AbstractDataLayer;
-import com.rae.crowns.content.fields.util.DataLayerType;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -28,7 +27,9 @@ public class BlockedDataLayer extends AbstractDataLayer {
         return copy;
     }
 
-    /** Returns 1 if blocked, 0 if open */
+    /**
+     * Returns 1 if blocked, 0 if open
+     */
     @Override
     protected float decode(int index) {
         int byteIndex = index >> 3;       // index / 8
@@ -37,7 +38,9 @@ public class BlockedDataLayer extends AbstractDataLayer {
         return blocked ? 1f : 0f;
     }
 
-    /** Sets blocked if value >= 0.5 */
+    /**
+     * Sets blocked if value >= 0.5
+     */
     @Override
     protected void encode(int index, float value) {
         int byteIndex = index >> 3;

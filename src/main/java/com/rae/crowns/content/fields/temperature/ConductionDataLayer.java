@@ -10,10 +10,9 @@ import org.jetbrains.annotations.NotNull;
  * Uses bit-shifts instead of Math.pow for speed.
  */
 public class ConductionDataLayer extends AbstractDataLayer {
-    private final byte[] data = new byte[SIZE];
-
     public static final float MIN_VALUE = 1.0f / (1 << 16);      // 2^-16
     public static final float MAX_VALUE = 1.75f * (1L << 47);    // 1.75 * 2^47
+    private final byte[] data = new byte[SIZE];
 
     @Override
     public @NotNull ConductionDataLayer fromBytes(byte @NotNull [] bytes) {

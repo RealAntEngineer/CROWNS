@@ -52,6 +52,10 @@ public class ClientEvents {
         SteamFlowManager.tick(world);
     }
 
+    protected static boolean isGameActive() {
+        return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
+    }
+
     @SubscribeEvent
     public static void captureSolidDepth(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS) {
@@ -88,7 +92,10 @@ public class ClientEvents {
         // IMPORTANT:
         // Do NOT bind this texture as a framebuffer attachment anywhere else.
     }
-    /** Render every frame */
+
+    /**
+     * Render every frame
+     */
     @SubscribeEvent
     public static void render(RenderLevelStageEvent event) {
 
@@ -104,6 +111,7 @@ public class ClientEvents {
         buffers.draw();
 
     }
+
     @SubscribeEvent
     public static void addToItemTooltip(@NotNull ItemTooltipEvent event) {
         if (event.getEntity() == null)
@@ -124,10 +132,6 @@ public class ClientEvents {
             }
         }
 
-    }
-
-    protected static boolean isGameActive() {
-        return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
     }
 
 }

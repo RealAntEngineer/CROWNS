@@ -9,7 +9,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 
-public class RGBAVolumeInstance extends  VolumeInstance {
+public class RGBAVolumeInstance extends VolumeInstance {
 
     // GPU textures
     public final RGBA3D volumeColors;
@@ -33,11 +33,11 @@ public class RGBAVolumeInstance extends  VolumeInstance {
      * Constructs a volumetric instance with its color volume and automatically computed brick min/max.
      * The brick min/max texture is computed from the alpha channel of the input RGBA array.
      *
-     * @param volumeRGBA  The RGBA float array for the volume data
-     * @param Nx          Number of voxels in X
-     * @param Ny          Number of voxels in Y
-     * @param Nz          Number of voxels in Z
-     * @param brickSize   Size of each brick (in voxels per dimension)
+     * @param volumeRGBA The RGBA float array for the volume data
+     * @param Nx         Number of voxels in X
+     * @param Ny         Number of voxels in Y
+     * @param Nz         Number of voxels in Z
+     * @param brickSize  Size of each brick (in voxels per dimension)
      */
     public RGBAVolumeInstance(float[] volumeRGBA, int Nx, int Ny, int Nz, int brickSize) {
         this.Nx = Nx;
@@ -61,12 +61,12 @@ public class RGBAVolumeInstance extends  VolumeInstance {
      * Each brick contains the minimum and maximum alpha value of all voxels inside it.
      * This is useful for empty-space skipping in raymarching.
      *
-     * @param rgba       The RGBA float array of the volume, linear layout: [z * Ny * Nx + y * Nx + x] * 4 + channel
-     * @param Nx         Number of voxels in X dimension
-     * @param Ny         Number of voxels in Y dimension
-     * @param Nz         Number of voxels in Z dimension
-     * @param brickSize  Number of voxels per side in each brick (e.g., 8)
-     * @return           Float array containing min/max alpha per brick: [R=min, G=max, ...] for each brick
+     * @param rgba      The RGBA float array of the volume, linear layout: [z * Ny * Nx + y * Nx + x] * 4 + channel
+     * @param Nx        Number of voxels in X dimension
+     * @param Ny        Number of voxels in Y dimension
+     * @param Nz        Number of voxels in Z dimension
+     * @param brickSize Number of voxels per side in each brick (e.g., 8)
+     * @return Float array containing min/max alpha per brick: [R=min, G=max, ...] for each brick
      */
     public static float[] buildBrickMinMaxFromAlpha(float[] rgba, int Nx, int Ny, int Nz, int brickSize) {
         int Bx = (Nx + brickSize - 1) / brickSize;

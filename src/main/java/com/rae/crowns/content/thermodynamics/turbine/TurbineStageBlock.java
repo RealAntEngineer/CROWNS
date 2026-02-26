@@ -1,6 +1,5 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
-import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
 import com.rae.crowns.init.client.ShapesInit;
 import com.rae.crowns.init.misc.BlockEntityInit;
 import com.rae.formicapi.multiblock.MBKineticController;
@@ -26,15 +25,11 @@ import org.jetbrains.annotations.NotNull;
 public class TurbineStageBlock extends MBKineticController implements IBE<TurbineStageBlockEntity> {
 
     public static final BooleanProperty CASING = BooleanProperty.create("casing");
+
     public TurbineStageBlock(@NotNull Properties pProperties, MBStructureBlock structure) {
         super(pProperties, structure);
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(CASING, true));
-    }
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(CASING);
-        super.createBlockStateDefinition(builder);
     }
 
     public static @NotNull Couple<Integer> getSpeedRange() {
@@ -42,13 +37,19 @@ public class TurbineStageBlock extends MBKineticController implements IBE<Turbin
     }
 
     @Override
-    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
-        return Shapes.join(ShapesInit.TURBINE.get(state.getValue(FACING)), Shapes.block(), BooleanOp.AND);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(CASING);
+        super.createBlockStateDefinition(builder);
     }
 
     @Override
     public float getShadeBrightness(BlockState pState, BlockGetter pLevel, BlockPos pPos) {
         return 1.0F;
+    }
+
+    @Override
+    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+        return Shapes.join(ShapesInit.TURBINE.get(state.getValue(FACING)), Shapes.block(), BooleanOp.AND);
     }
 
     @Override
@@ -82,11 +83,6 @@ public class TurbineStageBlock extends MBKineticController implements IBE<Turbin
     }
 
     @Override
-    public @NotNull VoxelShape getGlobalShape(@NotNull BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
-        return ShapesInit.TURBINE.get(state.getValue(FACING));
-    }
-
-    @Override
     public @NotNull Vec3i getDefaultOffset() {
         return new Vec3i(0, 1, 1);
     }
@@ -94,5 +90,10 @@ public class TurbineStageBlock extends MBKineticController implements IBE<Turbin
     @Override
     public @NotNull Vec3i getDefaultSize() {
         return new Vec3i(1, 3, 3);
+    }
+
+    @Override
+    public @NotNull VoxelShape getGlobalShape(@NotNull BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
+        return ShapesInit.TURBINE.get(state.getValue(FACING));
     }
 }

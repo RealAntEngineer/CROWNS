@@ -50,35 +50,9 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
     protected int syncCooldown;
     protected boolean queuedSync;
     LerpedFloat pointer;
+
     public ControlledAssemblyBE(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
-    }
-
-    @Override
-    public void sendData() {
-        if (syncCooldown > 0) {
-            queuedSync = true;
-            return;
-        }
-        super.sendData();
-        queuedSync = false;
-        syncCooldown = SYNC_RATE;
-    }
-
-    private float getChaseSpeed() {
-        return Mth.clamp(Math.abs(getSpeed()) / 16 / 20, 0, 1);
-    }
-
-    @Override
-    public void onSpeedChanged(float previousSpeed) {
-        super.onSpeedChanged(previousSpeed);
-        float speed = getSpeed();
-        pointer.chase(speed > 0 ? 1 : 0, getChaseSpeed(), LerpedFloat.Chaser.LINEAR);
-        sendData();
-    }
-
-    @Override
-    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
     }
 
     @Override
@@ -97,6 +71,102 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
         }
         if (Float.isNaN(temperature)) {
             temperature = 300;
+        }
+    }
+
+    @Override
+    public void onSpeedChanged(float previousSpeed) {
+        super.onSpeedChanged(previousSpeed);
+        float speed = getSpeed();
+        pointer.chase(speed > 0 ? 1 : 0, getChaseSpeed(), LerpedFloat.Chaser.LINEAR);
+        sendData();
+    }
+
+    private float getChaseSpeed() {
+        return Mth.clamp(Math.abs(getSpeed()) / 16 / 20, 0, 1);
+    }
+
+    @Override
+    public void sendData() {
+        if (syncCooldown > 0) {
+            queuedSync = true;
+            return;
+        }
+        super.sendData();
+        queuedSync = false;
+        syncCooldown = SYNC_RATE;
+    }
+
+    @Override
+    protected void write(@NotNull CompoundTag tag, boolean clientPacket) {
+        super.write(tag, clientPacket);
+
+        tag.putFloat("nbrOfFission", nbrOfFission);
+        tag.putFloat("additionalNeutrons", additionalNeutronsAbsorbed);
+        tag.putFloat("temperature", temperature);
+
+    }
+
+    @Override
+    protected void read(@NotNull CompoundTag tag, boolean clientPacket) {
+
+        nbrOfFission = tag.getFloat("nbrOfFission");
+        additionalNeutronsAbsorbed = tag.getFloat("additionalNeutrons");
+        temperature = tag.getFloat("temperature");
+        super.read(tag, clientPacket);
+    }
+
+    @Override
+    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+    }
+
+    @Override
+    public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
+
+        FormicApiLang.formatRadiationFlux(getRadioactiveActivity() * 20)
+                .style(ChatFormatting.DARK_GREEN)
+                .forGoggles(tooltip, 1);
+
+        FormicApiLang.formatTemperature(temperature)
+                .style(ChatFormatting.DARK_RED)
+                .forGoggles(tooltip, 1);
+
+        return true;
+    }
+
+    @Override
+    public float getRadioactiveActivity() {
+        float easeCoef = 1f; //TODO config
+        return backgroundActivity + nbrOfFission * 2.5f * easeCoef;
+    }
+
+    public void spawnRadiationParticles(Level level, @NotNull BlockPos pos, float nbrOfFission) {
+        if (!(level instanceof ServerLevel serverLevel)) return; // Only spawn particles on server side
+
+        float nbrOfParticles = (float) (Math.log10(nbrOfFission * 20 / 5000f)) * 3f / 20f;
+        int wholeParticles = Mth.floor(nbrOfParticles);
+        float fractional = nbrOfParticles - wholeParticles;
+
+        if (level.random.nextFloat() < fractional) {
+            wholeParticles += 1; // probabilistically add one extra
+        }
+
+        for (int i = 0; i < wholeParticles; i++) {
+            double x = pos.getX() + 0.5;
+            double y = pos.getY() + 0.5;
+            double z = pos.getZ() + 0.5;
+
+            // Random spherical direction using spherical coordinates
+            double theta = level.random.nextDouble() * 2 * Math.PI; // azimuthal angle
+            double phi = Math.acos(2 * level.random.nextDouble() - 1); // polar angle
+
+            double speed = 1f; // small random speed
+            double dx = speed * Math.sin(phi) * Math.cos(theta);
+            double dy = speed * Math.sin(phi) * Math.sin(theta);
+            double dz = speed * Math.cos(phi);
+
+            // Use any existing particle type here (e.g., SMOKE)
+            serverLevel.sendParticles(new DustParticleOptions(Color.WHITE.asVectorF(), 1), x, y, z, 1, dx, dy, dz, speed);// You can replace ParticleTypes.SMOKE with your custom particle
         }
     }
 
@@ -140,47 +210,17 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
         }
     }
 
-    public void spawnRadiationParticles(Level level, @NotNull BlockPos pos, float nbrOfFission) {
-        if (!(level instanceof ServerLevel serverLevel)) return; // Only spawn particles on server side
-
-        float nbrOfParticles = (float) (Math.log10(nbrOfFission * 20 / 5000f)) * 3f / 20f;
-        int wholeParticles = Mth.floor(nbrOfParticles);
-        float fractional = nbrOfParticles - wholeParticles;
-
-        if (level.random.nextFloat() < fractional) {
-            wholeParticles += 1; // probabilistically add one extra
-        }
-
-        for (int i = 0; i < wholeParticles; i++) {
-            double x = pos.getX() + 0.5;
-            double y = pos.getY() + 0.5;
-            double z = pos.getZ() + 0.5;
-
-            // Random spherical direction using spherical coordinates
-            double theta = level.random.nextDouble() * 2 * Math.PI; // azimuthal angle
-            double phi = Math.acos(2 * level.random.nextDouble() - 1); // polar angle
-
-            double speed = 1f; // small random speed
-            double dx = speed * Math.sin(phi) * Math.cos(theta);
-            double dy = speed * Math.sin(phi) * Math.sin(theta);
-            double dz = speed * Math.cos(phi);
-
-            // Use any existing particle type here (e.g., SMOKE)
-            serverLevel.sendParticles(new DustParticleOptions(Color.WHITE.asVectorF(), 1), x, y, z, 1, dx, dy, dz, speed);// You can replace ParticleTypes.SMOKE with your custom particle
-        }
+    private void standardExplosion(@NotNull BlockPos pos, float power) {
+        assert this.level != null;
+        nuclearExplosion(this.level, pos, power);
+        // Remove the block after the explosion
+        level.setBlock(worldPosition, Blocks.AIR.defaultBlockState(), 3);
     }
 
     private void meltdown(@NotNull BlockPos pos) {
         assert level != null;
         level.setBlockAndUpdate(pos, Blocks.LAVA.defaultBlockState());
         //level.removeBlockEntity(pos);
-    }
-
-    private void standardExplosion(@NotNull BlockPos pos, float power) {
-        assert this.level != null;
-        nuclearExplosion(this.level, pos, power);
-        // Remove the block after the explosion
-        level.setBlock(worldPosition, Blocks.AIR.defaultBlockState(), 3);
     }
 
     @Override
@@ -193,6 +233,7 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
     public float getThermalConductivity() {
         return (int) CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
     }
+    //to optimise, cost too much on the server
 
     @Override
     public float getTemperature() {
@@ -202,52 +243,6 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
     @Override
     public void addTemperature(float dT) {
         temperature = Math.max(temperature + dT, 0);
-    }
-
-    @Override
-    public float getRadioactiveActivity() {
-        float easeCoef = 1f; //TODO config
-        return backgroundActivity + nbrOfFission * 2.5f * easeCoef;
-    }
-
-    @Override
-    public float getEffectiveK() {
-        float easeCoef = 1f; //TODO config
-        return (backgroundActivity + nbrOfFission * 2.5f * easeCoef) / (backgroundActivity + oldNbrOfFission * 2.5f * easeCoef);
-    }
-    //to optimise, cost too much on the server
-
-    @Override
-    protected void write(@NotNull CompoundTag tag, boolean clientPacket) {
-        super.write(tag, clientPacket);
-
-        tag.putFloat("nbrOfFission", nbrOfFission);
-        tag.putFloat("additionalNeutrons", additionalNeutronsAbsorbed);
-        tag.putFloat("temperature", temperature);
-
-    }
-
-    @Override
-    protected void read(@NotNull CompoundTag tag, boolean clientPacket) {
-
-        nbrOfFission = tag.getFloat("nbrOfFission");
-        additionalNeutronsAbsorbed = tag.getFloat("additionalNeutrons");
-        temperature = tag.getFloat("temperature");
-        super.read(tag, clientPacket);
-    }
-
-    @Override
-    public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
-
-        FormicApiLang.formatRadiationFlux(getRadioactiveActivity() * 20)
-                .style(ChatFormatting.DARK_GREEN)
-                .forGoggles(tooltip, 1);
-
-        FormicApiLang.formatTemperature(temperature)
-                .style(ChatFormatting.DARK_RED)
-                .forGoggles(tooltip, 1);
-
-        return true;
     }
 
     @Override
@@ -272,5 +267,11 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
         }
         additionalNeutronsAbsorbed += fastAbsorbed + slowAbsorbed;
         return Couple.create(radiationFlux.getFirst() - fastAbsorbed, radiationFlux.getSecond() - slowAbsorbed);
+    }
+
+    @Override
+    public float getEffectiveK() {
+        float easeCoef = 1f; //TODO config
+        return (backgroundActivity + nbrOfFission * 2.5f * easeCoef) / (backgroundActivity + oldNbrOfFission * 2.5f * easeCoef);
     }
 }

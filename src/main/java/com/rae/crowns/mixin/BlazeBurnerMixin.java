@@ -20,9 +20,6 @@ public abstract class BlazeBurnerMixin extends SmartBlockEntity implements IHave
     @Shadow(remap = false)
     protected abstract BlazeBurnerBlock.HeatLevel getHeatLevel();
 
-    @Shadow(remap = false)
-    public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
-
     @Override
     public float getThermalCapacity() {
         return 1000;
@@ -43,6 +40,9 @@ public abstract class BlazeBurnerMixin extends SmartBlockEntity implements IHave
             case SEETHING -> 3000F;
         };
     }
+
+    @Shadow(remap = false)
+    public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
 
     @Override
     public void addTemperature(float dT) {

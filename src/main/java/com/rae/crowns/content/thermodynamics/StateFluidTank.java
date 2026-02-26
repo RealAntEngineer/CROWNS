@@ -63,14 +63,14 @@ public class StateFluidTank extends SmartFluidTank {
     }
 
     @Override
-    public @NotNull FluidStack drain(int maxDrain, FluidAction action) {
-        FluidStack stack = super.drain(maxDrain, action);
-        return stack;
+    public @NotNull FluidStack drain(FluidStack resource, FluidAction action) {
+        return super.drain(resource, action);
     }
 
     @Override
-    public @NotNull FluidStack drain(FluidStack resource, FluidAction action) {
-        return super.drain(resource, action);
+    public @NotNull FluidStack drain(int maxDrain, FluidAction action) {
+        FluidStack stack = super.drain(maxDrain, action);
+        return stack;
     }
 
 

@@ -61,14 +61,22 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
     }
 
     @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.FLUID_HANDLER) {
-            Direction localDir = this.getBlockState().getValue(DirectionalBlock.FACING);
-            if (side == localDir.getOpposite()) {
-                return this.fluidCapability.cast();
+    public void tick() {
+        super.tick();
+        assert level != null;
+        if (!level.isClientSide) {
+            if (syncCooldown > 0) {
+                syncCooldown--;
+                if (syncCooldown == 0 && queuedSync)
+                    sendData();
             }
         }
-        return super.getCapability(cap, side);
+    }
+
+    @Override
+    public void write(@NotNull CompoundTag compound, boolean clientPacket) {
+        super.write(compound, clientPacket);
+        compound.put("water_tank", WATER_TANK.writeToNBT(new CompoundTag()));
     }
 
     @Override
@@ -76,12 +84,6 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
         if (compound.contains("water_tank"))
             WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
         super.read(compound, clientPacket);
-    }
-
-    @Override
-    public void write(@NotNull CompoundTag compound, boolean clientPacket) {
-        super.write(compound, clientPacket);
-        compound.put("water_tank", WATER_TANK.writeToNBT(new CompoundTag()));
     }
 
     @Override
@@ -96,16 +98,14 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
     }
 
     @Override
-    public void tick() {
-        super.tick();
-        assert level != null;
-        if (!level.isClientSide) {
-            if (syncCooldown > 0) {
-                syncCooldown--;
-                if (syncCooldown == 0 && queuedSync)
-                    sendData();
+    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+        if (cap == ForgeCapabilities.FLUID_HANDLER) {
+            Direction localDir = this.getBlockState().getValue(DirectionalBlock.FACING);
+            if (side == localDir.getOpposite()) {
+                return this.fluidCapability.cast();
             }
         }
+        return super.getCapability(cap, side);
     }
 
     @Override

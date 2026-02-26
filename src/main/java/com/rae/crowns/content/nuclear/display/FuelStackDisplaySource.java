@@ -2,14 +2,12 @@ package com.rae.crowns.content.nuclear.display;
 
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlockEntity;
-import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.behaviour.display.DisplaySource;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkContext;
 import com.simibubi.create.content.redstone.displayLink.target.DisplayTargetStats;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -30,6 +28,36 @@ public class FuelStackDisplaySource extends DisplaySource {
         return provideEntries(context, stats.maxRows() * (isBook ? ENTRIES_PER_PAGE : 1))
                 .toList();
     }
+
+    @Override
+    public int getPassiveRefreshTicks() {
+        return 5;
+    }
+
+    protected @NotNull Stream<MutableComponent> provideEntries(
+            @NotNull DisplayLinkContext context,
+            int maxRows
+    ) {
+        BlockEntity sourceBE = context.getSourceBlockEntity();
+        if (!(sourceBE instanceof AssemblyBlockEntity assembly))
+            return Stream.empty();
+
+        Level level = assembly.getLevel();
+        if (level == null)
+            return Stream.empty();
+
+        List<AssemblyBlockEntity> stack =
+                collectFuelStack(level, assembly.getBlockPos(), assembly.getBlockState().getValue(AssemblyBlock.AXIS));
+
+        List<MutableComponent> values = new ArrayList<>();
+
+        for (AssemblyBlockEntity part : stack) {
+            values.add(FormicApiLang.formatTemperature(part.getTemperature()).component());
+        }
+
+        return values.stream().limit(maxRows);
+    }
+
     private static List<AssemblyBlockEntity> collectFuelStack(
             Level level,
             BlockPos startPos,
@@ -64,33 +92,5 @@ public class FuelStackDisplaySource extends DisplaySource {
         }
 
         return stack;
-    }
-    @Override
-    public int getPassiveRefreshTicks() {
-        return 5;
-    }
-
-    protected @NotNull Stream<MutableComponent> provideEntries(
-            @NotNull DisplayLinkContext context,
-            int maxRows
-    ) {
-        BlockEntity sourceBE = context.getSourceBlockEntity();
-        if (!(sourceBE instanceof AssemblyBlockEntity assembly))
-            return Stream.empty();
-
-        Level level = assembly.getLevel();
-        if (level == null)
-            return Stream.empty();
-
-        List<AssemblyBlockEntity> stack =
-                collectFuelStack(level, assembly.getBlockPos(), assembly.getBlockState().getValue(AssemblyBlock.AXIS));
-
-        List<MutableComponent> values = new ArrayList<>();
-
-        for (AssemblyBlockEntity part : stack) {
-            values.add(FormicApiLang.formatTemperature(part.getTemperature()).component());
-        }
-
-        return values.stream().limit(maxRows);
     }
 }

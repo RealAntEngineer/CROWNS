@@ -20,58 +20,58 @@ public class VolumeCubeMesh {
         float h = 1f;
 
         // -------- FRONT (+Z)
-        builder.vertex(0, 0,  h).endVertex();
-        builder.vertex( h, 0,  h).endVertex();
-        builder.vertex( h,  h,  h).endVertex();
+        builder.vertex(0, 0, h).endVertex();
+        builder.vertex(h, 0, h).endVertex();
+        builder.vertex(h, h, h).endVertex();
 
-        builder.vertex(0, 0,  h).endVertex();
-        builder.vertex( h,  h,  h).endVertex();
-        builder.vertex(0,  h,  h).endVertex();
+        builder.vertex(0, 0, h).endVertex();
+        builder.vertex(h, h, h).endVertex();
+        builder.vertex(0, h, h).endVertex();
 
         // -------- BACK (-Z)
-        builder.vertex( h, 0, 0).endVertex();
+        builder.vertex(h, 0, 0).endVertex();
         builder.vertex(0, 0, 0).endVertex();
-        builder.vertex(0,  h, 0).endVertex();
+        builder.vertex(0, h, 0).endVertex();
 
-        builder.vertex( h, 0, 0).endVertex();
-        builder.vertex(0,  h, 0).endVertex();
-        builder.vertex( h,  h, 0).endVertex();
+        builder.vertex(h, 0, 0).endVertex();
+        builder.vertex(0, h, 0).endVertex();
+        builder.vertex(h, h, 0).endVertex();
 
         // -------- LEFT (-X)
         builder.vertex(0, 0, 0).endVertex();
-        builder.vertex(0, 0,  h).endVertex();
-        builder.vertex(0,  h,  h).endVertex();
+        builder.vertex(0, 0, h).endVertex();
+        builder.vertex(0, h, h).endVertex();
 
         builder.vertex(0, 0, 0).endVertex();
-        builder.vertex(0,  h,  h).endVertex();
-        builder.vertex(0,  h, 0).endVertex();
+        builder.vertex(0, h, h).endVertex();
+        builder.vertex(0, h, 0).endVertex();
 
         // -------- RIGHT (+X)
-        builder.vertex( h, 0,  h).endVertex();
-        builder.vertex( h, 0, 0).endVertex();
-        builder.vertex( h,  h, 0).endVertex();
+        builder.vertex(h, 0, h).endVertex();
+        builder.vertex(h, 0, 0).endVertex();
+        builder.vertex(h, h, 0).endVertex();
 
-        builder.vertex( h, 0,  h).endVertex();
-        builder.vertex( h,  h, 0).endVertex();
-        builder.vertex( h,  h,  h).endVertex();
+        builder.vertex(h, 0, h).endVertex();
+        builder.vertex(h, h, 0).endVertex();
+        builder.vertex(h, h, h).endVertex();
 
         // -------- TOP (+Y)
-        builder.vertex(0,  h,  h).endVertex();
-        builder.vertex( h,  h,  h).endVertex();
-        builder.vertex( h,  h, 0).endVertex();
+        builder.vertex(0, h, h).endVertex();
+        builder.vertex(h, h, h).endVertex();
+        builder.vertex(h, h, 0).endVertex();
 
-        builder.vertex(0,  h,  h).endVertex();
-        builder.vertex( h,  h, 0).endVertex();
-        builder.vertex(0,  h, 0).endVertex();
+        builder.vertex(0, h, h).endVertex();
+        builder.vertex(h, h, 0).endVertex();
+        builder.vertex(0, h, 0).endVertex();
 
         // -------- BOTTOM (-Y)
         builder.vertex(0, 0, 0).endVertex();
-        builder.vertex( h, 0, 0).endVertex();
-        builder.vertex( h, 0,  h).endVertex();
+        builder.vertex(h, 0, 0).endVertex();
+        builder.vertex(h, 0, h).endVertex();
 
         builder.vertex(0, 0, 0).endVertex();
-        builder.vertex( h, 0,  h).endVertex();
-        builder.vertex(0, 0,  h).endVertex();
+        builder.vertex(h, 0, h).endVertex();
+        builder.vertex(0, 0, h).endVertex();
 
         VBO = new VertexBuffer(VertexBuffer.Usage.STATIC);
         VBO.bind();

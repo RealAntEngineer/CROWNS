@@ -28,14 +28,13 @@ public class DamageSourceInit {
         return source(DamageSourceInit.HIGH_TEMPERATURE, level);
     }
 
-    public static DamageSource freezing(Level level) {
-        return source(DamageSourceInit.LOW_TEMPERATURE, level);
-    }
-
-
     private static DamageSource source(ResourceKey<DamageType> key, LevelReader level) {
         Registry<DamageType> registry = level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE);
         return new DamageSource(registry.getHolderOrThrow(key));
+    }
+
+    public static DamageSource freezing(Level level) {
+        return source(DamageSourceInit.LOW_TEMPERATURE, level);
     }
 
     private static DamageSource source(ResourceKey<DamageType> key, LevelReader level, @Nullable Entity entity) {

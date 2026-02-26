@@ -1,29 +1,7 @@
 package com.rae.crowns.mixin;
 
-import com.rae.crowns.CROWNS;
-import com.rae.crowns.content.fields.temperature.*;
-import com.rae.crowns.content.fields.util.AbstractDataLayer;
-import com.rae.crowns.content.fields.util.DataLayerType;
-import com.rae.crowns.content.fields.util.PhysicsSaveManager;
-import com.rae.crowns.content.fields.util.PhysicsWorldData;
-import net.minecraft.core.SectionPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.village.poi.PoiManager;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.storage.ChunkSerializer;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Mixin(ChunkSerializer.class)
 public class ChunkSerializerMixin {

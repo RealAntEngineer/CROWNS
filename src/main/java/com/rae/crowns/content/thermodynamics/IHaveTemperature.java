@@ -26,21 +26,21 @@ public interface IHaveTemperature {
 
     /**
      * @return The thermal capacity of this block entity.
-     *         Higher values indicate that more energy is required
-     *         to change its temperature.
+     * Higher values indicate that more energy is required
+     * to change its temperature.
      */
     float getThermalCapacity();
 
     /**
      * @return The thermal conductivity of this block entity.
-     *         Determines how efficiently it transfers heat
-     *         to or from neighboring blocks or entities.
+     * Determines how efficiently it transfers heat
+     * to or from neighboring blocks or entities.
      */
     float getThermalConductivity();
 
     /**
      * @return The current temperature of this block entity,
-     *         expressed in Kelvin or in the mod’s internal unit.
+     * expressed in Kelvin or in the mod’s internal unit.
      */
     float getTemperature();
 

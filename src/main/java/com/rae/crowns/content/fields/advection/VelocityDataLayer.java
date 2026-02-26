@@ -13,15 +13,15 @@ import java.nio.ByteBuffer;
  * by offsetting with Integer.MIN_VALUE.
  * <p>
  * Encoding:
- *   stored = (int)(temperature * SCALE) + Integer.MIN_VALUE
+ * stored = (int)(temperature * SCALE) + Integer.MIN_VALUE
  * <p>
  * Decoding:
- *   temperature = (stored - Integer.MIN_VALUE) / SCALE
+ * temperature = (stored - Integer.MIN_VALUE) / SCALE
  */
 public class VelocityDataLayer extends AbstractDataLayer {
     public static final double SCALE = 100f; // 5 decimal places
-    public static final double MIN_SPEED = Short.MIN_VALUE/SCALE;
-    public static final double MAX_SPEED = Short.MAX_VALUE/SCALE; // ≈ 42949.67295
+    public static final double MIN_SPEED = Short.MIN_VALUE / SCALE;
+    public static final double MAX_SPEED = Short.MAX_VALUE / SCALE; // ≈ 42949.67295
     private final short[] data = new short[SIZE];
 
     @Override

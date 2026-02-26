@@ -1,6 +1,5 @@
 package com.rae.crowns.content.fields.util;
 
-import com.rae.crowns.content.fields.advection.VelocityDataLayer;
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import com.simibubi.create.foundation.networking.SimplePacketBase;
 import net.minecraft.client.Minecraft;

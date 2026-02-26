@@ -15,14 +15,14 @@ public class CROWNSCfgClient extends ConfigBase {
         return CROWNS.MODID + ".client";
     }
 
+    public enum FluidVisualMode {
+        TPX, PH, PS, PHTSX
+    }
+
     private static class Comments {
         static @NotNull String thermalVisualisation = "See temperature";
         static @NotNull String visualisationThreshold = "Visualisation threshold";
 
-    }
-
-    public static enum FluidVisualMode {
-        TPX, PH, PS, PHTSX
     }
 
 }

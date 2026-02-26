@@ -43,7 +43,7 @@ public class ConjugateGradientSolver {
                 r[i] -= alpha * Ap[i];
             }
 
-            float resNorm = (float)Math.sqrt(dot(r, r));
+            float resNorm = (float) Math.sqrt(dot(r, r));
             if (resNorm < tol) {
                 //System.out.println("CG converged in " + iter + " iterations, residual " + resNorm);
                 break;

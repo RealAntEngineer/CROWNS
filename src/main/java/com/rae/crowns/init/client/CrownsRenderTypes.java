@@ -21,16 +21,16 @@ public class CrownsRenderTypes extends RenderStateShard {
                     .setOverlayState(OVERLAY)
                     .createCompositeState(false));
 
+    // Yummy protected fields
+    private CrownsRenderTypes() {
+        super(null, null, null);
+    }
+
     public static RenderType tcherenkovRadiation() {
         return TCHERENKOV_RADIATION;
     }
 
     private static String createLayerName(String name) {
         return CROWNS.MODID + ":" + name;
-    }
-
-    // Yummy protected fields
-    private CrownsRenderTypes() {
-        super(null, null, null);
     }
 }

@@ -14,10 +14,10 @@ import java.nio.ByteBuffer;
  * by offsetting with Integer.MIN_VALUE.
  * <p>
  * Encoding:
- *   stored = (int)(temperature * SCALE) + Integer.MIN_VALUE
+ * stored = (int)(temperature * SCALE) + Integer.MIN_VALUE
  * <p>
  * Decoding:
- *   temperature = (stored - Integer.MIN_VALUE) / SCALE
+ * temperature = (stored - Integer.MIN_VALUE) / SCALE
  */
 public class TemperatureDataLayer extends AbstractDataLayer {
     public static final double SCALE = 10f; // 1 decimal places
@@ -30,7 +30,7 @@ public class TemperatureDataLayer extends AbstractDataLayer {
     @Override
     public @NotNull TemperatureDataLayer fromBytes(byte @NotNull [] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        for (int i = 0; i < SIZE; i++) data[i] = (float) ((buffer.getShort() - Short.MIN_VALUE)/SCALE);
+        for (int i = 0; i < SIZE; i++) data[i] = (float) ((buffer.getShort() - Short.MIN_VALUE) / SCALE);
         //for (int i = 0; i < SIZE; i++) defaultData[i] = buffer.getInt();
         return this;
     }
@@ -49,13 +49,13 @@ public class TemperatureDataLayer extends AbstractDataLayer {
     }
 
     @Override
-    public void set(int x, int y, int z, float value) {
-        data[index(x, y, z)] = value;
+    protected float decode(int index) {
+        return 0;
     }
 
     @Override
-    protected float decode(int index) {
-        return 0;
+    public void set(int x, int y, int z, float value) {
+        data[index(x, y, z)] = value;
     }
 
     @Override

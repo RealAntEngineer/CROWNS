@@ -1,7 +1,6 @@
 package com.rae.crowns.init.misc;
 
 import com.rae.crowns.content.nuclear.display.ReactorMonitorBE;
-import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBERenderer;
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlockEntity;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlockEntity;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorRenderer;

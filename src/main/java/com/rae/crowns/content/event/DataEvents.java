@@ -30,6 +30,7 @@ public class DataEvents {
     public static void onServerStopped(ServerStoppedEvent event) {
         PhysicsSaveManager.reset();//this in important to clean the data after leaving.
     }
+
     @SubscribeEvent
     public static void onServerStarted(@NotNull ServerStartedEvent event) {
         SteamFlowManager.serverStarted(event.getServer());

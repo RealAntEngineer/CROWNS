@@ -48,14 +48,14 @@ public enum PacketInit {
             packet.packetType.register();
     }
 
-    public static SimpleChannel getChannel() {
-        return channel;
-    }
-
     public static void sendToNear(@NotNull Level world, @NotNull BlockPos pos, int range, Object message) {
         getChannel().send(
                 PacketDistributor.NEAR.with(PacketDistributor.TargetPoint.p(pos.getX(), pos.getY(), pos.getZ(), range, world.dimension())),
                 message);
+    }
+
+    public static SimpleChannel getChannel() {
+        return channel;
     }
 
     private static class PacketType<T extends SimplePacketBase> {

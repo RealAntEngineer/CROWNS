@@ -5,7 +5,7 @@ public class NeighborVisitors {
     /**
      * Neighbor consumer that computes first- and second-order
      * derivatives (central differences) of a scalar field.
-     *
+     * <p>
      * Produces ∂f/∂x, ∂f/∂y, ∂f/∂z and ∂²f/∂x², ∂²f/∂y², ∂²f/∂z²
      * from 6-neighbor samples.
      */

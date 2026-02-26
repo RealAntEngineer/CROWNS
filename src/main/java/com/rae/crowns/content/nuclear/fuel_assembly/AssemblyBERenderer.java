@@ -15,10 +15,16 @@ import net.minecraft.world.phys.Vec3;
 
 public class AssemblyBERenderer extends SafeBlockEntityRenderer<AssemblyBlockEntity> {
     static RGBAVolumeInstance tcherenkov;
+
     static {
         RenderSystem.recordRenderCall(AssemblyBERenderer::initializeClientTcherenkov);
 
     }
+
+    public AssemblyBERenderer(BlockEntityRendererProvider.Context context) {
+        super();
+    }
+
     private static void initializeClientTcherenkov() {
         // Create simple 16^3 blue cube with density scaling with distance and centered in 0.5,0.5,0.5
         int Nx = 4, Ny = 4, Nz = 4;
@@ -33,10 +39,10 @@ public class AssemblyBERenderer extends SafeBlockEntityRenderer<AssemblyBlockEnt
                     float fx = (x + 0.5f) / Nx - 0.5f; // center at 8
 
                     //float scaling = (1+3 * 0.25f)/(1+fz*fz + fy*fy + fx*fx);//Mth.clamp((float) Math.cos((fz*fz + fy*fy + fx*fx)/(3 * 0.25)/Math.PI/2* 2), 0, 1)*0.5f;
-                    int idx = x + y*Nx + z*Nx*Ny;
+                    int idx = x + y * Nx + z * Nx * Ny;
                     int off = idx * 4;
 
-                    if (fx * fx < 0.25 * 0.25 && fy * fy < 0.25 * 0.25 && fz * fz < 0.25 * 0.25){
+                    if (fx * fx < 0.25 * 0.25 && fy * fy < 0.25 * 0.25 && fz * fz < 0.25 * 0.25) {
                         volumeRGBA[off] = 0f; // R
                         volumeRGBA[off + 1] = 0f; // G
                         volumeRGBA[off + 2] = 0;       // B
@@ -61,14 +67,10 @@ public class AssemblyBERenderer extends SafeBlockEntityRenderer<AssemblyBlockEnt
         //VolumeWorldRenderer.add(tcherenkov);
     }
 
-    public AssemblyBERenderer(BlockEntityRendererProvider.Context context) {
-        super();
-    }
-
     @Override
     protected void renderSafe(AssemblyBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource bufferSource, int light, int overlay) {
 
-        float scaling = Math.min(be.getRadioactiveActivity()/1000, 1);
+        float scaling = Math.min(be.getRadioactiveActivity() / 1000, 1);
         if (scaling > 0.01f) {
             RenderSystem.setShader(() -> ShaderInit.volumeShader);
             RenderSystem.enableBlend();
@@ -89,12 +91,12 @@ public class AssemblyBERenderer extends SafeBlockEntityRenderer<AssemblyBlockEnt
             BlockPos pos = be.getBlockPos();
             Vec3 cameraPos = Minecraft.getInstance().cameraEntity.getPosition(partialTicks);
 
-            tcherenkov.position = new Vec3(pos.getX()-0.5f, pos.getY()-0.5f, pos.getZ()-0.5f);
+            tcherenkov.position = new Vec3(pos.getX() - 0.5f, pos.getY() - 0.5f, pos.getZ() - 0.5f);
 
 
             tcherenkov.render(ms, ShaderInit.volumeShader, cameraPos);
 
-            ms.scale((float) (1/tcherenkov.size.x), (float) (1/tcherenkov.size.y), (float) (1/tcherenkov.size.z));
+            ms.scale((float) (1 / tcherenkov.size.x), (float) (1 / tcherenkov.size.y), (float) (1 / tcherenkov.size.z));
 
             ms.translate(cameraPos.x - pos.getX(), cameraPos.y - pos.getX(), cameraPos.z - pos.getZ());
 

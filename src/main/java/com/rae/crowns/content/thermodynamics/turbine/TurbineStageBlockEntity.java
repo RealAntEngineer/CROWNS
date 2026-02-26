@@ -5,7 +5,6 @@ import com.rae.crowns.content.sound.CrownsSoundScapes;
 import com.rae.crowns.content.thermodynamics.ISteamPressureChange;
 import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-import com.simibubi.create.foundation.utility.CreateCodecs;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import net.createmod.catnip.animation.LerpedFloat;
@@ -41,24 +40,6 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
         initialTicks = 3;
     }
 
-    @SuppressWarnings("RedundantMethodOverride")
-    @Override
-    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
-
-    }
-
-    @Override
-    public boolean isSource() {
-        return true;
-    }
-
-    @Override
-    public float getGeneratedSpeed() {
-        //if flows is empty and power!=0 it means that the BE is being loaded, we need to trust only the power in that case
-        //so there is no need to check for the flows.
-        return power.getValue() == 0 ? 0 : Math.min(CROWNSConfigs.SERVER.kinetics.turbineSpeed.get(), AllConfigs.server().kinetics.maxRotationSpeed.get()); // * direction du flux
-    }
-
     @Override
     public float calculateAddedStressCapacity() {//it's the stress base not the real stress
         float capacity = (float) (getCombinedCapacity() * CROWNSConfigs.SERVER.kinetics.turbineCoefficient.get());
@@ -73,8 +54,35 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     }
 
     @Override
-    public float pressureRatio() {
-        return 0.5f;
+    protected void write(@NotNull CompoundTag compound, boolean clientPacket) {
+        compound.putFloat("power", power.getValue());
+        compound.putInt("index", index);
+        super.write(compound, clientPacket);
+    }
+
+    @Override
+    protected void read(@NotNull CompoundTag compound, boolean clientPacket) {
+        super.read(compound, clientPacket);
+        power.setValue(compound.getFloat("power"));
+        index = compound.getInt("index");
+    }
+
+    @Override
+    public float getGeneratedSpeed() {
+        //if flows is empty and power!=0 it means that the BE is being loaded, we need to trust only the power in that case
+        //so there is no need to check for the flows.
+        return power.getValue() == 0 ? 0 : Math.min(CROWNSConfigs.SERVER.kinetics.turbineSpeed.get(), AllConfigs.server().kinetics.maxRotationSpeed.get()); // * direction du flux
+    }
+
+    @Override
+    public boolean isSource() {
+        return true;
+    }
+
+    @SuppressWarnings("RedundantMethodOverride")
+    @Override
+    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+
     }
 
     @Override
@@ -88,9 +96,28 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     }
 
     @Override
+    protected boolean isNoisy() {
+        return true;
+    }
+
+    @Override
+    public float pressureRatio() {
+        return 0.5f;
+    }
+
+    @Override
     public void tick() {
         super.tick();
         power.tickChaser();
+    }
+
+    @Override
+    public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
+        super.addToGoggleTooltip(tooltip, isPlayerSneaking);
+        CreateLang.builder().add(Component.literal("stage number " + index))
+                .style(ChatFormatting.DARK_RED)
+                .forGoggles(tooltip, 1);
+        return true;
     }
 
     @Override
@@ -120,34 +147,5 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
         power.chaseTimed(newPower.get(), 20);
 
         updateGeneratedRotation();
-    }
-
-    @Override
-    protected boolean isNoisy() {
-        return true;
-    }
-
-    @Override
-    protected void write(@NotNull CompoundTag compound, boolean clientPacket) {
-        compound.putFloat("power", power.getValue());
-        compound.putInt("index", index);
-        super.write(compound, clientPacket);
-    }
-
-    @Override
-    protected void read(@NotNull CompoundTag compound, boolean clientPacket) {
-        super.read(compound, clientPacket);
-        power.setValue(compound.getFloat("power"));
-        index = compound.getInt("index");
-    }
-
-
-    @Override
-    public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
-        super.addToGoggleTooltip(tooltip, isPlayerSneaking);
-        CreateLang.builder().add(Component.literal("stage number "+ index))
-                .style(ChatFormatting.DARK_RED)
-                .forGoggles(tooltip, 1);
-        return true;
     }
 }
