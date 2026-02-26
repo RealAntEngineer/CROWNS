@@ -57,7 +57,7 @@ public class ClientEvents {
     }
 
     @SubscribeEvent
-    public static void captureSolidDepth(RenderLevelStageEvent event) {
+    public static void captureSolidDepth(@NotNull RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS) {
             return;
         }
@@ -97,7 +97,7 @@ public class ClientEvents {
      * Render every frame
      */
     @SubscribeEvent
-    public static void render(RenderLevelStageEvent event) {
+    public static void render(@NotNull RenderLevelStageEvent event) {
 
         if (volumeShader == null || event.getStage() != AFTER_PARTICLES) return;
 

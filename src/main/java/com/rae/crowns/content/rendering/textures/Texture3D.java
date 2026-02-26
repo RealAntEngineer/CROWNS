@@ -3,6 +3,7 @@ package com.rae.crowns.content.rendering.textures;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.rae.crowns.content.rendering.util.GLGuard;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -20,9 +21,9 @@ public abstract class Texture3D {
     private final int height;
     private final int depth;
     private final int glPixelFormat;
-    private final FloatBuffer cpuBuffer;
+    private final @NotNull FloatBuffer cpuBuffer;
 
-    public Texture3D(float[] buffer, int width, int height, int depth, int dataSize) {
+    public Texture3D(float @NotNull [] buffer, int width, int height, int depth, int dataSize) {
         synchronized (GLGuard.GL_LOCK) {//we are accessing raw GL parameters so we need to protect it.
             //GL42.glMemoryBarrier(GL42.GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
             //System.out.println("sending a 3d texture");

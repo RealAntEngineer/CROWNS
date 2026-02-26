@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 public class AssemblyBERenderer extends SafeBlockEntityRenderer<AssemblyBlockEntity> {
     static RGBAVolumeInstance tcherenkov;
@@ -68,7 +69,7 @@ public class AssemblyBERenderer extends SafeBlockEntityRenderer<AssemblyBlockEnt
     }
 
     @Override
-    protected void renderSafe(AssemblyBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource bufferSource, int light, int overlay) {
+    protected void renderSafe(@NotNull AssemblyBlockEntity be, float partialTicks, @NotNull PoseStack ms, MultiBufferSource bufferSource, int light, int overlay) {
 
         float scaling = Math.min(be.getRadioactiveActivity() / 1000, 1);
         if (scaling > 0.01f) {

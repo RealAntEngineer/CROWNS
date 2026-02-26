@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -100,7 +101,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         registerLayer(DataLayerType.RESILIENCE);
     }
 
-    private static Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> deserializeLayers(CompoundTag nbt) {
+    private static @NotNull Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> deserializeLayers(@NotNull CompoundTag nbt) {
         Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> layers = new HashMap<>();
 
         for (Map.Entry<String, DataLayerType<?>> regEntry : DataLayerType.REGISTRY.entrySet()) {
@@ -126,8 +127,8 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return layers;
     }
 
-    private static Long2ObjectMap<DataLayerType<?>[]> deserializeInit(
-            CompoundTag nbt) {
+    private static @NotNull Long2ObjectMap<DataLayerType<?>[]> deserializeInit(
+            @NotNull CompoundTag nbt) {
         Long2ObjectMap<DataLayerType<?>[]> toInit = new Long2ObjectOpenHashMap<>();
 
         for (String key : nbt.getAllKeys()) {
@@ -168,7 +169,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     }
 
     //
-    private static CompoundTag serializeLayers(Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> layers) {
+    private static @NotNull CompoundTag serializeLayers(@NotNull Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> layers) {
         CompoundTag nbt = new CompoundTag();
 
         for (Map.Entry<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> entry : layers.entrySet()) {
@@ -189,7 +190,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return nbt;
     }
 
-    private static CompoundTag serializeInit(Long2ObjectMap<DataLayerType<?>[]> toInit) {
+    private static @NotNull CompoundTag serializeInit(@NotNull Long2ObjectMap<DataLayerType<?>[]> toInit) {
         CompoundTag nbt = new CompoundTag();
 
         for (Long2ObjectMap.Entry<DataLayerType<?>[]> entry : toInit.long2ObjectEntrySet()) {
@@ -213,7 +214,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         loadedSections.add(section);
     }
 
-    public AbstractDataLayer[] getLayers(long section, DataLayerType<?>... types) {
+    public AbstractDataLayer @NotNull [] getLayers(long section, DataLayerType<?> @NotNull ... types) {
         AbstractDataLayer[] result = new AbstractDataLayer[types.length];
         for (int i = 0; i < types.length; i++) {
             result[i] = getLayer(types[i], section);
@@ -222,7 +223,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractDataLayer> T getLayer(DataLayerType<T> type, long section) {
+    public <T extends AbstractDataLayer> @Nullable T getLayer(DataLayerType<T> type, long section) {
         Long2ObjectMap<AbstractDataLayer> map = layers.get(type);
         if (map == null) return null;
         return (T) map.get(section);
@@ -344,7 +345,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         }
     }
 
-    public void set(@NotNull BlockPos pos, @NotNull DataLayerType<?>[] types, float... values) {
+    public void set(@NotNull BlockPos pos, @NotNull DataLayerType<?> @NotNull [] types, float @NotNull ... values) {
         if (types.length != values.length) {
             throw new IllegalArgumentException("Types and values arrays must have the same length");
         }
@@ -595,7 +596,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return !corrupted;
     }
 
-    public Map<DataLayerType<?>, List<Long>> remainingInitialise() {
+    public @NotNull Map<DataLayerType<?>, List<Long>> remainingInitialise() {
         HashMap<DataLayerType<?>, List<Long>> collector = new HashMap<>();
         toInitialise.forEach((sectionPos, dataLayerType) -> {
             for (DataLayerType<?> layerType : dataLayerType) {

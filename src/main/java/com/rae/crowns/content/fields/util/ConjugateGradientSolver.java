@@ -1,16 +1,19 @@
 package com.rae.crowns.content.fields.util;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public class ConjugateGradientSolver {
 
     // Solve A * x = b
     // A is defined implicitly by matVec callback
     public static void solve(
-            MatrixOperator A,
-            float[] b,
+            @NotNull MatrixOperator A,
+            float @NotNull [] b,
             float[] x,
             int maxIter,
             float tol,
-            float[] preconditioner // can be null
+            float @Nullable [] preconditioner // can be null
     ) {
         int n = b.length;
         float[] r = new float[n];
@@ -65,7 +68,7 @@ public class ConjugateGradientSolver {
         }
     }
 
-    private static float dot(float[] a, float[] b) {
+    private static float dot(float @NotNull [] a, float[] b) {
         float s = 0;
         for (int i = 0; i < a.length; i++) s += a[i] * b[i];
         return s;

@@ -50,7 +50,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public float oldNbrOfFission;
     public float nbrOfFission;//nbr of fission/t
     public float C = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
-    public LerpedFloat additionalNeutronsAbsorbed = LerpedFloat.linear();
+    public @NotNull LerpedFloat additionalNeutronsAbsorbed = LerpedFloat.linear();
     public @NotNull HashMap<ResourceLocation, Double> radioactiveElements = new HashMap<>(
             Map.of(
                     CROWNS.resource("u235"), 0.014 * 0.2,
@@ -278,7 +278,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     @Override
-    public void writeSafe(CompoundTag tag) {
+    public void writeSafe(@NotNull CompoundTag tag) {
         super.writeSafe(tag);
 
         tag.putFloat("nbrOfFission", nbrOfFission);
@@ -425,7 +425,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     @Override
-    protected AABB createRenderBoundingBox() {
+    protected @NotNull AABB createRenderBoundingBox() {
         return super.createRenderBoundingBox().inflate(2);
     }
 }

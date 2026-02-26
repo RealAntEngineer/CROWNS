@@ -1,5 +1,7 @@
 package com.rae.crowns.content.fields.util;
 
+import org.jetbrains.annotations.NotNull;
+
 public class NeighborVisitors {
 
     /**
@@ -41,7 +43,7 @@ public class NeighborVisitors {
         }
 
         @Override
-        public void accept(int nx, int ny, int nz, SectionLooper.NeighborRef ref) {
+        public void accept(int nx, int ny, int nz, SectionLooper.@NotNull NeighborRef ref) {
             int dx = nx - x;
             int dy = ny - y;
             int dz = nz - z;

@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.rae.crowns.CROWNS;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
+import org.jetbrains.annotations.NotNull;
 
 public class CrownsRenderTypes extends RenderStateShard {
 
@@ -26,11 +27,11 @@ public class CrownsRenderTypes extends RenderStateShard {
         super(null, null, null);
     }
 
-    public static RenderType tcherenkovRadiation() {
+    public static @NotNull RenderType tcherenkovRadiation() {
         return TCHERENKOV_RADIATION;
     }
 
-    private static String createLayerName(String name) {
+    private static @NotNull String createLayerName(String name) {
         return CROWNS.MODID + ":" + name;
     }
 }

@@ -37,7 +37,7 @@ public class TurbineStageBlock extends MBKineticController implements IBE<Turbin
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
         builder.add(CASING);
         super.createBlockStateDefinition(builder);
     }

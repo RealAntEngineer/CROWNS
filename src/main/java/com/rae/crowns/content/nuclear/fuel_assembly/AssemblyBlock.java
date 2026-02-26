@@ -69,8 +69,8 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand,
-                                 BlockHitResult ray) {
+    public @NotNull InteractionResult use(BlockState state, Level world, BlockPos pos, @NotNull Player player, InteractionHand hand,
+                                          BlockHitResult ray) {
         ItemStack heldItem = player.getItemInHand(hand);
 
         IPlacementHelper placementHelper = PlacementHelpers.get(placementHelperId);

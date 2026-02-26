@@ -4,6 +4,7 @@ import com.simibubi.create.AllTags;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 public class PassThroughTester {
 
@@ -20,7 +21,7 @@ public class PassThroughTester {
     // Finds the maximum depth of the shape when traveling in the given direction.
     // The result is always positive.
     // If there is a hole, the result will be Double.POSITIVE_INFINITY.
-    static double findMaxDepth(VoxelShape shape, Direction direction) {
+    static double findMaxDepth(@NotNull VoxelShape shape, @NotNull Direction direction) {
         Direction.Axis axis = direction.getAxis();
         Direction.AxisDirection axisDirection = direction.getAxisDirection();
         double maxDepth = 0;
@@ -49,7 +50,7 @@ public class PassThroughTester {
         return maxDepth;
     }
 
-    static boolean shouldAlwaysPass(BlockState state) {
+    static boolean shouldAlwaysPass(@NotNull BlockState state) {
         return AllTags.AllBlockTags.FAN_TRANSPARENT.matches(state);
     }
 }

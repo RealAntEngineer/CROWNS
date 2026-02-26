@@ -18,7 +18,7 @@ import java.util.List;
 class SoundScape {
     private final float pitch;
     private final CrownsSoundScapes.AmbienceGroup group;
-    private final CrownsSoundScapes.PitchGroup pitchGroup;
+    private final CrownsSoundScapes.@NotNull PitchGroup pitchGroup;
     List<ContinuousSound> continuous;
     List<RepeatingSound> repeating;
     private @Nullable Vec3 meanPos;
@@ -31,7 +31,7 @@ class SoundScape {
         repeating = new ArrayList<>();
     }
 
-    public SoundScape continuous(SoundEvent sound, float relativeVolume, float relativePitch) {
+    public @NotNull SoundScape continuous(@NotNull SoundEvent sound, float relativeVolume, float relativePitch) {
         return add(new ContinuousSound(sound, this, pitch * relativePitch, relativeVolume));
     }
 
@@ -40,7 +40,7 @@ class SoundScape {
         return this;
     }
 
-    public SoundScape repeating(SoundEvent sound, float relativeVolume, float relativePitch, int delay) {
+    public @NotNull SoundScape repeating(SoundEvent sound, float relativeVolume, float relativePitch, int delay) {
         return add(new RepeatingSound(sound, this, pitch * relativePitch, relativeVolume, delay));
     }
 

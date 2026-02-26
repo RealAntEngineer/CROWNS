@@ -108,7 +108,7 @@ public final class TemperatureTicker {
     private static final class TemperatureVoxelVisitor implements SectionLooper.VoxelVisitor {
 
         private final PhysicsWorldData data;
-        private final TemperatureNeighborVisitor neighborVisitor;
+        private final @NotNull TemperatureNeighborVisitor neighborVisitor;
 
 
         public TemperatureVoxelVisitor(PhysicsWorldData data) {
@@ -117,7 +117,7 @@ public final class TemperatureTicker {
         }
 
         @Override
-        public void visit(long packedSection, int sx, int sy, int sz, int x, int y, int z, SectionLooper.Context ctx) {
+        public void visit(long packedSection, int sx, int sy, int sz, int x, int y, int z, SectionLooper.@NotNull Context ctx) {
             if (x == 1 && y == 1 && z == 1) data.addToTicked(packedSection);
             long pos = ctx.packedPos();
 
@@ -188,7 +188,7 @@ public final class TemperatureTicker {
         }
 
         @Override
-        public void accept(int nx, int ny, int nz, SectionLooper.NeighborRef ref) {
+        public void accept(int nx, int ny, int nz, SectionLooper.@NotNull NeighborRef ref) {
             float neighborTemp;
             float neighborCond;
             if (ref.packedSection() != ctx.packedSectionPos()) {

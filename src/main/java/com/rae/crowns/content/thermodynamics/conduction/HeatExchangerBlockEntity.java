@@ -189,7 +189,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     }
 
     @Override
-    public void writeSafe(CompoundTag tag) {
+    public void writeSafe(@NotNull CompoundTag tag) {
         super.writeSafe(tag);
         tag.putFloat("temperature", temperature);
         tag.put("water_tank", WATER_TANK.writeToNBT(new CompoundTag()));
@@ -222,19 +222,19 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         }
 
         @Override
-        public boolean canHaveFlowToward(BlockState state, Direction direction) {
+        public boolean canHaveFlowToward(@NotNull BlockState state, @NotNull Direction direction) {
             return state.hasProperty(DirectionalBlock.FACING)
                     && state.getValue(DirectionalBlock.FACING).getAxis() == direction.getAxis();
         }
 
         @Override
-        public FluidStack getProvidedOutwardFluid(Direction side) {
+        public @NotNull FluidStack getProvidedOutwardFluid(Direction side) {
             FluidStack original = super.getProvidedOutwardFluid(side);
 
             return applyHeating(original);
         }
 
-        private @NotNull FluidStack applyHeating(FluidStack original) {
+        private @NotNull FluidStack applyHeating(@NotNull FluidStack original) {
             if (original.isEmpty())
                 return original;
 
@@ -280,7 +280,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             return heated;
         }
 
-        private static float getFluidTemperature(FluidStack stack) {
+        private static float getFluidTemperature(@NotNull FluidStack stack) {
             CompoundTag tag = stack.getTag();
             if (tag == null || !tag.contains("realGazState"))
                 return DEFAULT_STATE.temperature();
@@ -288,7 +288,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             return new SpecificRealGazState(tag.getCompound("realGazState")).temperature();
         }
 
-        private static void heatFluidStack(FluidStack stack, float amount) {
+        private static void heatFluidStack(@NotNull FluidStack stack, float amount) {
             if (stack.getAmount() <= 0)
                 return;
 

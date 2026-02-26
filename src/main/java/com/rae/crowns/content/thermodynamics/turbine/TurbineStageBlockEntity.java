@@ -31,7 +31,7 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     public int initialTicks;
     //the turbine add itself to the SteamCurrent
     protected @NotNull List<SteamCurrent> flows = List.of();
-    LerpedFloat power = LerpedFloat.linear();
+    @NotNull LerpedFloat power = LerpedFloat.linear();
     int index;
 
     public TurbineStageBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {

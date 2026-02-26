@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class NuclearScene {
     public static void nuclearBasic(@NotNull SceneBuilder builder, @NotNull SceneBuildingUtil sceneBuildingUtil) {
@@ -187,7 +188,7 @@ public class NuclearScene {
 
     }
 
-    private static Selection getCircularReactorRing(SceneBuildingUtil util, int radius) {
+    private static @Nullable Selection getCircularReactorRing(@NotNull SceneBuildingUtil util, int radius) {
         // Reactor interior bounds
         int min = 0;
         int max = 4;

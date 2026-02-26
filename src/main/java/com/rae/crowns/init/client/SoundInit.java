@@ -6,6 +6,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.NotNull;
 
 import static com.rae.crowns.CROWNS.MODID;
 
@@ -15,7 +16,7 @@ public class SoundInit {
 
     public static final RegistryObject<SoundEvent> TURBINE_SOUND = registerSound("turbine_sound");
 
-    public static RegistryObject<SoundEvent> registerSound(String id) {
+    public static RegistryObject<SoundEvent> registerSound(@NotNull String id) {
         return SOUNDS.register(id,
                 () -> SoundEvent.createVariableRangeEvent(CROWNS.resource(id)));
     }

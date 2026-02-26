@@ -8,6 +8,7 @@ import com.rae.crowns.content.rendering.util.VolumeCubeMesh;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,7 +21,7 @@ public class VolumeWorldRenderer {
         volumes.add(volume);
     }
 
-    public static void render(PoseStack poseStack, MultiBufferSource buffers, ShaderInstance shader, Vec3 cameraPos) {
+    public static void render(@NotNull PoseStack poseStack, MultiBufferSource buffers, @NotNull ShaderInstance shader, @NotNull Vec3 cameraPos) {
         RenderSystem.setShader(() -> shader);
         RenderSystem.enableBlend();
         //RenderSystem.defaultBlendFunc();

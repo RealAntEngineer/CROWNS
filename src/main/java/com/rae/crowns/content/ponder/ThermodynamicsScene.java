@@ -163,10 +163,10 @@ public class ThermodynamicsScene {
     }
 
     private static void spawnFlow(
-            PonderLevel world,
-            Vec3 from,
-            Vec3 to,
-            Vec3 spawnPos,
+            @NotNull PonderLevel world,
+            @NotNull Vec3 from,
+            @NotNull Vec3 to,
+            @NotNull Vec3 spawnPos,
             List<Color> colors
     ) {
         FlowLine spline = new FlowLine(

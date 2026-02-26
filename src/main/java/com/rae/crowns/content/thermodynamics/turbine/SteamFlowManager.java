@@ -17,7 +17,7 @@ public class SteamFlowManager {
 
     static @Nullable SteamFlowData storage = null;
 
-    public static void addSteamCurrent(ServerLevel level, SteamCurrent steamCurrent) {
+    public static void addSteamCurrent(@NotNull ServerLevel level, SteamCurrent steamCurrent) {
         if (storage == null) return;
         storage.steamCurrents.computeIfAbsent(level.dimension().location(), d -> new ArrayList<>())
                 .add(steamCurrent);
@@ -54,7 +54,7 @@ public class SteamFlowManager {
 
     }
 
-    public static @NotNull List<SteamCurrent> getCurrentsInBounds(ServerLevel level, @NotNull AABB bound) {
+    public static @NotNull List<SteamCurrent> getCurrentsInBounds(@NotNull ServerLevel level, @NotNull AABB bound) {
         List<SteamCurrent> collector = new ArrayList<>();
         if (storage == null) return collector;
         storage.steamCurrents.getOrDefault(level.dimension().location(), List.of()).forEach((steamCurrent) ->

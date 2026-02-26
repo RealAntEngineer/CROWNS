@@ -1,5 +1,7 @@
 package com.rae.crowns.content.fields.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Set;
 import java.util.function.Function;
 
@@ -17,7 +19,7 @@ public final class SectionLooper {
      * Iterate every voxel in every packedSection and call visitor.
      * Uses a single mutable Context per section to avoid allocations.
      */
-    public static void iterate(Set<Long> tickingSections, Function<Long, AbstractDataLayer[]> layerGetter, VoxelVisitor visitor) {
+    public static void iterate(@NotNull Set<Long> tickingSections, @NotNull Function<Long, AbstractDataLayer[]> layerGetter, @NotNull VoxelVisitor visitor) {
         Context ctx = new Context(); // single reusable context per iterate call
 
         for (long packedSection : tickingSections) {
@@ -151,7 +153,7 @@ public final class SectionLooper {
         /**
          * Iterates all 6 neighbors of the current voxel, without Direction enums or allocations.
          */
-        public void forEachNeighbor(NeighborConsumer consumer) {
+        public void forEachNeighbor(@NotNull NeighborConsumer consumer) {
             int cx = x();
             int cy = y();
             int cz = z();
@@ -169,7 +171,7 @@ public final class SectionLooper {
          * Resolves a neighbor coordinate potentially outside the local section.
          * Returns NeighborRef with packed section and local coordinates inside that section.
          */
-        public NeighborRef resolveNeighbor(int nx, int ny, int nz) {
+        public @NotNull NeighborRef resolveNeighbor(int nx, int ny, int nz) {
             int nsx = sx, nsy = sy, nsz = sz;
             int lx = nx, ly = ny, lz = nz;
 

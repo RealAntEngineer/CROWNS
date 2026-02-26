@@ -7,16 +7,17 @@ import com.rae.crowns.content.rendering.util.SceneDepth;
 import com.rae.crowns.content.rendering.util.VolumeCubeMesh;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
 public abstract class VolumeInstance {
 
-    public Vec3 position = Vec3.ZERO;
-    public Vec3 size = new Vec3(1, 1, 1);
+    public @NotNull Vec3 position = Vec3.ZERO;
+    public @NotNull Vec3 size = new Vec3(1, 1, 1);
 
-    public final void render(PoseStack poseStack, ShaderInstance shader, Vec3 cameraPos) {
+    public final void render(@NotNull PoseStack poseStack, @NotNull ShaderInstance shader, @NotNull Vec3 cameraPos) {
         poseStack.pushPose();
 
         // Apply instance transform
@@ -62,7 +63,7 @@ public abstract class VolumeInstance {
     }
 
     // ✅ Binds textures + brick uniforms
-    public final void bind(ShaderInstance shader, Vec3 cameraPos, int maxSteps) {
+    public final void bind(@NotNull ShaderInstance shader, @NotNull Vec3 cameraPos, int maxSteps) {
         RenderSystem.assertOnRenderThread();
 
         additionalBindings(shader, cameraPos);

@@ -194,7 +194,7 @@ public class DebugRenderer {
         poseStack.popPose();
     }
 
-    private static void renderArrow(PoseStack poseStack, Vec3 pos, Vec3 dir, int color, float scale, VertexConsumer buffer) {
+    private static void renderArrow(@NotNull PoseStack poseStack, @NotNull Vec3 pos, @NotNull Vec3 dir, int color, float scale, @NotNull VertexConsumer buffer) {
         Vec3 start = pos;
         Vec3 end = pos.add(dir.scale(scale));
 

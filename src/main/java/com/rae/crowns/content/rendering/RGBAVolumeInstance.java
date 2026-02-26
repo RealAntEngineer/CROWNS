@@ -5,6 +5,7 @@ import com.rae.crowns.content.rendering.textures.MinMaxDensity3D;
 import com.rae.crowns.content.rendering.textures.RGBA3D;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
@@ -12,8 +13,8 @@ import org.lwjgl.opengl.GL13;
 public class RGBAVolumeInstance extends VolumeInstance {
 
     // GPU textures
-    public final RGBA3D volumeColors;
-    public final MinMaxDensity3D bricks;
+    public final @NotNull RGBA3D volumeColors;
+    public final @NotNull MinMaxDensity3D bricks;
 
     // Volume resolution
     public final int Nx, Ny, Nz;
@@ -114,7 +115,7 @@ public class RGBAVolumeInstance extends VolumeInstance {
         return brickData;
     }
 
-    public void additionalBindings(ShaderInstance shader, Vec3 cameraPos) {
+    public void additionalBindings(@NotNull ShaderInstance shader, Vec3 cameraPos) {
         // Volume → unit 1
         RenderSystem.activeTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL12.GL_TEXTURE_3D, volumeColors.texId);

@@ -1,12 +1,14 @@
 package com.rae.crowns.content.fields.util;
 
+import org.jetbrains.annotations.NotNull;
+
 public class DiffusionMatrix implements ConjugateGradientSolver.MatrixOperator {
     private final float[] diag;
     private final int[][] neighbors;
     private final float[][] coeffs;
     private final int size;
 
-    public DiffusionMatrix(float[] diag, int[][] neighbors, float[][] coeffs) {
+    public DiffusionMatrix(float @NotNull [] diag, int[][] neighbors, float[][] coeffs) {
         this.diag = diag;
         this.neighbors = neighbors;
         this.coeffs = coeffs;

@@ -58,10 +58,10 @@ public class FuelStackDisplaySource extends DisplaySource {
         return values.stream().limit(maxRows);
     }
 
-    private static List<AssemblyBlockEntity> collectFuelStack(
-            Level level,
-            BlockPos startPos,
-            Direction.Axis axis
+    private static @NotNull List<AssemblyBlockEntity> collectFuelStack(
+            @NotNull Level level,
+            @NotNull BlockPos startPos,
+            Direction.@NotNull Axis axis
     ) {
         List<AssemblyBlockEntity> stack = new ArrayList<>();
 

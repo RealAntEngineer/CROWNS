@@ -9,6 +9,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterShadersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
@@ -16,10 +17,10 @@ import java.io.IOException;
 public class ShaderInit {
 
     public static ShaderInstance volumeShader;
-    static RenderStateShard.ShaderStateShard VOLUME_FULL = new RenderStateShard.ShaderStateShard.ShaderStateShard(() -> ShaderInit.volumeShader);
+    static RenderStateShard.@NotNull ShaderStateShard VOLUME_FULL = new RenderStateShard.ShaderStateShard.ShaderStateShard(() -> ShaderInit.volumeShader);
 
     @SubscribeEvent
-    public static void registerShaders(RegisterShadersEvent event) {
+    public static void registerShaders(@NotNull RegisterShadersEvent event) {
         try {
             // Register your shader
             ResourceProvider resourceProvider = event.getResourceProvider();

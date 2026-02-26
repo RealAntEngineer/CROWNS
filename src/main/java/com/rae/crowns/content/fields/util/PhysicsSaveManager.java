@@ -109,7 +109,7 @@ public class PhysicsSaveManager {
         }
     }
 
-    public static float getDefaultConduction(BlockState blockState) {
+    public static float getDefaultConduction(@NotNull BlockState blockState) {
         FluidState fluid = blockState.getFluidState();
         // Priority: Fluid > Block
         if (fluid.isEmpty()) {
@@ -120,7 +120,7 @@ public class PhysicsSaveManager {
         }
     }
 
-    public static float getDefaultResilience(BlockState blockState) {
+    public static float getDefaultResilience(@NotNull BlockState blockState) {
         FluidState fluid = blockState.getFluidState();
         // Priority: Fluid > Block
         if (fluid.isEmpty()) {
@@ -137,7 +137,7 @@ public class PhysicsSaveManager {
         data.syncWithPlayers(level.getPlayers(serverPlayer -> serverPlayer.level().dimension().equals(level.dimension())));
     }
 
-    public static void serverStarted(MinecraftServer server) {
+    public static void serverStarted(@NotNull MinecraftServer server) {
         for (ServerLevel level : server.getAllLevels()) {
             worldDataMap.put(level.dimension(), PhysicsWorldData.loadData(level));
         }

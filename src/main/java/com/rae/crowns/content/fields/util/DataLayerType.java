@@ -8,6 +8,7 @@ import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +39,7 @@ public final class DataLayerType<T extends AbstractDataLayer> {
         this.initializer = initializer;
     }
 
-    public static <T extends AbstractDataLayer> DataLayerType<T> register(String id, Supplier<T> factory, Function3<Level, BlockPos, BlockState, Float> initializer) {
+    public static <T extends AbstractDataLayer> @NotNull DataLayerType<T> register(String id, Supplier<T> factory, Function3<Level, BlockPos, BlockState, Float> initializer) {
         DataLayerType<T> type = new DataLayerType<>(id, factory, initializer);
         REGISTRY.put(id, type);
         return type;
@@ -53,7 +54,7 @@ public final class DataLayerType<T extends AbstractDataLayer> {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "DataLayerType{id='%s'}".formatted(id);
     }
 }
