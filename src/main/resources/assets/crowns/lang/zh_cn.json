@@ -1,0 +1,92 @@
+{
+  "block.crowns.heat_exchanger": "热交换器",
+  "block.crowns.steam_input": "涡轮机蒸汽输出口",
+  "block.crowns.steam_collector": "涡轮机废汽收集口",
+
+  "block.crowns.fuel_assembly": "核燃料组件",
+  "block.crowns.uranium_ore": "铀矿石",
+  "block.crowns.deepslate_uranium_ore": "深层铀矿石",
+  "block.crowns.turbine_stage": "涡轮扇叶",
+  "block.crowns.turbine_stage_structure": "涡轮机结构方块",
+  "block.crowns.compressor": "流体压缩机",
+
+  "item.crowns.uranium_ingot": "天然铀锭",
+  "item.crowns.natural_uranium_nugget": "天然铀粒",
+  "item.crowns.depleted_uranium_ingot": "贫铀锭",
+  "item.crowns.depleted_uranium_nugget": "贫铀粒",
+  "item.crowns.enriched_uranium_ingot": "高纯度铀锭",
+  "item.crowns.enriched_uranium_nugget": "高纯度铀粒",
+
+  "item.crowns.corium_bucket": "堆芯熔融物桶",
+  "item.crowns.uranium_hexafluoride_bucket": "六氟化铀桶",
+  "item.crowns.fuel_rod": "燃料棒",
+
+  "item.crowns.raw_uranium": "粗铀",
+
+  "fluid.crowns.corium": "堆芯熔融物",
+  "fluid.crowns.uranium_hexafluoride": "六氟化铀",
+
+  "itemGroup.crowns.nuclear": "CROWNS",
+
+
+  "crowns.ponder.nuclear_basics.header": "核反应堆",
+  "crowns.ponder.nuclear_basics.text_1": "核燃料的自发裂变会产生快中子",
+  "crowns.ponder.nuclear_basics.text_2": "快中子难以维持裂变链式反应",
+  "crowns.ponder.nuclear_basics.text_3": "放置慢化剂，将快中子减速为热中子，从而诱发裂变并产生更多中子",
+  "crowns.ponder.nuclear_basics.text_4": "简而言之，慢化剂使反应堆温度升高",
+  "crowns.ponder.nuclear_basics.text_5": "煤块的效率为 70%%",
+  "crowns.ponder.nuclear_basics.text_6": "水的效率为 50%%",
+  "crowns.ponder.nuclear_basics.text_7": "金截然相反，故可用作控制棒。它能阻挡所有辐射",
+  "crowns.ponder.nuclear_basics.text_8": "当足够多的核燃料与慢化剂置于一处时，反应将急剧增加",
+  "crowns.ponder.nuclear_basics.text_9": "随着裂变持续，燃料组件开始升温...",
+  "crowns.ponder.nuclear_basics.text_10": "若不冷却或插入控制棒，温度将达到材料极限。",
+  "crowns.ponder.nuclear_basics.text_11": "燃料发生灾难性损毁，熔融成堆芯熔融物。",
+
+  "crowns.ponder.reactor_layout.header": "反应堆布局",
+  "crowns.ponder.reactor_layout.text_1": "与其他热源方块一样，核燃料可用于加热水。",
+  "crowns.ponder.reactor_layout.text_2": "建议以同心圆方式建造反应堆。",
+  "crowns.ponder.reactor_layout.text_3": "热交换器可放置在内层",
+  "crowns.ponder.reactor_layout.text_4": "控制棒可放置在其旁边",
+  "crowns.ponder.reactor_layout.text_5": "羊毛可减少反应堆热流失，提高热效率",
+  "crowns.ponder.reactor_layout.text_6": "反应堆越高，加热水至沸腾的时间越长；同时也会小幅提升功率",
+
+  "crowns.ponder.turbine.header": "涡轮机",
+  "crowns.ponder.turbine.text_1": "将蒸汽输入蒸汽入口",
+  "crowns.ponder.turbine.text_2": "如果水不够热，涡轮机不会转动",
+  "crowns.ponder.turbine.text_3": "一旦水沸腾并含有蒸汽，涡轮机便会旋转",
+  "crowns.ponder.turbine.text_4": "颜色显示蒸汽品质",
+  "crowns.ponder.turbine.text_5": "从纯蒸汽 (x = 100%%) 开始",
+  "crowns.ponder.turbine.text_6": "到纯液态水 (x = 0%%) 结束",
+
+  "crowns.ponder.compressor.header": "流体压缩机",
+  "crowns.ponder.compressor.text_1": "流体压缩机增加输入流的压力",
+  "crowns.ponder.compressor.text_2": "与涡轮机不同，压力增量取决于转速",
+  "crowns.ponder.compressor.text_3": "0RPM时为 %s\n64RPM时为 %s\n128RPM时为 %s\n256RPM时为 %s",
+  "crowns.ponder.compressor.text_4": "水在高压下的沸点更高",
+
+  "crowns.display_source.radiation_source.activity": "辐射强度：",
+  "crowns.display_source.radiation_source.k_eff": "有效增殖因数：",
+  "crowns.display_source.radiation_source": "辐射源",
+  "crowns.display_source.temperature": "温度",
+  "crowns.display_source.full_stack": "燃料组件温度",
+  "crowns.units.pressure.symbol.pascals": "帕",
+  "crowns.units.pressure.symbol.bar": "巴",
+  "crowns.units.pressure.symbol.atmospheres" : "标准大气压",
+  "crowns.units.pressure.symbol.psi": "磅/平方英寸",
+  "crowns.units.temperature.symbol.kelvin": "开",
+  "crowns.units.temperature.symbol.celsius": "°C",
+  "crowns.units.temperature.symbol.fahrenheit": "°F",
+
+  "crowns.units.radiation_flux.symbol.mega_becquerels": "兆贝克",
+  "crowns.units.radiation_flux.symbol.curies": "居里",
+  "crowns.units.radiation_flux.symbol.gray_per_seconds": "戈瑞/秒",
+  "crowns.units.radiation_flux.symbol.rad_per_seconds": "拉德/秒",
+  "crowns.units.radiation_flux.symbol.sievert_per_seconds": "西弗/秒",
+
+  "nucleus.crowns.u235": "铀-235",
+  "nucleus.crowns.u238": "铀-238",
+  "nucleus.crowns.p239": "钚-239",
+
+  "death.attack.crowns.high_temperature": "%s 被活活烤熟了",
+  "death.attack.crowns.low_temperature": "%s 被冻成了冰块"
+}
