@@ -49,8 +49,7 @@ public class TagsInit extends AllTags {
         GOLD_BLOCK(CustomNameSpace.COMMUN,"storage_blocks/gold"),
         COAL_BLOCK(CustomNameSpace.COMMUN,"storage_blocks/coal"),
         REFACTORY_BLOCK(CustomNameSpace.MOD, "nuclear/refactory"),
-        UNDESTRUCTABLE(CustomNameSpace.MOD, "nuclear/undestructable"),
-        ;
+        UNDESTRUCTABLE(CustomNameSpace.MOD, "nuclear/undestructable");
 
         public final TagKey<Block> tag;
         public final boolean alwaysDatagen;
