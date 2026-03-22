@@ -1,7 +1,7 @@
 package com.rae.crowns.mixin;
 
-import com.rae.formicapi.thermal_utilities.FullTableBased;
-import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.FullTableBased;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.FluidTags;
 import net.minecraftforge.fluids.FluidStack;

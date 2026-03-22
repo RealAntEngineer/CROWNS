@@ -5,8 +5,6 @@ import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
 import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
 import com.rae.formicapi.FormicApiLang;
-import com.rae.formicapi.config.FormicAPIConfigs;
-import com.rae.formicapi.units.Pressure;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import net.createmod.catnip.theme.Color;
 import net.createmod.ponder.api.level.PonderLevel;
@@ -195,15 +193,14 @@ public class ThermodynamicsScene {
         scene.overlay().showText(20 * 4)
                 .text("At the difference of the turbine the increase in pressure depends on the speed");
 
-        Pressure unit = FormicAPIConfigs.CLIENT.units.pressure.get();
         scene.idleSeconds(8);
         scene.addKeyframe();
         scene.overlay().showText(20 * 15)
                 .text("At 0 rpm it's %s\nAt 64 rpm it's %s\nAt 128 rpm it's %s\nAt 256 rpm it's %s",
-                        "ΔP = 0 " + unit.getSymbol().getString(),
-                        "Δ" + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(64)).string(),
-                        "Δ" + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(128)).string(),
-                        "Δ" + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(256)).string()
+                        "ΔP = "+FormicApiLang.formatPressure(0).string(),
+                        "ΔP = " + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(64)).string(),
+                        "ΔP = " + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(128)).string(),
+                        "ΔP = " + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(256)).string()
                 );
         scene.markAsFinished();
 
