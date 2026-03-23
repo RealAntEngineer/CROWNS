@@ -7,6 +7,7 @@ import com.rae.crowns.init.client.SoundInit;
 import com.rae.crowns.init.data.EntityDataSerializersInit;
 import com.rae.crowns.init.data.PacketInit;
 import com.rae.crowns.init.misc.*;
+import com.rae.crowns.init.misc.hazards.HazardInit;
 import com.rae.formicapi.content.data.managers.FloatMapDataLoader;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import net.minecraft.core.registries.Registries;
@@ -71,6 +72,7 @@ public class CROWNS {
         MovementCheckInit.register();
 
         forgeEventBus.addListener(CROWNS::onAddReloadListeners);
+        modEventBus.addListener(HazardInit::register);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> CROWNSClient.clientRegister(modEventBus));
 
     }

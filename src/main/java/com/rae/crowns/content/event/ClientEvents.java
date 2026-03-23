@@ -8,6 +8,7 @@ import com.rae.crowns.content.rendering.VolumeWorldRenderer;
 import com.rae.crowns.content.rendering.util.SceneDepth;
 import com.rae.crowns.content.sound.CrownsSoundScapes;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
+import com.rae.crowns.init.misc.hazards.HazardSystem;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.ChatFormatting;
@@ -29,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.rae.crowns.init.client.ShaderInit.volumeShader;
@@ -132,6 +134,14 @@ public class ClientEvents {
             }
         }
 
+        // Hazard tooltips
+
+        List<String> hazardStrings = new ArrayList<>();
+        HazardSystem.addFullTooltip(itemStack, event.getEntity(), hazardStrings);
+
+        for (String line : hazardStrings) {
+            components.add(Component.literal(line).withStyle(ChatFormatting.GRAY));
+        }
     }
 
 }
