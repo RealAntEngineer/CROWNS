@@ -1,7 +1,5 @@
 package com.rae.crowns.init.misc.hazards;
 
-import com.rae.crowns.init.misc.hazards.types.HazardTypeBase;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,16 +17,12 @@ public class HazardData {
 
     List<HazardEntry> entries = new ArrayList<>();
 
-    public HazardData addEntry(HazardTypeBase entry) {
-        return this.addEntry(entry, 1F);
+    public HazardData addEntry(ItemRadiation.DecayContainer entry) {
+        return this.addEntry(entry, false);
     }
 
-    public HazardData addEntry(HazardTypeBase entry, double level) {
-        return this.addEntry(entry, level, false);
-    }
-
-    public HazardData addEntry(HazardTypeBase hazard, double level, boolean override) {
-        this.entries.add(new HazardEntry(hazard, level));
+    public HazardData addEntry(ItemRadiation.DecayContainer hazard, boolean override) {
+        this.entries.add(new HazardEntry(hazard));
         this.doesOverride = override;
         return this;
     }

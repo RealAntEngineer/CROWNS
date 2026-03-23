@@ -1,7 +1,7 @@
 package com.rae.crowns.init.misc.hazards;
 
-import com.rae.crowns.init.misc.hazards.types.HazardTypeBase;
-import net.minecraft.world.entity.LivingEntity;
+import com.rae.formicapi.FormicApiLang;
+import net.createmod.catnip.lang.LangBuilder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +24,7 @@ public class HazardSystem {
         itemMap.put((Item)o, data);
     }
 
-    public static List<HazardEntry> getHazardsFromStack(ItemStack stack) {
+    public static List<HazardEntry> getEntriesFromStack(ItemStack stack) {
         List<HazardData> chronological = new ArrayList<>();
 
         if (itemMap.containsKey(stack.getItem()))
@@ -46,32 +46,12 @@ public class HazardSystem {
         return entries;
     }
 
-    public static double getHazardLevelFromStack(ItemStack stack, HazardTypeBase hazard) {
-        List<HazardEntry> entries = getHazardsFromStack(stack);
-
-        for(HazardEntry entry : entries) {
-            if(entry.type == hazard) {
-                return entry.baseLevel;
-            }
-        }
-
-        return 0F;
-    }
-
-    public static void applyHazards(ItemStack stack, LivingEntity entity) {
-        List<HazardEntry> hazards = getHazardsFromStack(stack);
-
-        for(HazardEntry hazard : hazards) {
-            hazard.applyHazard(stack, entity);
-        }
-    }
-
     public static void updatePlayerInventory(Player player) {
 
         for (int i = 0; i < player.getInventory().items.size(); i++) {
 
             ItemStack stack = player.getInventory().getItem(i);
-            applyHazards(stack, player);
+            // Implementation of radiation will go here
 
             if (stack.isEmpty()) {
                 player.getInventory().items.set(i, ItemStack.EMPTY);
@@ -84,10 +64,27 @@ public class HazardSystem {
     @OnlyIn(Dist.CLIENT)
     public static void addFullTooltip(ItemStack stack, Player player, List<String> list) {
 
-        List<HazardEntry> hazards = getHazardsFromStack(stack);
+        List<HazardEntry> entries = getEntriesFromStack(stack);
 
-        for(HazardEntry hazard : hazards) {
-            hazard.type.addHazardInformation(player, list, hazard.baseLevel, stack);
+        for(HazardEntry entry : entries) {
+            list.add("§a[Radioactive]");
+            list.add(" §e" + FormicApiLang.numberWithSymbol(entry.container.specific_activity).component().getString() + "Bq");
+
+            if (entry.container.alpha != 0) {
+                list.add("  §4-:: Alpha decay channel: " + entry.container.alpha * 100 + "%");
+            }
+
+            if (entry.container.alpha != 0) {
+                list.add("  §b-:: Beta⁻ decay channel: " + entry.container.alpha * 100 + "%");
+            }
+
+            if (entry.container.alpha != 0) {
+                list.add("  §b-:: Beta⁺ decay channel: " + entry.container.alpha * 100 + "%");
+            }
+
+            if (entry.container.sf != 0) {
+                list.add("  §4-:: Spontaneous fission: " + entry.container.alpha * 100 + "%");
+            }
         }
     }
 
