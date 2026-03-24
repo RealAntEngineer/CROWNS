@@ -66,8 +66,8 @@ public class HazardSystem {
         List<HazardEntry> entries = getEntriesFromStack(stack);
 
         for(HazardEntry entry : entries) {
-            list.add("§al[Radioactive]");
-            list.add(" §el" + FormicApiLang.numberWithSymbol(entry.container.specific_activity).component().getString() + "Bq");
+            list.add("§a[Radioactive]");
+            list.add(" §e" + FormicApiLang.numberWithSymbol(entry.container.specific_activity).component().getString() + "Bq");
 
             if (entry.container.sf != 0) {
                 list.add("  §4-:: Spontaneous fission: " + entry.container.sf * 100 + "%");
@@ -83,6 +83,11 @@ public class HazardSystem {
 
             if (entry.container.alpha != 0) {
                 list.add("  §c-:: Alpha decay channel: " + entry.container.alpha * 100 + "%");
+            }
+
+            if (entry.container.branching_ratio != 0) {
+                list.add("");
+                list.add(" §dGammas: " + FormicApiLang.numberWithSymbol(entry.container.getReontgen(0.1D)).component().getString() + "R/s");
             }
         }
     }
