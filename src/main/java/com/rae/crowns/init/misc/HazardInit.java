@@ -31,11 +31,6 @@ public class HazardInit {
         HazardSystem.register(ItemInit.DEPLETED_URANIUM_INGOT.get(), makeData(u238));
         HazardSystem.register(ItemInit.URANIUM_INGOT.get(), makeData(nu));
         HazardSystem.register(ItemInit.ENRICHED_URANIUM_INGOT.get(), makeData(u235));
-
-        // Nuggets
-        HazardSystem.register(ItemInit.DEPLETED_URANIUM_NUGGET.get(), makeData(u238.multiply(nugget)));
-        HazardSystem.register(ItemInit.NATURAL_URANIUM_NUGGET.get(), makeData(nu.multiply(nugget)));
-        HazardSystem.register(ItemInit.ENRICHED_URANIUM_NUGGET.get(), makeData(u235.multiply(nugget)));
     }
 
     public static void register(final FMLCommonSetupEvent event) {
