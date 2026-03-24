@@ -1,5 +1,4 @@
 package com.rae.crowns.init.misc;
-
 import com.tterrag.registrate.util.entry.ItemEntry;
 import net.minecraft.world.item.EnchantedGoldenAppleItem;
 import net.minecraft.world.item.Item;
@@ -19,7 +18,8 @@ public class ItemInit {
             DEPLETED_URANIUM_INGOT = REGISTRATE.item("depleted_uranium_ingot", Item::new).register(),
             ENRICHED_URANIUM_NUGGET = REGISTRATE.item("enriched_uranium_nugget", Item::new).register(),
             DEPLETED_URANIUM_NUGGET = REGISTRATE.item("depleted_uranium_nugget", Item::new).register(),
-            RAW_URANIUM = REGISTRATE.item("raw_uranium", Item::new).register();
+            RAW_URANIUM = REGISTRATE.item("raw_uranium", Item::new).register(),
+            DOSIMETER = REGISTRATE.item("dosimeter", Item::new).register();
 
     public static final ItemEntry<EnchantedGoldenAppleItem> ENRICHED_URANIUM_INGOT = REGISTRATE.item("enriched_uranium_ingot", EnchantedGoldenAppleItem::new).register();
 

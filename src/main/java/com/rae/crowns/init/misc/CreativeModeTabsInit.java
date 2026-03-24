@@ -49,6 +49,7 @@ public class CreativeModeTabsInit {
                                 output.accept(ItemInit.ENRICHED_URANIUM_NUGGET);
                                 output.accept(FluidInit.URANIUM_HEXAFLUORIDE.get().getBucket());
                                 output.acceptAll(makeFuelAssembly().apply(ItemInit.FUEL_ROD.asItem()));
+                                output.accept(ItemInit.DOSIMETER);
                             })
                             .build());
 
