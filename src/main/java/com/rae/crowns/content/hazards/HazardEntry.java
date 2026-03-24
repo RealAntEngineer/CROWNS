@@ -1,7 +1,4 @@
-package com.rae.crowns.init.misc.hazards;
-
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
+package com.rae.crowns.content.hazards;
 
 public class HazardEntry implements Cloneable {
     final ItemRadiation.DecayContainer container;

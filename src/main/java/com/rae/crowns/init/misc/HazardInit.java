@@ -1,6 +1,8 @@
-package com.rae.crowns.init.misc.hazards;
+package com.rae.crowns.init.misc;
 
-import com.rae.crowns.init.misc.ItemInit;
+import com.rae.crowns.content.hazards.HazardData;
+import com.rae.crowns.content.hazards.HazardSystem;
+import com.rae.crowns.content.hazards.ItemRadiation;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 @SuppressWarnings("unused") // Shut the fuck up

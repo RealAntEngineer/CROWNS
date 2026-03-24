@@ -1,4 +1,4 @@
-package com.rae.crowns.init.misc.hazards;
+package com.rae.crowns.content.hazards;
 
 public class ItemRadiation {
     public static class DecayContainer {

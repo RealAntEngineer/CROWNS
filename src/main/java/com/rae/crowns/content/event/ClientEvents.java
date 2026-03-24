@@ -8,7 +8,7 @@ import com.rae.crowns.content.rendering.VolumeWorldRenderer;
 import com.rae.crowns.content.rendering.util.SceneDepth;
 import com.rae.crowns.content.sound.CrownsSoundScapes;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
-import com.rae.crowns.init.misc.hazards.HazardSystem;
+import com.rae.crowns.content.hazards.HazardSystem;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.ChatFormatting;

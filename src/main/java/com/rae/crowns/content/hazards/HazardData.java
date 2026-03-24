@@ -1,4 +1,4 @@
-package com.rae.crowns.init.misc.hazards;
+package com.rae.crowns.content.hazards;
 
 import java.util.ArrayList;
 import java.util.List;

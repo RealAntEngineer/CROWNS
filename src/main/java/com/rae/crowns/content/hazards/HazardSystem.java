@@ -1,7 +1,6 @@
-package com.rae.crowns.init.misc.hazards;
+package com.rae.crowns.content.hazards;
 
 import com.rae.formicapi.FormicApiLang;
-import net.createmod.catnip.lang.LangBuilder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -67,23 +66,23 @@ public class HazardSystem {
         List<HazardEntry> entries = getEntriesFromStack(stack);
 
         for(HazardEntry entry : entries) {
-            list.add("§a[Radioactive]");
-            list.add(" §e" + FormicApiLang.numberWithSymbol(entry.container.specific_activity).component().getString() + "Bq");
-
-            if (entry.container.alpha != 0) {
-                list.add("  §4-:: Alpha decay channel: " + entry.container.alpha * 100 + "%");
-            }
-
-            if (entry.container.alpha != 0) {
-                list.add("  §b-:: Beta⁻ decay channel: " + entry.container.alpha * 100 + "%");
-            }
-
-            if (entry.container.alpha != 0) {
-                list.add("  §b-:: Beta⁺ decay channel: " + entry.container.alpha * 100 + "%");
-            }
+            list.add("§al[Radioactive]");
+            list.add(" §el" + FormicApiLang.numberWithSymbol(entry.container.specific_activity).component().getString() + "Bq");
 
             if (entry.container.sf != 0) {
-                list.add("  §4-:: Spontaneous fission: " + entry.container.alpha * 100 + "%");
+                list.add("  §4-:: Spontaneous fission: " + entry.container.sf * 100 + "%");
+            }
+
+            if (entry.container.beta_plus != 0) {
+                list.add("  §b-:: Beta⁺ decay channel: " + entry.container.beta_plus * 100 + "%");
+            }
+
+            if (entry.container.beta_minus != 0) {
+                list.add("  §b-:: Beta⁻ decay channel: " + entry.container.beta_minus * 100 + "%");
+            }
+
+            if (entry.container.alpha != 0) {
+                list.add("  §c-:: Alpha decay channel: " + entry.container.alpha * 100 + "%");
             }
         }
     }
