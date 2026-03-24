@@ -24,7 +24,7 @@ public class ItemRadiation {
         }
 
         public DecayContainer(double specific_activity, double alpha, double daughter_excited, double branching_ratio) {
-            this(specific_activity, alpha, 0F, 0F, 0F, daughter_excited, daughter_excited);
+            this(specific_activity, alpha, 0F, 0F, 0F, daughter_excited, branching_ratio);
         }
 
         public DecayContainer multiply(double v) {
@@ -33,7 +33,7 @@ public class ItemRadiation {
         }
 
         public DecayContainer copy() {
-            return new DecayContainer(specific_activity, alpha, beta_minus, beta_minus, sf, daughter_excited, branching_ratio);
+            return new DecayContainer(specific_activity, alpha, beta_minus, beta_plus, sf, daughter_excited, branching_ratio);
         }
 
         public double getGammas() {
@@ -41,7 +41,7 @@ public class ItemRadiation {
         }
 
         public double getEnergyFluence(double distance) {
-            return (getGammas() * daughter_excited) / 4*Math.PI*(Math.pow(distance, 2));
+            return (getGammas() * daughter_excited) / (4*Math.PI*Math.pow(distance, 2));
         }
 
         public double getReontgen(double distance) { // in R/s
