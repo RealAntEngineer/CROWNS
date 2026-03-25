@@ -13,18 +13,23 @@ public class ItemRadiation {
         public double daughter_excited; // measured in MeV, divide accordingly
         public double branching_ratio; // These two are used to calculate a basic estimate of gammas
 
-        public DecayContainer(double specific_activity, double alpha, double beta_minus, double beta_plus, double sf, double daughter_excited, double branching_ratio) {
+        public double alpha_energy; // Also in MeV
+        public double beta_energy; // Even more stuff, woohoo
+
+        public DecayContainer(double specific_activity, double alpha, double alpha_energy, double beta_minus, double beta_energy, double beta_plus, double sf, double daughter_excited, double branching_ratio) {
             this.specific_activity = specific_activity;
             this.alpha = alpha;
+            this.alpha_energy = alpha_energy;
             this.beta_plus = beta_plus;
             this.beta_minus = beta_minus;
+            this.beta_energy = beta_energy;
             this.sf = sf;
             this.daughter_excited = daughter_excited;
             this.branching_ratio = branching_ratio;
         }
 
-        public DecayContainer(double specific_activity, double alpha, double daughter_excited, double branching_ratio) {
-            this(specific_activity, alpha, 0F, 0F, 0F, daughter_excited, branching_ratio);
+        public DecayContainer(double specific_activity, double alpha, double alpha_energy, double daughter_excited, double branching_ratio) {
+            this(specific_activity, alpha, alpha_energy, 0D, 0D, 0D, 0D, daughter_excited, branching_ratio);
         }
 
         public DecayContainer multiply(double v) {
@@ -33,7 +38,7 @@ public class ItemRadiation {
         }
 
         public DecayContainer copy() {
-            return new DecayContainer(specific_activity, alpha, beta_minus, beta_plus, sf, daughter_excited, branching_ratio);
+            return new DecayContainer(specific_activity, alpha, alpha_energy, beta_minus, beta_energy, beta_plus, sf, daughter_excited, branching_ratio);
         }
 
         public double getGammas() {

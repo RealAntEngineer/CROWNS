@@ -13,12 +13,12 @@ public class HazardInit {
     private static final double block = 1*9F; // a block is 9 ingots
 
     // Other stuff
-    public static final ItemRadiation.DecayContainer raw_uranium = new ItemRadiation.DecayContainer(91_000_000F, 1F, 49.5/1000D, 0.0008);
+    public static final ItemRadiation.DecayContainer raw_uranium = new ItemRadiation.DecayContainer(91_000_000F, 1F, 4.27D, 49.5/1000D, 0.0008);
 
     // Ingots
-    public static final ItemRadiation.DecayContainer nu = new ItemRadiation.DecayContainer(127_000_000F, 1F, 49.5/1000D, 0.0008);
-    public static final ItemRadiation.DecayContainer u235 = new ItemRadiation.DecayContainer(400_055_000F, 1F, 49.37/1000D, 0.25);
-    public static final ItemRadiation.DecayContainer u238 = new ItemRadiation.DecayContainer(62_225_000F, 1F, 49.5/1000D, 0.0008);
+    public static final ItemRadiation.DecayContainer nu = new ItemRadiation.DecayContainer(127_000_000F, 1F, 4.27D, 49.5/1000D, 0.0008);
+    public static final ItemRadiation.DecayContainer u235 = new ItemRadiation.DecayContainer(400_055_000F, 1F, 49.37/1000D,4.27D, 0.25);
+    public static final ItemRadiation.DecayContainer u238 = new ItemRadiation.DecayContainer(62_225_000F, 1F, 4.27D, 49.5/1000D, 0.0008);
 
     // Looks a bit nice even if redundant
     private static HazardData makeData(ItemRadiation.DecayContainer container) { return new HazardData().addEntry(container); }
