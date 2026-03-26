@@ -52,6 +52,7 @@ public class HazardSystem {
             ItemStack stack = player.getInventory().getItem(i);
             // Implementation of radiation will go here
 
+
             if (stack.isEmpty()) {
                 player.getInventory().items.set(i, ItemStack.EMPTY);
             }
@@ -87,7 +88,7 @@ public class HazardSystem {
 
             if (entry.container.branching_ratio != 0) {
                 list.add("");
-                list.add(" §dGammas: " + FormicApiLang.numberWithSymbol(entry.container.getReontgen(0.1D)).component().getString() + "R/s");
+                list.add(" §dDecay gammas: " + FormicApiLang.numberWithSymbol(entry.container.getReontgen(0.1D)).component().getString() + "R/s");
             }
         }
     }
