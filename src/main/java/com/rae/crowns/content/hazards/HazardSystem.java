@@ -1,6 +1,7 @@
 package com.rae.crowns.content.hazards;
 
 import com.rae.formicapi.FormicApiLang;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -45,13 +46,21 @@ public class HazardSystem {
         return entries;
     }
 
+    public static void applyHazards(ItemStack stack, LivingEntity entity) {
+        List<HazardEntry> entries = getEntriesFromStack(stack);
+
+        for (HazardEntry entry : entries) {
+            entry.applyHazard(stack, entity);
+        }
+    }
+
     public static void updatePlayerInventory(Player player) {
 
         for (int i = 0; i < player.getInventory().items.size(); i++) {
 
             ItemStack stack = player.getInventory().getItem(i);
             // Implementation of radiation will go here
-
+            applyHazards(stack, player);
 
             if (stack.isEmpty()) {
                 player.getInventory().items.set(i, ItemStack.EMPTY);
@@ -88,7 +97,7 @@ public class HazardSystem {
 
             if (entry.container.branching_ratio != 0) {
                 list.add("");
-                list.add(" §dDecay gammas: " + FormicApiLang.numberWithSymbol(entry.container.getReontgen(0.1D)).component().getString() + "R/s");
+                list.add(" §dPrompt gammas: " + FormicApiLang.numberWithSymbol(entry.container.getReontgen(0.1D)).component().getString() + "R/s");
             }
         }
     }

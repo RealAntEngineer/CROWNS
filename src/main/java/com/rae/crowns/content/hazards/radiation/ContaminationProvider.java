@@ -10,6 +10,7 @@ import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
+import org.jetbrains.annotations.NotNull;
 
 public class ContaminationProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
     public static final Capability<IContamination> capability = CapabilityManager.get(new CapabilityToken<>() {});
@@ -18,7 +19,7 @@ public class ContaminationProvider implements ICapabilityProvider, INBTSerializa
     private final LazyOptional<IContamination> optional = LazyOptional.of(() -> instance);
 
     @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
+    public <T> @NotNull LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
         return cap == capability ? optional.cast() : LazyOptional.empty();
     }
 

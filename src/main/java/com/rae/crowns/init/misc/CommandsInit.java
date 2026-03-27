@@ -8,6 +8,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
+import com.rae.crowns.content.hazards.radiation.ContaminationUtil;
 import com.rae.crowns.content.nuclear.NuclearExplosion;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
 import net.minecraft.commands.CommandSourceStack;
@@ -126,6 +127,14 @@ public class CommandsInit {
                                         }
                                 )
                         ))
+                .then(Commands.literal("getGrays")
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+
+                            context.getSource().sendSystemMessage(Component.literal("Current contamination: " + ContaminationUtil.getContamination(player)));
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
         );
     }
 }
