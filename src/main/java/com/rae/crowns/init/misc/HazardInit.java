@@ -19,20 +19,19 @@ public class HazardInit {
     public static final ItemRadiation.DecayContainer nu = new ItemRadiation.DecayContainer(127_000_000F, 1F, 4.27D, 49.5/1000D, 0.0008);
     public static final ItemRadiation.DecayContainer u235 = new ItemRadiation.DecayContainer(400_055_000F, 1F,4.68D, 49.37/1000D, 0.25);
     public static final ItemRadiation.DecayContainer u238 = new ItemRadiation.DecayContainer(62_225_000F, 1F, 4.27D, 49.5/1000D, 0.0008);
-    public static final ItemRadiation.DecayContainer pa233 = new ItemRadiation.DecayContainer(127_000_000_000/*3_843_500_000_000_000_000D*/, 0F, 0F, 1F, 0.571F, 0F, 0F, 311.9/1000D, 0.383);
+    public static final ItemRadiation.DecayContainer pa233 = new ItemRadiation.DecayContainer(400_055_000F, 0F, 0F, 0F, 0.571F, 1F, 0F, 311.9/1000D, 0.383);
 
     // Looks a bit nice even if redundant
     private static HazardData makeData(ItemRadiation.DecayContainer container) { return new HazardData().addEntry(container); }
 
     public static void registerItems() {
         // Ore
-        HazardSystem.register(ItemInit.RAW_URANIUM.get(), makeData(raw_uranium));
+        HazardSystem.register(ItemInit.RAW_URANIUM.get(), makeData(pa233));
 
         // Ingots
         HazardSystem.register(ItemInit.DEPLETED_URANIUM_INGOT.get(), makeData(u238));
         HazardSystem.register(ItemInit.URANIUM_INGOT.get(), makeData(nu));
         HazardSystem.register(ItemInit.ENRICHED_URANIUM_INGOT.get(), makeData(u235));
-        HazardSystem.register(ItemInit.PROTACTINIUM_233_INGOT.get(), makeData(pa233));
     }
 
     public static void register(final FMLCommonSetupEvent event) {

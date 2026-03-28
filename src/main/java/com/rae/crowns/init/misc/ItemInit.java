@@ -18,7 +18,6 @@ public class ItemInit {
             DEPLETED_URANIUM_INGOT = REGISTRATE.item("depleted_uranium_ingot", Item::new).register(),
             ENRICHED_URANIUM_NUGGET = REGISTRATE.item("enriched_uranium_nugget", Item::new).register(),
             DEPLETED_URANIUM_NUGGET = REGISTRATE.item("depleted_uranium_nugget", Item::new).register(),
-            PROTACTINIUM_233_INGOT = REGISTRATE.item("protactinium_233_ingot", Item::new).register(),
             RAW_URANIUM = REGISTRATE.item("raw_uranium", Item::new).register(),
             DOSIMETER = REGISTRATE.item("dosimeter", Item::new).register();
 

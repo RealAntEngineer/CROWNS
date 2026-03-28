@@ -12,10 +12,12 @@ public class RadiationTypeAlpha extends RadiationTypeBase {
     public void onUpdate(LivingEntity target, ItemRadiation.DecayContainer container, ItemStack stack) {
         MobEffectInstance effect = target.getEffect(EffectsInit.RADIODERMATITIS.get());
 
-        if (effect == null) return;
+        if (effect != null || target.getHealth() <= 6) {
+            final double dose = (container.specific_activity * stack.getCount()) * (container.alpha_energy * 1.602177e-13) / 0.1;
+            final double health = target.getHealth() / target.getMaxHealth();
+            final double factor = health / 4.0 * 3.0 + 0.25d;
 
-        final double dose = (container.specific_activity * stack.getCount()) * (container.alpha_energy * 1.602177e-13) / 0.1;
-
-        ContaminationUtil.addContamination(target, dose / 20);
+            ContaminationUtil.addContamination(target, (dose / factor) / 20);
+        }
     }
 }

@@ -35,12 +35,6 @@ public class RadiationEffects {
         MobEffectInstance suppression = new MobEffectInstance(EffectsInit.BONE_MARROW_SUPPRESSION.get(), 100, 1);
         MobEffectInstance weakness = new MobEffectInstance(MobEffects.WEAKNESS, 100, 2);
         MobEffectInstance fatigue = new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 100);
-        MobEffectInstance death = new MobEffectInstance(MobEffects.POISON, 40);
-        MobEffectInstance darkness = new MobEffectInstance(MobEffects.DARKNESS, 100, 2);
-
-        if (Math.random() < 0.01) {
-            target.addEffect(darkness);
-        }
 
         if (Math.random() < 0.01) {
             target.addEffect(confusion);
@@ -50,20 +44,15 @@ public class RadiationEffects {
             target.addEffect(weakness);
         }
 
-        if (Math.random() < 0.008) {
-            target.addEffect(death); // Lebron james hairline
-        }
-
         target.addEffect(fatigue);
         target.addEffect(suppression);
     }
 
     public static void neurovascularSubsyndrome(LivingEntity target) {
         MobEffectInstance suppression = new MobEffectInstance(EffectsInit.BONE_MARROW_SUPPRESSION.get(), 100, 2);
-        MobEffectInstance death = new MobEffectInstance(MobEffects.HARM, 20);
-
-        target.addEffect(death);
         target.addEffect(suppression);
+
+        target.hurt(target.damageSources().generic(), 0.2F);
     }
 
     @SubscribeEvent

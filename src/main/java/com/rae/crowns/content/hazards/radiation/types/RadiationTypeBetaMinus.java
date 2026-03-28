@@ -2,6 +2,7 @@ package com.rae.crowns.content.hazards.radiation.types;
 
 import com.rae.crowns.content.hazards.ItemRadiation;
 import com.rae.crowns.init.misc.EffectsInit;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +19,7 @@ public class RadiationTypeBetaMinus extends RadiationTypeBase {
 
         if (flux > 1.8e8) { // I pulled this number out of my ass
             target.addEffect(effect);
-            if (dose > 1) target.hurt()
+            if (dose > 1) target.hurt(target.damageSources().generic(), 0.05F);
         }
     }
 }
