@@ -167,7 +167,7 @@ public class FlowLine {//this is a spline
         ArrayList<Double> speedAtPoints = new ArrayList<>();
         for (int i = 0; i < speedsTag.size(); i++) {
             CompoundTag speedTag = speedsTag.getCompound(i);
-            speedAtPoints.set(i, speedTag.getDouble("Speed"));
+            speedAtPoints.add(i, speedTag.getDouble("Speed"));
         }
 
         // Deserialize colors at points
@@ -176,7 +176,7 @@ public class FlowLine {//this is a spline
         for (int i = 0; i < colorsTag.size(); i++) {
             CompoundTag colorTag = colorsTag.getCompound(i);
             long rgba = colorTag.getLong("RGBA");
-            colorsAtPoints.set(i, new Color((int) rgba));
+            colorsAtPoints.add(i, new Color((int) rgba));
         }
 
         return new FlowLine(controlPoints, speedAtPoints, colorsAtPoints);

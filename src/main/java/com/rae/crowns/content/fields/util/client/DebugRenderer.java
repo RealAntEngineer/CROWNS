@@ -29,6 +29,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class DebugRenderer {
 
     @SubscribeEvent
     public static void onRenderWorld(@NotNull RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return;
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
 
         Minecraft mc = Minecraft.getInstance();
 
@@ -66,6 +67,7 @@ public class DebugRenderer {
         //renderVelocityVectors(level, poseStack, playerPos);
 
     }
+
     private static final int TICKING_SECTION_COLOR = 0x66CCFF; // light blue
 
     private static void renderTickingSectionsAABB(@NotNull PoseStack poseStack, @NotNull Vec3 cameraPos, float pt) {
@@ -108,7 +110,7 @@ public class DebugRenderer {
                 .getNoiseBiomeAtQuart(qx, qy, qz);
         MultiBufferSource.BufferSource buffer =
                 mc.renderBuffers().bufferSource();
-        float defaultTemp =  CROWNS.BIOME_TEMPERATURES.getValue(biome.value(), 300f);
+        float defaultTemp = CROWNS.BIOME_TEMPERATURES.getValue(biome.value(), 300f);
         for (int x = -RADIUS; x <= RADIUS; x++) {
             for (int y = -RADIUS; y <= RADIUS; y++) {
                 for (int z = -RADIUS; z <= RADIUS; z++) {
@@ -120,16 +122,23 @@ public class DebugRenderer {
 
                     int color = temperatureToColor(temp);
                     labelPos = Vec3.atCenterOf(mutablePos);
-                    renderFloatingText(poseStack, font, String.format("%.1fK", temp), labelPos, color, cam, mc, buffer);
+                    renderFloatingText(poseStack, font, formatTemp(temp), labelPos, color, cam, mc, buffer);
                 }
             }
         }
+
         if (buffer instanceof MultiBufferSource.BufferSource) {
-            Font fontRenderer = Minecraft.getInstance().font;
-            BakedGlyph texturedGlyph = fontRenderer.getFontSet(Style.DEFAULT_FONT)
+            BakedGlyph texturedGlyph = font.getFontSet(Style.DEFAULT_FONT)
                     .whiteGlyph();
-            buffer.endBatch(texturedGlyph.renderType(Font.DisplayMode.NORMAL));
+            //buffer.endBatch(texturedGlyph.renderType(Font.DisplayMode.NORMAL));
+            //buffer.endBatch();
         }
+    }
+
+
+    private static String formatTemp(double temp) {
+        long rounded = Math.round(temp * 10);
+        return (rounded / 10) + "." + (Math.abs(rounded) % 10) + "K";
     }
 
     private static void renderFloatingText(@NotNull PoseStack poseStack, @NotNull Font font, @NotNull String text,
@@ -139,19 +148,21 @@ public class DebugRenderer {
         double dy = worldPos.y - cam.y;
         double dz = worldPos.z - cam.z;
 
+        // Yaw: rotate around Y so the text faces the camera in the XZ plane
+        float yaw = (float) Math.atan2(dx, dz);
+
+        // Pitch: tilt up/down to face the camera vertically
+        float horizontalDist = (float) Math.sqrt(dx * dx + dz * dz);
+        float pitch = -(float) Math.atan2(dy, horizontalDist);
+
         poseStack.pushPose();
         poseStack.translate(dx, dy, dz);
-        poseStack.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
-        poseStack.scale(-1,-1,1);
-        //poseStack.scale(-0.02F, -0.02F, 0.02F);
-        //poseStack.translate(0,-1,0);
-
-        Font fontRenderer = Minecraft.getInstance().font;
+        poseStack.mulPose(new Quaternionf().rotationYXZ(yaw, pitch, 0f));
+        poseStack.scale(-0.02F, -0.02F, -0.02F);
 
         float width = font.width(text) / 2f;
-        fontRenderer.drawInBatch(text, 0, 0, color, false, poseStack.last()
-                .pose(), buffer, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
-
+        font.drawInBatch(text, -width, 0, color, false, poseStack.last().pose(),
+                buffer, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
 
         poseStack.popPose();
     }
@@ -173,6 +184,6 @@ public class DebugRenderer {
         int r = (int) (t * 255);
         int g = (int) ((1 - Math.abs(t - 0.5f) * 2) * 255);
         int b = (int) ((1 - t) * 255);
-        return (r << 16) | (g << 8) | b;
+        return (0xFF << 24) | (r << 16) | (g << 8) | b; // ← added alpha
     }
 }

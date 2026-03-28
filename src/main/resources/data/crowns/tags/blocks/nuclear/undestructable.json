@@ -1,9 +1,0 @@
-{
-  "replace": false,
-  "values": [
-    "minecraft:bedrock",
-    "minecraft:obsidian",
-    "minecraft:magma_block",
-    "crowns:solid_corium"
-  ]
-}
