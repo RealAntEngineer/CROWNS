@@ -33,8 +33,9 @@ public class ItemRadiation {
         }
 
         public DecayContainer multiply(double v) {
-            this.specific_activity *= v;
-            return this;
+            DecayContainer container = this.copy();
+            container.specific_activity *= v;
+            return container;
         }
 
         public DecayContainer copy() {
@@ -52,7 +53,7 @@ public class ItemRadiation {
         public double getReontgen(double distance) { // in R/s
             final double airMassAbsorptionCoefficient = 0.029D;
 
-            return getEnergyFluence(distance) * airMassAbsorptionCoefficient * (1.828e-11); // Random ass constant
-        } // 3.6 reontgens. Not great, not terrible
+            return getEnergyFluence(distance) * airMassAbsorptionCoefficient * (1.828e-11); // I forgot what this constant does
+        } // 3.6 roentgens. Not great, not terrible
     }
 }

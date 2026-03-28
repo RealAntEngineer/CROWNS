@@ -19,4 +19,8 @@ public class ContaminationUtil {
         }
         return 0;
     }
+
+    public static void addContamination(LivingEntity entity, double gray) {
+        setContamination(entity, getContamination(entity) + gray);
+    }
 }

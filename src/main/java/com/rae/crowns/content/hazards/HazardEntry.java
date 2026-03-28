@@ -17,10 +17,18 @@ public class HazardEntry implements Cloneable {
     }
 
     public void applyHazard(ItemStack stack, LivingEntity entity) {
-        RadTypeAlpha.onUpdate(entity, container, stack);
-        RadTypeBetaPlus.onUpdate(entity, container, stack);
-        RadTypeBetaMinus.onUpdate(entity, container, stack);
-        RadTypeFission.onUpdate(entity, container, stack);
+        if (container.alpha > 0) {
+            RadTypeAlpha.onUpdate(entity, container, stack);
+        }
+        if (container.beta_minus > 0) {
+            RadTypeBetaMinus.onUpdate(entity, container, stack);
+        }
+        if (container.beta_plus > 0) {
+            RadTypeBetaPlus.onUpdate(entity, container, stack);
+        }
+        if (container.sf > 0) {
+            RadTypeFission.onUpdate(entity, container, stack);
+        }
         RadTypeEM.onUpdate(entity, container, stack);
     }
 

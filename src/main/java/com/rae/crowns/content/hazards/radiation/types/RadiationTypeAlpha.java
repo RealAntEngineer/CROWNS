@@ -1,12 +1,21 @@
 package com.rae.crowns.content.hazards.radiation.types;
 
 import com.rae.crowns.content.hazards.ItemRadiation;
+import com.rae.crowns.content.hazards.radiation.ContaminationUtil;
+import com.rae.crowns.init.misc.EffectsInit;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 public class RadiationTypeAlpha extends RadiationTypeBase {
     @Override
     public void onUpdate(LivingEntity target, ItemRadiation.DecayContainer container, ItemStack stack) {
-        // Alphas are at the bottom of the list of evil and only work when skin is damaged, i'll put this off for later
+        MobEffectInstance effect = target.getEffect(EffectsInit.RADIODERMATITIS.get());
+
+        if (effect == null) return;
+
+        final double dose = (container.specific_activity * stack.getCount()) * (container.alpha_energy * 1.602177e-13) / 0.1;
+
+        ContaminationUtil.addContamination(target, dose / 20);
     }
 }

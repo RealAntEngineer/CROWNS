@@ -17,6 +17,8 @@
   "item.crowns.enriched_uranium_ingot": "Enriched Uranium Ingot",
   "item.crowns.enriched_uranium_nugget": "Enriched Uranium Nugget",
 
+  "item.crowns.protactinium_233_ingot": "Protactinium-233 Ingot",
+
   "item.crowns.corium_bucket": "Corium Bucket",
   "item.crowns.uranium_hexafluoride_bucket": "Uranium Hexafluoride Bucket",
   "item.crowns.fuel_rod": "Fuel Rod",
@@ -29,6 +31,8 @@
 
   "itemGroup.crowns.nuclear": "CROWNS",
 
+  "effect.crowns.bone_marrow_suppression": "§4Bone Marrow Suppression",
+  "effect.crowns.radiodermatitis": "Radiation Burns",
 
   "crowns.ponder.nuclear_basics.header": "Nuclear Reactors",
   "crowns.ponder.nuclear_basics.text_1": "Nuclear Fuel naturally produces fast neutrons",

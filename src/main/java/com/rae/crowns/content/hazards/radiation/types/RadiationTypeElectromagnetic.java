@@ -10,6 +10,6 @@ public class RadiationTypeElectromagnetic extends RadiationTypeBase {
     @Override
     public void onUpdate(LivingEntity target, ItemRadiation.DecayContainer container, ItemStack stack) {
         // Super basic
-        ContaminationUtil.setContamination(target, ContaminationUtil.getContamination(target) + container.getReontgen(0.1D) * 0.0096); // Random ass constant no.2
+        ContaminationUtil.addContamination(target, (container.multiply(stack.getCount()).getReontgen(0.1D) * 0.0096) / 20); // Constant for R to Gy
     }
 }

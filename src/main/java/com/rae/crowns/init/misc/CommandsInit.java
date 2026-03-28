@@ -3,6 +3,7 @@ package com.rae.crowns.init.misc;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.rae.crowns.content.fields.util.DataLayerType;
@@ -13,6 +14,7 @@ import com.rae.crowns.content.nuclear.NuclearExplosion;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.Component;
@@ -131,9 +133,21 @@ public class CommandsInit {
                         .executes(context -> {
                             ServerPlayer player = context.getSource().getPlayerOrException();
 
-                            context.getSource().sendSystemMessage(Component.literal("Current contamination: " + ContaminationUtil.getContamination(player)));
+                            context.getSource().sendSystemMessage(Component.literal("Current contamination: " + ContaminationUtil.getContamination(player) + "Gy"));
                             return Command.SINGLE_SUCCESS;
                         })
+                )
+                .then(Commands.literal("setGrays")
+                        .then(Commands.argument("player", EntityArgument.player()).then(
+                                Commands.argument("value", FloatArgumentType.floatArg(0))
+                                        .executes(
+                                                context -> {
+                                                ContaminationUtil.setContamination(EntityArgument.getPlayer(context, "player"), FloatArgumentType.getFloat(context, "value"));
+
+                                                    return Command.SINGLE_SUCCESS;
+                                                }
+                                        )
+                        ))
                 )
         );
     }

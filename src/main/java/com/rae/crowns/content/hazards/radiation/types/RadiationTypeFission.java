@@ -8,5 +8,6 @@ public class RadiationTypeFission extends RadiationTypeBase {
     @Override
     public void onUpdate(LivingEntity target, ItemRadiation.DecayContainer container, ItemStack stack) {
         // Evil ass decay mode, "Spontaneous fission though? Not even a block of steel stops that fully." as The Scary Fucking Toucher says
+        // Until an isotope with SF is added, I will not implement SF because it's a fucking pain in the ass
     }
 }

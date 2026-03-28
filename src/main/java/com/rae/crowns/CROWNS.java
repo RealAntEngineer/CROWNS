@@ -59,6 +59,7 @@ public class CROWNS {
         BlockEntityInit.register();
         EntityInit.register();
         SoundInit.register();
+        EffectsInit.register();
 
         PacketInit.registerPackets();
 
