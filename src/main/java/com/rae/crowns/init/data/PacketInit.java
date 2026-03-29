@@ -27,17 +27,17 @@ public enum PacketInit implements BasePacketPayload.PacketTypeProvider {
         );
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends CustomPacketPayload> CustomPacketPayload.Type<T> getType() {
-        return (CustomPacketPayload.Type<T>) this.type.type();
-    }
-
     public static void register() {
         CatnipPacketRegistry packetRegistry = new CatnipPacketRegistry(CROWNS.MODID, 1);
         for (PacketInit packet : PacketInit.values()) {
             packetRegistry.registerPacket(packet.type);
         }
         packetRegistry.registerAllPackets();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends CustomPacketPayload> CustomPacketPayload.Type<T> getType() {
+        return (CustomPacketPayload.Type<T>) this.type.type();
     }
 }

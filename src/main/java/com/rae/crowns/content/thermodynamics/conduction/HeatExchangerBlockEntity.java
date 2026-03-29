@@ -146,32 +146,6 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     }
 
     @Override
-    public float getThermalCapacity() {
-        return C;
-    }
-
-    @Override
-    public float getThermalConductivity() {
-        return CROWNSConfigs.SERVER.conduction.heatExchangerExternal.getF();
-    }
-
-    @Override
-    public float getTemperature() {
-        if (Float.isNaN(temperature)) {
-            temperature = 300;
-        }
-        return temperature;
-    }
-
-    @Override
-    public void addTemperature(float dT) {
-        if (Float.isNaN(temperature)) {
-            temperature = 300;
-        }
-        temperature = Math.max(temperature + dT, 0);
-    }
-
-    @Override
     public void lazyTick() {
         //What the fuck is going on here ?
         super.lazyTick();
@@ -202,6 +176,32 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         CompoundTag fluidTag = (CompoundTag) compound.get("water_tank");
         WATER_TANK.readFromNBT(registries, fluidTag != null ? fluidTag : new CompoundTag());
         super.read(compound, registries, clientPacket);
+    }
+
+    @Override
+    public float getThermalConductivity() {
+        return CROWNSConfigs.SERVER.conduction.heatExchangerExternal.getF();
+    }
+
+    @Override
+    public float getTemperature() {
+        if (Float.isNaN(temperature)) {
+            temperature = 300;
+        }
+        return temperature;
+    }
+
+    @Override
+    public void addTemperature(float dT) {
+        if (Float.isNaN(temperature)) {
+            temperature = 300;
+        }
+        temperature = Math.max(temperature + dT, 0);
+    }
+
+    @Override
+    public float getThermalCapacity() {
+        return C;
     }
 
     @Override

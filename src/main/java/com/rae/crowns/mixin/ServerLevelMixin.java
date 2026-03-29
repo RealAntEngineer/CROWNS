@@ -29,15 +29,15 @@ public abstract class ServerLevelMixin extends Level {
         super(p_270739_, p_270683_, p_270200_, p_270240_, p_270692_, p_270904_, p_270470_, p_270248_, p_270466_);
     }
 
-    @Shadow
-    public abstract ServerLevel getLevel();
-
     @Inject(method = "onBlockStateChange", at = @At("HEAD"))
     private void onSetBlockState(@NotNull BlockPos pos, @NotNull BlockState oldState, BlockState newState, CallbackInfo ci) {
         if (!oldState.equals(newState)) {
             PhysicsWorldData data = PhysicsSaveManager.get(getLevel());
-            if (data==null) return;
+            if (data == null) return;
             data.registerChanged(pos.immutable());
         }
     }
+
+    @Shadow
+    public abstract ServerLevel getLevel();
 }

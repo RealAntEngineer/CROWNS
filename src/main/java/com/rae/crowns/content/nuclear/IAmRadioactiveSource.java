@@ -47,6 +47,24 @@ public interface IAmRadioactiveSource {
         return reactivity;
     }
 
+    default void moreOptimizedImpactEnv(@NotNull BlockPos pos, @NotNull Level level, @NotNull Double range) {
+        Float fastNeutrons = getRadioactiveActivity();
+        Float slowNeutrons = 0f;
+        //should impact itself
+        List<BlockPos> frontier = RayTraceUtil.getSphereSurface(BlockPos.ZERO, range.intValue(), true);
+        for (BlockPos frontierPos : frontier) {
+
+            Vec3 vec = new Vec3(frontierPos.getX(), frontierPos.getY(), frontierPos.getZ());
+            traceNeutron(pos, level, range, vec, fastNeutrons);
+
+        }
+    }
+
+    /**
+     * @return an amount of neutron/tick
+     */
+    float getRadioactiveActivity();
+
     /**
      * make radiation impact the environment
      *
@@ -83,24 +101,6 @@ public interface IAmRadioactiveSource {
                     radiationFlux = Couple.create(radiationFlux.getFirst() * (1 - 0.5f), radiationFlux.getSecond() + radiationFlux.getFirst() * (Float) 0.5f);
                 }
             }
-        }
-    }
-
-    /**
-     * @return an amount of neutron/tick
-     */
-    float getRadioactiveActivity();
-
-    default void moreOptimizedImpactEnv(@NotNull BlockPos pos, @NotNull Level level, @NotNull Double range) {
-        Float fastNeutrons = getRadioactiveActivity();
-        Float slowNeutrons = 0f;
-        //should impact itself
-        List<BlockPos> frontier = RayTraceUtil.getSphereSurface(BlockPos.ZERO, range.intValue(), true);
-        for (BlockPos frontierPos : frontier) {
-
-            Vec3 vec = new Vec3(frontierPos.getX(), frontierPos.getY(), frontierPos.getZ());
-            traceNeutron(pos, level, range, vec, fastNeutrons);
-
         }
     }
 

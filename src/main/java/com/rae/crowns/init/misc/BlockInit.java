@@ -1,8 +1,8 @@
 package com.rae.crowns.init.misc;
 
+import com.rae.crowns.content.nuclear.corium.SolidCoriumBlock;
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
 import com.rae.crowns.content.nuclear.uranium.UraniumOreBlock;
-import com.rae.crowns.content.nuclear.corium.SolidCoriumBlock;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlock;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
 import com.rae.crowns.content.thermodynamics.turbine.SteamCollectorBlock;
@@ -57,6 +57,7 @@ public class BlockInit {
             .item()
             .build()
             .register();
+
     public static final BlockEntry<MBStructureBlock> TURBINE_STAGE_STRUCTURE =
             REGISTRATE.block("turbine_stage_structure", MBStructureBlock::new)
                     .initialProperties(SharedProperties::softMetal)
@@ -64,6 +65,7 @@ public class BlockInit {
                     .item()
                     .build()
                     .register();
+
     public static final BlockEntry<TurbineStageBlock> TURBINE_STAGE =
             REGISTRATE.block("turbine_stage", (p) -> new TurbineStageBlock(p, TURBINE_STAGE_STRUCTURE.get()))
                     .initialProperties(SharedProperties::softMetal)
@@ -103,6 +105,7 @@ public class BlockInit {
             .item()
             .build()
             .register();
+
     public static final BlockEntry<UraniumOreBlock> DEEP_URANIUM_ORE = REGISTRATE
             .block("deepslate_uranium_ore", UraniumOreBlock::new)
             .initialProperties(() -> Blocks.DEEPSLATE)
@@ -110,6 +113,7 @@ public class BlockInit {
             .item()
             .build()
             .register();
+
     public static final BlockEntry<UraniumOreBlock> URANIUM_ORE = REGISTRATE
             .block("uranium_ore", UraniumOreBlock::new)
             .initialProperties(SharedProperties::stone)
@@ -130,6 +134,8 @@ public class BlockInit {
     private static @NotNull ToIntFunction<BlockState> litBlockEmission(int lightLevel) {
         return (blockState) -> blockState.getValue(BlockStateProperties.LIT) ? lightLevel : 0;
     }
-    public static void register() {}
+
+    public static void register() {
+    }
 
 }

@@ -6,6 +6,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
+
 // TODO put this in the formic API
 public class AABBSerializer implements EntityDataSerializer<AABB> {
 
@@ -17,7 +18,8 @@ public class AABBSerializer implements EntityDataSerializer<AABB> {
             ByteBufCodecs.DOUBLE, aabb -> aabb.maxY,
             ByteBufCodecs.DOUBLE, aabb -> aabb.maxZ,
             AABB::new
-            ) ;
+    );
+
     public AABBSerializer() {
     }
 

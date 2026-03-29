@@ -5,7 +5,6 @@ import com.rae.crowns.content.nuclear.display.RadiationSourceDisplaySource;
 import com.rae.crowns.content.nuclear.display.TemperatureDisplaySource;
 import com.simibubi.create.api.behaviour.display.DisplaySource;
 import com.tterrag.registrate.util.entry.RegistryEntry;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 

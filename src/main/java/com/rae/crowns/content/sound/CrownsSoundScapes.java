@@ -32,6 +32,44 @@ public class CrownsSoundScapes {
             addSound(group, pos, pitch);
     }
 
+    protected static boolean outOfRange(@NotNull BlockPos pos) {
+        return !getCameraPos().closerThan(pos, MAX_AMBIENT_SOURCE_DISTANCE);
+    }
+
+    private static void addSound(@NotNull AmbienceGroup group, BlockPos pos, float pitch) {
+        PitchGroup groupFromPitch = getGroupFromPitch(pitch);
+        Set<BlockPos> set = counter.computeIfAbsent(group, ag -> new IdentityHashMap<>())
+                .computeIfAbsent(groupFromPitch, pg -> new HashSet<>());
+        set.add(pos);
+
+        Pair<AmbienceGroup, PitchGroup> pair = Pair.of(group, groupFromPitch);
+        activeSounds.computeIfAbsent(pair, $ -> {
+            SoundScape soundScape = group.instantiate(pitch);
+            soundScape.play();
+            return soundScape;
+        });
+    }
+
+    protected static @NotNull BlockPos getCameraPos() {
+        Entity renderViewEntity = Minecraft.getInstance().cameraEntity;
+        if (renderViewEntity == null)
+            return BlockPos.ZERO;
+        BlockPos playerLocation = renderViewEntity.blockPosition();
+        return playerLocation;
+    }
+
+    public static @NotNull PitchGroup getGroupFromPitch(float pitch) {
+        if (pitch < .70)
+            return PitchGroup.VERY_LOW;
+        if (pitch < .90)
+            return PitchGroup.LOW;
+        if (pitch < 1.10)
+            return PitchGroup.NORMAL;
+        if (pitch < 1.30)
+            return PitchGroup.HIGH;
+        return PitchGroup.VERY_HIGH;
+    }
+
     public static void tick() {
         activeSounds.values()
                 .forEach(SoundScape::tick);
@@ -58,38 +96,6 @@ public class CrownsSoundScapes {
                         .forEach(Set::clear));
     }
 
-    private static void addSound(@NotNull AmbienceGroup group, BlockPos pos, float pitch) {
-        PitchGroup groupFromPitch = getGroupFromPitch(pitch);
-        Set<BlockPos> set = counter.computeIfAbsent(group, ag -> new IdentityHashMap<>())
-                .computeIfAbsent(groupFromPitch, pg -> new HashSet<>());
-        set.add(pos);
-
-        Pair<AmbienceGroup, PitchGroup> pair = Pair.of(group, groupFromPitch);
-        activeSounds.computeIfAbsent(pair, $ -> {
-            SoundScape soundScape = group.instantiate(pitch);
-            soundScape.play();
-            return soundScape;
-        });
-    }
-
-    public static void invalidateAll() {
-        counter.clear();
-        activeSounds.forEach(($, sound) -> sound.remove());
-        activeSounds.clear();
-    }
-
-    protected static boolean outOfRange(@NotNull BlockPos pos) {
-        return !getCameraPos().closerThan(pos, MAX_AMBIENT_SOURCE_DISTANCE);
-    }
-
-    protected static @NotNull BlockPos getCameraPos() {
-        Entity renderViewEntity = Minecraft.getInstance().cameraEntity;
-        if (renderViewEntity == null)
-            return BlockPos.ZERO;
-        BlockPos playerLocation = renderViewEntity.blockPosition();
-        return playerLocation;
-    }
-
     public static int getSoundCount(AmbienceGroup group, PitchGroup pitchGroup) {
         return getAllLocations(group, pitchGroup).size();
     }
@@ -99,16 +105,10 @@ public class CrownsSoundScapes {
                 .getOrDefault(pitchGroup, Collections.emptySet());
     }
 
-    public static @NotNull PitchGroup getGroupFromPitch(float pitch) {
-        if (pitch < .70)
-            return PitchGroup.VERY_LOW;
-        if (pitch < .90)
-            return PitchGroup.LOW;
-        if (pitch < 1.10)
-            return PitchGroup.NORMAL;
-        if (pitch < 1.30)
-            return PitchGroup.HIGH;
-        return PitchGroup.VERY_HIGH;
+    public static void invalidateAll() {
+        counter.clear();
+        activeSounds.forEach(($, sound) -> sound.remove());
+        activeSounds.clear();
     }
 
     public enum AmbienceGroup {

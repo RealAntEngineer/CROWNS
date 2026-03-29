@@ -18,14 +18,14 @@ public class CoriumLiquidBlock extends LiquidBlock {
         this.registerDefaultState(this.stateDefinition.any().setValue(LEVEL, 0).setValue(CoriumFluid.POWER, 15));
     }
 
+    public @NotNull FluidState getFluidState(@NotNull BlockState state) {
+        int p = state.getValue(CoriumFluid.POWER);
+        return super.getFluidState(state).setValue(CoriumFluid.POWER, p);
+    }
+
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(CoriumFluid.POWER);
-    }
-
-    public @NotNull FluidState getFluidState(@NotNull BlockState state) {
-        int p = state.getValue(CoriumFluid.POWER);
-        return super.getFluidState(state).setValue(CoriumFluid.POWER, p);
     }
 }

@@ -1,9 +1,8 @@
 package com.rae.crowns.content.fields.util.client;
 
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.config.CROWNSConfigs;
-import com.simibubi.create.content.redstone.nixieTube.NixieTubeRenderer;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.outliner.AABBOutline;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
@@ -22,7 +21,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -40,6 +38,7 @@ public class DebugRenderer {
     private static final int RADIUS = 8;
     private static final int CACHE_PRUNE_DISTANCE = 4;
     private static final Map<BlockPos, AABBOutline> CACHE = new HashMap<>();
+    private static final int TICKING_SECTION_COLOR = 0x66CCFF; // light blue
     private static @Nullable BlockPos lastPlayerPos = null;
 
     @SubscribeEvent
@@ -68,7 +67,17 @@ public class DebugRenderer {
 
     }
 
-    private static final int TICKING_SECTION_COLOR = 0x66CCFF; // light blue
+    private static void pruneCacheIfPlayerMoved(@NotNull BlockPos playerPos) {
+        if (lastPlayerPos == null) {
+            lastPlayerPos = playerPos;
+            return;
+        }
+
+        if (playerPos.distManhattan(lastPlayerPos) > CACHE_PRUNE_DISTANCE) {
+            lastPlayerPos = playerPos;
+            CACHE.keySet().removeIf(pos -> !pos.closerThan(playerPos, RADIUS + 4));
+        }
+    }
 
     private static void renderTickingSectionsAABB(@NotNull PoseStack poseStack, @NotNull Vec3 cameraPos, float pt) {
         SuperRenderTypeBuffer buffer = DefaultSuperRenderTypeBuffer.getInstance();
@@ -135,10 +144,12 @@ public class DebugRenderer {
         }
     }
 
-
-    private static String formatTemp(double temp) {
-        long rounded = Math.round(temp * 10);
-        return (rounded / 10) + "." + (Math.abs(rounded) % 10) + "K";
+    private static int temperatureToColor(float temperature) {
+        float t = Math.min(1f, Math.max(0f, (temperature - 200f) / 200f));
+        int r = (int) (t * 255);
+        int g = (int) ((1 - Math.abs(t - 0.5f) * 2) * 255);
+        int b = (int) ((1 - t) * 255);
+        return (0xFF << 24) | (r << 16) | (g << 8) | b; // ← added alpha
     }
 
     private static void renderFloatingText(@NotNull PoseStack poseStack, @NotNull Font font, @NotNull String text,
@@ -167,23 +178,8 @@ public class DebugRenderer {
         poseStack.popPose();
     }
 
-    private static void pruneCacheIfPlayerMoved(@NotNull BlockPos playerPos) {
-        if (lastPlayerPos == null) {
-            lastPlayerPos = playerPos;
-            return;
-        }
-
-        if (playerPos.distManhattan(lastPlayerPos) > CACHE_PRUNE_DISTANCE) {
-            lastPlayerPos = playerPos;
-            CACHE.keySet().removeIf(pos -> !pos.closerThan(playerPos, RADIUS + 4));
-        }
-    }
-
-    private static int temperatureToColor(float temperature) {
-        float t = Math.min(1f, Math.max(0f, (temperature - 200f) / 200f));
-        int r = (int) (t * 255);
-        int g = (int) ((1 - Math.abs(t - 0.5f) * 2) * 255);
-        int b = (int) ((1 - t) * 255);
-        return (0xFF << 24) | (r << 16) | (g << 8) | b; // ← added alpha
+    private static String formatTemp(double temp) {
+        long rounded = Math.round(temp * 10);
+        return (rounded / 10) + "." + (Math.abs(rounded) % 10) + "K";
     }
 }

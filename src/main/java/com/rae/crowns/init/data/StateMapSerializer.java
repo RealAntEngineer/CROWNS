@@ -8,6 +8,7 @@ import net.minecraft.network.syncher.EntityDataSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+
 // TODO put this in the formic API
 public class StateMapSerializer implements EntityDataSerializer<HashMap<BlockPos, SpecificRealGazState>> {
     public StateMapSerializer() {

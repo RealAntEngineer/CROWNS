@@ -2,7 +2,6 @@ package com.rae.crowns.content.fields.util;
 
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import com.rae.crowns.content.fields.util.client.LocalPhysicData;
-import com.rae.crowns.content.thermodynamics.turbine.UpdateSteamFlowPacket;
 import com.rae.crowns.init.data.PacketInit;
 import net.createmod.catnip.net.base.ClientboundPacketPayload;
 import net.minecraft.client.Minecraft;
@@ -16,13 +15,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 public class UpdateSectionsPacket implements ClientboundPacketPayload {
-    private final Map<SectionPos, TemperatureDataLayer> temperatureMap;
-
-
     public static StreamCodec<RegistryFriendlyByteBuf, UpdateSectionsPacket> STREAM_CODEC = StreamCodec.of(
             (buf, packet) -> packet.write(buf),
             UpdateSectionsPacket::new
     );
+    private final Map<SectionPos, TemperatureDataLayer> temperatureMap;
+
     public UpdateSectionsPacket(Map<SectionPos, TemperatureDataLayer> temperatureMap) {
         this.temperatureMap = temperatureMap;
 

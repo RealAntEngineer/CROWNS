@@ -1,14 +1,16 @@
 package com.rae.crowns.init.misc;
 
 import com.rae.crowns.CROWNS;
-import com.simibubi.create.*;
+import com.simibubi.create.AllCreativeModeTabs;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -65,7 +67,7 @@ public class CreativeModeTabsInit {
 
         final double ASSEMBLY_FACTOR = 1.0 / 4.0; // 0.25
 
-        Map<ItemProviderEntry<?,?>, Function<Item, Collection<ItemStack>>> simpleFactories = Map.of(
+        Map<ItemProviderEntry<?, ?>, Function<Item, Collection<ItemStack>>> simpleFactories = Map.of(
                 ItemInit.FUEL_ROD, item -> {
                     Collection<ItemStack> itemStacks = new ArrayList<>();
                     for (double grade : uraniumGrades) {
@@ -73,7 +75,7 @@ public class CreativeModeTabsInit {
                         CustomData data = itemStack.get(DataComponents.CUSTOM_DATA);
                         CompoundTag tag;
                         if (data != null) {
-                             tag = data.copyTag();
+                            tag = data.copyTag();
                         } else {
                             tag = new CompoundTag();
                         }

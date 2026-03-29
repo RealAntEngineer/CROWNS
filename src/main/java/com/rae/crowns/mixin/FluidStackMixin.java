@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class FluidStackMixin {
 
 
-    @Inject(method = "isSameFluidSameComponents", at = @At(value = "RETURN"),remap = false, cancellable = true)
+    @Inject(method = "isSameFluidSameComponents", at = @At(value = "RETURN"), remap = false, cancellable = true)
     private static void componentIsEqualForState(FluidStack first, FluidStack second, CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValue()) {
 

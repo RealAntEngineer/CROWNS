@@ -1,15 +1,13 @@
 package com.rae.crowns.content.event;
 
 import com.rae.crowns.CROWNS;
-
-import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.temperature.TemperatureTicker;
+import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.server.level.ServerLevel;
-
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -37,7 +35,7 @@ public class ServerEvents {
             for (long packed : nearDynamicSections) {
                 if (loadedSections.contains(packed)) {
                     //verify data
-                    if (data.checkValidity(packed) ){//&& data.isDirty(packed)) {
+                    if (data.checkValidity(packed)) {//&& data.isDirty(packed)) {
                         toTick.add(packed);
                     }
                 }

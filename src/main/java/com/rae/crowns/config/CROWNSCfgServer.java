@@ -13,7 +13,7 @@ public class CROWNSCfgServer extends ConfigBase {
 
     @Override
     public @NotNull String getName() {
-        return CROWNS.MODID +".server";
+        return CROWNS.MODID + ".server";
     }
 
     private static class Comments {

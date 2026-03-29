@@ -17,7 +17,7 @@ public class NuclearScene {
     public static void nuclearBasic(@NotNull SceneBuilder builder, @NotNull SceneBuildingUtil sceneBuildingUtil) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
         scene.title("nuclear_basics", "Nuclear Rectors");
-        scene.configureBasePlate(0,0,7);
+        scene.configureBasePlate(0, 0, 7);
         //sceneBuilder.setSceneOffsetY(-5);
         scene.scaleSceneView(0.6f);
         scene.setSceneOffsetY(-2f);
@@ -164,7 +164,7 @@ public class NuclearScene {
                 util.select().fromTo(5, 0, 4, 5, 4, 4)
         ).add(
                 util.select().fromTo(4, 0, 5, 4, 4, 5)
-        );;
+        );
         scene.world().modifyBlocks(controlRod, s -> Blocks.GOLD_BLOCK.defaultBlockState(), false);
         scene.overlay()
                 .showOutlineWithText(controlRod, 60)

@@ -52,7 +52,8 @@ public class ContinuousSound extends AbstractTickableSoundInstance {
     }
 
     @Override
-    public void tick() {}
+    public void tick() {
+    }
 
 }
 

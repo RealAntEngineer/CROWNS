@@ -19,6 +19,7 @@ public class SoundInit {
         return SOUNDS.register(id,
                 () -> SoundEvent.createVariableRangeEvent(CROWNS.resource(id)));
     }
+
     public static void register(IEventBus bus) {
         SOUNDS.register(bus);
     }

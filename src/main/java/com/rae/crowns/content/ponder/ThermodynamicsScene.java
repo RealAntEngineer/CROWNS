@@ -28,7 +28,7 @@ public class ThermodynamicsScene {
         scene.world().showSection(sceneBuildingUtil.select().everywhere(), Direction.DOWN);
         scene.world().modifyBlocks(sceneBuildingUtil.select().everywhere(), s -> {
             if (s.hasProperty(TurbineStageBlock.CASING))
-                s = s.setValue(TurbineStageBlock.CASING,false);
+                s = s.setValue(TurbineStageBlock.CASING, false);
             return s;
         }, false);
 
@@ -43,7 +43,7 @@ public class ThermodynamicsScene {
         double endX = 2;
         double turbineY = 2.5;
         double turbineZ = 3.5;
-        Selection turbines = sceneBuildingUtil.select().fromTo((int) (startX-0.5), 2, 3, 2, 2, 3);
+        Selection turbines = sceneBuildingUtil.select().fromTo((int) (startX - 0.5), 2, 3, 2, 2, 3);
         scene.overlay().showOutlineWithText(turbines, 20 * 5)
                 .text("If the water is not hot enough the turbine will not turn");
 
@@ -56,26 +56,26 @@ public class ThermodynamicsScene {
 
                 spawnFlow(world,
                         new Vec3(startX, turbineY + 1, turbineZ),
-                        new Vec3(endX,   turbineY + 1, turbineZ),
-                        spawn,List.of(new Color(0f, 0f, 1f, 1f))
+                        new Vec3(endX, turbineY + 1, turbineZ),
+                        spawn, List.of(new Color(0f, 0f, 1f, 1f))
                 );
 
                 spawnFlow(world,
                         new Vec3(startX, turbineY - 1, turbineZ),
-                        new Vec3(endX,   turbineY - 1, turbineZ),
-                        spawn,List.of(new Color(0f, 0f, 1f, 1f))
+                        new Vec3(endX, turbineY - 1, turbineZ),
+                        spawn, List.of(new Color(0f, 0f, 1f, 1f))
                 );
 
                 spawnFlow(world,
                         new Vec3(startX, turbineY, turbineZ - 1),
-                        new Vec3(endX,   turbineY, turbineZ - 1),
-                        spawn,List.of(new Color(0f, 0f, 1f, 1f))
+                        new Vec3(endX, turbineY, turbineZ - 1),
+                        spawn, List.of(new Color(0f, 0f, 1f, 1f))
                 );
 
                 spawnFlow(world,
                         new Vec3(startX, turbineY, turbineZ + 1),
-                        new Vec3(endX,   turbineY, turbineZ + 1),
-                        spawn,List.of(new Color(0f, 0f, 1f, 1f))
+                        new Vec3(endX, turbineY, turbineZ + 1),
+                        spawn, List.of(new Color(0f, 0f, 1f, 1f))
                 );
             });
             scene.idle(1);
@@ -92,38 +92,38 @@ public class ThermodynamicsScene {
 
                 spawnFlow(world,
                         new Vec3(startX, turbineY + 1, turbineZ),
-                        new Vec3(endX,   turbineY + 1, turbineZ),
-                        spawn,List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
+                        new Vec3(endX, turbineY + 1, turbineZ),
+                        spawn, List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
                 );
 
                 spawnFlow(world,
                         new Vec3(startX, turbineY - 1, turbineZ),
-                        new Vec3(endX,   turbineY - 1, turbineZ),
-                        spawn,List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
+                        new Vec3(endX, turbineY - 1, turbineZ),
+                        spawn, List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
                 );
 
                 spawnFlow(world,
                         new Vec3(startX, turbineY, turbineZ - 1),
-                        new Vec3(endX,   turbineY, turbineZ - 1),
-                        spawn,List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
+                        new Vec3(endX, turbineY, turbineZ - 1),
+                        spawn, List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
                 );
 
                 spawnFlow(world,
                         new Vec3(startX, turbineY, turbineZ + 1),
-                        new Vec3(endX,   turbineY, turbineZ + 1),
-                        spawn,List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
+                        new Vec3(endX, turbineY, turbineZ + 1),
+                        spawn, List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
                 );
             });
             scene.idle(1);
         }
         scene.idle(10);
-        scene.overlay().showText( 20 * 6).text(
+        scene.overlay().showText(20 * 6).text(
                 "The color shows the vapor quality"
         );
 
-        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(9,2,2), 20 * 6)
+        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(9, 2, 2), 20 * 6)
                 .text("From pure steam (x = 100%%)");
-        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(3,2,2), 20 * 6)
+        scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(3, 2, 2), 20 * 6)
                 .text("To pure liquid water (x = 0%%)");
         for (int i = 0; i < 20 * 8; i++) {
             scene.addInstruction(ponderScene -> {
@@ -133,26 +133,26 @@ public class ThermodynamicsScene {
 
                 spawnFlow(world,
                         new Vec3(startX, turbineY + 1, turbineZ),
-                        new Vec3(endX,   turbineY + 1, turbineZ),
-                        spawn,List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
+                        new Vec3(endX, turbineY + 1, turbineZ),
+                        spawn, List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
                 );
 
                 spawnFlow(world,
                         new Vec3(startX, turbineY - 1, turbineZ),
-                        new Vec3(endX,   turbineY - 1, turbineZ),
-                        spawn,List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
+                        new Vec3(endX, turbineY - 1, turbineZ),
+                        spawn, List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
                 );
 
                 spawnFlow(world,
                         new Vec3(startX, turbineY, turbineZ - 1),
-                        new Vec3(endX,   turbineY, turbineZ - 1),
-                        spawn,List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
+                        new Vec3(endX, turbineY, turbineZ - 1),
+                        spawn, List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
                 );
 
                 spawnFlow(world,
                         new Vec3(startX, turbineY, turbineZ + 1),
-                        new Vec3(endX,   turbineY, turbineZ + 1),
-                        spawn,List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
+                        new Vec3(endX, turbineY, turbineZ + 1),
+                        spawn, List.of(Color.WHITE, new Color(0f, 0f, 1f, 1f))
                 );
             });
             scene.idle(1);
@@ -160,33 +160,6 @@ public class ThermodynamicsScene {
 
 
         scene.markAsFinished();
-    }
-
-    public static void compressor(@NotNull SceneBuilder builder, @NotNull SceneBuildingUtil sceneBuildingUtil){
-        CreateSceneBuilder scene = new CreateSceneBuilder(builder);
-        scene.title("compressor", "Compressor");
-        scene.configureBasePlate(0, 0, 8);
-        scene.rotateCameraY(10);
-        scene.world().showSection(sceneBuildingUtil.select().everywhere(), Direction.DOWN);
-
-        scene.overlay().showText(20 * 4)
-                .text("Compressor increase the pressure of the incoming flow");
-        scene.idleSeconds(8);
-        scene.overlay().showText(20 * 4)
-                .text("At the difference of the turbine the increase in pressure depends on the speed");
-
-        Pressure unit = FormicAPIConfigs.CLIENT.units.pressure.get();
-        scene.idleSeconds(8);
-        scene.addKeyframe();
-        scene.overlay().showText(20 * 15)
-                .text("At 0 rpm it's %s\nAt 64 rpm it's %s\nAt 128 rpm it's %s\nAt 256 rpm it's %s",
-                        "ΔP = 0 "+unit.getSymbol().getString(),
-                        "Δ"+FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(64)).string(),
-                        "Δ"+FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(128)).string(),
-                        "Δ"+FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(256)).string()
-                        );
-        scene.markAsFinished();
-
     }
 
     private static void spawnFlow(
@@ -207,6 +180,33 @@ public class ThermodynamicsScene {
                 spawnPos.x, spawnPos.y, spawnPos.z,
                 -1, 0, 0
         );
+    }
+
+    public static void compressor(@NotNull SceneBuilder builder, @NotNull SceneBuildingUtil sceneBuildingUtil) {
+        CreateSceneBuilder scene = new CreateSceneBuilder(builder);
+        scene.title("compressor", "Compressor");
+        scene.configureBasePlate(0, 0, 8);
+        scene.rotateCameraY(10);
+        scene.world().showSection(sceneBuildingUtil.select().everywhere(), Direction.DOWN);
+
+        scene.overlay().showText(20 * 4)
+                .text("Compressor increase the pressure of the incoming flow");
+        scene.idleSeconds(8);
+        scene.overlay().showText(20 * 4)
+                .text("At the difference of the turbine the increase in pressure depends on the speed");
+
+        Pressure unit = FormicAPIConfigs.CLIENT.units.pressure.get();
+        scene.idleSeconds(8);
+        scene.addKeyframe();
+        scene.overlay().showText(20 * 15)
+                .text("At 0 rpm it's %s\nAt 64 rpm it's %s\nAt 128 rpm it's %s\nAt 256 rpm it's %s",
+                        "ΔP = 0 " + unit.getSymbol().getString(),
+                        "Δ" + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(64)).string(),
+                        "Δ" + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(128)).string(),
+                        "Δ" + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(256)).string()
+                );
+        scene.markAsFinished();
+
     }
 
 }

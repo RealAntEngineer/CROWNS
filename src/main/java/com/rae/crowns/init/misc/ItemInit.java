@@ -21,6 +21,7 @@ public class ItemInit {
             RAW_URANIUM = REGISTRATE.item("raw_uranium", Item::new).register(),
             ENRICHED_URANIUM_INGOT = REGISTRATE.item("enriched_uranium_ingot", Item::new).register();
 
-    public static void register() {}
+    public static void register() {
+    }
 
 }

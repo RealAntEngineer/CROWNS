@@ -8,26 +8,31 @@ public class PosPackingUtil {
     final static int PACKED_X_LENGTH = 1 + Mth.log2(Mth.smallestEncompassingPowerOfTwo(30000000));
     final static int PACKED_Z_LENGTH = PACKED_X_LENGTH;
     final static int PACKED_Y_LENGTH = 64 - PACKED_X_LENGTH - PACKED_Z_LENGTH;
-
-    final static long PACKED_X_MASK = (1L << PACKED_X_LENGTH) - 1L;
     final static long PACKED_Y_MASK = (1L << PACKED_Y_LENGTH) - 1L;
-    final static long PACKED_Z_MASK = (1L << PACKED_Z_LENGTH) - 1L;
-
-    final static int Y_OFFSET = 0;
     final static int Z_OFFSET = PACKED_Y_LENGTH;
     final static int X_OFFSET = PACKED_Y_LENGTH + PACKED_Z_LENGTH;
-
+    final static long PACKED_Z_MASK = (1L << PACKED_Z_LENGTH) - 1L;
+    final static long PACKED_X_MASK = (1L << PACKED_X_LENGTH) - 1L;
+    final static int Y_OFFSET = 0;
 
     // --- packing/unpacking kept identical to your original scheme ---
     public static long packSection(int sx, int sy, int sz) {
-        return ((long)sx & 0x3FFFFF) << 42
-                | ((long)sz & 0x3FFFFF) << 20
-                | ((long)sy & 0xFFFFF);
+        return ((long) sx & 0x3FFFFF) << 42
+                | ((long) sz & 0x3FFFFF) << 20
+                | ((long) sy & 0xFFFFF);
     }
 
-    public static int unpackSectionX(long packed) { return (int)(packed >> 42); }
-    public static int unpackSectionY(long packed) { return (int)(packed << 44 >> 44); }
-    public static int unpackSectionZ(long packed) { return (int)(packed << 22 >> 42); }
+    public static int unpackSectionX(long packed) {
+        return (int) (packed >> 42);
+    }
+
+    public static int unpackSectionY(long packed) {
+        return (int) (packed << 44 >> 44);
+    }
+
+    public static int unpackSectionZ(long packed) {
+        return (int) (packed << 22 >> 42);
+    }
 
 
     /**

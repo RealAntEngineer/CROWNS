@@ -41,8 +41,8 @@ import static com.rae.crowns.content.nuclear.NuclearExplosion.nuclearExplosion;
 public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
 
     private static final int SYNC_RATE = 8;
-    public float temperature = 300;
     private final int LAZY_TICK_RATE = 5;
+    public float temperature = 300;
     public float backgroundActivity = 12 * 3;//In MBq ( giga becquerels ) uranium is 12 Mbq per tonnes
     public float oldNbrOfFission;
     public float nbrOfFission;//nbr of fission/t
@@ -57,6 +57,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     protected int syncCooldown;
     protected boolean queuedSync;
     float power = 0;
+    int lastLazy = 0;
 
     public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
@@ -64,17 +65,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         setLazyTickRate(LAZY_TICK_RATE);
 
 
-    }
-
-    @Override
-    public void sendData() {
-        if (syncCooldown > 0) {
-            queuedSync = true;
-            return;
-        }
-        super.sendData();
-        queuedSync = false;
-        syncCooldown = SYNC_RATE;
     }
 
     @Override
@@ -96,7 +86,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         if (!level.isClientSide()) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) level);
 
-            if (data!=null && !data
+            if (data != null && !data
                     .ticked(SectionPos.of(getBlockPos()).asLong())) return;
             if (syncCooldown > 0) {
                 syncCooldown--;
@@ -108,7 +98,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 spawnRadiationParticles(level, getBlockPos(), nbrOfFission);
             temperature += power / C * 1 / 20f;
             additionalNeutronsAbsorbed.tickChaser();
-            if (Math.toIntExact(level.getGameTime() % LAZY_TICK_RATE) == 0){
+            if (Math.toIntExact(level.getGameTime() % LAZY_TICK_RATE) == 0) {
                 fakeLazyTick();
             }
         }
@@ -118,11 +108,52 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         }
     }
 
+    @Override
+    public void sendData() {
+        if (syncCooldown > 0) {
+            queuedSync = true;
+            return;
+        }
+        super.sendData();
+        queuedSync = false;
+        syncCooldown = SYNC_RATE;
+    }
+
+    public void spawnRadiationParticles(Level level, @NotNull BlockPos pos, float nbrOfFission) {
+        if (!(level instanceof ServerLevel serverLevel)) return; // Only spawn particles on server side
+
+        float nbrOfParticles = (float) (Math.log10(nbrOfFission * 20 / 5000f)) * 3f / 20f;
+        int wholeParticles = Mth.floor(nbrOfParticles);
+        float fractional = nbrOfParticles - wholeParticles;
+
+        if (level.random.nextFloat() < fractional) {
+            wholeParticles += 1; // probabilistically add one extra
+        }
+
+        for (int i = 0; i < wholeParticles; i++) {
+            double x = pos.getX() + 0.5;
+            double y = pos.getY() + 0.5;
+            double z = pos.getZ() + 0.5;
+
+            // Random spherical direction using spherical coordinates
+            double theta = level.random.nextDouble() * 2 * Math.PI; // azimuthal angle
+            double phi = Math.acos(2 * level.random.nextDouble() - 1); // polar angle
+
+            double speed = 1f; // small random speed
+            double dx = speed * Math.sin(phi) * Math.cos(theta);
+            double dy = speed * Math.sin(phi) * Math.sin(theta);
+            double dz = speed * Math.cos(phi);
+
+            // Use any existing particle type here (e.g., SMOKE)
+            serverLevel.sendParticles(ParticleTypes.DUST_PLUME, x, y, z, 1, dx, dy, dz, speed);// You can replace ParticleTypes.SMOKE with your custom particle
+        }
+    }
+
     public void fakeLazyTick() {
         assert level != null;
         if (!level.isClientSide()) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) level);
-            if (data==null || !data.ticked(SectionPos.of(getBlockPos()).asLong())) return;
+            if (data == null || !data.ticked(SectionPos.of(getBlockPos()).asLong())) return;
             oldNbrOfFission = nbrOfFission;
             nbrOfFission = additionalNeutronsAbsorbed.getValue() + backgroundActivity; //for now a 100% change of fission : no absorption
             //this is fine here. because
@@ -164,42 +195,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         }
     }
 
-    public void spawnRadiationParticles(Level level, @NotNull BlockPos pos, float nbrOfFission) {
-        if (!(level instanceof ServerLevel serverLevel)) return; // Only spawn particles on server side
-
-        float nbrOfParticles = (float) (Math.log10(nbrOfFission * 20 / 5000f)) * 3f / 20f;
-        int wholeParticles = Mth.floor(nbrOfParticles);
-        float fractional = nbrOfParticles - wholeParticles;
-
-        if (level.random.nextFloat() < fractional) {
-            wholeParticles += 1; // probabilistically add one extra
-        }
-
-        for (int i = 0; i < wholeParticles; i++) {
-            double x = pos.getX() + 0.5;
-            double y = pos.getY() + 0.5;
-            double z = pos.getZ() + 0.5;
-
-            // Random spherical direction using spherical coordinates
-            double theta = level.random.nextDouble() * 2 * Math.PI; // azimuthal angle
-            double phi = Math.acos(2 * level.random.nextDouble() - 1); // polar angle
-
-            double speed = 1f; // small random speed
-            double dx = speed * Math.sin(phi) * Math.cos(theta);
-            double dy = speed * Math.sin(phi) * Math.sin(theta);
-            double dz = speed * Math.cos(phi);
-
-            // Use any existing particle type here (e.g., SMOKE)
-            serverLevel.sendParticles(ParticleTypes.DUST_PLUME, x, y, z, 1, dx, dy, dz, speed);// You can replace ParticleTypes.SMOKE with your custom particle
-        }
-    }
-
-    private void meltdown(@NotNull BlockPos pos) {
-        assert level != null;
-        level.setBlockAndUpdate(pos, FluidInit.CORIUM.get().getFlowing(8, 15, false).createLegacyBlock());
-        //level.removeBlockEntity(pos);
-    }
-
     private void standardExplosion(@NotNull BlockPos pos, float power) {
         assert this.level != null;
         nuclearExplosion(this.level, pos, power);
@@ -207,35 +202,10 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         level.setBlockAndUpdate(pos, FluidInit.CORIUM.get().getFlowing(8, 15, false).createLegacyBlock());
     }
 
-    @Override
-    public float getThermalCapacity() {
-        return C;
-    }
-
-    @Override
-    public float getThermalConductivity() {
-        return CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
-    }
-
-    @Override
-    public float getTemperature() {
-        return temperature;
-    }
-
-    @Override
-    public void addTemperature(float dT) {
-        temperature = Math.max(temperature + dT, 0);
-    }
-
-    @Override
-    public float getRadioactiveActivity() {
-        float easeCoef = CROWNSConfigs.SERVER.nuclear.neutronFluxMultiplicator.getF();
-        return backgroundActivity + nbrOfFission * 2.5f * easeCoef;
-    }
-    @Override
-    public float getEffectiveK() {
-        float easeCoef = CROWNSConfigs.SERVER.nuclear.neutronFluxMultiplicator.getF(); //TODO config
-        return (backgroundActivity + nbrOfFission * 2.5f * easeCoef) / (backgroundActivity + oldNbrOfFission * 2.5f * easeCoef);
+    private void meltdown(@NotNull BlockPos pos) {
+        assert level != null;
+        level.setBlockAndUpdate(pos, FluidInit.CORIUM.get().getFlowing(8, 15, false).createLegacyBlock());
+        //level.removeBlockEntity(pos);
     }
 
     @Override
@@ -273,8 +243,53 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         power = tag.getFloat("power");
         lastLazy = tag.getInt("lastLazy");
         setComposition(tag.getCompound("composition"));
-        super.read(tag,registries, clientPacket);
+        super.read(tag, registries, clientPacket);
     }
+
+    public void setComposition(@Nullable CompoundTag composition) {
+        if (composition != null) {//if null we keep the default.
+            radioactiveElements = new HashMap<>();
+            for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
+                if (composition.contains(resourceLocation.toString())) {
+                    double concentration = composition.getDouble(resourceLocation.toString());
+                    radioactiveElements.put(resourceLocation, concentration);
+                }
+            }
+        }
+    }
+
+    public @NotNull CompoundTag saveComposition() {
+        CompoundTag composition = new CompoundTag();
+        for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
+            if (radioactiveElements.containsKey(resourceLocation)) {
+                double concentration = radioactiveElements.get(resourceLocation);
+
+                composition.putDouble(resourceLocation.toString(), concentration);
+            }
+        }
+        return composition;
+    }
+
+    @Override
+    public float getThermalConductivity() {
+        return CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
+    }
+
+    @Override
+    public float getTemperature() {
+        return temperature;
+    }
+
+    @Override
+    public void addTemperature(float dT) {
+        temperature = Math.max(temperature + dT, 0);
+    }
+
+    @Override
+    public float getThermalCapacity() {
+        return C;
+    }
+
     @Override
     public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
 
@@ -299,7 +314,13 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
         return true;
     }
-    int lastLazy = 0;
+
+    @Override
+    public float getRadioactiveActivity() {
+        float easeCoef = CROWNSConfigs.SERVER.nuclear.neutronFluxMultiplicator.getF();
+        return backgroundActivity + nbrOfFission * 2.5f * easeCoef;
+    }
+
     @Override
     public @NotNull Couple<Float> absorbNeutrons(@NotNull Couple<Float> radiationFlux) {
 
@@ -327,32 +348,14 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             fastAbsorbed += radiationFlux.getFirst() * temperatureCoef * fastAbsorptionChance;
             slowAbsorbed += radiationFlux.getSecond() * temperatureCoef * slowAbsorptionChance;
         }
-        additionalNeutronsAbsorbed.chaseTimed(additionalNeutronsAbsorbed.getChaseTarget()+ fastAbsorbed + slowAbsorbed,
+        additionalNeutronsAbsorbed.chaseTimed(additionalNeutronsAbsorbed.getChaseTarget() + fastAbsorbed + slowAbsorbed,
                 LAZY_TICK_RATE);
-        return Couple.create((float)(radiationFlux.getFirst() - fastAbsorbed), (float)(radiationFlux.getSecond() - slowAbsorbed));
+        return Couple.create((float) (radiationFlux.getFirst() - fastAbsorbed), (float) (radiationFlux.getSecond() - slowAbsorbed));
     }
 
-    public void setComposition(@Nullable CompoundTag composition) {
-        if (composition != null) {//if null we keep the default.
-            radioactiveElements = new HashMap<>();
-            for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
-                if (composition.contains(resourceLocation.toString())) {
-                    double concentration = composition.getDouble(resourceLocation.toString());
-                    radioactiveElements.put(resourceLocation, concentration);
-                }
-            }
-        }
-    }
-
-    public @NotNull CompoundTag saveComposition() {
-        CompoundTag composition = new CompoundTag();
-        for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
-            if (radioactiveElements.containsKey(resourceLocation)) {
-                double concentration = radioactiveElements.get(resourceLocation);
-
-                composition.putDouble(resourceLocation.toString(), concentration);
-            }
-        }
-        return composition;
+    @Override
+    public float getEffectiveK() {
+        float easeCoef = CROWNSConfigs.SERVER.nuclear.neutronFluxMultiplicator.getF(); //TODO config
+        return (backgroundActivity + nbrOfFission * 2.5f * easeCoef) / (backgroundActivity + oldNbrOfFission * 2.5f * easeCoef);
     }
 }

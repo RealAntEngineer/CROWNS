@@ -5,7 +5,6 @@ import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,14 +20,6 @@ public abstract class BlazeBurnerMixin extends SmartBlockEntity implements IHave
     @Shadow(remap = false)
     protected abstract BlazeBurnerBlock.HeatLevel getHeatLevel();
 
-    @Shadow(remap = false)
-    public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
-
-    @Override
-    public float getThermalCapacity() {
-        return 1000;
-    }
-
     @Override
     public float getThermalConductivity() {
         return 100000;
@@ -36,7 +27,7 @@ public abstract class BlazeBurnerMixin extends SmartBlockEntity implements IHave
 
     @Override
     public float getTemperature() {
-        return switch (getHeatLevelFromBlock()){
+        return switch (getHeatLevelFromBlock()) {
             case NONE -> 300f;
             case SMOULDERING -> 500F;
             case FADING -> 900F;
@@ -45,7 +36,15 @@ public abstract class BlazeBurnerMixin extends SmartBlockEntity implements IHave
         };
     }
 
+    @Shadow(remap = false)
+    public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
+
     @Override
     public void addTemperature(float dT) {
+    }
+
+    @Override
+    public float getThermalCapacity() {
+        return 1000;
     }
 }

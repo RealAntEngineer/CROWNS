@@ -23,7 +23,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.channels.Pipe;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -32,17 +31,17 @@ import java.util.function.Predicate;
 public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour {
 
 
-    @Shadow(remap = false) public Map<Direction, PipeConnection> interfaces;
+    @Shadow(remap = false)
+    public Map<Direction, PipeConnection> interfaces;
 
-    @Shadow(remap = false) public FluidTransportBehaviour.UpdatePhase phase;
-
-    @Shadow(remap = false) public abstract boolean canPullFluidFrom(FluidStack fluid, BlockState state, Direction direction);
+    @Shadow(remap = false)
+    public FluidTransportBehaviour.UpdatePhase phase;
 
     public FluidTransportBehaviourMixin(SmartBlockEntity be) {
         super(be);
     }
 
-    @Inject(method = "tick", at = @At("HEAD"),cancellable = true, remap = false)
+    @Inject(method = "tick", at = @At("HEAD"), cancellable = true, remap = false)
     public void replaceTick(CallbackInfo ci) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         super.tick();
         Level world = getWorld();
@@ -110,11 +109,11 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
                     //modified part
                     singleSource = null;
                     PatchedDataComponentMap inFlowTag = fluidInFlow.getComponents();
-                    SpecificRealGazState inFlowState = inFlowTag.getOrDefault(DataComponentsInit.REAL_GAZ_STATE,FullTableBased.DEFAULT_STATE);
+                    SpecificRealGazState inFlowState = inFlowTag.getOrDefault(DataComponentsInit.REAL_GAZ_STATE, FullTableBased.DEFAULT_STATE);
                     PatchedDataComponentMap availableTag = availableFlow.getComponents();
                     SpecificRealGazState availableState = availableTag.getOrDefault(DataComponentsInit.REAL_GAZ_STATE, FullTableBased.DEFAULT_STATE);
                     SpecificRealGazState mixedState = FullTableBased.mix(availableState, availableFlow.getAmount(),
-                            inFlowState,fluidInFlow.getAmount());
+                            inFlowState, fluidInFlow.getAmount());
 
                     availableFlow = fluidInFlow;
                     availableTag.set(DataComponentsInit.REAL_GAZ_STATE, mixedState);
@@ -148,4 +147,7 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
             connection.tickFlowProgress(world, pos);
         ci.cancel();
     }
+
+    @Shadow(remap = false)
+    public abstract boolean canPullFluidFrom(FluidStack fluid, BlockState state, Direction direction);
 }

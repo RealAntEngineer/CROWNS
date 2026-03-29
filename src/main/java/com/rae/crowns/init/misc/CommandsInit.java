@@ -73,17 +73,17 @@ public class CommandsInit {
                 )
 
                 .then(Commands.literal("clearSteamCurrents")
-                                .executes(context -> {
-                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
 
-                                    SteamFlowManager.clear();
-                                    return Command.SINGLE_SUCCESS;
-                                })
+                            SteamFlowManager.clear();
+                            return Command.SINGLE_SUCCESS;
+                        })
                 )
 
                 .then(Commands.literal("recordAssembly")
-                        .then(Commands.argument("pos",  BlockPosArgument.blockPos()).then(
-                                Commands.argument("ticks",IntegerArgumentType.integer(0))
+                        .then(Commands.argument("pos", BlockPosArgument.blockPos()).then(
+                                Commands.argument("ticks", IntegerArgumentType.integer(0))
                                         .executes(
                                                 context -> {
 

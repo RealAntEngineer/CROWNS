@@ -23,6 +23,13 @@ import net.minecraft.world.level.material.FluidState;
 @SuppressWarnings("ALL")
 public class TagsInit extends AllTags {
 
+    public static void init() {
+        CustomBlockTags.init();
+        CustomItemTags.init();
+        CustomEntityTag.init();
+        CustomFluidTags.init();
+    }
+
     public enum CustomNameSpace {
 
         MOD(CROWNS.MODID, false, true),
@@ -44,10 +51,11 @@ public class TagsInit extends AllTags {
             this.alwaysDatagenDefault = alwaysDatagenDefault;
         }
     }
+
     public enum CustomBlockTags {
         //TODO this is poor coding, use a float map instead.
-        GOLD_BLOCK(CustomNameSpace.COMMUN,"storage_blocks/gold"),
-        COAL_BLOCK(CustomNameSpace.COMMUN,"storage_blocks/coal"),
+        GOLD_BLOCK(CustomNameSpace.COMMUN, "storage_blocks/gold"),
+        COAL_BLOCK(CustomNameSpace.COMMUN, "storage_blocks/coal"),
         REFACTORY_BLOCK(CustomNameSpace.MOD, "nuclear/refactory"),
         UNDESTRUCTABLE(CustomNameSpace.MOD, "nuclear/undestructable");
 
@@ -60,10 +68,6 @@ public class TagsInit extends AllTags {
 
         CustomBlockTags(CustomNameSpace namespace) {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
-        }
-
-        CustomBlockTags(CustomNameSpace namespace, String path) {
-            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
         CustomBlockTags(CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
@@ -80,23 +84,29 @@ public class TagsInit extends AllTags {
             this.alwaysDatagen = alwaysDatagen;
         }
 
-        @SuppressWarnings("deprecation")
-        public boolean matches(Block block) {
-            return block.builtInRegistryHolder()
-                    .is(tag);
+        CustomBlockTags(CustomNameSpace namespace, String path) {
+            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
+        }
+
+        private static void init() {
         }
 
         public boolean matches(ItemStack stack) {
             return stack != null && stack.getItem() instanceof BlockItem blockItem && matches(blockItem.getBlock());
         }
 
+        @SuppressWarnings("deprecation")
+        public boolean matches(Block block) {
+            return block.builtInRegistryHolder()
+                    .is(tag);
+        }
+
         public boolean matches(BlockState state) {
             return state.is(tag);
         }
 
-        private static void init() {}
-
     }
+
     public enum CustomItemTags {
         ;
 
@@ -106,15 +116,9 @@ public class TagsInit extends AllTags {
         CustomItemTags() {
             this(CustomNameSpace.MOD);
         }
-        CustomItemTags(String path) {
-            this(CustomNameSpace.MOD,path);
-        }
+
         CustomItemTags(CustomNameSpace namespace) {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
-        }
-
-        CustomItemTags(CustomNameSpace namespace, String path) {
-            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
         CustomItemTags(CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
@@ -131,6 +135,17 @@ public class TagsInit extends AllTags {
             this.alwaysDatagen = alwaysDatagen;
         }
 
+        CustomItemTags(String path) {
+            this(CustomNameSpace.MOD, path);
+        }
+
+        CustomItemTags(CustomNameSpace namespace, String path) {
+            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
+        }
+
+        private static void init() {
+        }
+
         @SuppressWarnings("deprecation")
         public boolean matches(Item item) {
             return item.builtInRegistryHolder()
@@ -141,10 +156,8 @@ public class TagsInit extends AllTags {
             return stack.is(tag);
         }
 
-        private static void init() {
-        }
-
     }
+
     public enum CustomEntityTag {
         ;
 
@@ -157,10 +170,6 @@ public class TagsInit extends AllTags {
 
         CustomEntityTag(CustomNameSpace namespace) {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
-        }
-
-        CustomEntityTag(CustomNameSpace namespace, String path) {
-            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
         CustomEntityTag(CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
@@ -177,14 +186,20 @@ public class TagsInit extends AllTags {
             this.alwaysDatagen = alwaysDatagen;
         }
 
+        CustomEntityTag(CustomNameSpace namespace, String path) {
+            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
+        }
+
+        private static void init() {
+        }
+
         public boolean matches(Entity entity) {
             return entity.getType()
                     .is(tag);
         }
 
-        private static void init() {}
-
     }
+
     public enum CustomFluidTags {
         ;
 
@@ -197,10 +212,6 @@ public class TagsInit extends AllTags {
 
         CustomFluidTags(CustomNameSpace namespace) {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
-        }
-
-        CustomFluidTags(CustomNameSpace namespace, String path) {
-            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
         CustomFluidTags(CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
@@ -217,6 +228,13 @@ public class TagsInit extends AllTags {
             this.alwaysDatagen = alwaysDatagen;
         }
 
+        CustomFluidTags(CustomNameSpace namespace, String path) {
+            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
+        }
+
+        private static void init() {
+        }
+
         @SuppressWarnings("deprecation")
         public boolean matches(Fluid fluid) {
             return fluid.is(tag);
@@ -226,15 +244,5 @@ public class TagsInit extends AllTags {
             return state.is(tag);
         }
 
-        private static void init() {
-        }
-
-    }
-
-    public static void init() {
-        CustomBlockTags.init();
-        CustomItemTags.init();
-        CustomEntityTag.init();
-        CustomFluidTags.init();
     }
 }
