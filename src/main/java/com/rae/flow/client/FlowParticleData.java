@@ -3,8 +3,8 @@ package com.rae.flow.client;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.rae.crowns.init.client.ParticleTypeInit;
 import com.rae.flow.commun.FlowLine;
+import com.rae.crowns.init.client.ParticleTypeInit;
 import com.simibubi.create.foundation.particle.ICustomParticleDataWithSprite;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.client.particle.ParticleEngine;
@@ -18,22 +18,35 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-public record FlowParticleData(FlowLine spline,
-                               double initialT) implements ParticleOptions, ICustomParticleDataWithSprite<FlowParticleData> {
+public class FlowParticleData implements ParticleOptions, ICustomParticleDataWithSprite<FlowParticleData> {
     // Codec for serialization and deserialization
     public static final MapCodec<FlowParticleData> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            FlowLine.CODEC.fieldOf("spline").forGetter(FlowParticleData::spline),  // Using the BSpline codec
-            Codec.DOUBLE.fieldOf("initialT").forGetter(FlowParticleData::initialT) // Codec for the initialT
+            FlowLine.CODEC.fieldOf("spline").forGetter(FlowParticleData::getSpline),  // Using the BSpline codec
+            Codec.DOUBLE.fieldOf("initialT").forGetter(FlowParticleData::getInitialT) // Codec for the initialT
     ).apply(instance, FlowParticleData::new));
-    public static final StreamCodec<RegistryFriendlyByteBuf, FlowParticleData> STREAM_CODEC = StreamCodec
+    public static final StreamCodec<RegistryFriendlyByteBuf,FlowParticleData> STREAM_CODEC = StreamCodec
             .composite(
-                    FlowLine.STREAM_CODEC, FlowParticleData::spline,
-                    ByteBufCodecs.DOUBLE, FlowParticleData::initialT,
+                    FlowLine.STREAM_CODEC, FlowParticleData::getSpline,
+                    ByteBufCodecs.DOUBLE, FlowParticleData::getInitialT,
                     FlowParticleData::new
             );
 
-    public FlowParticleData() {
-        this(new FlowLine(List.of(Vec3.ZERO, Vec3.ZERO.relative(Direction.NORTH, 1f)), List.of(0.1d, 0d), List.of(Color.WHITE, Color.WHITE)), 0);
+    private final FlowLine spline;
+    private final double initialT;
+    public FlowParticleData(){
+        this(new FlowLine(List.of(Vec3.ZERO, Vec3.ZERO.relative(Direction.NORTH,1f)),List.of(0.1d,0d),List.of(Color.WHITE,Color.WHITE)),0);
+    }
+    public FlowParticleData(FlowLine spline, double initialT) {
+        this.spline = spline;
+        this.initialT = initialT;
+    }
+
+    public FlowLine getSpline() {
+        return spline;
+    }
+
+    public double getInitialT() {
+        return initialT;
     }
 
     @Override
