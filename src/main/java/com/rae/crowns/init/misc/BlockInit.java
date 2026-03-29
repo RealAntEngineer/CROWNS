@@ -1,6 +1,7 @@
 package com.rae.crowns.init.misc;
 
 import com.rae.crowns.content.blocks.ReactorCasing;
+import com.rae.crowns.content.blocks.UraniumBlocks;
 import com.rae.crowns.content.nuclear.corium.SolidCoriumBlock;
 import com.rae.crowns.content.nuclear.display.ReactorMonitorBlock;
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
@@ -126,6 +127,13 @@ public class BlockInit {
             .block("uranium_ore", UraniumOreBlock::new)
             .initialProperties(SharedProperties::stone)
             .properties(p -> p.lightLevel(litBlockEmission(9)).strength(4, 4))
+            .item()
+            .build()
+            .register();
+
+    public static final BlockEntry<UraniumBlocks.DepletedUraniumBlock> DEPLETED_URANIUM_BLOCK = REGISTRATE
+            .block("depleted_uranium_block", UraniumBlocks.DepletedUraniumBlock::new)
+            .initialProperties(SharedProperties::stone)
             .item()
             .build()
             .register();

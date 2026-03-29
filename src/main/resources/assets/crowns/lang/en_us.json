@@ -10,6 +10,10 @@
   "block.crowns.turbine_stage_structure": "Turbine Stage Structure",
   "block.crowns.compressor": "Compressor",
 
+  "block.crowns.depleted_uranium_block": "Depleted Uranium Block",
+  "block.crowns.solid_corium": "Corebblestone",
+  "block.crowns.reactor_casing": "Reactor Casing",
+
   "item.crowns.uranium_ingot": "Natural Uranium Ingot",
   "item.crowns.natural_uranium_nugget": "Natural Uranium Nugget",
   "item.crowns.depleted_uranium_ingot": "Depleted Uranium Ingot",
@@ -91,6 +95,7 @@
   "nucleus.crowns.u238": "Uranium 238",
   "nucleus.crowns.p239": "Plutonium 239",
 
+  "death.attack.crowns.radiation": "%s died from radiation poisoning",
   "death.attack.crowns.high_temperature": "%s got cooked to death",
   "death.attack.crowns.low_temperature": "%s got turned into an ice cube"
 }

@@ -2,22 +2,22 @@
   "type": "minecraft:crafting_shaped",
   "key": {
     "1": {
-      "item": "create:andesite_alloy"
+      "item": "minecraft:iron_ingot"
     },
     "2": {
-      "item": "minecraft:gold_ingot"
+      "item": "minecraft:bricks"
     },
     "3": {
-      "item": "minecraft:iron_block"
+      "item": "minecraft:gold_ingot"
     }
   },
   "pattern": [
-  "121",
-  "232",
-  "121"
+  "131",
+  "323",
+  "131"
 ],
   "result": {
     "item": "crowns:reactor_casing",
-    "count": 9
+    "count": 4
   }
 }

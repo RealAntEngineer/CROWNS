@@ -4,7 +4,7 @@ public class ItemRadiation {
     public static class DecayContainer {
         public double specific_activity; // Measured in Bq
 
-        // Decay channel PROBABILITY! Must be <1 and must sum to 1
+        // Decay channel PROBABILITY! Must be <1
         public double alpha;
         public double beta_plus;
         public double beta_minus;
@@ -14,7 +14,7 @@ public class ItemRadiation {
         public double branching_ratio; // These two are used to calculate a basic estimate of gammas
 
         public double alpha_energy; // Also in MeV
-        public double beta_energy; // Even more stuff, woohoo
+        public double beta_energy; // Even more bs
 
         public DecayContainer(double specific_activity, double alpha, double alpha_energy, double beta_minus, double beta_energy, double beta_plus, double sf, double daughter_excited, double branching_ratio) {
             this.specific_activity = specific_activity;
@@ -35,6 +35,12 @@ public class ItemRadiation {
         public DecayContainer multiply(double v) {
             DecayContainer container = this.copy();
             container.specific_activity *= v;
+            return container;
+        }
+
+        public DecayContainer add(double v) {
+            DecayContainer container = this.copy();
+            container.specific_activity += v;
             return container;
         }
 

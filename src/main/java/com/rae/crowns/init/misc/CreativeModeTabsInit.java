@@ -40,7 +40,7 @@ public class CreativeModeTabsInit {
                                 output.accept(BlockInit.SOLID_CORIUM);
                                 output.accept(BlockInit.DEEP_URANIUM_ORE);
                                 output.accept(BlockInit.URANIUM_ORE);
-                                output.accept(BlockInit.REACTOR_CASING);
+                                output.accept(BlockInit.DEPLETED_URANIUM_BLOCK);
                                 output.accept(ItemInit.RAW_URANIUM);
                                 output.accept(ItemInit.URANIUM_INGOT);
                                 output.accept(ItemInit.NATURAL_URANIUM_NUGGET);
@@ -50,6 +50,7 @@ public class CreativeModeTabsInit {
                                 output.accept(ItemInit.ENRICHED_URANIUM_NUGGET);
                                 output.accept(FluidInit.URANIUM_HEXAFLUORIDE.get().getBucket());
                                 output.acceptAll(makeFuelAssembly().apply(ItemInit.FUEL_ROD.asItem()));
+                                output.accept(BlockInit.REACTOR_CASING);
                                 output.accept(ItemInit.DOSIMETER);
                             })
                             .build());

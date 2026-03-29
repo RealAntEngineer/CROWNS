@@ -1,5 +1,6 @@
 package com.rae.crowns.content.hazards.radiation;
 
+import com.rae.crowns.init.misc.DamageSourceInit;
 import com.rae.crowns.init.misc.EffectsInit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -49,10 +50,12 @@ public class RadiationEffects {
     }
 
     public static void neurovascularSubsyndrome(LivingEntity target) {
-        MobEffectInstance suppression = new MobEffectInstance(EffectsInit.BONE_MARROW_SUPPRESSION.get(), 100, 2);
+        MobEffectInstance confusion = new MobEffectInstance(MobEffects.CONFUSION, 200, 2);
+        MobEffectInstance suppression = new MobEffectInstance(EffectsInit.BONE_MARROW_SUPPRESSION.get(), 100, 1);
         target.addEffect(suppression);
+        target.addEffect(confusion);
 
-        target.hurt(target.damageSources().generic(), 0.2F);
+        target.hurt(DamageSourceInit.radiation(target.level()), 2F);
     }
 
     @SubscribeEvent
@@ -68,7 +71,7 @@ public class RadiationEffects {
             // Neurovascular subsyndrome is lethal
             neurovascularSubsyndrome(player);
         } else if (contamination >= 4) {
-            // Gastrointestinal subsyndrome is really bad
+            // Gastrointestinal subsyndrome is bad
             gastrointestinalSubsyndrome(player);
         } else if (contamination >= 1) {
             // Hematopoietic subsyndrome to be implemented: bone marrow suppression, nausea and vomiting occurs here

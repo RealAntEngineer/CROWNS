@@ -4,6 +4,7 @@ import com.rae.crowns.content.hazards.HazardEntry;
 import com.rae.crowns.content.hazards.ItemRadiation;
 import com.rae.crowns.content.hazards.radiation.ContaminationUtil;
 import com.rae.crowns.init.misc.BlockInit;
+import com.rae.crowns.init.misc.TagsInit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -36,7 +37,7 @@ public class PointSourceHandler {
             boolean blocked = false;
 
             for (BlockPos pos : positions) {
-                if (level.getBlockState(pos).is(BlockInit.REACTOR_CASING.get())) blocked = true;
+                if (TagsInit.CustomBlockTags.SHIELDING.matches(level.getBlockState(pos))) blocked = true;
             }
             if (blocked) continue;
 
