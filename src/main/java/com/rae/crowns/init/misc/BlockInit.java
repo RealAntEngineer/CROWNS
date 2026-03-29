@@ -1,7 +1,7 @@
 package com.rae.crowns.init.misc;
 
-import com.rae.crowns.content.blocks.ReactorCasing;
-import com.rae.crowns.content.blocks.UraniumBlocks;
+import com.rae.crowns.content.nuclear.shielding.ReactorCasing;
+import com.rae.crowns.content.nuclear.uranium.UraniumBlocks;
 import com.rae.crowns.content.nuclear.corium.SolidCoriumBlock;
 import com.rae.crowns.content.nuclear.display.ReactorMonitorBlock;
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
@@ -13,8 +13,6 @@ import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlock;
 import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
 import com.rae.formicapi.content.multiblock.MBItem;
 import com.rae.formicapi.content.multiblock.MBStructureBlock;
-import com.simibubi.create.foundation.block.connected.ConnectedTextureBehaviour;
-import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import net.minecraft.world.level.block.Blocks;
@@ -133,7 +131,7 @@ public class BlockInit {
 
     public static final BlockEntry<UraniumBlocks.DepletedUraniumBlock> DEPLETED_URANIUM_BLOCK = REGISTRATE
             .block("depleted_uranium_block", UraniumBlocks.DepletedUraniumBlock::new)
-            .initialProperties(SharedProperties::stone)
+            .initialProperties(SharedProperties::netheriteMetal)
             .item()
             .build()
             .register();

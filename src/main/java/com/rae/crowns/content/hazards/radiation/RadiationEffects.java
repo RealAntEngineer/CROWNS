@@ -1,5 +1,6 @@
 package com.rae.crowns.content.hazards.radiation;
 
+import com.rae.crowns.content.hazards.radiation.contamination.ContaminationUtil;
 import com.rae.crowns.init.misc.DamageSourceInit;
 import com.rae.crowns.init.misc.EffectsInit;
 import net.minecraft.world.effect.MobEffectInstance;

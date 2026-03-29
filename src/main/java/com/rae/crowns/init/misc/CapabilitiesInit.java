@@ -1,6 +1,6 @@
 package com.rae.crowns.init.misc;
 
-import com.rae.crowns.content.hazards.radiation.ContaminationProvider;
+import com.rae.crowns.content.hazards.radiation.contamination.ContaminationProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;

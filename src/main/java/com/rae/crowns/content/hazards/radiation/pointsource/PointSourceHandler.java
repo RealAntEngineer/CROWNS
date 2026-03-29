@@ -1,8 +1,8 @@
 package com.rae.crowns.content.hazards.radiation.pointsource;
 
 import com.rae.crowns.content.hazards.HazardEntry;
-import com.rae.crowns.content.hazards.ItemRadiation;
-import com.rae.crowns.content.hazards.radiation.ContaminationUtil;
+import com.rae.crowns.content.hazards.radiation.ItemRadiation;
+import com.rae.crowns.content.hazards.radiation.contamination.ContaminationUtil;
 import com.rae.crowns.init.misc.BlockInit;
 import com.rae.crowns.init.misc.TagsInit;
 import net.minecraft.core.BlockPos;

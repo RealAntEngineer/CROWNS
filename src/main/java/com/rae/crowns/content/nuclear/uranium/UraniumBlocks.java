@@ -1,4 +1,4 @@
-package com.rae.crowns.content.blocks;
+package com.rae.crowns.content.nuclear.uranium;
 
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;

@@ -1,5 +1,6 @@
 package com.rae.crowns.content.hazards;
 
+import com.rae.crowns.content.hazards.radiation.ItemRadiation;
 import com.rae.crowns.content.hazards.radiation.types.*;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
