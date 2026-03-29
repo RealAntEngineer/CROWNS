@@ -10,24 +10,20 @@ import net.minecraft.world.level.material.FluidState;
 
 public interface IHaveTemperature {
 
-    float getThermalCapacity();
-    float getThermalConductivity();
-    float getTemperature();
-    void addTemperature(float dT);
-    default void conductTemperature(BlockPos pos, Level level){
+    default void conductTemperature(BlockPos pos, Level level) {
         conductTemperature(pos, level, 1);
     }
-    default void conductTemperature(BlockPos pos, Level level, float dt){
-        for (Direction direction: Direction.stream().toList()) {
+
+    default void conductTemperature(BlockPos pos, Level level, float dt) {
+        for (Direction direction : Direction.stream().toList()) {
             BlockState state = level.getBlockState(pos.relative(direction));
             BlockEntity be = level.getBlockEntity(pos.relative(direction));
 
             if (be instanceof IHaveTemperature iHaveTemperature) {
                 float transmittedPower;
-                if (iHaveTemperature.getThermalConductivity() == 0 && this.getThermalConductivity() == 0){
+                if (iHaveTemperature.getThermalConductivity() == 0 && this.getThermalConductivity() == 0) {
                     transmittedPower = 0.0f;
-                }
-                else {
+                } else {
                     transmittedPower = (iHaveTemperature.getTemperature() - this.getTemperature()) *
                             (getThermalConductivity() * iHaveTemperature.getThermalConductivity()) /
                             (getThermalConductivity() + iHaveTemperature.getThermalConductivity()) * dt;
@@ -41,8 +37,7 @@ public interface IHaveTemperature {
                 float T;
                 if (fluidState.isEmpty()) {
                     T = CROWNS.BLOCK_TEMPERATURES.getValue(state.getBlock(), 300f);
-                }
-                else {
+                } else {
                     T = CROWNS.FLUID_TEMPERATURES.getValue(fluidState.getType(), 300f);
 
                 }
@@ -50,4 +45,12 @@ public interface IHaveTemperature {
             }
         }
     }
+
+    float getThermalConductivity();
+
+    float getTemperature();
+
+    void addTemperature(float dT);
+
+    float getThermalCapacity();
 }

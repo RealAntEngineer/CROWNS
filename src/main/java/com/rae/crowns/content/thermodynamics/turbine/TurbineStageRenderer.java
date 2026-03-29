@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.rae.crowns.init.client.PartialModelInit;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
-
 import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import net.createmod.catnip.render.CachedBuffers;
 import net.createmod.catnip.render.SuperByteBuffer;
@@ -18,6 +17,7 @@ public class TurbineStageRenderer extends KineticBlockEntityRenderer<TurbineStag
     public TurbineStageRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
+
     @Override
     protected void renderSafe(TurbineStageBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
                               int light, int overlay) {
@@ -26,7 +26,7 @@ public class TurbineStageRenderer extends KineticBlockEntityRenderer<TurbineStag
         //super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
         BlockState state = be.getBlockState();
 
-        Direction direction =  Direction.fromAxisAndDirection(((TurbineStageBlock)state.getBlock()).getRotationAxis(state), Direction.AxisDirection.POSITIVE);
+        Direction direction = Direction.fromAxisAndDirection(((TurbineStageBlock) state.getBlock()).getRotationAxis(state), Direction.AxisDirection.POSITIVE);
         VertexConsumer vb = buffer.getBuffer(RenderType.cutoutMipped());
         ms.pushPose();
         SuperByteBuffer memoryRoll =

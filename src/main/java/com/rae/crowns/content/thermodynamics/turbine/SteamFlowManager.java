@@ -1,7 +1,6 @@
 package com.rae.crowns.content.thermodynamics.turbine;
 
 import net.createmod.catnip.platform.CatnipServices;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,18 +33,15 @@ public class SteamFlowManager {
         }
         storage.steamCurrents.get(world.dimension().location())
                 .removeIf(steamCurrent -> {
-                    if (steamCurrent == null) {
-                        return true;
-                    }
-                    return false;
+                    return steamCurrent == null;
                 });
         //there shouldn't be null values here.
         storage.steamCurrents.get(world.dimension().location())
                 .forEach(steamCurrent -> steamCurrent.tick(world));
         if (world instanceof ServerLevel serverLevel) {
             for (ServerPlayer player : serverLevel.players()) {
-               CatnipServices.NETWORK.sendToClientsTrackingAndSelf(player,
-                                new UpdateSteamFlowPacket(storage, world.registryAccess()));
+                CatnipServices.NETWORK.sendToClientsTrackingAndSelf(player,
+                        new UpdateSteamFlowPacket(storage, world.registryAccess()));
             }
         }
 
@@ -87,7 +83,7 @@ public class SteamFlowManager {
     }
 
     public static void clear() {
-        if (storage == null){
+        if (storage == null) {
             return;
         }
         storage.steamCurrents.clear();

@@ -21,10 +21,12 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
+
 //todo replace by a straight pipe block -> see the seethrough pipe
 public class HeatExchangerBlock extends WrenchableDirectionalBlock implements ProperWaterloggedBlock, IBE<HeatExchangerBlockEntity> {
     public static final BooleanProperty IN = BooleanProperty.create("in");
     public static final BooleanProperty OUT = BooleanProperty.create("out");
+
     public HeatExchangerBlock(@NotNull Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState()
@@ -66,11 +68,6 @@ public class HeatExchangerBlock extends WrenchableDirectionalBlock implements Pr
             }
         }
         return state;
-    }
-
-    @Override
-    public @NotNull FluidState getFluidState(@NotNull BlockState pState) {
-        return fluidState(pState);
     }
 
     @Override
@@ -118,13 +115,18 @@ public class HeatExchangerBlock extends WrenchableDirectionalBlock implements Pr
         return pState;
     }
 
-    public @NotNull VoxelShape getShape(@NotNull BlockState pState, @NotNull BlockGetter pLevel, @NotNull BlockPos pPos, @NotNull CollisionContext pContext) {
-        return AllShapes.EIGHT_VOXEL_POLE.get(pState.getValue(FACING).getAxis());
-    }
-
     @Override
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
         IBE.onRemove(pState, pLevel, pPos, pNewState);
+    }
+
+    @Override
+    public @NotNull FluidState getFluidState(@NotNull BlockState pState) {
+        return fluidState(pState);
+    }
+
+    public @NotNull VoxelShape getShape(@NotNull BlockState pState, @NotNull BlockGetter pLevel, @NotNull BlockPos pPos, @NotNull CollisionContext pContext) {
+        return AllShapes.EIGHT_VOXEL_POLE.get(pState.getValue(FACING).getAxis());
     }
 
     @Override

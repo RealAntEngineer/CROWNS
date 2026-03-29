@@ -12,7 +12,7 @@ import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.thermal_utilities.FullTableBased;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
-import com.simibubi.create.content.fluids.pipes.*;
+import com.simibubi.create.content.fluids.pipes.StraightPipeBlockEntity;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.utility.CreateLang;
@@ -41,40 +41,48 @@ import java.util.List;
 import static com.rae.formicapi.thermal_utilities.FullTableBased.DEFAULT_STATE;
 
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
-    //transform the IHaveTemperature interface into a behavior
-    // for now if T > 373°K P = 20 bar.
-    public float C = 3000*200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
-    public float temperature = 300;
-
+    //really heavy -> to optimize and run less by second
+    private static final int SYNC_RATE = 8;
     //for later maybe ? to make the code simpler to understand
-    private final StateFluidTank WATER_TANK = new StateFluidTank(1000, (f)-> {}){
+    private final StateFluidTank WATER_TANK = new StateFluidTank(1000, (f) -> {
+    }) {
         @Override
         public boolean isFluidValid(FluidStack stack) {
             return stack.getFluid().is(FluidTags.WATER);
         }
     };
+    //transform the IHaveTemperature interface into a behavior
+    // for now if T > 373°K P = 20 bar.
+    public float C = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
+    public float temperature = 300;
+    protected int syncCooldown;
+    protected boolean queuedSync;
 
     public HeatExchangerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
 
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(
+                Capabilities.FluidHandler.BLOCK,
+                BlockEntityInit.HEAT_EXCHANGER.get(),
+                (be, context) -> {
+                    Direction localDir = be.getBlockState().getValue(DirectionalBlock.FACING);
+                    if (context == localDir) {
+                        return be.WATER_TANK;
+                    }
+                    if (context == localDir.getOpposite()) {
+                        return be.WATER_TANK;
+                    }
+                    return null;
+                }
+        );
+    }
+
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
     }
-    @Override
-    public void sendData() {
-        if (syncCooldown > 0) {
-            queuedSync = true;
-            return;
-        }
-        super.sendData();
-        queuedSync = false;
-        syncCooldown = SYNC_RATE;
-    }
-    //really heavy -> to optimise and run less by second
-    private static final int SYNC_RATE = 8;
-    protected int syncCooldown;
-    protected boolean queuedSync;
+
     @Override
     public void tick() {
         super.tick();
@@ -89,16 +97,16 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             BlockPos outPos = getBlockPos().relative(
                     getBlockState().getValue(HeatExchangerBlock.FACING));
             BlockState outState = level.getBlockState(outPos);
-            if (outState.is(BlockInit.HEAT_EXCHANGER.get())){
+            if (outState.is(BlockInit.HEAT_EXCHANGER.get())) {
                 HeatExchangerBlockEntity be = (HeatExchangerBlockEntity) level.getBlockEntity(outPos);
                 assert be != null;
                 FluidTank handler = (FluidTank)
-                        level.getCapability(Capabilities.FluidHandler.BLOCK,outPos,getBlockState().getValue(HeatExchangerBlock.FACING)
-                );
+                        level.getCapability(Capabilities.FluidHandler.BLOCK, outPos, getBlockState().getValue(HeatExchangerBlock.FACING)
+                        );
                 if (handler == null) handler = new FluidTank(0);
 
-                if (handler.getFluidAmount()< (float) WATER_TANK.getFluidAmount()){//if input of following handler is smaller than ours
-                    FluidStack stack =  WATER_TANK.getFluid().copy();
+                if (handler.getFluidAmount() < (float) WATER_TANK.getFluidAmount()) {//if input of following handler is smaller than ours
+                    FluidStack stack = WATER_TANK.getFluid().copy();
                     stack.setAmount(WATER_TANK.getFluidAmount() - handler.getFluidAmount());
                     WATER_TANK.drain(handler.fill(stack, IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE);
                 }
@@ -106,20 +114,61 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
             //if not loaded we keep the same temperature.
             //internal conduction
-            float dt = 1/20f;
-            double k = getInternalConductivity()/getThermalCapacity() * CROWNSConfigs.SERVER.conduction.heatExchangerIterations.get();
+            float dt = 1 / 20f;
+            double k = getInternalConductivity() / getThermalCapacity() * CROWNSConfigs.SERVER.conduction.heatExchangerIterations.get();
             if (!WATER_TANK.isEmpty()) {//we don't heat it if empty
-                int iteration = Math.max(1,(int) k * 1000/WATER_TANK.getFluidAmount());
+                int iteration = Math.max(1, (int) k * 1000 / WATER_TANK.getFluidAmount());
                 for (int i = 0; i < iteration; i++) {
                     float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) * dt / iteration;
                     WATER_TANK.heat(power);
                     PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) level);
-                    if (data!=null && data.ticked(SectionPos.of(getBlockPos()).asLong())) {
+                    if (data != null && data.ticked(SectionPos.of(getBlockPos()).asLong())) {
                         this.addTemperature(-power / this.getThermalCapacity());
                     }
                 }
             }
         }
+    }
+
+    @Override
+    public void sendData() {
+        if (syncCooldown > 0) {
+            queuedSync = true;
+            return;
+        }
+        super.sendData();
+        queuedSync = false;
+        syncCooldown = SYNC_RATE;
+    }
+
+    public float getInternalConductivity() {
+        return CROWNSConfigs.SERVER.conduction.heatExchangerInternal.getF();
+    }
+
+    @Override
+    public float getThermalCapacity() {
+        return C;
+    }
+
+    @Override
+    public float getThermalConductivity() {
+        return CROWNSConfigs.SERVER.conduction.heatExchangerExternal.getF();
+    }
+
+    @Override
+    public float getTemperature() {
+        if (Float.isNaN(temperature)) {
+            temperature = 300;
+        }
+        return temperature;
+    }
+
+    @Override
+    public void addTemperature(float dT) {
+        if (Float.isNaN(temperature)) {
+            temperature = 300;
+        }
+        temperature = Math.max(temperature + dT, 0);
     }
 
     @Override
@@ -134,53 +183,25 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     }
 
     @Override
-    public float getThermalCapacity() {
-        return C;
+    protected void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
+        super.write(compound, registries, clientPacket);
+        compound.putFloat("temperature", temperature);
+        compound.put("water_tank", WATER_TANK.writeToNBT(registries, new CompoundTag()));
+
     }
 
     @Override
-    public float getThermalConductivity() {
-        return CROWNSConfigs.SERVER.conduction.heatExchangerExternal.getF();
-    }
-    public float getInternalConductivity() {
-        return CROWNSConfigs.SERVER.conduction.heatExchangerInternal.getF();
+    public void writeSafe(CompoundTag compound, HolderLookup.Provider registries) {
+        super.writeSafe(compound, registries);
+        compound.put("water_tank", WATER_TANK.writeToNBT(registries, new CompoundTag()));
     }
 
     @Override
-    public float getTemperature() {
-        if (Float.isNaN(temperature)){
-            temperature = 300;
-        }
-        return temperature;
-    }
-
-    @Override
-    public void addTemperature(float dT) {
-        if (Float.isNaN(temperature)){
-            temperature = 300;
-        }
-        temperature=Math.max(temperature+dT,0);
-    }
-    @Override
-    protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
-        super.write(tag,registries, clientPacket);
-        tag.putFloat("temperature",temperature);
-        tag.put("water_tank",WATER_TANK.writeToNBT(registries,new CompoundTag()));
-
-    }
-
-
-    @Override
-    public void writeSafe(CompoundTag tag, HolderLookup.Provider registries) {
-        super.writeSafe(tag, registries);
-        tag.put("water_tank", WATER_TANK.writeToNBT(registries, new CompoundTag()));
-    }
-
-    @Override
-    protected void read(CompoundTag tag,HolderLookup.Provider registries, boolean clientPacket) {
-        temperature = tag.getFloat("temperature");
-        WATER_TANK.readFromNBT(registries,(CompoundTag) tag.get("water_tank"));
-        super.read(tag, registries,clientPacket);
+    protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
+        temperature = compound.getFloat("temperature");
+        CompoundTag fluidTag = (CompoundTag) compound.get("water_tank");
+        WATER_TANK.readFromNBT(registries, fluidTag != null ? fluidTag : new CompoundTag());
+        super.read(compound, registries, clientPacket);
     }
 
     @Override
@@ -192,24 +213,6 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         containedFluidTooltip(tooltip, isPlayerSneaking, WATER_TANK);
 
         return true;
-    }
-
-
-    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(
-                Capabilities.FluidHandler.BLOCK,
-                BlockEntityInit.HEAT_EXCHANGER.get(),
-                (be, context) -> {
-                    Direction localDir = be.getBlockState().getValue(DirectionalBlock.FACING);
-                    if (context == localDir){
-                        return be.WATER_TANK;
-                    }
-                    if (context ==  localDir.getOpposite()){
-                        return be.WATER_TANK;
-                    }
-                    return null;
-                }
-        );
     }
 
     // a Fluid Transport behavior that heat up water when going through. we need to modify the FluidNetwork to make it work.
@@ -263,10 +266,10 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             for (int i = 0; i < iteration; i++) {
                 // ENERGY, not temperature
                 float power =
-                        (float) (exchanger.getInternalConductivity()
+                        exchanger.getInternalConductivity()
                                 * (exchanger.getTemperature()
                                 - getFluidTemperature(heated)) // see helper below
-                                * dt / iteration);
+                                * dt / iteration;
 
                 // --- APPLY HEAT USING YOUR LOGIC ---
                 heatFluidStack(heated, power);
@@ -277,6 +280,14 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             }
 
             return heated;
+        }
+
+        private static float getFluidTemperature(FluidStack stack) {
+            SpecificRealGazState state = stack.get(DataComponentsInit.REAL_GAZ_STATE);
+            if (state == null)
+                return DEFAULT_STATE.temperature();
+
+            return state.temperature();
         }
 
         private static void heatFluidStack(FluidStack stack, float amount) {
@@ -290,13 +301,6 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                     FullTableBased.isobaricTransfer(oldState, amount / stack.getAmount());
 
             stack.set(DataComponentsInit.REAL_GAZ_STATE, newState);
-        }
-        private static float getFluidTemperature(FluidStack stack) {
-            SpecificRealGazState state = stack.get(DataComponentsInit.REAL_GAZ_STATE);
-            if (state == null)
-                return DEFAULT_STATE.temperature();
-
-            return state.temperature();
         }
 
     }

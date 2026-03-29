@@ -5,7 +5,6 @@ import com.rae.crowns.init.data.DataComponentsInit;
 import com.rae.formicapi.thermal_utilities.FullTableBased;
 import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
-
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,7 +17,8 @@ public class StateFluidTank extends SmartFluidTank {
     public StateFluidTank(int capacity, Consumer<FluidStack> updateCallback) {
         super(capacity, updateCallback);
     }
-    public void heat(float amount){
+
+    public void heat(float amount) {
         if (fluid.getAmount() > 0) {
 
             SpecificRealGazState oldState = fluid.get(DataComponentsInit.REAL_GAZ_STATE);
@@ -30,7 +30,7 @@ public class StateFluidTank extends SmartFluidTank {
         }
     }
 
-    public SpecificRealGazState getState(){
+    public SpecificRealGazState getState() {
         SpecificRealGazState oldState = fluid.get(DataComponentsInit.REAL_GAZ_STATE);
         if (oldState == null) {
             oldState = DEFAULT_STATE;
@@ -39,14 +39,14 @@ public class StateFluidTank extends SmartFluidTank {
     }
 
     @Override
-    public @NotNull FluidStack drain(int maxDrain, @NotNull FluidAction action) {
-        FluidStack stack = super.drain(maxDrain, action);
-        return stack;
+    public @NotNull FluidStack drain(@NotNull FluidStack resource, @NotNull FluidAction action) {
+        return super.drain(resource, action);
     }
 
     @Override
-    public @NotNull FluidStack drain(@NotNull FluidStack resource, @NotNull FluidAction action) {
-        return super.drain(resource, action);
+    public @NotNull FluidStack drain(int maxDrain, @NotNull FluidAction action) {
+        FluidStack stack = super.drain(maxDrain, action);
+        return stack;
     }
 
 

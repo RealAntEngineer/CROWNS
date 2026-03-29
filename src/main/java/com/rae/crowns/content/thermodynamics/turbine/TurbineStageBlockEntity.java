@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+@SuppressWarnings("RedundantMethodOverride")
 public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implements ISteamPressureChange {
     public int initialTicks;
     //the turbine add itself to the SteamCurrent
@@ -39,24 +40,6 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
         super(type, pos, state);
         setLazyTickRate(10);
         initialTicks = 3;
-    }
-
-    @SuppressWarnings("RedundantMethodOverride")
-    @Override
-    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
-
-    }
-
-    @Override
-    public boolean isSource() {
-        return true;
-    }
-
-    @Override
-    public float getGeneratedSpeed() {
-        //if flows is empty and power!=0 it means that the BE is being loaded, we need to trust only the power in that case
-        //so there is no need to check for the flows.
-        return power.getValue() == 0 ? 0 : Math.min(CROWNSConfigs.SERVER.kinetics.turbineSpeed.get(), AllConfigs.server().kinetics.maxRotationSpeed.get()); // * direction du flux
     }
 
     @Override
@@ -73,8 +56,35 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     }
 
     @Override
-    public float pressureRatio() {
-        return 0.5f;
+    protected void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
+        compound.putFloat("power", power.getValue());
+        compound.putInt("index", index);
+
+        super.write(compound, registries, clientPacket);
+    }
+
+    @Override
+    protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
+        super.read(compound, registries, clientPacket);
+        power.setValue(compound.getFloat("power"));
+        index = compound.getInt("index");
+    }
+
+    @Override
+    public float getGeneratedSpeed() {
+        //if flows is empty and power!=0 it means that the BE is being loaded, we need to trust only the power in that case
+        //so there is no need to check for the flows.
+        return power.getValue() == 0 ? 0 : Math.min(CROWNSConfigs.SERVER.kinetics.turbineSpeed.get(), AllConfigs.server().kinetics.maxRotationSpeed.get()); // * direction du flux
+    }
+
+    @Override
+    public boolean isSource() {
+        return true;
+    }
+
+    @Override
+    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+
     }
 
     @Override
@@ -88,9 +98,28 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     }
 
     @Override
+    protected boolean isNoisy() {
+        return true;
+    }
+
+    @Override
+    public float pressureRatio() {
+        return 0.5f;
+    }
+
+    @Override
     public void tick() {
         super.tick();
         power.tickChaser();
+    }
+
+    @Override
+    public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
+        super.addToGoggleTooltip(tooltip, isPlayerSneaking);
+        CreateLang.builder().add(Component.literal("stage number " + index))
+                .style(ChatFormatting.DARK_RED)
+                .forGoggles(tooltip, 1);
+        return true;
     }
 
     @Override
@@ -101,13 +130,13 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
         AABB bound = new AABB(worldPosition);
         List<Direction.Axis> plane = Arrays.stream(Direction.Axis.values()).filter(
                 (axis -> !axis.test(getBlockState().getValue(TurbineStageBlock.FACING)))).toList();
-        bound = bound.expandTowards(Vec3.atLowerCornerOf(Direction.get(Direction.AxisDirection.NEGATIVE,plane.get(0))
+        bound = bound.expandTowards(Vec3.atLowerCornerOf(Direction.get(Direction.AxisDirection.NEGATIVE, plane.get(0))
                 .getNormal()));
-        bound = bound.expandTowards(Vec3.atLowerCornerOf(Direction.get(Direction.AxisDirection.POSITIVE,plane.get(0))
+        bound = bound.expandTowards(Vec3.atLowerCornerOf(Direction.get(Direction.AxisDirection.POSITIVE, plane.get(0))
                 .getNormal()));
-        bound = bound.expandTowards(Vec3.atLowerCornerOf(Direction.get(Direction.AxisDirection.NEGATIVE,plane.get(1))
+        bound = bound.expandTowards(Vec3.atLowerCornerOf(Direction.get(Direction.AxisDirection.NEGATIVE, plane.get(1))
                 .getNormal()));
-        bound = bound.expandTowards(Vec3.atLowerCornerOf(Direction.get(Direction.AxisDirection.POSITIVE,plane.get(1))
+        bound = bound.expandTowards(Vec3.atLowerCornerOf(Direction.get(Direction.AxisDirection.POSITIVE, plane.get(1))
                 .getNormal()));
 
         flows = SteamFlowManager.getCurrentsInBounds((ServerLevel) level, bound);//level.getEntitiesOfClass(SteamCurrent.class, bound);
@@ -120,34 +149,5 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
         power.chaseTimed(newPower.get(), 20);
 
         updateGeneratedRotation();
-    }
-
-    @Override
-    protected boolean isNoisy() {
-        return true;
-    }
-
-    @Override
-    protected void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-        compound.putFloat("power", power.getValue());
-        compound.putInt("index", index);
-
-        super.write(compound,registries, clientPacket);
-    }
-
-    @Override
-    protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-        super.read(compound,registries, clientPacket);
-        power.setValue(compound.getFloat("power"));
-        index = compound.getInt("index");
-    }
-
-    @Override
-    public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
-        super.addToGoggleTooltip(tooltip, isPlayerSneaking);
-        CreateLang.builder().add(Component.literal("stage number "+ index))
-                .style(ChatFormatting.DARK_RED)
-                .forGoggles(tooltip, 1);
-        return true;
     }
 }

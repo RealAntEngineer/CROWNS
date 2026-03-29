@@ -275,7 +275,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         setComposition(tag.getCompound("composition"));
         super.read(tag,registries, clientPacket);
     }
-
     @Override
     public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
 
