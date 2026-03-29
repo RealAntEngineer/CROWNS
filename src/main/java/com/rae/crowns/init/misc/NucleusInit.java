@@ -24,34 +24,34 @@ public class NucleusInit {
 
     // Delayed neutron precursor groups (DN1..DN6)
     @NotNull Nucleus DN1 = new Nucleus(
-            8001,0, 0,
+            8001, 0, 0,
             new Nucleus.NuclearEquation(Map.of(), 1f, 0f), // emits 1 neutron
             55.6f * 20f // ~1112 ticks
     );
 
     @NotNull Nucleus DN2 = new Nucleus(
-            8002,0, 0,
+            8002, 0, 0,
             new Nucleus.NuclearEquation(Map.of(), 1f, 0f),
             22.7f * 20f // ~454 ticks
     );
 
     @NotNull Nucleus DN3 = new Nucleus(
-            8002, 0,0,
+            8002, 0, 0,
             new Nucleus.NuclearEquation(Map.of(), 1f, 0f),
             6.2f * 20f // ~454 ticks
     );
     @NotNull Nucleus DN4 = new Nucleus(
-            8002,0, 0,
+            8002, 0, 0,
             new Nucleus.NuclearEquation(Map.of(), 1f, 0f),
             2.3f * 20f // ~454 ticks
     );
     @NotNull Nucleus DN5 = new Nucleus(
-            8002, 0,0,
+            8002, 0, 0,
             new Nucleus.NuclearEquation(Map.of(), 1f, 0f),
             0.61f * 20f // ~454 ticks
     );
     @NotNull Nucleus DN6 = new Nucleus(
-            8002, 0,0,
+            8002, 0, 0,
             new Nucleus.NuclearEquation(Map.of(), 1f, 0f),
             0.23f * 20f // ~454 ticks
     );

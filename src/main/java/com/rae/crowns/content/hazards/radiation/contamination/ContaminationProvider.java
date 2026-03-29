@@ -13,7 +13,8 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 
 public class ContaminationProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
-    public static final Capability<IContamination> capability = CapabilityManager.get(new CapabilityToken<>() {});
+    public static final Capability<IContamination> capability = CapabilityManager.get(new CapabilityToken<>() {
+    });
 
     private final IContamination instance = new Contamination();
     private final LazyOptional<IContamination> optional = LazyOptional.of(() -> instance);

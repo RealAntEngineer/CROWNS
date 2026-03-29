@@ -45,11 +45,6 @@ public class SolidCoriumBlock extends Block {
         super.attack(p_55467_, p_55468_, p_55469_, p_55470_);
     }
 
-    private static void interact(@NotNull BlockState p_55493_, @NotNull Level p_55494_, @NotNull BlockPos p_55495_) {
-        spawnParticles(p_55494_, p_55495_);
-
-    }
-
     private static void spawnParticles(@NotNull Level level, @NotNull BlockPos pos) {
         double d0 = 0.5625D;
         RandomSource randomsource = level.random;
@@ -64,6 +59,11 @@ public class SolidCoriumBlock extends Block {
                 level.addParticle(new DustColorTransitionOptions(Vec3.fromRGB24(0xec8f28).toVector3f(), Vec3.fromRGB24(0x0cd628).toVector3f(), 1.0F), (double) pos.getX() + d1, (double) pos.getY() + d2, (double) pos.getZ() + d3, 0.0D, 0.0D, 0.0D);
             }
         }
+
+    }
+
+    private static void interact(@NotNull BlockState p_55493_, @NotNull Level p_55494_, @NotNull BlockPos p_55495_) {
+        spawnParticles(p_55494_, p_55495_);
 
     }
 

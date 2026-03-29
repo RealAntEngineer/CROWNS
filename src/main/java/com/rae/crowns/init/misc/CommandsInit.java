@@ -141,7 +141,7 @@ public class CommandsInit {
                                 Commands.argument("value", FloatArgumentType.floatArg(0))
                                         .executes(
                                                 context -> {
-                                                ContaminationUtil.setContamination(EntityArgument.getPlayer(context, "player"), FloatArgumentType.getFloat(context, "value"));
+                                                    ContaminationUtil.setContamination(EntityArgument.getPlayer(context, "player"), FloatArgumentType.getFloat(context, "value"));
 
                                                     return Command.SINGLE_SUCCESS;
                                                 }

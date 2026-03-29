@@ -5,6 +5,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class UraniumBlocks {
     public static class DepletedUraniumBlock extends Block {
-        public DepletedUraniumBlock(@NotNull Properties properties) { super(properties); }
+        public DepletedUraniumBlock(@NotNull Properties properties) {
+            super(properties);
+        }
     }
 }

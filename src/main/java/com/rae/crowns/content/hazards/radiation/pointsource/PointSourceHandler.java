@@ -23,8 +23,9 @@ public class PointSourceHandler {
 
     /**
      * Emits and applies radiation from a block using a SpecialContainer to all players within 64 blocks
-     * @param level Level where it does the thing
-     * @param origin BlockPos from which radiation is being emitted
+     *
+     * @param level     Level where it does the thing
+     * @param origin    BlockPos from which radiation is being emitted
      * @param container SpecialContainer for the radiation event
      */
     public static void emitRadiation(@NotNull Level level, BlockPos origin, ItemRadiation.SpecialContainer container) {

@@ -26,13 +26,13 @@ public class HazardData {
         return this;
     }
 
+    public int getMutex() {
+        return mutexBits;
+    }
+
     public HazardData setMutex(int mutex) {
         this.mutexBits = mutex;
         return this;
-    }
-
-    public int getMutex() {
-        return mutexBits;
     }
 }
 
