@@ -15,14 +15,14 @@ public class HazardData {
      */
     int mutexBits = 0b0000_0000_0000_0000_0000_0000_0000_0000;
 
-    List<HazardEntry> entries = new ArrayList<>();
+    HazardEntry entry;
 
     public HazardData addEntry(ItemRadiation.DecayContainer entry) {
         return this.addEntry(entry, false);
     }
 
     public HazardData addEntry(ItemRadiation.DecayContainer hazard, boolean override) {
-        this.entries.add(new HazardEntry(hazard));
+        this.entry = new HazardEntry(hazard);
         this.doesOverride = override;
         return this;
     }

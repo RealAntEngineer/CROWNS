@@ -4,8 +4,8 @@ import com.rae.crowns.content.hazards.radiation.types.*;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 public class HazardEntry implements Cloneable {
-    ItemRadiation.DecayContainer container;
-    // Oh lord
+    public ItemRadiation.DecayContainer container;
+
     RadiationTypeElectromagnetic RadTypeEM = new RadiationTypeElectromagnetic();
     RadiationTypeBetaPlus RadTypeBetaPlus = new RadiationTypeBetaPlus();
     RadiationTypeBetaMinus RadTypeBetaMinus = new RadiationTypeBetaMinus();

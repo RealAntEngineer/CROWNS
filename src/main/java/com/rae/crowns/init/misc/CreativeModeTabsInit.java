@@ -40,6 +40,7 @@ public class CreativeModeTabsInit {
                                 output.accept(BlockInit.SOLID_CORIUM);
                                 output.accept(BlockInit.DEEP_URANIUM_ORE);
                                 output.accept(BlockInit.URANIUM_ORE);
+                                output.accept(BlockInit.REACTOR_CASING);
                                 output.accept(ItemInit.RAW_URANIUM);
                                 output.accept(ItemInit.URANIUM_INGOT);
                                 output.accept(ItemInit.NATURAL_URANIUM_NUGGET);

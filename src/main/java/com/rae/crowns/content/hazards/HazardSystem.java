@@ -5,6 +5,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent;
@@ -14,6 +15,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Mod.EventBusSubscriber
 public class HazardSystem {
@@ -21,7 +23,10 @@ public class HazardSystem {
     public static final HashMap<Item, HazardData> itemMap = new HashMap<>();
 
     public static void register(Object o, HazardData data) {
-        itemMap.put((Item)o, data);
+        if (o instanceof Item)
+            itemMap.put((Item)o, data);
+        if (o instanceof Block)
+            itemMap.put(((Block) o).asItem(), data);
     }
 
     public static List<HazardEntry> getEntriesFromStack(ItemStack stack) {
@@ -38,7 +43,7 @@ public class HazardSystem {
                 entries.clear();
 
             if ((data.getMutex() & mutex) == 0) {
-                entries.addAll(data.entries);
+                entries.add(data.entry);
                 mutex |= data.getMutex();
             }
         }
@@ -68,6 +73,14 @@ public class HazardSystem {
         }
 
         // Radiation won't apply to offhand yet but i'll soon fix that
+    }
+
+    public static Optional<HazardEntry> getOptionalEntryFromItem(Item item) {
+        return Optional.ofNullable(itemMap.get(item)).map(data -> data.entry);
+    }
+
+    public static Optional<HazardEntry> getOptionalEntryFromBlock(Block block) {
+        return getOptionalEntryFromItem(block.asItem());
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -103,7 +116,7 @@ public class HazardSystem {
             if (stack.getCount() > 1) {
                 list.add("");
                 list.add(" §eStack: " + FormicApiLang.numberWithSymbol(entry.container.specific_activity*stack.getCount()).component().getString() + "Bq");
-                list.add(" §dStack prompt gammas: " + FormicApiLang.numberWithSymbol(entry.container.multiply(stack.getCount()).getReontgen(0.1D)).component().getString() + "R/s");
+                list.add(" §dStack prompt gammas: " + FormicApiLang.numberWithSymbol(entry.container.multiply(stack.getCount()).getReontgen(0.01D)).component().getString() + "R/s");
             }
         }
     }

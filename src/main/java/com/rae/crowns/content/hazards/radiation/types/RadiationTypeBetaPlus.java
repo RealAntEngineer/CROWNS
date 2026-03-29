@@ -19,6 +19,6 @@ public class RadiationTypeBetaPlus extends RadiationTypeBase {
     @Override
     public void onUpdate(LivingEntity target, ItemRadiation.DecayContainer container, ItemStack stack) {
         // Aka gamma emitter 2.0
-        ContaminationUtil.addContamination(target, getReontgen(0.1D, container.specific_activity * container.beta_plus));
+        ContaminationUtil.addContamination(target, getReontgen(0.01D, container.specific_activity * container.beta_plus));
     }
 }

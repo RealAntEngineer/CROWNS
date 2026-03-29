@@ -26,12 +26,15 @@ public class HazardInit {
 
     public static void registerItems() {
         // Ore
-        HazardSystem.register(ItemInit.RAW_URANIUM.get(), makeData(pa233));
+        HazardSystem.register(ItemInit.RAW_URANIUM.get(), makeData(raw_uranium));
 
         // Ingots
         HazardSystem.register(ItemInit.DEPLETED_URANIUM_INGOT.get(), makeData(u238));
         HazardSystem.register(ItemInit.URANIUM_INGOT.get(), makeData(nu));
         HazardSystem.register(ItemInit.ENRICHED_URANIUM_INGOT.get(), makeData(u235));
+
+        // Blocks
+        HazardSystem.register(BlockInit.DEEP_URANIUM_ORE.get(), makeData(raw_uranium));
     }
 
     public static void register(final FMLCommonSetupEvent event) {

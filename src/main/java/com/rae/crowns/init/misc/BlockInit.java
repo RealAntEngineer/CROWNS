@@ -1,5 +1,6 @@
 package com.rae.crowns.init.misc;
 
+import com.rae.crowns.content.blocks.ReactorCasing;
 import com.rae.crowns.content.nuclear.corium.SolidCoriumBlock;
 import com.rae.crowns.content.nuclear.display.ReactorMonitorBlock;
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
@@ -131,6 +132,13 @@ public class BlockInit {
             .block("solid_corium", SolidCoriumBlock::new)
             .initialProperties(SharedProperties::stone)
             .properties(p -> p.lightLevel((blockState) -> 9).strength(4, 4))
+            .item()
+            .build()
+            .register();
+
+    public static final BlockEntry<ReactorCasing> REACTOR_CASING = REGISTRATE
+            .block("reactor_casing", ReactorCasing::new)
+            .initialProperties(SharedProperties::softMetal)
             .item()
             .build()
             .register();
