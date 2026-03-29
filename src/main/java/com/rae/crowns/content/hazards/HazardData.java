@@ -1,7 +1,6 @@
 package com.rae.crowns.content.hazards;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.rae.crowns.content.hazards.radiation.ItemRadiation;
 
 public class HazardData {
     boolean doesOverride = false;

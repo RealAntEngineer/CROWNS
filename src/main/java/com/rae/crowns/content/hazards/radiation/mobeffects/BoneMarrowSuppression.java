@@ -1,4 +1,4 @@
-package com.rae.crowns.content.hazards.radiation.effects;
+package com.rae.crowns.content.hazards.radiation.mobeffects;
 
 import com.rae.crowns.init.misc.EffectsInit;
 import net.minecraft.world.effect.MobEffectInstance;

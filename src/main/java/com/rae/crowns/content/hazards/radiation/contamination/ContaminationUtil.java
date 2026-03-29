@@ -1,4 +1,4 @@
-package com.rae.crowns.content.hazards.radiation;
+package com.rae.crowns.content.hazards.radiation.contamination;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.util.LazyOptional;

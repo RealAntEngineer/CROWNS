@@ -1,4 +1,4 @@
-package com.rae.crowns.content.hazards.radiation;
+package com.rae.crowns.content.hazards.radiation.contamination;
 
 public class Contamination implements IContamination {
     private double contamination = 0;

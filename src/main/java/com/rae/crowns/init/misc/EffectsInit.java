@@ -1,7 +1,7 @@
 package com.rae.crowns.init.misc;
 
-import com.rae.crowns.content.hazards.radiation.effects.EffectBoneMarrowSuppression;
-import com.rae.crowns.content.hazards.radiation.effects.EffectDamagedSkin;
+import com.rae.crowns.content.hazards.radiation.mobeffects.EffectBoneMarrowSuppression;
+import com.rae.crowns.content.hazards.radiation.mobeffects.EffectDamagedSkin;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
