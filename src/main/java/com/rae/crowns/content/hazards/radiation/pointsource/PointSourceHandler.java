@@ -11,6 +11,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,31 @@ import java.util.HashMap;
 // Handles block radiation
 @Mod.EventBusSubscriber
 public class PointSourceHandler {
+
+    /**
+     * Emits and applies radiation from a block using a SpecialContainer to all players within 64 blocks
+     * @param level Level where it does the thing
+     * @param origin BlockPos from which radiation is being emitted
+     * @param container SpecialContainer for the radiation event
+     */
+    public static void emitRadiation(@NotNull Level level, BlockPos origin, ItemRadiation.SpecialContainer container) {
+        for (Player player : level.getServer().getPlayerList().getPlayers()) {
+            Vec3 vecDistance = player.position().subtract(origin.getCenter());
+            double distance = vecDistance.length();
+            if (distance >= 128) continue;
+
+            ArrayList<BlockPos> positions = PointSourceUtil.getBresenhamLine(player.blockPosition(), origin);
+            boolean blocked = false;
+
+            for (BlockPos pos : positions) {
+                if (level.getBlockState(pos).is(BlockInit.REACTOR_CASING.get())) blocked = true;
+            }
+            if (blocked) continue;
+
+            ContaminationUtil.addContamination(player, (container.getRoentgen(distance) * 0.0096) / 20);
+        }
+    }
+
     @SubscribeEvent
     public static void onTick(TickEvent.PlayerTickEvent event) {
         Player player = event.player;
@@ -39,7 +65,7 @@ public class PointSourceHandler {
             Vec3 vecDistance = player.position().subtract(pos.getCenter());
             double distance = vecDistance.length();
 
-            ContaminationUtil.addContamination(player, (container.getReontgen(distance) * 0.0096) / 20);
+            ContaminationUtil.addContamination(player, (container.getRoentgen(distance) * 0.0096) / 20);
         }
     }
 }

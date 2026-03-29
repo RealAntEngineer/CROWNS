@@ -50,10 +50,34 @@ public class ItemRadiation {
             return (getGammas() * daughter_excited) / (4*Math.PI*Math.pow(distance, 2));
         }
 
-        public double getReontgen(double distance) { // in R/s
+        public double getRoentgen(double distance) { // in R/s
             final double airMassAbsorptionCoefficient = 0.029D;
 
             return getEnergyFluence(distance) * airMassAbsorptionCoefficient * (1.828e-11); // I forgot what this constant does
         } // 3.6 roentgens. Not great, not terrible
+    }
+
+    /**
+     * Use for special radiation, this is currently only used by fission
+     */
+    public static class SpecialContainer {
+        public double intensity; // Gammas per event
+
+        public double gamma_energy;
+
+        public SpecialContainer(double intensity, double gamma_energy) {
+            this.intensity = intensity;
+            this.gamma_energy = gamma_energy;
+        }
+
+        public double getEnergyFluence(double distance) {
+            return (intensity * gamma_energy) / (4*Math.PI*Math.pow(distance, 2));
+        }
+
+        public double getRoentgen(double distance) { // in R/s
+            final double airMassAbsorptionCoefficient = 0.029D;
+
+            return getEnergyFluence(distance) * airMassAbsorptionCoefficient * (1.828e-11); // I forgot what this constant does
+        }
     }
 }

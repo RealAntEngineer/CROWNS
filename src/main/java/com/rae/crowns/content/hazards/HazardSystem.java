@@ -110,13 +110,13 @@ public class HazardSystem {
 
             if (entry.container.branching_ratio != 0) {
                 list.add("");
-                list.add(" §dPrompt gammas: " + FormicApiLang.numberWithSymbol(entry.container.getReontgen(0.1D)).component().getString() + "R/s");
+                list.add(" §dPrompt gammas: " + FormicApiLang.numberWithSymbol(entry.container.getRoentgen(0.1D)).component().getString() + "R/s");
             }
 
             if (stack.getCount() > 1) {
                 list.add("");
                 list.add(" §eStack: " + FormicApiLang.numberWithSymbol(entry.container.specific_activity*stack.getCount()).component().getString() + "Bq");
-                list.add(" §dStack prompt gammas: " + FormicApiLang.numberWithSymbol(entry.container.multiply(stack.getCount()).getReontgen(0.01D)).component().getString() + "R/s");
+                list.add(" §dStack prompt gammas: " + FormicApiLang.numberWithSymbol(entry.container.multiply(stack.getCount()).getRoentgen(0.01D)).component().getString() + "R/s");
             }
         }
     }

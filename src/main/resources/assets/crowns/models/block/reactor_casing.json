@@ -1,6 +1,7 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube_column",
   "textures": {
-    "all": "crowns:block/palettes/reactor_casing"
+    "side": "crowns:block/reactor_casing",
+    "end": "crowns:block/reactor_casing_top"
   }
 }
