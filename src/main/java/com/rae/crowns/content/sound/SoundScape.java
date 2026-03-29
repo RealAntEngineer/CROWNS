@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-class SoundScape {
+public class SoundScape {
     private final float pitch;
     private final CrownsSoundScapes.AmbienceGroup group;
     private final CrownsSoundScapes.PitchGroup pitchGroup;
