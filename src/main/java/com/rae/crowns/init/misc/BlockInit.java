@@ -1,5 +1,7 @@
 package com.rae.crowns.init.misc;
 
+import com.rae.crowns.content.blocks.ReactorCasing;
+import com.rae.crowns.content.blocks.UraniumBlocks;
 import com.rae.crowns.content.nuclear.corium.SolidCoriumBlock;
 import com.rae.crowns.content.nuclear.display.ReactorMonitorBlock;
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
@@ -11,6 +13,8 @@ import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlock;
 import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
 import com.rae.formicapi.content.multiblock.MBItem;
 import com.rae.formicapi.content.multiblock.MBStructureBlock;
+import com.simibubi.create.foundation.block.connected.ConnectedTextureBehaviour;
+import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import net.minecraft.world.level.block.Blocks;
@@ -127,10 +131,24 @@ public class BlockInit {
             .build()
             .register();
 
+    public static final BlockEntry<UraniumBlocks.DepletedUraniumBlock> DEPLETED_URANIUM_BLOCK = REGISTRATE
+            .block("depleted_uranium_block", UraniumBlocks.DepletedUraniumBlock::new)
+            .initialProperties(SharedProperties::stone)
+            .item()
+            .build()
+            .register();
+
     public static final BlockEntry<SolidCoriumBlock> SOLID_CORIUM = REGISTRATE
             .block("solid_corium", SolidCoriumBlock::new)
             .initialProperties(SharedProperties::stone)
             .properties(p -> p.lightLevel((blockState) -> 9).strength(4, 4))
+            .item()
+            .build()
+            .register();
+
+    public static final BlockEntry<ReactorCasing> REACTOR_CASING = REGISTRATE
+            .block("reactor_casing", ReactorCasing::new)
+            .initialProperties(SharedProperties::softMetal)
             .item()
             .build()
             .register();

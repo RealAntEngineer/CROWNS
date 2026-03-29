@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "crowns:depleted_uranium_block"
+    }
+  ],
+  "result": {
+    "item": "crowns:depleted_uranium_ingot",
+    "count": 9
+  }
+}

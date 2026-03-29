@@ -10,6 +10,10 @@
   "block.crowns.turbine_stage_structure": "Turbine Stage Structure",
   "block.crowns.compressor": "Compressor",
 
+  "block.crowns.depleted_uranium_block": "Depleted Uranium Block",
+  "block.crowns.solid_corium": "Corebblestone",
+  "block.crowns.reactor_casing": "Reactor Casing",
+
   "item.crowns.uranium_ingot": "Natural Uranium Ingot",
   "item.crowns.natural_uranium_nugget": "Natural Uranium Nugget",
   "item.crowns.depleted_uranium_ingot": "Depleted Uranium Ingot",
@@ -22,12 +26,15 @@
   "item.crowns.fuel_rod": "Fuel Rod",
 
   "item.crowns.raw_uranium": "Raw Uranium",
+  "item.crowns.dosimeter": "Dosimeter",
 
   "fluid.crowns.corium": "Corium",
   "fluid.crowns.uranium_hexafluoride": "Uranium Hexafluoride",
 
   "itemGroup.crowns.nuclear": "CROWNS",
 
+  "effect.crowns.bone_marrow_suppression": "§4Bone Marrow Suppression",
+  "effect.crowns.radiodermatitis": "Damaged Skin",
 
   "crowns.ponder.nuclear_basics.header": "Nuclear Reactors",
   "crowns.ponder.nuclear_basics.text_1": "Nuclear Fuel naturally produces fast neutrons",
@@ -88,6 +95,7 @@
   "nucleus.crowns.u238": "Uranium 238",
   "nucleus.crowns.p239": "Plutonium 239",
 
+  "death.attack.crowns.radiation": "%s died from radiation poisoning",
   "death.attack.crowns.high_temperature": "%s got cooked to death",
   "death.attack.crowns.low_temperature": "%s got turned into an ice cube"
 }

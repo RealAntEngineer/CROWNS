@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "minecraft:gold_ingot"
+    },
+    "X": {
+      "item": "minecraft:quartz"
+    },
+    "Y": {
+      "item": "minecraft:glass"
+    },
+    "Z": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+  "#Y#",
+  "#X#",
+  "#Z#"
+],
+  "result": {
+    "item": "crowns:dosimeter"
+  }
+}

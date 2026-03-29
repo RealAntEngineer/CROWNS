@@ -21,6 +21,9 @@ public class DamageSourceInit {
     public static final ResourceKey<DamageType>
             LOW_TEMPERATURE = key("low_temperature");
 
+    public static final ResourceKey<DamageType>
+            RADIATION = key("radiation");
+
     private static @NotNull ResourceKey<DamageType> key(@NotNull String name) {
         return ResourceKey.create(Registries.DAMAGE_TYPE, CROWNS.resource(name));
     }
@@ -36,6 +39,10 @@ public class DamageSourceInit {
 
     public static @NotNull DamageSource freezing(@NotNull Level level) {
         return source(DamageSourceInit.LOW_TEMPERATURE, level);
+    }
+
+    public static @NotNull DamageSource radiation(@NotNull Level level) {
+        return source(DamageSourceInit.RADIATION, level);
     }
 
     private static @NotNull DamageSource source(@NotNull ResourceKey<DamageType> key, @NotNull LevelReader level, @Nullable Entity entity) {
