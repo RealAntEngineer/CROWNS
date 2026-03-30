@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.rae.crowns.content.nuclear.IAmFissileMaterial;
 import com.rae.crowns.content.rendering.VolumeWorldRenderer;
+import com.rae.crowns.content.rendering.overlays.GuiOverlays;
 import com.rae.crowns.content.rendering.util.SceneDepth;
 import com.rae.crowns.content.sound.CrownsSoundScapes;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
@@ -13,6 +14,7 @@ import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -21,7 +23,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -56,6 +60,20 @@ public class ClientEvents {
 
     protected static boolean isGameActive() {
         return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
+    }
+
+    @SubscribeEvent
+    public static void renderGuiOverlays(RenderGuiOverlayEvent.Post event) {
+        Minecraft mc = Minecraft.getInstance();
+
+        if (mc.player == null) return;
+
+        GuiGraphics guiGraphics = event.getGuiGraphics();
+
+        // Render once per frame
+        if (!event.getOverlay().id().equals(VanillaGuiOverlay.HOTBAR.id())) return;
+
+        GuiOverlays.dosimeterGuiOverlay(guiGraphics, mc);
     }
 
     @SubscribeEvent
