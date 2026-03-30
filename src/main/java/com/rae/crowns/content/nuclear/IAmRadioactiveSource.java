@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.createmod.catnip.data.Couple;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -49,6 +48,28 @@ public interface IAmRadioactiveSource {
         return reactivity;
     }
 
+    default int impactEnv(@NotNull BlockPos pos, @NotNull Level level, @NotNull Double range) {
+        float fastNeutrons = getRadioactiveActivity();
+        float slowNeutrons = 0f;
+        int rays = 0;
+        //should impact itself
+        List<BlockPos> frontier = RayTraceUtil.getSphereSurface(BlockPos.ZERO, range.intValue(), true);
+        double rangeInverse = 1 / range;
+        for (BlockPos frontierPos : frontier) {
+
+            Vec3 vec = new Vec3(frontierPos.getX(), frontierPos.getY(), frontierPos.getZ()).scale(rangeInverse);
+            traceNeutron(pos, level, range, vec, fastNeutrons);
+            rays++;
+
+        }
+        return rays;
+    }
+
+    /**
+     * @return an amount of neutron/tick
+     */
+    float getRadioactiveActivity();
+
     /**
      * make radiation impact the environment
      *
@@ -68,7 +89,7 @@ public interface IAmRadioactiveSource {
         double cy = pos.getY();
         double cz = pos.getZ();
 
-        float fast = (float)(50 * fastNeutrons / (4 * Math.PI * range * range));
+        float fast = (float) (50 * fastNeutrons / (4 * Math.PI * range * range));
         float thermal = 0f;
 
         BlockPos.MutableBlockPos child = new BlockPos.MutableBlockPos();
@@ -113,27 +134,6 @@ public interface IAmRadioactiveSource {
         }
     }
 
-    /**
-     * @return an amount of neutron/tick
-     */
-    float getRadioactiveActivity();
-
-    default int impactEnv(@NotNull BlockPos pos, @NotNull Level level, @NotNull Double range) {
-        float fastNeutrons = getRadioactiveActivity();
-        float slowNeutrons = 0f;
-        int rays = 0;
-        //should impact itself
-        List<BlockPos> frontier = RayTraceUtil.getSphereSurface(BlockPos.ZERO, range.intValue(), true);
-        double rangeInverse = 1/range;
-        for (BlockPos frontierPos : frontier) {
-
-            Vec3 vec = new Vec3(frontierPos.getX(), frontierPos.getY(), frontierPos.getZ()).scale(rangeInverse);
-            traceNeutron(pos, level, range, vec, fastNeutrons);
-            rays++;
-
-        }
-        return rays;
-    }
     //inline ray tracing for radiation
     default int moreOptimizedImpactEnv(@NotNull BlockPos pos, @NotNull Level level, @NotNull Double range) {
 
@@ -164,7 +164,7 @@ public interface IAmRadioactiveSource {
             double cy = pos.getY();
             double cz = pos.getZ();
 
-            float fast = (float)(50 * fastNeutrons / (4 * Math.PI * range * range));
+            float fast = (float) (50 * fastNeutrons / (4 * Math.PI * range * range));
             float thermal = 0f;
 
             for (int i = 0; i < steps; i++) {

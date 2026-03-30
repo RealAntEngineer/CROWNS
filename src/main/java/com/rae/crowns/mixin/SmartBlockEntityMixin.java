@@ -21,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class SmartBlockEntityMixin {
     @Unique
     boolean cROWNS_1_20_1$registrationDone = false;
+
     /**
      * Called after {@link SmartBlockEntity#tick()}.
      * Registers temperature-aware entities into {@link PhysicsWorldData}.
@@ -28,14 +29,14 @@ public abstract class SmartBlockEntityMixin {
      */
     @Inject(method = "tick", at = @At("TAIL"), remap = false)
     private void onTick(CallbackInfo ci) {
-        SmartBlockEntity self = (SmartBlockEntity)(Object)this;
+        SmartBlockEntity self = (SmartBlockEntity) (Object) this;
         if (cROWNS_1_20_1$registrationDone) return;
 
         if (self instanceof IHaveTemperature ht && self.getLevel() instanceof ServerLevel serverLevel) {
             PhysicsWorldData data = PhysicsSaveManager.get(serverLevel);
             BlockPos pos = self.getBlockPos();
             SectionPos sectionPos = SectionPos.of(pos);
-            if (data!=null && PhysicsSaveManager.isLoaded(serverLevel.dimension(),SectionPos.asLong(pos))) {
+            if (data != null && PhysicsSaveManager.isLoaded(serverLevel.dimension(), SectionPos.asLong(pos))) {
                 data.putDynamic(self.getBlockPos(), ht);
                 cROWNS_1_20_1$registrationDone = true;
             }
@@ -48,7 +49,7 @@ public abstract class SmartBlockEntityMixin {
      */
     @Inject(method = "destroy", at = @At("TAIL"), remap = false)
     private void onDestroy(CallbackInfo ci) {
-        SmartBlockEntity self = (SmartBlockEntity)(Object)this;
+        SmartBlockEntity self = (SmartBlockEntity) (Object) this;
 
         if (self instanceof IHaveTemperature && self.getLevel() instanceof ServerLevel serverLevel) {
             PhysicsWorldData data = PhysicsSaveManager.get(serverLevel);

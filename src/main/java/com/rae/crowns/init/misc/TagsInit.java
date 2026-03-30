@@ -72,10 +72,6 @@ public class TagsInit extends AllTags {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomBlockTags(@NotNull CustomNameSpace namespace, String path) {
-            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
-        }
-
         CustomBlockTags(@NotNull CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
             this(namespace, null, optional, alwaysDatagen);
         }
@@ -90,17 +86,21 @@ public class TagsInit extends AllTags {
             this.alwaysDatagen = alwaysDatagen;
         }
 
+        CustomBlockTags(@NotNull CustomNameSpace namespace, String path) {
+            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
+        }
+
         private static void init() {
+        }
+
+        public boolean matches(@Nullable ItemStack stack) {
+            return stack != null && stack.getItem() instanceof BlockItem blockItem && matches(blockItem.getBlock());
         }
 
         @SuppressWarnings("deprecation")
         public boolean matches(@NotNull Block block) {
             return block.builtInRegistryHolder()
                     .is(tag);
-        }
-
-        public boolean matches(@Nullable ItemStack stack) {
-            return stack != null && stack.getItem() instanceof BlockItem blockItem && matches(blockItem.getBlock());
         }
 
         public boolean matches(@NotNull BlockState state) {
@@ -119,16 +119,8 @@ public class TagsInit extends AllTags {
             this(CustomNameSpace.MOD);
         }
 
-        CustomItemTags(String path) {
-            this(CustomNameSpace.MOD, path);
-        }
-
         CustomItemTags(@NotNull CustomNameSpace namespace) {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
-        }
-
-        CustomItemTags(@NotNull CustomNameSpace namespace, String path) {
-            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
         CustomItemTags(@NotNull CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
@@ -143,6 +135,14 @@ public class TagsInit extends AllTags {
                 tag = ItemTags.create(id);
             }
             this.alwaysDatagen = alwaysDatagen;
+        }
+
+        CustomItemTags(String path) {
+            this(CustomNameSpace.MOD, path);
+        }
+
+        CustomItemTags(@NotNull CustomNameSpace namespace, String path) {
+            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
         private static void init() {
@@ -174,10 +174,6 @@ public class TagsInit extends AllTags {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomEntityTag(@NotNull CustomNameSpace namespace, String path) {
-            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
-        }
-
         CustomEntityTag(@NotNull CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
             this(namespace, null, optional, alwaysDatagen);
         }
@@ -190,6 +186,10 @@ public class TagsInit extends AllTags {
                 tag = TagKey.create(Registries.ENTITY_TYPE, id);
             }
             this.alwaysDatagen = alwaysDatagen;
+        }
+
+        CustomEntityTag(@NotNull CustomNameSpace namespace, String path) {
+            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
         private static void init() {
@@ -216,10 +216,6 @@ public class TagsInit extends AllTags {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomFluidTags(@NotNull CustomNameSpace namespace, String path) {
-            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
-        }
-
         CustomFluidTags(@NotNull CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
             this(namespace, null, optional, alwaysDatagen);
         }
@@ -232,6 +228,10 @@ public class TagsInit extends AllTags {
                 tag = FluidTags.create(id);
             }
             this.alwaysDatagen = alwaysDatagen;
+        }
+
+        CustomFluidTags(@NotNull CustomNameSpace namespace, String path) {
+            this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
         private static void init() {

@@ -52,7 +52,7 @@ public class LocalPhysicData {
         return layer.get(localX, localY, localZ);
     }
 
-    public static @NotNull Set<SectionPos> getTickingSections(){
+    public static @NotNull Set<SectionPos> getTickingSections() {
         return tickingSections;
     }
 }

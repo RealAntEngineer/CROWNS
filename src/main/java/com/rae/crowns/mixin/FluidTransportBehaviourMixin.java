@@ -41,9 +41,6 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
         super(be);
     }
 
-    @Shadow(remap = false)
-    public abstract boolean canPullFluidFrom(FluidStack fluid, BlockState state, Direction direction);
-
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true, remap = false)
     public void replaceTick(@NotNull CallbackInfo ci) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         super.tick();
@@ -155,4 +152,7 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
             connection.tickFlowProgress(world, pos);
         ci.cancel();
     }
+
+    @Shadow(remap = false)
+    public abstract boolean canPullFluidFrom(FluidStack fluid, BlockState state, Direction direction);
 }

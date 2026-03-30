@@ -9,11 +9,11 @@ public class CROWNSKinetics extends ConfigBase {
     //public CROWNSStress stressValues  = nested(0, CROWNSStress::new, Comments.stress);
     public final ConfigBase.ConfigGroup turbineValues = group(0, "turbineValues", Comments.turbineStage);
     public final ConfigBase.ConfigFloat turbineCoefficient = f(1, 0, "turbineCoefficient", Comments.turbineCoefficient);
-    public final ConfigBase.ConfigFloat turbineIsentropicYield = f(1,0,1,"turbineIsentropicYield", Comments.turbineIsentropicYield);
+    public final ConfigBase.ConfigFloat turbineIsentropicYield = f(1, 0, 1, "turbineIsentropicYield", Comments.turbineIsentropicYield);
     public final ConfigBase.ConfigInt turbineSpeed = i(256, 1, "turbineSpeed", Comments.turbineSpeed);
 
     public final ConfigBase.ConfigGroup compressorValues = group(0, "compressorValues", Comments.compressorValues);
-    public final ConfigBase.ConfigFloat compressorIsentropicYield = f(1,0,1,"turbineIsentropicYield",  Comments.compressorIsentropicYield);
+    public final ConfigBase.ConfigFloat compressorIsentropicYield = f(1, 0, 1, "turbineIsentropicYield", Comments.compressorIsentropicYield);
     public final ConfigBase.ConfigFloat compressorFlowRef = f(512, 1, "compressorFlowRef", Comments.compressorFlowRef);
     public final ConfigBase.ConfigFloat compressorPressureRef = f(1e6f, 1, "compressorPressureRef", Comments.compressorPressureRef);
     public final ConfigBase.ConfigFloat compressorSpeedRef = f(64, 1, "compressorSpeedRef", Comments.compressorSpeedRef);

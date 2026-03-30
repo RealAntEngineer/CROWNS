@@ -37,25 +37,25 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onEntityTick(LivingEvent.@NotNull LivingTickEvent event) {
         LivingEntity entity = event.getEntity();
-        if (entity.level() instanceof  ServerLevel level) {
+        if (entity.level() instanceof ServerLevel level) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) entity.level());
             if (data == null) return;
             AtomicReference<Float> cumlTemp = new AtomicReference<>(0f);
             AtomicReference<Integer> numberOfTemps = new AtomicReference<>(0);
             BlockPos.betweenClosedStream(entity.getBoundingBox()).forEach(blockPos -> {
                 SectionPos sectionPos = SectionPos.of(blockPos);
-                cumlTemp.set(cumlTemp.get() + getTemperature(data.getLayer(DataLayerType.TEMPERATURE,sectionPos.asLong()),blockPos));
+                cumlTemp.set(cumlTemp.get() + getTemperature(data.getLayer(DataLayerType.TEMPERATURE, sectionPos.asLong()), blockPos));
                 numberOfTemps.set(numberOfTemps.get() + 1);
             });
 
             if (numberOfTemps.get() > 0) {
                 float temp = cumlTemp.get() / numberOfTemps.get();
-                if (temp > 450){
+                if (temp > 450) {
                     entity.hurt(DamageSourceInit.over_heat(level), 1.0f);
                     entity.setRemainingFireTicks(20);
                     //entity.lavaHurt();
                 }
-                if (temp < 200){
+                if (temp < 200) {
                     entity.hurt(DamageSourceInit.freezing(level), 1.0f);
                     entity.setTicksFrozen(20);
                 }

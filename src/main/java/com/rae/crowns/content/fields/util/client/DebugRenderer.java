@@ -1,6 +1,6 @@
 package com.rae.crowns.content.fields.util.client;
 
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.config.CROWNSConfigs;
 import net.createmod.catnip.animation.AnimationTickHolder;
@@ -33,6 +33,7 @@ public class DebugRenderer {
     private static final int RADIUS = 8;
     private static final int CACHE_PRUNE_DISTANCE = 4;
     private static final Map<BlockPos, AABBOutline> CACHE = new HashMap<>();
+    private static final int TICKING_SECTION_COLOR = 0x66CCFF; // light blue
     private static @Nullable BlockPos lastPlayerPos = null;
 
     @SubscribeEvent
@@ -60,7 +61,18 @@ public class DebugRenderer {
         //renderVelocityVectors(level, poseStack, playerPos);
 
     }
-    private static final int TICKING_SECTION_COLOR = 0x66CCFF; // light blue
+
+    private static void pruneCacheIfPlayerMoved(@NotNull BlockPos playerPos) {
+        if (lastPlayerPos == null) {
+            lastPlayerPos = playerPos;
+            return;
+        }
+
+        if (playerPos.distManhattan(lastPlayerPos) > CACHE_PRUNE_DISTANCE) {
+            lastPlayerPos = playerPos;
+            CACHE.keySet().removeIf(pos -> !pos.closerThan(playerPos, RADIUS + 4));
+        }
+    }
 
     private static void renderTickingSectionsAABB(@NotNull PoseStack poseStack, @NotNull Vec3 cameraPos, float pt) {
         SuperRenderTypeBuffer buffer = DefaultSuperRenderTypeBuffer.getInstance();
@@ -100,7 +112,7 @@ public class DebugRenderer {
         // Get the biome directly from the noise source
         Holder<Biome> biome = level.getBiomeManager()
                 .getNoiseBiomeAtQuart(qx, qy, qz);
-        float defaultTemp =  CROWNS.BIOME_TEMPERATURES.getValue(biome.value(), 300f);
+        float defaultTemp = CROWNS.BIOME_TEMPERATURES.getValue(biome.value(), 300f);
 
         for (int x = -RADIUS; x <= RADIUS; x++) {
             for (int y = -RADIUS; y <= RADIUS; y++) {
@@ -117,6 +129,14 @@ public class DebugRenderer {
                 }
             }
         }
+    }
+
+    private static int temperatureToColor(float temperature) {
+        float t = Math.min(1f, Math.max(0f, (temperature - 200f) / 200f));
+        int r = (int) (t * 255);
+        int g = (int) ((1 - Math.abs(t - 0.5f) * 2) * 255);
+        int b = (int) ((1 - t) * 255);
+        return (r << 16) | (g << 8) | b;
     }
 
     private static void renderFloatingText(@NotNull PoseStack poseStack, @NotNull Font font, @NotNull String text, @NotNull Vec3 worldPos, int color, @NotNull Vec3 cam, @NotNull Minecraft mc) {
@@ -136,25 +156,5 @@ public class DebugRenderer {
                 Font.DisplayMode.SEE_THROUGH, 0, 15728880
         );
         poseStack.popPose();
-    }
-
-    private static void pruneCacheIfPlayerMoved(@NotNull BlockPos playerPos) {
-        if (lastPlayerPos == null) {
-            lastPlayerPos = playerPos;
-            return;
-        }
-
-        if (playerPos.distManhattan(lastPlayerPos) > CACHE_PRUNE_DISTANCE) {
-            lastPlayerPos = playerPos;
-            CACHE.keySet().removeIf(pos -> !pos.closerThan(playerPos, RADIUS + 4));
-        }
-    }
-
-    private static int temperatureToColor(float temperature) {
-        float t = Math.min(1f, Math.max(0f, (temperature - 200f) / 200f));
-        int r = (int) (t * 255);
-        int g = (int) ((1 - Math.abs(t - 0.5f) * 2) * 255);
-        int b = (int) ((1 - t) * 255);
-        return (r << 16) | (g << 8) | b;
     }
 }

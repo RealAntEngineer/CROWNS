@@ -33,6 +33,17 @@ public class CROWNSConfigs {
         return CONFIGS.get(type);
     }
 
+    public static void registerConfigs(@NotNull ModLoadingContext context) {
+        CLIENT = register(CROWNSCfgClient::new, ModConfig.Type.CLIENT);
+        COMMON = register(CROWNSCfgCommon::new, ModConfig.Type.COMMON);
+        SERVER = register(CROWNSCfgServer::new, ModConfig.Type.SERVER);
+
+        for (Map.Entry<ModConfig.Type, ConfigBase> pair : CONFIGS.entrySet())
+            context.registerConfig(pair.getKey(), pair.getValue().specification);
+
+        //BlockStressValues.registerProvider(context.getActiveNamespace(), SERVER.kinetics.stressValues);
+    }
+
     private static <T extends ConfigBase> @NotNull T register(@NotNull Supplier<T> factory, ModConfig.Type side) {
         Pair<T, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure((builder) -> {
             T config = factory.get();
@@ -43,17 +54,6 @@ public class CROWNSConfigs {
         config.specification = specPair.getRight();
         CONFIGS.put(side, config);
         return config;
-    }
-
-    public static void registerConfigs(@NotNull ModLoadingContext context) {
-        CLIENT = register(CROWNSCfgClient::new, ModConfig.Type.CLIENT);
-        COMMON = register(CROWNSCfgCommon::new, ModConfig.Type.COMMON);
-        SERVER = register(CROWNSCfgServer::new, ModConfig.Type.SERVER);
-
-        for (Map.Entry<ModConfig.Type, ConfigBase> pair : CONFIGS.entrySet())
-            context.registerConfig(pair.getKey(), pair.getValue().specification);
-
-        //BlockStressValues.registerProvider(context.getActiveNamespace(), SERVER.kinetics.stressValues);
     }
 
     @SubscribeEvent

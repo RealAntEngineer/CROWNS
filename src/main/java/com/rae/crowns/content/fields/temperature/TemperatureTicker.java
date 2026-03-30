@@ -32,7 +32,7 @@ public final class TemperatureTicker {
 
         // --- MAIN TICK LOOP ---
         TemperatureVoxelVisitor visitor = new TemperatureVoxelVisitor(data);
-        SectionLooper.iterate(tickingSections,(sectionPos) ->
+        SectionLooper.iterate(tickingSections, (sectionPos) ->
                         data.getLayers(
                                 sectionPos,
                                 DataLayerType.TEMPERATURE,
@@ -46,7 +46,7 @@ public final class TemperatureTicker {
 
     private static void updateDynamicData(@NotNull PhysicsWorldData data) {
         // --- DYNAMIC DATA LOOP ---
-        data.getDynamicData().forEach( (key, value) -> {
+        data.getDynamicData().forEach((key, value) -> {
             BlockPos pos = BlockPos.of(key);
 
             if (value instanceof BlockEntity blockEntity && blockEntity.isRemoved()) {
@@ -66,26 +66,26 @@ public final class TemperatureTicker {
             boolean corrupted = false;
 
             if (temperatureData == null) {
-                CROWNS.LOGGER.warn("error trying to load temperature data at {}",SectionPos.of(packedSection));
+                CROWNS.LOGGER.warn("error trying to load temperature data at {}", SectionPos.of(packedSection));
                 data.scheduleInitialisation(packedSection, DataLayerType.TEMPERATURE); //data got corrupted.
                 corrupted = true;
             }
             if (defaultTemperatureData == null) {
-                CROWNS.LOGGER.warn("error trying to load default temperature data at {}",SectionPos.of(packedSection));
+                CROWNS.LOGGER.warn("error trying to load default temperature data at {}", SectionPos.of(packedSection));
                 data.scheduleInitialisation(packedSection, DataLayerType.DEFAULT_TEMPERATURE); //data got corrupted.
                 corrupted = true;
             }
             if (conductionData == null) {
-                CROWNS.LOGGER.warn("error trying to load conduction data at {}",SectionPos.of(packedSection));
+                CROWNS.LOGGER.warn("error trying to load conduction data at {}", SectionPos.of(packedSection));
                 data.scheduleInitialisation(packedSection, DataLayerType.CONDUCTION); //data got corrupted.
                 corrupted = true;
             }
             if (resilienceData == null) {
-                CROWNS.LOGGER.warn("error trying to load resilience data at {}",SectionPos.of(packedSection));
+                CROWNS.LOGGER.warn("error trying to load resilience data at {}", SectionPos.of(packedSection));
                 data.scheduleInitialisation(packedSection, DataLayerType.RESILIENCE); //data got corrupted.
                 corrupted = true;
             }
-            if  (corrupted) return;
+            if (corrupted) return;
 
             int lx = pos.getX() & 15;
             int ly = pos.getY() & 15;
@@ -168,20 +168,18 @@ public final class TemperatureTicker {
 
     private static final class TemperatureNeighborVisitor implements SectionLooper.Context.NeighborConsumer {
         private final PhysicsWorldData data;
-
+        // Accumulated result
+        public float totalFlux;
         // Shared inputs (set before each forEachNeighbor call)
         private float selfTemp, selfCond;
         private SectionLooper.Context ctx;
-
-        // Accumulated result
-        public float totalFlux;
 
 
         public TemperatureNeighborVisitor(PhysicsWorldData data) {
             this.data = data;
         }
 
-        public void setContext(SectionLooper.Context ctx, float selfTemp, float selfCond){
+        public void setContext(SectionLooper.Context ctx, float selfTemp, float selfCond) {
 
             this.ctx = ctx;
             this.selfTemp = selfTemp;
@@ -193,16 +191,16 @@ public final class TemperatureTicker {
         public void accept(int nx, int ny, int nz, SectionLooper.NeighborRef ref) {
             float neighborTemp;
             float neighborCond;
-            if (ref.packedSection()!=ctx.packedSectionPos()) {
-                TemperatureDataLayer nTempLayer = data.getLayer(DataLayerType.TEMPERATURE,ref.packedSection());
-                ConductionDataLayer nCondLayer = data.getLayer(DataLayerType.CONDUCTION,ref.packedSection());
+            if (ref.packedSection() != ctx.packedSectionPos()) {
+                TemperatureDataLayer nTempLayer = data.getLayer(DataLayerType.TEMPERATURE, ref.packedSection());
+                ConductionDataLayer nCondLayer = data.getLayer(DataLayerType.CONDUCTION, ref.packedSection());
 
                 if (nTempLayer == null || nCondLayer == null)
                     return;
 
                 neighborTemp = nTempLayer.get(ref.localX(), ref.localY(), ref.localZ());
                 neighborCond = nCondLayer.get(ref.localX(), ref.localY(), ref.localZ());
-            }  else {
+            } else {
                 neighborTemp = ctx.getData(0, nx, ny, nz);
                 neighborCond = ctx.getData(2, nx, ny, nz);
             }
@@ -210,7 +208,7 @@ public final class TemperatureTicker {
 
             float dTemp = neighborTemp - selfTemp;
 
-            totalFlux += dTemp * (k );
+            totalFlux += dTemp * (k);
         }
     }
 }

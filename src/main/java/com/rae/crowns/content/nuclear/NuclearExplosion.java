@@ -66,15 +66,6 @@ public class NuclearExplosion extends Explosion {
         this.toBlow.addAll(toBlow);
     }
 
-    public NuclearExplosion(@NotNull Level level, @Nullable Entity source, double x, double y, double z, float radius, boolean fire, Explosion.@NotNull BlockInteraction blockInteraction, List<BlockPos> positions) {
-        this(level, source, x, y, z, radius, fire, blockInteraction);
-        this.toBlow.addAll(positions);
-    }
-
-    public NuclearExplosion(@NotNull Level level, @Nullable Entity source, double x, double y, double z, float radius, boolean fire, Explosion.@NotNull BlockInteraction blockInteraction) {
-        this(level, source, getDefaultDamageSource(level, source), null, x, y, z, radius, fire, blockInteraction);
-    }
-
     public NuclearExplosion(@NotNull Level level, @Nullable Entity source, @Nullable DamageSource damageSource, @Nullable ExplosionDamageCalculator damageCalculator, double x, double y, double z, float radius, boolean fire, Explosion.@NotNull BlockInteraction blockInteraction) {
         super(level, source, damageSource, damageCalculator, x, y, z, radius, fire, blockInteraction);
         this.random = RandomSource.create();
@@ -96,82 +87,8 @@ public class NuclearExplosion extends Explosion {
         return level.damageSources().explosion(source, getIndirectSourceEntityInternal(source));
     }
 
-    public static float getSeenPercent(@NotNull Vec3 explosionVector, @NotNull Entity entity) {
-        AABB aabb = entity.getBoundingBox();
-        double d0 = (double) 1.0F / ((aabb.maxX - aabb.minX) * (double) 2.0F + (double) 1.0F);
-        double d1 = (double) 1.0F / ((aabb.maxY - aabb.minY) * (double) 2.0F + (double) 1.0F);
-        double d2 = (double) 1.0F / ((aabb.maxZ - aabb.minZ) * (double) 2.0F + (double) 1.0F);
-        double d3 = ((double) 1.0F - Math.floor((double) 1.0F / d0) * d0) / (double) 2.0F;
-        double d4 = ((double) 1.0F - Math.floor((double) 1.0F / d2) * d2) / (double) 2.0F;
-        if (!(d0 < (double) 0.0F) && !(d1 < (double) 0.0F) && !(d2 < (double) 0.0F)) {
-            int i = 0;
-            int j = 0;
-
-            for (double d5 = 0.0F; d5 <= (double) 1.0F; d5 += d0) {
-                for (double d6 = 0.0F; d6 <= (double) 1.0F; d6 += d1) {
-                    for (double d7 = 0.0F; d7 <= (double) 1.0F; d7 += d2) {
-                        double d8 = Mth.lerp(d5, aabb.minX, aabb.maxX);
-                        double d9 = Mth.lerp(d6, aabb.minY, aabb.maxY);
-                        double d10 = Mth.lerp(d7, aabb.minZ, aabb.maxZ);
-                        Vec3 vec3 = new Vec3(d8 + d3, d9, d10 + d4);
-                        if (entity.level().clip(new ClipContext(vec3, explosionVector, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getType() == HitResult.Type.MISS) {
-                            ++i;
-                        }
-
-                        ++j;
-                    }
-                }
-            }
-
-            return (float) i / (float) j;
-        } else {
-            return 0.0F;
-        }
-    }
-
-    private static void addBlockDrops(@NotNull ObjectArrayList<Pair<ItemStack, BlockPos>> p_46068_, @NotNull ItemStack p_46069_, BlockPos p_46070_) {
-        int i = p_46068_.size();
-
-        for (int j = 0; j < i; ++j) {
-            Pair<ItemStack, BlockPos> pair = p_46068_.get(j);
-            ItemStack itemstack = pair.getFirst();
-            if (ItemEntity.areMergable(itemstack, p_46069_)) {
-                ItemStack itemstack1 = ItemEntity.merge(itemstack, p_46069_, 16);
-                p_46068_.set(j, Pair.of(itemstack1, pair.getSecond()));
-                if (p_46069_.isEmpty()) {
-                    return;
-                }
-            }
-        }
-
-        p_46068_.add(Pair.of(p_46069_, p_46070_));
-    }
-
-    public static void nuclearExplosion(@NotNull Level level, @NotNull BlockPos pos, float power) {
-        level.explode(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, power, Level.ExplosionInteraction.BLOCK);
-
-        NuclearExplosion explosion = new NuclearExplosion(level, null, null,
-                null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, power, false,
-                level.getGameRules().getBoolean(GameRules.RULE_BLOCK_EXPLOSION_DROP_DECAY) ? Explosion.BlockInteraction.DESTROY_WITH_DECAY : Explosion.BlockInteraction.DESTROY);
-        if (!ForgeEventFactory.onExplosionStart(level, explosion)) {
-            explosion.explode();
-            explosion.finalizeExplosion(true);
-        }
-    }
-
-    private static void addOrAppendStack(@NotNull List<Pair<ItemStack, BlockPos>> drops, @NotNull ItemStack stack, BlockPos pos) {
-        for (int i = 0; i < drops.size(); ++i) {
-            Pair<ItemStack, BlockPos> pair = drops.get(i);
-            ItemStack itemstack = pair.getFirst();
-            if (ItemEntity.areMergable(itemstack, stack)) {
-                drops.set(i, Pair.of(ItemEntity.merge(itemstack, stack, 16), pair.getSecond()));
-                if (stack.isEmpty()) {
-                    return;
-                }
-            }
-        }
-
-        drops.add(Pair.of(stack, pos));
+    private ExplosionDamageCalculator makeDamageCalculator(@Nullable Entity entity) {
+        return entity == null ? EXPLOSION_DAMAGE_CALCULATOR : new EntityBasedExplosionDamageCalculator(entity);
     }
 
     @Nullable
@@ -201,16 +118,25 @@ public class NuclearExplosion extends Explosion {
         }
     }
 
-    private ExplosionDamageCalculator makeDamageCalculator(@Nullable Entity entity) {
-        return entity == null ? EXPLOSION_DAMAGE_CALCULATOR : new EntityBasedExplosionDamageCalculator(entity);
+    public NuclearExplosion(@NotNull Level level, @Nullable Entity source, double x, double y, double z, float radius, boolean fire, Explosion.@NotNull BlockInteraction blockInteraction, List<BlockPos> positions) {
+        this(level, source, x, y, z, radius, fire, blockInteraction);
+        this.toBlow.addAll(positions);
     }
 
-    public float radius() {
-        return this.radius;
+    public NuclearExplosion(@NotNull Level level, @Nullable Entity source, double x, double y, double z, float radius, boolean fire, Explosion.@NotNull BlockInteraction blockInteraction) {
+        this(level, source, getDefaultDamageSource(level, source), null, x, y, z, radius, fire, blockInteraction);
     }
 
-    public @NotNull Vec3 center() {
-        return new Vec3(this.x, this.y, this.z);
+    public static void nuclearExplosion(@NotNull Level level, @NotNull BlockPos pos, float power) {
+        level.explode(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, power, Level.ExplosionInteraction.BLOCK);
+
+        NuclearExplosion explosion = new NuclearExplosion(level, null, null,
+                null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, power, false,
+                level.getGameRules().getBoolean(GameRules.RULE_BLOCK_EXPLOSION_DROP_DECAY) ? Explosion.BlockInteraction.DESTROY_WITH_DECAY : Explosion.BlockInteraction.DESTROY);
+        if (!ForgeEventFactory.onExplosionStart(level, explosion)) {
+            explosion.explode();
+            explosion.finalizeExplosion(true);
+        }
     }
 
     public void explode() {
@@ -294,6 +220,65 @@ public class NuclearExplosion extends Explosion {
             }
         }
 
+    }
+
+    public @NotNull Vec3 center() {
+        return new Vec3(this.x, this.y, this.z);
+    }
+
+    public float radius() {
+        return this.radius;
+    }
+
+    public static float getSeenPercent(@NotNull Vec3 explosionVector, @NotNull Entity entity) {
+        AABB aabb = entity.getBoundingBox();
+        double d0 = (double) 1.0F / ((aabb.maxX - aabb.minX) * (double) 2.0F + (double) 1.0F);
+        double d1 = (double) 1.0F / ((aabb.maxY - aabb.minY) * (double) 2.0F + (double) 1.0F);
+        double d2 = (double) 1.0F / ((aabb.maxZ - aabb.minZ) * (double) 2.0F + (double) 1.0F);
+        double d3 = ((double) 1.0F - Math.floor((double) 1.0F / d0) * d0) / (double) 2.0F;
+        double d4 = ((double) 1.0F - Math.floor((double) 1.0F / d2) * d2) / (double) 2.0F;
+        if (!(d0 < (double) 0.0F) && !(d1 < (double) 0.0F) && !(d2 < (double) 0.0F)) {
+            int i = 0;
+            int j = 0;
+
+            for (double d5 = 0.0F; d5 <= (double) 1.0F; d5 += d0) {
+                for (double d6 = 0.0F; d6 <= (double) 1.0F; d6 += d1) {
+                    for (double d7 = 0.0F; d7 <= (double) 1.0F; d7 += d2) {
+                        double d8 = Mth.lerp(d5, aabb.minX, aabb.maxX);
+                        double d9 = Mth.lerp(d6, aabb.minY, aabb.maxY);
+                        double d10 = Mth.lerp(d7, aabb.minZ, aabb.maxZ);
+                        Vec3 vec3 = new Vec3(d8 + d3, d9, d10 + d4);
+                        if (entity.level().clip(new ClipContext(vec3, explosionVector, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getType() == HitResult.Type.MISS) {
+                            ++i;
+                        }
+
+                        ++j;
+                    }
+                }
+            }
+
+            return (float) i / (float) j;
+        } else {
+            return 0.0F;
+        }
+    }
+
+    private static void addBlockDrops(@NotNull ObjectArrayList<Pair<ItemStack, BlockPos>> p_46068_, @NotNull ItemStack p_46069_, BlockPos p_46070_) {
+        int i = p_46068_.size();
+
+        for (int j = 0; j < i; ++j) {
+            Pair<ItemStack, BlockPos> pair = p_46068_.get(j);
+            ItemStack itemstack = pair.getFirst();
+            if (ItemEntity.areMergable(itemstack, p_46069_)) {
+                ItemStack itemstack1 = ItemEntity.merge(itemstack, p_46069_, 16);
+                p_46068_.set(j, Pair.of(itemstack1, pair.getSecond()));
+                if (p_46069_.isEmpty()) {
+                    return;
+                }
+            }
+        }
+
+        p_46068_.add(Pair.of(p_46069_, p_46070_));
     }
 
     public void finalizeExplosion(boolean spawnParticles) {
@@ -381,6 +366,21 @@ public class NuclearExplosion extends Explosion {
 
     public @NotNull List<BlockPos> getToBlow() {
         return this.toBlow;
+    }
+
+    private static void addOrAppendStack(@NotNull List<Pair<ItemStack, BlockPos>> drops, @NotNull ItemStack stack, BlockPos pos) {
+        for (int i = 0; i < drops.size(); ++i) {
+            Pair<ItemStack, BlockPos> pair = drops.get(i);
+            ItemStack itemstack = pair.getFirst();
+            if (ItemEntity.areMergable(itemstack, stack)) {
+                drops.set(i, Pair.of(ItemEntity.merge(itemstack, stack, 16), pair.getSecond()));
+                if (stack.isEmpty()) {
+                    return;
+                }
+            }
+        }
+
+        drops.add(Pair.of(stack, pos));
     }
 
 }

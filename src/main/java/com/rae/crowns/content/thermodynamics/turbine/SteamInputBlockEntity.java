@@ -69,32 +69,6 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
     }
 
     @Override
-    protected void read(@NotNull CompoundTag compound, boolean clientPacket) {
-        if (compound.contains("water_tank"))
-            WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
-        flow = compound.getFloat("flow");
-        super.read(compound, clientPacket);
-    }
-
-    @Override
-    public void write(@NotNull CompoundTag compound, boolean clientPacket) {
-        super.write(compound, clientPacket);
-        compound.put("water_tank", WATER_TANK.writeToNBT(new CompoundTag()));
-        compound.putFloat("flow", flow);
-    }
-
-    @Override
-    public void sendData() {
-        if (syncCooldown > 0) {
-            queuedSync = true;
-            return;
-        }
-        super.sendData();
-        queuedSync = false;
-        syncCooldown = SYNC_RATE;
-    }
-
-    @Override
     public void tick() {
         super.tick();
         assert level != null;
@@ -133,8 +107,35 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
         }
     }
 
-    public SpecificRealGazState getState() {
-        return WATER_TANK.getState();
+    @Override
+    public void write(@NotNull CompoundTag compound, boolean clientPacket) {
+        super.write(compound, clientPacket);
+        compound.put("water_tank", WATER_TANK.writeToNBT(new CompoundTag()));
+        compound.putFloat("flow", flow);
+    }
+
+    @Override
+    protected void read(@NotNull CompoundTag compound, boolean clientPacket) {
+        if (compound.contains("water_tank"))
+            WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
+        flow = compound.getFloat("flow");
+        super.read(compound, clientPacket);
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+    }
+
+    @Override
+    public void sendData() {
+        if (syncCooldown > 0) {
+            queuedSync = true;
+            return;
+        }
+        super.sendData();
+        queuedSync = false;
+        syncCooldown = SYNC_RATE;
     }
 
     @Override
@@ -149,11 +150,6 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
     }
 
     @Override
-    public void destroy() {
-        super.destroy();
-    }
-
-    @Override
     public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
         SpecificRealGazState newState = getState();
         CROWNSLang.specificRealFluidState(newState)
@@ -163,6 +159,10 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
         ).forGoggles(tooltip, 1);
 
         return true;
+    }
+
+    public SpecificRealGazState getState() {
+        return WATER_TANK.getState();
     }
 
     public float getFlow() {

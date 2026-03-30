@@ -29,6 +29,22 @@ public class SolidCoriumBlock extends Block {
         super(p_55453_);
     }
 
+    public @NotNull InteractionResult use(BlockState p_55472_, @NotNull Level p_55473_, BlockPos p_55474_, Player p_55475_, InteractionHand p_55476_, BlockHitResult p_55477_) {
+        if (p_55473_.isClientSide) {
+            spawnParticles(p_55473_, p_55474_);
+        } else {
+            interact(p_55472_, p_55473_, p_55474_);
+        }
+
+        ItemStack itemstack = p_55475_.getItemInHand(p_55476_);
+        return itemstack.getItem() instanceof BlockItem && (new BlockPlaceContext(p_55475_, p_55476_, itemstack, p_55477_)).canPlace() ? InteractionResult.PASS : InteractionResult.SUCCESS;
+    }
+
+    public void attack(BlockState p_55467_, Level p_55468_, BlockPos p_55469_, Player p_55470_) {
+        interact(p_55467_, p_55468_, p_55469_);
+        super.attack(p_55467_, p_55468_, p_55469_, p_55470_);
+    }
+
     private static void interact(@NotNull BlockState p_55493_, @NotNull Level p_55494_, @NotNull BlockPos p_55495_) {
         spawnParticles(p_55494_, p_55495_);
 
@@ -51,9 +67,8 @@ public class SolidCoriumBlock extends Block {
 
     }
 
-    public void attack(BlockState p_55467_, Level p_55468_, BlockPos p_55469_, Player p_55470_) {
-        interact(p_55467_, p_55468_, p_55469_);
-        super.attack(p_55467_, p_55468_, p_55469_, p_55470_);
+    public void animateTick(@NotNull BlockState blockState, Level level, BlockPos blockPos, RandomSource randomSource) {
+        spawnParticles(level, blockPos);
     }
 
     public void stepOn(Level p_154299_, BlockPos p_154300_, BlockState p_154301_, @NotNull Entity p_154302_) {
@@ -62,23 +77,6 @@ public class SolidCoriumBlock extends Block {
         }
 
         super.stepOn(p_154299_, p_154300_, p_154301_, p_154302_);
-    }
-
-    public @NotNull InteractionResult use(BlockState p_55472_, @NotNull Level p_55473_, BlockPos p_55474_, Player p_55475_, InteractionHand p_55476_, BlockHitResult p_55477_) {
-        if (p_55473_.isClientSide) {
-            spawnParticles(p_55473_, p_55474_);
-        } else {
-            interact(p_55472_, p_55473_, p_55474_);
-        }
-
-        ItemStack itemstack = p_55475_.getItemInHand(p_55476_);
-        return itemstack.getItem() instanceof BlockItem && (new BlockPlaceContext(p_55475_, p_55476_, itemstack, p_55477_)).canPlace() ? InteractionResult.PASS : InteractionResult.SUCCESS;
-    }
-
-
-
-    public void animateTick(@NotNull BlockState blockState, Level level, BlockPos blockPos, RandomSource randomSource) {
-        spawnParticles(level, blockPos);
     }
 
     protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {

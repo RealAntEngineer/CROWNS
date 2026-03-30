@@ -24,6 +24,6 @@ public class PonderInit {
         HELPER.forComponents(BlockInit.STEAM_INPUT, BlockInit.TURBINE_STAGE, BlockInit.STEAM_COLLECTOR)
                 .addStoryBoard("thermal/turbine_2", ThermodynamicsScene::turbine);
         HELPER.forComponents(BlockInit.COMPRESSOR)
-                .addStoryBoard("thermal/compressor",ThermodynamicsScene::compressor);
+                .addStoryBoard("thermal/compressor", ThermodynamicsScene::compressor);
     }
 }

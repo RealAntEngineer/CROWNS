@@ -64,7 +64,7 @@ public class FluidInit {
         FluidInteractionRegistry.addInteraction(ForgeMod.WATER_TYPE.get(), new FluidInteractionRegistry.InteractionInformation(
                 CORIUM.get().getFluidType(),
                 fluidState -> {
-                        return BlockInit.SOLID_CORIUM.get().defaultBlockState();
+                    return BlockInit.SOLID_CORIUM.get().defaultBlockState();
                 }
         ));
 

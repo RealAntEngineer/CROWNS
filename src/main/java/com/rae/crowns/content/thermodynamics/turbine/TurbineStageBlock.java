@@ -25,19 +25,21 @@ import org.jetbrains.annotations.NotNull;
 public class TurbineStageBlock extends MBKineticController implements IBE<TurbineStageBlockEntity> {
 
     public static final BooleanProperty CASING = BooleanProperty.create("casing");
+
     public TurbineStageBlock(@NotNull Properties pProperties, MBStructureBlock structure) {
         super(pProperties, structure);
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(CASING, true));
     }
+
+    public static @NotNull Couple<Integer> getSpeedRange() {
+        return Couple.create(1, 16);
+    }
+
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(CASING);
         super.createBlockStateDefinition(builder);
-    }
-
-    public static @NotNull Couple<Integer> getSpeedRange() {
-        return Couple.create(1, 16);
     }
 
     @Override

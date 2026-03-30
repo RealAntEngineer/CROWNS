@@ -59,7 +59,8 @@ public class PhysicsSaveManager {
 
             for (int sectionY = event.getLevel().getMinSection(); sectionY < event.getLevel().getMaxSection(); sectionY++) {
                 SectionPos sectionPos = SectionPos.of(chunkX, sectionY, chunkZ);
-                worldLoadedSections.computeIfAbsent(serverLevel.dimension(), k -> new LongOpenHashSet()).add(sectionPos.asLong());            }
+                worldLoadedSections.computeIfAbsent(serverLevel.dimension(), k -> new LongOpenHashSet()).add(sectionPos.asLong());
+            }
         }
     }
 
@@ -72,7 +73,7 @@ public class PhysicsSaveManager {
         return worldDataMap.get(level.dimension());
     }
 
-    public static void reset(){
+    public static void reset() {
         worldDataMap.clear();
         worldLoadedSections.clear();
     }

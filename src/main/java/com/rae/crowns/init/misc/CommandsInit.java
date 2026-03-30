@@ -70,17 +70,17 @@ public class CommandsInit {
                 )
 
                 .then(Commands.literal("clearSteamCurrents")
-                                .executes(context -> {
-                                    ServerPlayer player = context.getSource().getPlayerOrException();
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
 
-                                    SteamFlowManager.clear();
-                                    return Command.SINGLE_SUCCESS;
-                                })
+                            SteamFlowManager.clear();
+                            return Command.SINGLE_SUCCESS;
+                        })
                 )
 
                 .then(Commands.literal("recordAssembly")
-                        .then(Commands.argument("pos",  BlockPosArgument.blockPos()).then(
-                                Commands.argument("ticks",IntegerArgumentType.integer(0))
+                        .then(Commands.argument("pos", BlockPosArgument.blockPos()).then(
+                                Commands.argument("ticks", IntegerArgumentType.integer(0))
                                         .executes(
                                                 context -> {
 
@@ -92,40 +92,40 @@ public class CommandsInit {
                 )
                 .then(Commands.literal("dumpThermodynamicStatus")
                         .then(Commands.argument("detailed", BoolArgumentType.bool())
-                        .executes(
-                                context -> {
-                                    PhysicsWorldData data = PhysicsSaveManager.get(context.getSource().getLevel());
-                                    if (data == null){
-                                        context.getSource().sendSystemMessage(
-                                                Component.literal("grid not loaded")
-                                        );
-                                        return Command.SINGLE_SUCCESS;
-                                    }
-                                    Map<DataLayerType<?>,List<Long>> initialise = data.remainingInitialise();
-                                    context.getSource().sendSystemMessage(Component.literal(
-                                            "___________thermodynamic simulation status___________\n"+
-                                                    "   -"+ data.getDynamicData().size()+ " dynamic data blocks\n"+
-                                                    "   -"+ data.getLoadedSections().size() + " loaded chunk sections\n"+
-                                                    "   -"+ data.getLoadedSections().stream().filter(data::ticked).toList().size()+ " ticked sections\n"+
-                                                    "   -initialization :\n"+
-                                                    "      -"+DataLayerType.CONDUCTION.id+ " "+ initialise.getOrDefault(DataLayerType.CONDUCTION, new ArrayList<>()).size()+ "\n"+
-                                                    "      -"+DataLayerType.RESILIENCE.id+ " "+ initialise.getOrDefault(DataLayerType.RESILIENCE, new ArrayList<>()).size()+"\n"+
-                                                    "      -"+DataLayerType.TEMPERATURE.id+ " "+ initialise.getOrDefault(DataLayerType.TEMPERATURE, new ArrayList<>()).size()+"\n"+
-                                                    "      -"+DataLayerType.DEFAULT_TEMPERATURE.id+ " "+ initialise.getOrDefault(DataLayerType.DEFAULT_TEMPERATURE, new ArrayList<>()).size()
-
-                                    ));
-
-                                    if (BoolArgumentType.getBool(context, "detailed")) {
-                                        for (Map.Entry<DataLayerType<?>, List<Long>> entry : initialise.entrySet()) {
+                                .executes(
+                                        context -> {
+                                            PhysicsWorldData data = PhysicsSaveManager.get(context.getSource().getLevel());
+                                            if (data == null) {
+                                                context.getSource().sendSystemMessage(
+                                                        Component.literal("grid not loaded")
+                                                );
+                                                return Command.SINGLE_SUCCESS;
+                                            }
+                                            Map<DataLayerType<?>, List<Long>> initialise = data.remainingInitialise();
                                             context.getSource().sendSystemMessage(Component.literal(
-                                                    entry.getValue().stream().map(SectionPos::of).toList().toString()
+                                                    "___________thermodynamic simulation status___________\n" +
+                                                            "   -" + data.getDynamicData().size() + " dynamic data blocks\n" +
+                                                            "   -" + data.getLoadedSections().size() + " loaded chunk sections\n" +
+                                                            "   -" + data.getLoadedSections().stream().filter(data::ticked).toList().size() + " ticked sections\n" +
+                                                            "   -initialization :\n" +
+                                                            "      -" + DataLayerType.CONDUCTION.id + " " + initialise.getOrDefault(DataLayerType.CONDUCTION, new ArrayList<>()).size() + "\n" +
+                                                            "      -" + DataLayerType.RESILIENCE.id + " " + initialise.getOrDefault(DataLayerType.RESILIENCE, new ArrayList<>()).size() + "\n" +
+                                                            "      -" + DataLayerType.TEMPERATURE.id + " " + initialise.getOrDefault(DataLayerType.TEMPERATURE, new ArrayList<>()).size() + "\n" +
+                                                            "      -" + DataLayerType.DEFAULT_TEMPERATURE.id + " " + initialise.getOrDefault(DataLayerType.DEFAULT_TEMPERATURE, new ArrayList<>()).size()
+
                                             ));
+
+                                            if (BoolArgumentType.getBool(context, "detailed")) {
+                                                for (Map.Entry<DataLayerType<?>, List<Long>> entry : initialise.entrySet()) {
+                                                    context.getSource().sendSystemMessage(Component.literal(
+                                                            entry.getValue().stream().map(SectionPos::of).toList().toString()
+                                                    ));
+                                                }
+                                            }
+                                            return Command.SINGLE_SUCCESS;
                                         }
-                                    }
-                                    return Command.SINGLE_SUCCESS;
-                                }
-                        )
-                ))
+                                )
+                        ))
         );
     }
 }

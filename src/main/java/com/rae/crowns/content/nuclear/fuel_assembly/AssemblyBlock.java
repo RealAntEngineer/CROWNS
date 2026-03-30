@@ -15,7 +15,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -43,6 +45,29 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
                 .setValue(TEMPERATURE, Temperature.COLD)
                 .setValue(ACTIVITY, Activity.NONE));
     }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
+        builder.add(TEMPERATURE, ACTIVITY);
+        super.createBlockStateDefinition(builder);
+    }
+
+    @Override
+    public @NotNull Class<AssemblyBlockEntity> getBlockEntityClass() {
+        return AssemblyBlockEntity.class;
+    }
+
+    @Override
+    public @NotNull BlockEntityType<? extends AssemblyBlockEntity> getBlockEntityType() {
+        return BlockEntityInit.FUEL_ASSEMBLY.get();
+    }
+
+    @Override
+    @SuppressWarnings("deprecated")
+    public void onRemove(@NotNull BlockState pState, @NotNull Level pLevel, @NotNull BlockPos pPos, @NotNull BlockState pNewState, boolean pIsMoving) {
+        IBE.onRemove(pState, pLevel, pPos, pNewState);
+    }
+
     @Override
     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand,
                                  BlockHitResult ray) {
@@ -61,23 +86,6 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
-        builder.add(TEMPERATURE, ACTIVITY);
-        super.createBlockStateDefinition(builder);
-    }
-
-    @Override
-    public @NotNull Class<AssemblyBlockEntity> getBlockEntityClass() {
-        return AssemblyBlockEntity.class;
-    }
-
-    @Override
-    public @NotNull BlockEntityType<? extends AssemblyBlockEntity> getBlockEntityType() {
-        return BlockEntityInit.FUEL_ASSEMBLY.get();
-    }
-
-
-    @Override
     @SuppressWarnings("deprecated")
     public int getSignal(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull Direction direction) {
         if (level.getBlockEntity(pos) instanceof AssemblyBlockEntity assemblyBlockEntity) {
@@ -86,11 +94,6 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
         return super.getSignal(state, level, pos, direction);
     }
 
-    @Override
-    @SuppressWarnings("deprecated")
-    public void onRemove(@NotNull BlockState pState, @NotNull Level pLevel, @NotNull BlockPos pPos, @NotNull BlockState pNewState, boolean pIsMoving) {
-        IBE.onRemove(pState, pLevel, pPos, pNewState);
-    }
     @Override
     public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity player, @NotNull ItemStack itemStack) {
         super.setPlacedBy(level, pos, state, player, itemStack);
@@ -118,24 +121,6 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
     }
 
 
-    @MethodsReturnNonnullByDefault
-    private static class PlacementHelper extends PoleHelper<Direction.Axis> {
-        private PlacementHelper() {
-            super(state -> state.getBlock() instanceof AssemblyBlock, state -> state.getValue(AXIS), AXIS);
-        }
-
-        @Override
-        public Predicate<ItemStack> getItemPredicate() {
-            return BlockInit.FUEL_ASSEMBLY::isIn;
-        }
-
-        @Override
-        public Predicate<BlockState> getStatePredicate() {
-            return s -> s.getBlock() instanceof AssemblyBlock;
-        }
-
-    }
-
     public enum Activity implements StringRepresentable {
         NONE, LOW, HIGH;
 
@@ -152,5 +137,23 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
         public @NotNull String getSerializedName() {
             return this.name().toLowerCase();
         }
+    }
+
+    @MethodsReturnNonnullByDefault
+    private static class PlacementHelper extends PoleHelper<Direction.Axis> {
+        private PlacementHelper() {
+            super(state -> state.getBlock() instanceof AssemblyBlock, state -> state.getValue(AXIS), AXIS);
+        }
+
+        @Override
+        public Predicate<ItemStack> getItemPredicate() {
+            return BlockInit.FUEL_ASSEMBLY::isIn;
+        }
+
+        @Override
+        public Predicate<BlockState> getStatePredicate() {
+            return s -> s.getBlock() instanceof AssemblyBlock;
+        }
+
     }
 }

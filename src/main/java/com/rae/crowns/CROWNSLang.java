@@ -15,13 +15,12 @@ public class CROWNSLang extends Lang {
     //blatant copy of CreateLang
 
 
-    public static @NotNull LangBuilder builder() {
-        return new LangBuilder(CROWNS.MODID);
-    }
-
-
     public static @NotNull LangBuilder translate(@NotNull String langKey, Object... args) {
         return builder().translate(langKey, args);
+    }
+
+    public static @NotNull LangBuilder builder() {
+        return new LangBuilder(CROWNS.MODID);
     }
 
     public static @NotNull LangBuilder text(@NotNull String text) {
@@ -59,7 +58,7 @@ public class CROWNSLang extends Lang {
                             .append(FormicApiLang.numberWithSymbol(FullTableBased.getS(state.specificEnthalpy(), state.pressure())).text("J/Kg/K").component())
                             .append(" | ")
                             .append(
-                                    Component.literal("x = " +LangNumberFormat.format(state.vaporQuality() * 100) + "%")));
+                                    Component.literal("x = " + LangNumberFormat.format(state.vaporQuality() * 100) + "%")));
         };
     }
 

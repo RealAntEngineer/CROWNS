@@ -20,9 +20,6 @@ public abstract class FluidTankMixin {
     @NotNull
     protected FluidStack fluid;
 
-    @Shadow(remap = false)
-    public abstract int getFluidAmount();
-
     @Inject(method = "fill", at = @At(value = "HEAD"), remap = false)
     public void mergeStateNBT(@NotNull FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
         if (!fluid.isEmpty() && fluid.isFluidEqual(resource) && fluid.getFluid().is(FluidTags.WATER)) {
@@ -55,4 +52,7 @@ public abstract class FluidTankMixin {
             }
         }
     }
+
+    @Shadow(remap = false)
+    public abstract int getFluidAmount();
 }

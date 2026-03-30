@@ -28,6 +28,36 @@ public class FuelStackDisplaySource extends DisplaySource {
         return provideEntries(context, stats.maxRows() * (isBook ? ENTRIES_PER_PAGE : 1))
                 .toList();
     }
+
+    @Override
+    public int getPassiveRefreshTicks() {
+        return 5;
+    }
+
+    protected @NotNull Stream<MutableComponent> provideEntries(
+            @NotNull DisplayLinkContext context,
+            int maxRows
+    ) {
+        BlockEntity sourceBE = context.getSourceBlockEntity();
+        if (!(sourceBE instanceof AssemblyBlockEntity assembly))
+            return Stream.empty();
+
+        Level level = assembly.getLevel();
+        if (level == null)
+            return Stream.empty();
+
+        List<AssemblyBlockEntity> stack =
+                collectFuelStack(level, assembly.getBlockPos(), assembly.getBlockState().getValue(AssemblyBlock.AXIS));
+
+        List<MutableComponent> values = new ArrayList<>();
+
+        for (AssemblyBlockEntity part : stack) {
+            values.add(FormicApiLang.formatTemperature(part.getTemperature()).component());
+        }
+
+        return values.stream().limit(maxRows);
+    }
+
     private static List<AssemblyBlockEntity> collectFuelStack(
             Level level,
             BlockPos startPos,
@@ -62,33 +92,5 @@ public class FuelStackDisplaySource extends DisplaySource {
         }
 
         return stack;
-    }
-    @Override
-    public int getPassiveRefreshTicks() {
-        return 5;
-    }
-
-    protected @NotNull Stream<MutableComponent> provideEntries(
-            @NotNull DisplayLinkContext context,
-            int maxRows
-    ) {
-        BlockEntity sourceBE = context.getSourceBlockEntity();
-        if (!(sourceBE instanceof AssemblyBlockEntity assembly))
-            return Stream.empty();
-
-        Level level = assembly.getLevel();
-        if (level == null)
-            return Stream.empty();
-
-        List<AssemblyBlockEntity> stack =
-                collectFuelStack(level, assembly.getBlockPos(), assembly.getBlockState().getValue(AssemblyBlock.AXIS));
-
-        List<MutableComponent> values = new ArrayList<>();
-
-        for (AssemblyBlockEntity part : stack) {
-            values.add(FormicApiLang.formatTemperature(part.getTemperature()).component());
-        }
-
-        return values.stream().limit(maxRows);
     }
 }

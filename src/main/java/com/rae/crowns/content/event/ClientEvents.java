@@ -38,6 +38,9 @@ public class ClientEvents {
         SteamFlowManager.tick(world);
     }
 
+    protected static boolean isGameActive() {
+        return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
+    }
 
     @SubscribeEvent
     public static void addToItemTooltip(@NotNull ItemTooltipEvent event) {
@@ -59,10 +62,6 @@ public class ClientEvents {
             }
         }
 
-    }
-
-    protected static boolean isGameActive() {
-        return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
     }
 
 }
