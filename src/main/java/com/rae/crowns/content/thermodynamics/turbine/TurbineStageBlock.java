@@ -43,13 +43,13 @@ public class TurbineStageBlock extends MBKineticController implements IBE<Turbin
     }
 
     @Override
-    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
-        return Shapes.join(ShapesInit.TURBINE.get(state.getValue(FACING)), Shapes.block(), BooleanOp.AND);
+    public float getShadeBrightness(BlockState pState, BlockGetter pLevel, BlockPos pPos) {
+        return 1.0F;
     }
 
     @Override
-    public float getShadeBrightness(BlockState pState, BlockGetter pLevel, BlockPos pPos) {
-        return 1.0F;
+    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+        return Shapes.join(ShapesInit.TURBINE.get(state.getValue(FACING)), Shapes.block(), BooleanOp.AND);
     }
 
     @Override
@@ -83,11 +83,6 @@ public class TurbineStageBlock extends MBKineticController implements IBE<Turbin
     }
 
     @Override
-    public @NotNull VoxelShape getGlobalShape(@NotNull BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
-        return ShapesInit.TURBINE.get(state.getValue(FACING));
-    }
-
-    @Override
     public @NotNull Vec3i getDefaultOffset() {
         return new Vec3i(0, 1, 1);
     }
@@ -95,5 +90,10 @@ public class TurbineStageBlock extends MBKineticController implements IBE<Turbin
     @Override
     public @NotNull Vec3i getDefaultSize() {
         return new Vec3i(1, 3, 3);
+    }
+
+    @Override
+    public @NotNull VoxelShape getGlobalShape(@NotNull BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
+        return ShapesInit.TURBINE.get(state.getValue(FACING));
     }
 }

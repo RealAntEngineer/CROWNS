@@ -40,6 +40,48 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
     @Override
     protected BlockState createLegacyBlock(FluidState state) {
         return super.createLegacyBlock(state).setValue(POWER, state.getValue(POWER));
+    }
+
+    public static class Flowing extends CoriumFluid {
+
+        public Flowing(Properties properties) {
+            super(properties);
+            registerDefaultState(getStateDefinition().any().setValue(LEVEL, 7).setValue(POWER, 15));
+
+        }
+
+        protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
+            super.createFluidStateDefinition(builder);
+            builder.add(LEVEL).add(POWER);
+        }
+
+        public int getAmount(FluidState state) {
+            return state.getValue(LEVEL);
+        }
+
+        public boolean isSource(FluidState state) {
+            return false;
+        }
+    }
+
+    public static class Source extends CoriumFluid {
+        public Source(Properties properties) {
+            super(properties);
+            registerDefaultState(getStateDefinition().any().setValue(POWER, 15));
+        }
+
+        protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
+            super.createFluidStateDefinition(builder);
+            builder.add(POWER);
+        }
+
+        public int getAmount(FluidState state) {
+            return 8;
+        }
+
+        public boolean isSource(FluidState state) {
+            return true;
+        }
     }    @Override
     public void tick(Level level, BlockPos pos, FluidState state) {
         //schedule tick ?
@@ -94,47 +136,10 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
         this.spread(level, pos, state);
     }
 
-    public static class Flowing extends CoriumFluid {
 
-        public Flowing(Properties properties) {
-            super(properties);
-            registerDefaultState(getStateDefinition().any().setValue(LEVEL, 7).setValue(POWER, 15));
 
-        }
 
-        protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
-            super.createFluidStateDefinition(builder);
-            builder.add(LEVEL).add(POWER);
-        }
-
-        public int getAmount(FluidState state) {
-            return state.getValue(LEVEL);
-        }
-
-        public boolean isSource(FluidState state) {
-            return false;
-        }
-    }
-
-    public static class Source extends CoriumFluid {
-        public Source(Properties properties) {
-            super(properties);
-            registerDefaultState(getStateDefinition().any().setValue(POWER, 15));
-        }
-
-        protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
-            super.createFluidStateDefinition(builder);
-            builder.add(POWER);
-        }
-
-        public int getAmount(FluidState state) {
-            return 8;
-        }
-
-        public boolean isSource(FluidState state) {
-            return true;
-        }
-    }    @Override
+    @Override
     protected int getSpreadDelay(Level level, BlockPos pos, FluidState currentState, FluidState newState) {
         return 20;
     }
@@ -241,8 +246,6 @@ public abstract class CoriumFluid extends ForgeFlowingFluid {
 
     }
     //return the amount by which we decay
-
-
 
 
 }

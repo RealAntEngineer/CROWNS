@@ -1,5 +1,6 @@
 package com.rae.crowns.content.event;
 
+import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
@@ -37,7 +38,7 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onEntityTick(LivingEvent.@NotNull LivingTickEvent event) {
         LivingEntity entity = event.getEntity();
-        if (entity.level() instanceof ServerLevel level) {
+        if (entity.level() instanceof ServerLevel level && CROWNSConfigs.SERVER.conduction.heatDamage.get()) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) entity.level());
             if (data == null) return;
             AtomicReference<Float> cumlTemp = new AtomicReference<>(0f);

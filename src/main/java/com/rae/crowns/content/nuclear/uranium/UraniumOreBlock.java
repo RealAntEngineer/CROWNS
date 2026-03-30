@@ -62,14 +62,6 @@ public class UraniumOreBlock extends Block {
         super.attack(p_55467_, p_55468_, p_55469_, p_55470_);
     }
 
-    private static void interact(@NotNull BlockState p_55493_, @NotNull Level p_55494_, @NotNull BlockPos p_55495_) {
-        spawnParticles(p_55494_, p_55495_);
-        if (!p_55493_.getValue(LIT)) {
-            p_55494_.setBlock(p_55495_, p_55493_.setValue(LIT, Boolean.TRUE), 3);
-        }
-
-    }
-
     private static void spawnParticles(@NotNull Level level, @NotNull BlockPos pos) {
         double d0 = 0.5625D;
         RandomSource randomsource = level.random;
@@ -83,6 +75,14 @@ public class UraniumOreBlock extends Block {
                 double d3 = direction$axis == Direction.Axis.Z ? 0.5D + d0 * (double) direction.getStepZ() : (double) randomsource.nextFloat();
                 level.addParticle(new DustParticleOptions(new Vector3f(Vec3.fromRGB24(0x0cd628).toVector3f()), 1.0F), (double) pos.getX() + d1, (double) pos.getY() + d2, (double) pos.getZ() + d3, 0.0D, 0.0D, 0.0D);
             }
+        }
+
+    }
+
+    private static void interact(@NotNull BlockState p_55493_, @NotNull Level p_55494_, @NotNull BlockPos p_55495_) {
+        spawnParticles(p_55494_, p_55495_);
+        if (!p_55493_.getValue(LIT)) {
+            p_55494_.setBlock(p_55495_, p_55493_.setValue(LIT, Boolean.TRUE), 3);
         }
 
     }

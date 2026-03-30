@@ -5,7 +5,6 @@ import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.nuclear.IAmFissileMaterial;
-import com.rae.crowns.content.nuclear.IAmRadioactiveSource;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.init.misc.FluidInit;
 import com.rae.formicapi.FormicApiLang;
