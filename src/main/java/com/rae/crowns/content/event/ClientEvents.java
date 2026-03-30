@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.rae.crowns.content.hazards.HazardSystem;
 import com.rae.crowns.content.nuclear.IAmFissileMaterial;
 import com.rae.crowns.content.rendering.VolumeWorldRenderer;
-import com.rae.crowns.content.rendering.overlays.GuiOverlays;
+import com.rae.crowns.content.rendering.overlays.PostGuiOverlayBehaviours;
 import com.rae.crowns.content.rendering.util.SceneDepth;
 import com.rae.crowns.content.sound.CrownsSoundScapes;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
@@ -63,17 +63,17 @@ public class ClientEvents {
     }
 
     @SubscribeEvent
-    public static void renderGuiOverlays(RenderGuiOverlayEvent.Post event) {
+    public static void renderGuiOverlaysPost(RenderGuiOverlayEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
 
         if (mc.player == null) return;
 
         GuiGraphics guiGraphics = event.getGuiGraphics();
 
-        // Render once per frame
+        // Render it once per frame otherwise
         if (!event.getOverlay().id().equals(VanillaGuiOverlay.HOTBAR.id())) return;
 
-        GuiOverlays.dosimeterGuiOverlay(guiGraphics, mc);
+        PostGuiOverlayBehaviours.dosimeterGuiOverlay(guiGraphics, mc);
     }
 
     @SubscribeEvent
