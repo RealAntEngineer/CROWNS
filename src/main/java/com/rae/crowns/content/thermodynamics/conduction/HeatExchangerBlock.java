@@ -23,7 +23,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 public class HeatExchangerBlock extends WrenchableDirectionalBlock implements ProperWaterloggedBlock, IBE<HeatExchangerBlockEntity> {
-    public static final BooleanProperty IN = BooleanProperty.create("in");
+    public static final BooleanProperty IN  = BooleanProperty.create("in");
     public static final BooleanProperty OUT = BooleanProperty.create("out");
 
     public HeatExchangerBlock(@NotNull Properties properties) {
@@ -43,8 +43,8 @@ public class HeatExchangerBlock extends WrenchableDirectionalBlock implements Pr
 
     @Override
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-        BlockState state = withWater(this.defaultBlockState().setValue(FACING, context.getClickedFace()), context);
-        BlockState clickedState = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace(), -1));
+        BlockState state         = withWater(this.defaultBlockState().setValue(FACING, context.getClickedFace()), context);
+        BlockState clickedState  = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace(), -1));
         BlockState oppositeState = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace(), 1));
 
         if (clickedState.is(BlockInit.HEAT_EXCHANGER.get()) && clickedState.getValue(FACING).getAxis() == context.getClickedFace().getAxis()) {

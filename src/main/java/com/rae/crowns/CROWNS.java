@@ -30,23 +30,23 @@ import org.slf4j.Logger;
 @SuppressWarnings("ALL")
 @Mod(CROWNS.MODID)//CreatingRotationOperatedWithNuclearScience
 public class CROWNS {
-    public static final String MODID = "crowns";
-    public static final Logger LOGGER = LogUtils.getLogger();
-    public static final CreateRegistrate REGISTRATE =
+    public static final String                    MODID              = "crowns";
+    public static final Logger                    LOGGER             = LogUtils.getLogger();
+    public static final CreateRegistrate          REGISTRATE         =
             CreateRegistrate.create(MODID)
                     .defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
     public static final FloatMapDataLoader<Block> BLOCK_TEMPERATURES = new FloatMapDataLoader<>(MODID, "blocks/temperatures", Registries.BLOCK);
-    public static final FloatMapDataLoader<Block> BLOCK_CONDUCTION = new FloatMapDataLoader<>(MODID, "blocks/conduction", Registries.BLOCK);
-    public static final FloatMapDataLoader<Block> BLOCK_RESILIENCE = new FloatMapDataLoader<>(MODID, "blocks/resilience", Registries.BLOCK);
+    public static final FloatMapDataLoader<Block> BLOCK_CONDUCTION   = new FloatMapDataLoader<>(MODID, "blocks/conduction", Registries.BLOCK);
+    public static final FloatMapDataLoader<Block> BLOCK_RESILIENCE   = new FloatMapDataLoader<>(MODID, "blocks/resilience", Registries.BLOCK);
     public static final FloatMapDataLoader<Fluid> FLUID_TEMPERATURES = new FloatMapDataLoader<>(MODID, "fluids/temperatures", Registries.FLUID);
-    public static final FloatMapDataLoader<Fluid> FLUID_CONDUCTION = new FloatMapDataLoader<>(MODID, "fluids/conduction", Registries.FLUID);
-    public static final FloatMapDataLoader<Fluid> FLUID_RESILIENCE = new FloatMapDataLoader<>(MODID, "fluids/resilience", Registries.FLUID);
+    public static final FloatMapDataLoader<Fluid> FLUID_CONDUCTION   = new FloatMapDataLoader<>(MODID, "fluids/conduction", Registries.FLUID);
+    public static final FloatMapDataLoader<Fluid> FLUID_RESILIENCE   = new FloatMapDataLoader<>(MODID, "fluids/resilience", Registries.FLUID);
 
     public static final FloatMapDataLoader<Biome> BIOME_TEMPERATURES = new FloatMapDataLoader<>(MODID, "biomes/temperatures", Registries.BIOME);
 
     public CROWNS() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        IEventBus forgeEventBus = MinecraftForge.EVENT_BUS;
+        IEventBus         modEventBus       = FMLJavaModLoadingContext.get().getModEventBus();
+        IEventBus         forgeEventBus     = MinecraftForge.EVENT_BUS;
         ModLoadingContext modLoadingContext = ModLoadingContext.get();
 
         REGISTRATE.registerEventListeners(modEventBus);

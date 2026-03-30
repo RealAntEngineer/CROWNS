@@ -41,9 +41,9 @@ import static com.rae.formicapi.thermal_utilities.FullTableBased.DEFAULT_STATE;
 
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
     //really heavy -> to optimize and run less by second
-    private static final int SYNC_RATE = 8;
+    private static final int                         SYNC_RATE   = 8;
     //for later maybe ? to make the code simpler to understand
-    private final StateFluidTank WATER_TANK = new StateFluidTank(1000, (f) -> {
+    private final        StateFluidTank              WATER_TANK  = new StateFluidTank(1000, (f) -> {
     }) {
         @Override
         public boolean isFluidValid(@NotNull FluidStack stack) {
@@ -52,11 +52,11 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     };
     //transform the IHaveTemperature interface into a behavior
     // for now if T > 373°K P = 20 bar.
-    public float C = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
-    public float temperature = 300;
-    protected LazyOptional<IFluidHandler> fluidCapability;
-    protected int syncCooldown;
-    protected boolean queuedSync;
+    public               float                       C           = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
+    public               float                       temperature = 300;
+    protected            LazyOptional<IFluidHandler> fluidCapability;
+    protected            int                         syncCooldown;
+    protected            boolean                     queuedSync;
 
     public HeatExchangerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -98,8 +98,8 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
             //if not loaded we keep the same temperature.
             //internal conduction
-            float dt = 1 / 20f;
-            double k = getInternalConductivity() / getThermalCapacity() * CROWNSConfigs.SERVER.conduction.heatExchangerIterations.get();
+            float  dt = 1 / 20f;
+            double k  = getInternalConductivity() / getThermalCapacity() * CROWNSConfigs.SERVER.conduction.heatExchangerIterations.get();
             if (!WATER_TANK.isEmpty()) {//we don't heat it if empty
                 int iteration = Math.max(1, (int) k * 1000 / WATER_TANK.getFluidAmount());
                 for (int i = 0; i < iteration; i++) {
@@ -255,7 +255,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                     * CROWNSConfigs.SERVER.conduction.heatExchangerIterations.get();
 
             int fluidAmount = heated.getAmount();
-            int iteration = Math.max(1, (int) (k * 1000 / fluidAmount));
+            int iteration   = Math.max(1, (int) (k * 1000 / fluidAmount));
 
             PhysicsWorldData data = PhysicsSaveManager.get(level);
             boolean canCoolBlock =

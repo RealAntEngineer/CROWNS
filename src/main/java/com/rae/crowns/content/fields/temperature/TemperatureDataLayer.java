@@ -20,11 +20,11 @@ import java.nio.ByteBuffer;
  * temperature = (stored - Integer.MIN_VALUE) / SCALE
  */
 public class TemperatureDataLayer extends AbstractDataLayer {
-    public static final double SCALE = 10f; // 1 decimal places
-    public static final double MIN_TEMPERATURE = 0.0d;
-    public static final double MAX_TEMPERATURE =
+    public static final double  SCALE           = 10f; // 1 decimal places
+    public static final double  MIN_TEMPERATURE = 0.0d;
+    public static final double  MAX_TEMPERATURE =
             (Short.MAX_VALUE - (long) Short.MIN_VALUE) / SCALE; // ≈ 42949.67295
-    private final float[] data = new float[SIZE];
+    private final       float[] data            = new float[SIZE];
     //private final int[] defaultData = new int[SIZE];
 
     @Override

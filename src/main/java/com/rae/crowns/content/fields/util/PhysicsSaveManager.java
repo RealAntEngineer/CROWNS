@@ -28,8 +28,8 @@ import java.util.WeakHashMap;
 
 @Mod.EventBusSubscriber(modid = CROWNS.MODID)
 public class PhysicsSaveManager {
-    private static final Map<ResourceKey<Level>, PhysicsWorldData> worldDataMap = new WeakHashMap<>();
-    private static final Map<ResourceKey<Level>, LongSet> worldLoadedSections = new HashMap<>();
+    private static final Map<ResourceKey<Level>, PhysicsWorldData> worldDataMap        = new WeakHashMap<>();
+    private static final Map<ResourceKey<Level>, LongSet>          worldLoadedSections = new HashMap<>();
     //they are here to count the sections that are loaded or not.
 
     @SubscribeEvent

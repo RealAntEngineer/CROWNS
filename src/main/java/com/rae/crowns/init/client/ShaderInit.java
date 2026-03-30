@@ -15,8 +15,8 @@ import java.io.IOException;
 @Mod.EventBusSubscriber(modid = "crowns", bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ShaderInit {
 
-    public static ShaderInstance volumeShader;
-    static RenderStateShard.ShaderStateShard VOLUME_FULL = new RenderStateShard.ShaderStateShard.ShaderStateShard(() -> ShaderInit.volumeShader);
+    public static ShaderInstance                    volumeShader;
+    static        RenderStateShard.ShaderStateShard VOLUME_FULL = new RenderStateShard.ShaderStateShard.ShaderStateShard(() -> ShaderInit.volumeShader);
 
     @SubscribeEvent
     public static void registerShaders(RegisterShadersEvent event) {

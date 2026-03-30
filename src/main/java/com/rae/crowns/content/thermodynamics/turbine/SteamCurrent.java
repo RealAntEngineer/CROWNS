@@ -36,18 +36,18 @@ import static com.rae.formicapi.thermal_utilities.FullTableBased.DEFAULT_STATE;
 public class SteamCurrent {
 
     // configuration
-    private final float maxDistance;
+    private final float                               maxDistance;
     @NotNull
-    private final BlockPos injectorPos;
+    private final BlockPos                            injectorPos;
     // dynamic state
     @NotNull
-    private List<BlockPos> stagesPos = new ArrayList<>();
+    private       List<BlockPos>                      stagesPos     = new ArrayList<>();
     @Nullable
-    private BlockPos collectorPos;
+    private       BlockPos                            collectorPos;
     @NotNull
-    private Map<BlockPos, Float> powerForStage = new ConcurrentHashMap<>();
+    private       Map<BlockPos, Float>                powerForStage = new ConcurrentHashMap<>();
     @NotNull
-    private Map<BlockPos, SpecificRealGazState> stateMap = new HashMap<>();
+    private       Map<BlockPos, SpecificRealGazState> stateMap      = new HashMap<>();
 
     @Nullable
     private SpecificRealGazState inputFluidState;
@@ -57,10 +57,10 @@ public class SteamCurrent {
     @NotNull
     private Direction direction;
     @Nullable
-    private FlowLine spline; // created on server and synced to client via NBT
+    private FlowLine  spline; // created on server and synced to client via NBT
 
-    private float flow;
-    private AABB boundingBox;
+    private float   flow;
+    private AABB    boundingBox;
     private boolean reloadSpline;
 
     public SteamCurrent(@NotNull BlockPos injectorPos, @NotNull Direction direction, float maxDistance) {
@@ -110,7 +110,7 @@ public class SteamCurrent {
                 BlockPos.of(nbt.getLong("endPos"))
         );
 
-        float maxDistance = nbt.getFloat("maxDistance");
+        float   maxDistance  = nbt.getFloat("maxDistance");
         boolean reloadSpline = nbt.getBoolean("reloadSpline");
 
         BlockPos collectorPos = nbt.contains("collectorPos") ? BlockPos.of(nbt.getLong("collectorPos")) : null;
@@ -235,9 +235,9 @@ public class SteamCurrent {
      */
     public @NotNull SPR getPowerForStage(@NotNull ISteamPressureChange stage) {
         if (!(stage instanceof BlockEntity be)) return new SPR(-1, 0f);
-        BlockPos pos = be.getBlockPos();
-        int idx = stagesPos.indexOf(pos);
-        float power = powerForStage.getOrDefault(pos, 0f);
+        BlockPos pos   = be.getBlockPos();
+        int      idx   = stagesPos.indexOf(pos);
+        float    power = powerForStage.getOrDefault(pos, 0f);
         return new SPR(idx, power);
     }
 
@@ -294,7 +294,7 @@ public class SteamCurrent {
         newStateMap.put(injectorPos, previousState);
 
         SpecificRealGazState nextState = previousState;
-        float yield = CROWNSConfigs.SERVER.kinetics.turbineIsentropicYield.getF();
+        float                yield     = CROWNSConfigs.SERVER.kinetics.turbineIsentropicYield.getF();
         for (ISteamPressureChange stage : stages) {
             if (!(stage instanceof BlockEntity stageBe)) continue;
 
@@ -331,7 +331,7 @@ public class SteamCurrent {
             return;
         }
 
-        Direction dir = this.direction;
+        Direction      dir        = this.direction;
         List<BlockPos> sortedKeys = new ArrayList<>();
         for (BlockPos p : stateMap.keySet()) {
             if (p != null && level.getBlockEntity(p) != null) sortedKeys.add(p);
@@ -340,7 +340,7 @@ public class SteamCurrent {
         final int sign = dir.getAxisDirection() == Direction.AxisDirection.POSITIVE ? 1 : -1;
         sortedKeys.sort((s1, s2) -> sign * Integer.compare(s1.get(dir.getAxis()), s2.get(dir.getAxis())));
 
-        List<Vec3> points = new ArrayList<>(sortedKeys.size());
+        List<Vec3>  points = new ArrayList<>(sortedKeys.size());
         List<Color> colors = new ArrayList<>(sortedKeys.size());
 
         for (BlockPos p : sortedKeys) {
@@ -417,7 +417,7 @@ public class SteamCurrent {
             setBoundingBox(new AABB(0, 0, 0, 0, 0, 0));
         } else {
             float factor = distance - 1;
-            Vec3 scale = Vec3.atLowerCornerOf(direction.getNormal()).scale(factor);
+            Vec3  scale  = Vec3.atLowerCornerOf(direction.getNormal()).scale(factor);
 
 
             if (factor > 0) {
@@ -435,7 +435,7 @@ public class SteamCurrent {
      * Returns the distance traveled (number of non-air steps encountered).
      */
     public float explore(@NotNull Level world, @NotNull BlockPos start, float max, @NotNull Direction facing) {
-        float distance = 0f;
+        float          distance    = 0f;
         List<BlockPos> foundStages = new ArrayList<>();
 
         for (int i = 1; i <= max; i++) {
@@ -451,7 +451,7 @@ public class SteamCurrent {
                 if (!state.is(BlockInit.TURBINE_STAGE_STRUCTURE.get())) {
                     break;
                 } else {
-                    BlockPos controller = MBStructureBlock.getMaster(world, currentPos);
+                    BlockPos    controller       = MBStructureBlock.getMaster(world, currentPos);
                     BlockEntity controllerEntity = world.getBlockEntity(controller);
                     if (controllerEntity instanceof TurbineStageBlockEntity) {
                         Direction controllerFacing = world.getBlockState(controller).getValue(DirectionalBlock.FACING);

@@ -25,10 +25,10 @@ public enum PacketInit {
     UPDATE_STEAM_FLOW_DATA(UpdateSteamFlowPacket.class, UpdateSteamFlowPacket::new, NetworkDirection.PLAY_TO_CLIENT),
     UPDATE_SAVED_DATA(UpdateSectionsPacket.class, UpdateSectionsPacket::new, PLAY_TO_CLIENT);
 
-    public static final ResourceLocation CHANNEL_NAME = CROWNS.resource("main");
-    public static final int NETWORK_VERSION = 3;
-    public static final String NETWORK_VERSION_STR = String.valueOf(NETWORK_VERSION);
-    private static SimpleChannel channel;
+    public static final ResourceLocation CHANNEL_NAME        = CROWNS.resource("main");
+    public static final int              NETWORK_VERSION     = 3;
+    public static final String           NETWORK_VERSION_STR = String.valueOf(NETWORK_VERSION);
+    private static      SimpleChannel    channel;
 
     private final @NotNull PacketType<?> packetType;
 
@@ -61,11 +61,11 @@ public enum PacketInit {
     private static class PacketType<T extends SimplePacketBase> {
         private static int index = 0;
 
-        private final @NotNull BiConsumer<T, FriendlyByteBuf> encoder;
-        private final Function<FriendlyByteBuf, T> decoder;
+        private final @NotNull BiConsumer<T, FriendlyByteBuf>                encoder;
+        private final          Function<FriendlyByteBuf, T>                  decoder;
         private final @NotNull BiConsumer<T, Supplier<NetworkEvent.Context>> handler;
-        private final Class<T> type;
-        private final NetworkDirection direction;
+        private final          Class<T>                                      type;
+        private final          NetworkDirection                              direction;
 
         private PacketType(Class<T> type, Function<FriendlyByteBuf, T> factory, NetworkDirection direction) {
             encoder = T::write;

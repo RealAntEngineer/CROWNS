@@ -37,7 +37,7 @@ public class BlockEntityInit {
             .renderer(() -> CompressorRenderer::new)
             .register();
 
-    public static final BlockEntityEntry<SteamInputBlockEntity> STEAM_INPUT = REGISTRATE.blockEntity(
+    public static final BlockEntityEntry<SteamInputBlockEntity>     STEAM_INPUT     = REGISTRATE.blockEntity(
                     "steam_input", SteamInputBlockEntity::new)
             .validBlock(BlockInit.STEAM_INPUT)
             .register();
@@ -45,7 +45,7 @@ public class BlockEntityInit {
                     "steam_collector", SteamCollectorBlockEntity::new)
             .validBlock(BlockInit.STEAM_COLLECTOR)
             .register();
-    public static final BlockEntityEntry<HeatExchangerBlockEntity> HEAT_EXCHANGER = REGISTRATE.blockEntity(
+    public static final BlockEntityEntry<HeatExchangerBlockEntity>  HEAT_EXCHANGER  = REGISTRATE.blockEntity(
                     "heat_exchanger", HeatExchangerBlockEntity::new)
             .renderer(() -> HeatExchangerRenderer::new)
             .validBlock(BlockInit.HEAT_EXCHANGER)

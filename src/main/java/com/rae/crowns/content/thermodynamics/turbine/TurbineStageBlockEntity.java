@@ -28,11 +28,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implements ISteamPressureChange {
-    public int initialTicks;
+    public             int                initialTicks;
     //the turbine add itself to the SteamCurrent
     protected @NotNull List<SteamCurrent> flows = List.of();
     LerpedFloat power = LerpedFloat.linear();
-    int index;
+    int         index;
 
     public TurbineStageBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);

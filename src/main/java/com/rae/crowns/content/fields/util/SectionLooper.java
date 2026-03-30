@@ -89,9 +89,9 @@ public final class SectionLooper {
                 0, 0, 1,   // SOUTH
                 0, 0, -1    // NORTH
         };
-        private int sx, sy, sz;
-        private long sectionPos;
-        private short packedXYZ; // stores x, y, z as 4 bits each (0-15)
+        private              int   sx, sy, sz;
+        private long                sectionPos;
+        private short               packedXYZ; // stores x, y, z as 4 bits each (0-15)
         private AbstractDataLayer[] layers;
 
         /**
@@ -157,9 +157,9 @@ public final class SectionLooper {
             int cz = z();
 
             for (int i = 0; i < 6; i++) {
-                int nx = cx + NEIGHBOR_OFFSETS[i * 3];
-                int ny = cy + NEIGHBOR_OFFSETS[i * 3 + 1];
-                int nz = cz + NEIGHBOR_OFFSETS[i * 3 + 2];
+                int         nx  = cx + NEIGHBOR_OFFSETS[i * 3];
+                int         ny  = cy + NEIGHBOR_OFFSETS[i * 3 + 1];
+                int         nz  = cz + NEIGHBOR_OFFSETS[i * 3 + 2];
                 NeighborRef ref = resolveNeighbor(nx, ny, nz);
                 consumer.accept(nx, ny, nz, ref);
             }
@@ -171,7 +171,7 @@ public final class SectionLooper {
          */
         public NeighborRef resolveNeighbor(int nx, int ny, int nz) {
             int nsx = sx, nsy = sy, nsz = sz;
-            int lx = nx, ly = ny, lz = nz;
+            int lx  = nx, ly = ny, lz = nz;
 
             if (nx < 0) {
                 nsx--;

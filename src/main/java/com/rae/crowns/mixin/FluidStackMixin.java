@@ -15,7 +15,7 @@ public abstract class FluidStackMixin {
     private void tagIsEqualForState(@NotNull FluidStack other, @NotNull CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValue()) {
 
-            CompoundTag firstTag = this.getOrCreateTag().copy();
+            CompoundTag firstTag  = this.getOrCreateTag().copy();
             CompoundTag secondTag = other.getOrCreateTag().copy();
             firstTag.remove("realGazState");
             secondTag.remove("realGazState");

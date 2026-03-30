@@ -25,7 +25,7 @@ public class SteamFlowData extends SavedData {
     }
 
     public static @NotNull SteamFlowData load(@NotNull CompoundTag nbt) {
-        SteamFlowData savedData = new SteamFlowData();
+        SteamFlowData          savedData     = new SteamFlowData();
         List<ResourceLocation> dimensionKeys = KEYS_CODEC.parse(NbtOps.INSTANCE, nbt.get("dimensions")).result().orElse(List.of());
 
         for (ResourceLocation key : dimensionKeys) {

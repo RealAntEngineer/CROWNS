@@ -68,8 +68,8 @@ public class CreativeModeTabsInit {
                 ItemInit.FUEL_ROD, item -> {
                     Collection<ItemStack> itemStacks = new ArrayList<>();
                     for (double grade : uraniumGrades) {
-                        ItemStack itemStack = item.getDefaultInstance();
-                        CompoundTag tag = itemStack.getOrCreateTag();
+                        ItemStack   itemStack = item.getDefaultInstance();
+                        CompoundTag tag       = itemStack.getOrCreateTag();
 
                         CompoundTag compositionNBT = new CompoundTag();
                         compositionNBT.putDouble("crowns:u235", grade);
@@ -84,8 +84,8 @@ public class CreativeModeTabsInit {
                 BlockInit.FUEL_ASSEMBLY, item -> {
                     Collection<ItemStack> itemStacks = new ArrayList<>();
                     for (double grade : uraniumGrades) {
-                        ItemStack itemStack = item.getDefaultInstance();
-                        CompoundTag tag = itemStack.getOrCreateTag();
+                        ItemStack   itemStack = item.getDefaultInstance();
+                        CompoundTag tag       = itemStack.getOrCreateTag();
 
                         CompoundTag compositionNBT = new CompoundTag();
                         compositionNBT.putDouble("crowns:u235", grade * ASSEMBLY_FACTOR);

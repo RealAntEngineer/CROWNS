@@ -28,7 +28,7 @@ public class RadiationSourceDisplaySource extends DisplaySource {
     public static final List<List<MutableComponent>> notEnoughSpaceFlap =
             List.of(List.of(CROWNSLang.translate("display_source.radiation_source.not_enough_space").component()),
                     List.of(CROWNSLang.translate("display_source.radiation_source.for_activity_status").component()));
-    static final int ENTRIES_PER_PAGE = 8;
+    static final        int                          ENTRIES_PER_PAGE   = 8;
 
     @Override
     public @NotNull List<MutableComponent> provideText(@NotNull DisplayLinkContext context, @NotNull DisplayTargetStats stats) {

@@ -36,7 +36,7 @@ public class CommandsInit {
                         .then(Commands.argument("power", FloatArgumentType.floatArg(0.0F))
                                 .executes(context -> {
                                     ServerPlayer player = context.getSource().getPlayerOrException();
-                                    float power = FloatArgumentType.getFloat(context, "power");
+                                    float        power  = FloatArgumentType.getFloat(context, "power");
                                     NuclearExplosion.nuclearExplosion(
                                             player.level(),
                                             player.getOnPos(),

@@ -14,9 +14,9 @@ import java.util.*;
 public class LocalPhysicData {
     private static final Map<SectionPos, TemperatureDataLayer> temperatureMap = new HashMap<>();
 
-    private static final Set<SectionPos> tickingSections = new HashSet<>();
-    private static final Map<SectionPos, Long> lastTicked = new HashMap<>();
-    private static final long MAX_TICKS_AGE = 5; // keep highlighting for 5 ticks
+    private static final Set<SectionPos>       tickingSections = new HashSet<>();
+    private static final Map<SectionPos, Long> lastTicked      = new HashMap<>();
+    private static final long                  MAX_TICKS_AGE   = 5; // keep highlighting for 5 ticks
 
     public static void receiveUpdate(@NotNull Map<SectionPos, TemperatureDataLayer> serverTemperatureData, long currentTick) {
         temperatureMap.putAll(serverTemperatureData);
@@ -30,7 +30,7 @@ public class LocalPhysicData {
         Iterator<SectionPos> it = tickingSections.iterator();
         while (it.hasNext()) {
             SectionPos section = it.next();
-            long tick = lastTicked.getOrDefault(section, currentTick);
+            long       tick    = lastTicked.getOrDefault(section, currentTick);
             if (currentTick - tick > MAX_TICKS_AGE) {
                 it.remove();
                 lastTicked.remove(section);
@@ -39,8 +39,8 @@ public class LocalPhysicData {
     }
 
     public static float getTemperature(@NotNull Vec3i pos) {
-        SectionPos sectionPos = SectionPos.of((BlockPos) pos);
-        TemperatureDataLayer layer = temperatureMap.get(sectionPos);
+        SectionPos           sectionPos = SectionPos.of((BlockPos) pos);
+        TemperatureDataLayer layer      = temperatureMap.get(sectionPos);
 
         if (layer == null) return 300;
 

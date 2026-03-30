@@ -44,9 +44,9 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true, remap = false)
     public void replaceTick(@NotNull CallbackInfo ci) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         super.tick();
-        Level world = getWorld();
-        BlockPos pos = getPos();
-        boolean onServer = !world.isClientSide || blockEntity.isVirtual();
+        Level    world    = getWorld();
+        BlockPos pos      = getPos();
+        boolean  onServer = !world.isClientSide || blockEntity.isVirtual();
 
         if (interfaces == null)
             return;
@@ -101,12 +101,12 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
 
                     //modified part
                     singleSource = null;
-                    CompoundTag inFlowTag = fluidInFlow.getTag();
+                    CompoundTag          inFlowTag   = fluidInFlow.getTag();
                     SpecificRealGazState inFlowState = FullTableBased.DEFAULT_STATE;
                     if (inFlowTag != null && inFlowTag.contains("realGazState")) {
                         inFlowState = new SpecificRealGazState((CompoundTag) inFlowTag.get("realGazState"));
                     }
-                    CompoundTag availableTag = availableFlow.getTag();
+                    CompoundTag          availableTag   = availableFlow.getTag();
                     SpecificRealGazState availableState = FullTableBased.DEFAULT_STATE;
                     if (availableTag != null && availableTag.contains("realGazState")) {
                         availableState = new SpecificRealGazState((CompoundTag) availableTag.get("realGazState"));

@@ -5,8 +5,8 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
 public class ResilienceDataLayer extends AbstractDataLayer {
-    public static final int SIZE = 16 * 16 * 16;
-    private final byte[] data = new byte[SIZE];
+    public static final int    SIZE = 16 * 16 * 16;
+    private final       byte[] data = new byte[SIZE];
 
     @Override
     public @NotNull ResilienceDataLayer fromBytes(byte @NotNull [] bytes) {

@@ -28,7 +28,7 @@ public class StateMapSerializer implements EntityDataSerializer<HashMap<BlockPos
     @Override
     public @NotNull HashMap<BlockPos, SpecificRealGazState> read(@NotNull FriendlyByteBuf byteBuf) {
         HashMap<BlockPos, SpecificRealGazState> stateMap = new HashMap<>();
-        int size = byteBuf.readInt();
+        int                                     size     = byteBuf.readInt();
         for (int i = 0; i < size; i++) {
             stateMap.put(byteBuf.readBlockPos(), new SpecificRealGazState(byteBuf.readFloat(), byteBuf.readFloat(), byteBuf.readFloat(), byteBuf.readFloat()));
 

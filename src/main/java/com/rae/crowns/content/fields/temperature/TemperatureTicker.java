@@ -20,9 +20,9 @@ import static com.rae.crowns.content.fields.util.PosPackingUtil.packSection;
  * Uses TemperatureWorldData API (unchanged).
  */
 public final class TemperatureTicker {
-    public static int TICK_PERIOD = 1;
-    public static float DT = TICK_PERIOD / 20f;
-    public static float CAPACITY = 3e4f;
+    public static int   TICK_PERIOD = 1;
+    public static float DT          = TICK_PERIOD / 20f;
+    public static float CAPACITY    = 3e4f;
 
     public static void tick(@NotNull Set<Long> tickingSections, @NotNull PhysicsWorldData data) {
 
@@ -53,15 +53,15 @@ public final class TemperatureTicker {
                 return;
             }
 
-            int sx = pos.getX() >> 4;
-            int sy = pos.getY() >> 4;
-            int sz = pos.getZ() >> 4;
+            int  sx            = pos.getX() >> 4;
+            int  sy            = pos.getY() >> 4;
+            int  sz            = pos.getZ() >> 4;
             long packedSection = packSection(sx, sy, sz);
 
-            TemperatureDataLayer temperatureData = data.getLayer(DataLayerType.TEMPERATURE, packedSection);
+            TemperatureDataLayer temperatureData        = data.getLayer(DataLayerType.TEMPERATURE, packedSection);
             TemperatureDataLayer defaultTemperatureData = data.getLayer(DataLayerType.DEFAULT_TEMPERATURE, packedSection);
-            ConductionDataLayer conductionData = data.getLayer(DataLayerType.CONDUCTION, packedSection);
-            ResilienceDataLayer resilienceData = data.getLayer(DataLayerType.RESILIENCE, packedSection);
+            ConductionDataLayer  conductionData         = data.getLayer(DataLayerType.CONDUCTION, packedSection);
+            ResilienceDataLayer  resilienceData         = data.getLayer(DataLayerType.RESILIENCE, packedSection);
 
             boolean corrupted = false;
 
@@ -107,7 +107,7 @@ public final class TemperatureTicker {
      */
     private static final class TemperatureVoxelVisitor implements SectionLooper.VoxelVisitor {
 
-        private final PhysicsWorldData data;
+        private final PhysicsWorldData           data;
         private final TemperatureNeighborVisitor neighborVisitor;
 
 
@@ -121,10 +121,10 @@ public final class TemperatureTicker {
             if (x == 1 && y == 1 && z == 1) data.addToTicked(packedSection);
             long pos = ctx.packedPos();
 
-            float selfTemp = ctx.getData(0);
+            float selfTemp        = ctx.getData(0);
             float selfDefaultTemp = ctx.getData(1);
-            float selfCond = ctx.getData(2);
-            float res = ctx.getData(3);
+            float selfCond        = ctx.getData(2);
+            float res             = ctx.getData(3);
 
             // --- Prepare neighbor visitor ---
             neighborVisitor.setContext(ctx,
@@ -169,9 +169,9 @@ public final class TemperatureTicker {
     private static final class TemperatureNeighborVisitor implements SectionLooper.Context.NeighborConsumer {
         private final PhysicsWorldData data;
         // Accumulated result
-        public float totalFlux;
+        public        float            totalFlux;
         // Shared inputs (set before each forEachNeighbor call)
-        private float selfTemp, selfCond;
+        private       float            selfTemp, selfCond;
         private SectionLooper.Context ctx;
 
 
@@ -193,7 +193,7 @@ public final class TemperatureTicker {
             float neighborCond;
             if (ref.packedSection() != ctx.packedSectionPos()) {
                 TemperatureDataLayer nTempLayer = data.getLayer(DataLayerType.TEMPERATURE, ref.packedSection());
-                ConductionDataLayer nCondLayer = data.getLayer(DataLayerType.CONDUCTION, ref.packedSection());
+                ConductionDataLayer  nCondLayer = data.getLayer(DataLayerType.CONDUCTION, ref.packedSection());
 
                 if (nTempLayer == null || nCondLayer == null)
                     return;
