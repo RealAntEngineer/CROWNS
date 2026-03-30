@@ -39,10 +39,10 @@ public class ThermodynamicsScene {
         scene.overlay().showOutlineWithText(pipeInput, 20 * 4).text("Input vapor into the steam inputs");
         scene.idleSeconds(4);
 
-        double startX = 10.5;
-        double endX = 2;
-        double turbineY = 2.5;
-        double turbineZ = 3.5;
+        double    startX   = 10.5;
+        double    endX     = 2;
+        double    turbineY = 2.5;
+        double    turbineZ = 3.5;
         Selection turbines = sceneBuildingUtil.select().fromTo((int) (startX - 0.5), 2, 3, 2, 2, 3);
         scene.overlay().showOutlineWithText(turbines, 20 * 5)
                 .text("If the water is not hot enough the turbine will not turn");

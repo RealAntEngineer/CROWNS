@@ -25,7 +25,7 @@ public interface IAmFissileMaterial extends IAmRadioactiveSource {
                     CROWNS.resource("p239"), Couple.create(2f, 748f)
 
             ));//for U235,U358 and Plutonium -> percentage of total mass
-    HashMap<ResourceLocation, Float> molarConcentration = new HashMap<>(
+    HashMap<ResourceLocation, Float>         molarConcentration  = new HashMap<>(
             Map.of(
                     CROWNS.resource("u235"), 19 / 235f * 10000, //amount of moles in a cubic meter of pure metal
                     CROWNS.resource("u238"), 19 / 238f * 10000,

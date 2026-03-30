@@ -26,8 +26,8 @@ public class TurbineStageRenderer extends KineticBlockEntityRenderer<TurbineStag
         //super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
         BlockState state = be.getBlockState();
 
-        Direction direction = Direction.fromAxisAndDirection(((TurbineStageBlock) state.getBlock()).getRotationAxis(state), Direction.AxisDirection.POSITIVE);
-        VertexConsumer vb = buffer.getBuffer(RenderType.cutoutMipped());
+        Direction      direction = Direction.fromAxisAndDirection(((TurbineStageBlock) state.getBlock()).getRotationAxis(state), Direction.AxisDirection.POSITIVE);
+        VertexConsumer vb        = buffer.getBuffer(RenderType.cutoutMipped());
         ms.pushPose();
         SuperByteBuffer memoryRoll =
                 CachedBuffers.partialFacing(PartialModelInit.TURBINE_STAGE, be.getBlockState(), direction.getOpposite());

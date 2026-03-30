@@ -23,7 +23,7 @@ public class NuclearScene {
         scene.setSceneOffsetY(-2f);
         scene.world().setBlocks(sceneBuildingUtil.select().everywhere(), Blocks.AIR.defaultBlockState(), false);//clean slate
         scene.showBasePlate();
-        BlockPos centerFuel = new BlockPos(5, 0, 3);
+        BlockPos centerFuel   = new BlockPos(5, 0, 3);
         BlockPos exteriorFuel = new BlockPos(2, 0, 3);
         scene.world().setBlock(centerFuel, BlockInit.FUEL_ASSEMBLY.getDefaultState(), false);
         scene.world().setBlock(exteriorFuel, BlockInit.FUEL_ASSEMBLY.getDefaultState(), false);
@@ -37,7 +37,7 @@ public class NuclearScene {
                 .text("fast neutrons are unlikely to cause an other fuel block to undergo fission");
         scene.idleSeconds(4);
 
-        BlockPos coal = new BlockPos(4, 0, 3);
+        BlockPos coal  = new BlockPos(4, 0, 3);
         BlockPos water = new BlockPos(3, 0, 3);
         scene.world().setBlock(coal, Blocks.COAL_BLOCK.defaultBlockState(), false);
         scene.world().setBlock(water, Blocks.WATER.defaultBlockState(), false);
@@ -65,7 +65,7 @@ public class NuclearScene {
         Selection fc2 = sceneBuildingUtil.select().fromTo(4, 0, 3, 4, 3, 3);
         Selection fc3 = sceneBuildingUtil.select().fromTo(2, 0, 3, 2, 3, 3);
         Selection fc4 = sceneBuildingUtil.select().fromTo(3, 0, 2, 3, 3, 2);
-        Selection bb = sceneBuildingUtil.select().fromTo(2, 0, 2, 4, 3, 4);
+        Selection bb  = sceneBuildingUtil.select().fromTo(2, 0, 2, 4, 3, 4);
         scene.world().setBlocks(mod, Blocks.COAL_BLOCK.defaultBlockState(), false);
         scene.world().showSection(mod, Direction.UP);
         scene.world().setBlocks(fc1, BlockInit.FUEL_ASSEMBLY.getDefaultState(), false);
@@ -171,7 +171,7 @@ public class NuclearScene {
                 .text("Control rod can be placed beside them");
         scene.idleSeconds(3);
 
-        Selection wool = util.select().fromTo(0, 0, 3, 0, 4, 5);
+        Selection wool  = util.select().fromTo(0, 0, 3, 0, 4, 5);
         Selection wool2 = getCircularReactorRing(util, 4);
         scene.overlay()
                 .showText(60)

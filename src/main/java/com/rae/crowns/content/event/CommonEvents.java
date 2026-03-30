@@ -48,7 +48,7 @@ public class CommonEvents {
         if (entity.level() instanceof ServerLevel level && entity instanceof LivingEntity && CROWNSConfigs.SERVER.conduction.heatDamage.get()) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) entity.level());
             if (data == null) return;
-            AtomicReference<Float> cumlTemp = new AtomicReference<>(0f);
+            AtomicReference<Float>   cumlTemp      = new AtomicReference<>(0f);
             AtomicReference<Integer> numberOfTemps = new AtomicReference<>(0);
             BlockPos.betweenClosedStream(entity.getBoundingBox()).forEach(blockPos -> {
                 SectionPos sectionPos = SectionPos.of(blockPos);

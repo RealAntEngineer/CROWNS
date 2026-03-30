@@ -15,11 +15,11 @@ import java.util.function.BiFunction;
 
 public class CrownsSoundScapes {
 
-    static final int MAX_AMBIENT_SOURCE_DISTANCE = 16;
-    static final int UPDATE_INTERVAL = 5;
-    static final int SOUND_VOLUME_ARG_MAX = 15;
-    private static final Map<AmbienceGroup, Map<PitchGroup, Set<BlockPos>>> counter = new IdentityHashMap<>();
-    private static final Map<Pair<AmbienceGroup, PitchGroup>, SoundScape> activeSounds = new HashMap<>();
+    static final         int                                                MAX_AMBIENT_SOURCE_DISTANCE = 16;
+    static final         int                                                UPDATE_INTERVAL             = 5;
+    static final         int                                                SOUND_VOLUME_ARG_MAX        = 15;
+    private static final Map<AmbienceGroup, Map<PitchGroup, Set<BlockPos>>> counter                     = new IdentityHashMap<>();
+    private static final Map<Pair<AmbienceGroup, PitchGroup>, SoundScape>   activeSounds                = new HashMap<>();
 
     private static SoundScape kinetic(float pitch, AmbienceGroup group) {
         return new SoundScape(pitch, group).continuous(SoundInit.TURBINE_SOUND.get(), 2f, 1);
@@ -82,8 +82,8 @@ public class CrownsSoundScapes {
                 .iterator(); iterator.hasNext(); ) {
 
             Map.Entry<Pair<AmbienceGroup, PitchGroup>, SoundScape> entry = iterator.next();
-            Pair<AmbienceGroup, PitchGroup> key = entry.getKey();
-            SoundScape value = entry.getValue();
+            Pair<AmbienceGroup, PitchGroup>                        key   = entry.getKey();
+            SoundScape                                             value = entry.getValue();
 
             if (disable || getSoundCount(key.getFirst(), key.getSecond()) == 0) {
                 value.remove();

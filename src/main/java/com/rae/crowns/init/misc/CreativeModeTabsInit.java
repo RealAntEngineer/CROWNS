@@ -71,8 +71,8 @@ public class CreativeModeTabsInit {
                 ItemInit.FUEL_ROD, item -> {
                     Collection<ItemStack> itemStacks = new ArrayList<>();
                     for (double grade : uraniumGrades) {
-                        ItemStack itemStack = item.getDefaultInstance();
-                        CustomData data = itemStack.get(DataComponents.CUSTOM_DATA);
+                        ItemStack   itemStack = item.getDefaultInstance();
+                        CustomData  data      = itemStack.get(DataComponents.CUSTOM_DATA);
                         CompoundTag tag;
                         if (data != null) {
                             tag = data.copyTag();
@@ -92,8 +92,8 @@ public class CreativeModeTabsInit {
                 BlockInit.FUEL_ASSEMBLY, item -> {
                     Collection<ItemStack> itemStacks = new ArrayList<>();
                     for (double grade : uraniumGrades) {
-                        ItemStack itemStack = item.getDefaultInstance();
-                        CustomData data = itemStack.get(DataComponents.CUSTOM_DATA);
+                        ItemStack   itemStack = item.getDefaultInstance();
+                        CustomData  data      = itemStack.get(DataComponents.CUSTOM_DATA);
                         CompoundTag tag;
                         if (data != null) {
                             tag = data.copyTag();

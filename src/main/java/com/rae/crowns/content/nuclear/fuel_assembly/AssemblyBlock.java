@@ -39,7 +39,7 @@ import java.util.function.Predicate;
 
 public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlockEntity> {
     public static final EnumProperty<Temperature> TEMPERATURE = EnumProperty.create("temperature", Temperature.class); //T*10
-    public static final EnumProperty<Activity> ACTIVITY = EnumProperty.create("activity", Activity.class);
+    public static final EnumProperty<Activity>    ACTIVITY    = EnumProperty.create("activity", Activity.class);
 
     private static final int placementHelperId = PlacementHelpers.register(new AssemblyBlock.PlacementHelper());
 
@@ -117,8 +117,8 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
                 .map(CompoundTag::copy)
                 .orElse(new CompoundTag());
 
-        ItemStack stack = new ItemStack(item, 1);
-        CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+        ItemStack   stack       = new ItemStack(item, 1);
+        CustomData  data        = stack.get(DataComponents.CUSTOM_DATA);
         CompoundTag compoundtag = data != null ? data.copyTag() : new CompoundTag();
         compoundtag.put("composition", composition);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(compoundtag));

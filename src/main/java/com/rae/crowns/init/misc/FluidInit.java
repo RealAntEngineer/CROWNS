@@ -11,7 +11,7 @@ import net.neoforged.neoforge.fluids.BaseFlowingFluid;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class FluidInit {
-    public static final FluidEntry<CoriumFluid.Flowing> CORIUM =
+    public static final  FluidEntry<CoriumFluid.Flowing>      CORIUM               =
             CROWNS.REGISTRATE.fluid("corium", CROWNS.resource("fluid/corium_still"), CROWNS.resource("fluid/corium_flowing"),
                             CoriumFluidType::new,
                             CoriumFluid.Flowing::new)
@@ -28,7 +28,7 @@ public class FluidInit {
                     .bucket()
                     .build()
                     .register();
-    public static final FluidEntry<BaseFlowingFluid.Flowing> URANIUM_HEXAFLUORIDE =
+    public static final  FluidEntry<BaseFlowingFluid.Flowing> URANIUM_HEXAFLUORIDE =
             CROWNS.REGISTRATE.fluid("uranium_hexafluoride", CROWNS.resource("fluid/uranium_hexafluoride_still"), CROWNS.resource("fluid/uranium_hexafluoride_flowing"))
                     .lang("Uranium_Hexafluoride")
                     .properties(b -> b.viscosity(2000)
@@ -41,7 +41,7 @@ public class FluidInit {
                     .bucket()
                     .build()
                     .register();
-    private static final DeferredRegister<Fluid> FLUID_REGISTER =
+    private static final DeferredRegister<Fluid>              FLUID_REGISTER       =
             DeferredRegister.create(Registries.FLUID, CROWNS.MODID);
 
     public static void register() {

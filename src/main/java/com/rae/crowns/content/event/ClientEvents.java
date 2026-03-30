@@ -41,11 +41,11 @@ public class ClientEvents {
         if (event.getEntity() == null)
             return;
 
-        ItemStack itemStack = event.getItemStack();
+        ItemStack       itemStack  = event.getItemStack();
         List<Component> components = event.getToolTip();
-        CustomData data = itemStack.get(DataComponents.CUSTOM_DATA);
+        CustomData      data       = itemStack.get(DataComponents.CUSTOM_DATA);
         if (data != null) {
-            CompoundTag tag = data.copyTag();
+            CompoundTag tag         = data.copyTag();
             CompoundTag composition = tag.getCompound("composition");
             components.add(Component.literal("composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
             for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {

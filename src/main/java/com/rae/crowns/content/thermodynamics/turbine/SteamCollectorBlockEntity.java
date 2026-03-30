@@ -24,10 +24,10 @@ import java.util.List;
 @MethodsReturnNonnullByDefault
 public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
-    private static final int SYNC_RATE = 8;
-    protected int syncCooldown;
-    protected boolean queuedSync;
-    private final StateFluidTank WATER_TANK = new StateFluidTank(1000, (f) -> {
+    private static final int            SYNC_RATE  = 8;
+    protected            int            syncCooldown;
+    protected            boolean        queuedSync;
+    private final        StateFluidTank WATER_TANK = new StateFluidTank(1000, (f) -> {
         if (!hasLevel()) {
             return;
         }

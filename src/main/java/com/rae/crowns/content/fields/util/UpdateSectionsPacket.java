@@ -19,7 +19,7 @@ public class UpdateSectionsPacket implements ClientboundPacketPayload {
             (buf, packet) -> packet.write(buf),
             UpdateSectionsPacket::new
     );
-    private final Map<SectionPos, TemperatureDataLayer> temperatureMap;
+    private final Map<SectionPos, TemperatureDataLayer>                      temperatureMap;
 
     public UpdateSectionsPacket(Map<SectionPos, TemperatureDataLayer> temperatureMap) {
         this.temperatureMap = temperatureMap;

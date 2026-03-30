@@ -30,9 +30,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class CompressorBlockEntity extends KineticBlockEntity {
-    private static final int SYNC_RATE = 8;
+    private static final int            SYNC_RATE         = 8;
     //for later maybe ? to make the code simpler to understand
-    private final StateFluidTank INPUT_WATER_TANK = new StateFluidTank(1000, (f) -> {
+    private final        StateFluidTank INPUT_WATER_TANK  = new StateFluidTank(1000, (f) -> {
         setChanged();
     }) {
         @Override
@@ -40,7 +40,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
             return stack.getFluid().is(FluidTags.WATER);
         }
     };
-    private final StateFluidTank OUTPUT_WATER_TANK = new StateFluidTank(1000, (f) -> {
+    private final        StateFluidTank OUTPUT_WATER_TANK = new StateFluidTank(1000, (f) -> {
         setChanged();
     }) {
         @Override
@@ -48,8 +48,8 @@ public class CompressorBlockEntity extends KineticBlockEntity {
             return stack.getFluid().is(FluidTags.WATER);
         }
     };
-    protected int syncCooldown;
-    protected boolean queuedSync;
+    protected            int            syncCooldown;
+    protected            boolean        queuedSync;
     float power;
 
     public CompressorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -94,14 +94,14 @@ public class CompressorBlockEntity extends KineticBlockEntity {
                     sendData();
             }
             SpecificRealGazState inputState = INPUT_WATER_TANK.getState();
-            int flow = (int) Math.abs(speed);
-            FluidStack water = INPUT_WATER_TANK.drain(flow, IFluidHandler.FluidAction.SIMULATE);
-            float yield = CROWNSConfigs.SERVER.kinetics.compressorIsentropicYield.getF();
+            int                  flow       = (int) Math.abs(speed);
+            FluidStack           water      = INPUT_WATER_TANK.drain(flow, IFluidHandler.FluidAction.SIMULATE);
+            float                yield      = CROWNSConfigs.SERVER.kinetics.compressorIsentropicYield.getF();
 
             if (!water.isEmpty()) {
 
-                float pressureDelta = getPressureDelta(speed);
-                SpecificRealGazState outputState = FullTableBased.isentropicCompression(inputState, (inputState.pressure() + pressureDelta) / inputState.pressure());
+                float                pressureDelta = getPressureDelta(speed);
+                SpecificRealGazState outputState   = FullTableBased.isentropicCompression(inputState, (inputState.pressure() + pressureDelta) / inputState.pressure());
                 power = (int) ((outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount() * 20f / Constants.whatSU / yield);
 
                 water.set(DataComponentsInit.REAL_GAZ_STATE, outputState);
@@ -180,10 +180,10 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     //really heavy -> to optimise and run less by second
 
     public static float getPressureDelta(float speed) {
-        int flow = (int) Math.abs(speed);
-        float speedRef = CROWNSConfigs.SERVER.kinetics.compressorSpeedRef.getF();
-        float flowRef = CROWNSConfigs.SERVER.kinetics.compressorFlowRef.getF();
-        float pRef = CROWNSConfigs.SERVER.kinetics.compressorPressureRef.getF();
+        int   flow          = (int) Math.abs(speed);
+        float speedRef      = CROWNSConfigs.SERVER.kinetics.compressorSpeedRef.getF();
+        float flowRef       = CROWNSConfigs.SERVER.kinetics.compressorFlowRef.getF();
+        float pRef          = CROWNSConfigs.SERVER.kinetics.compressorPressureRef.getF();
         float pressureDelta = pRef * (Math.abs(speed) * Math.abs(speed) / (speedRef * speedRef)) * (1 - (flow / flowRef) * (flow / flowRef));
         return pressureDelta;
     }

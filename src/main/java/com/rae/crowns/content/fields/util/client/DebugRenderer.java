@@ -35,11 +35,11 @@ import java.util.Map;
 @EventBusSubscriber(value = Dist.CLIENT)
 public class DebugRenderer {
 
-    private static final int RADIUS = 8;
-    private static final int CACHE_PRUNE_DISTANCE = 4;
-    private static final Map<BlockPos, AABBOutline> CACHE = new HashMap<>();
-    private static final int TICKING_SECTION_COLOR = 0x66CCFF; // light blue
-    private static @Nullable BlockPos lastPlayerPos = null;
+    private static final     int                        RADIUS                = 8;
+    private static final     int                        CACHE_PRUNE_DISTANCE  = 4;
+    private static final     Map<BlockPos, AABBOutline> CACHE                 = new HashMap<>();
+    private static final     int                        TICKING_SECTION_COLOR = 0x66CCFF; // light blue
+    private static @Nullable BlockPos                   lastPlayerPos         = null;
 
     @SubscribeEvent
     public static void onRenderWorld(@NotNull RenderLevelStageEvent event) {
@@ -48,14 +48,14 @@ public class DebugRenderer {
         Minecraft mc = Minecraft.getInstance();
 
         if (mc.level == null || mc.player == null || !CROWNSConfigs.CLIENT.thermalVisualisation.get()) return;
-        Font font = mc.font;
-        Level level = mc.level;
+        Font     font      = mc.font;
+        Level    level     = mc.level;
         BlockPos playerPos = mc.player.blockPosition();
 
         pruneCacheIfPlayerMoved(playerPos);
 
         PoseStack poseStack = event.getPoseStack();
-        float pt = AnimationTickHolder.getPartialTicks();
+        float     pt        = AnimationTickHolder.getPartialTicks();
 
         // Render AABB for ticking sections
         poseStack.pushPose();
@@ -91,7 +91,7 @@ public class DebugRenderer {
             // One AABB per section
             BlockPos min = new BlockPos(baseX, baseY, baseZ);
             BlockPos max = new BlockPos(baseX + 16, baseY + 16, baseZ + 16);
-            AABB box = new AABB(Vec3.atLowerCornerOf(min), Vec3.atLowerCornerOf(max));
+            AABB     box = new AABB(Vec3.atLowerCornerOf(min), Vec3.atLowerCornerOf(max));
 
             AABBOutline outline = CACHE.computeIfAbsent(min, p -> new AABBOutline(box));
             outline.getParams().colored(TICKING_SECTION_COLOR).lineWidth(1 / 16f);
@@ -102,13 +102,13 @@ public class DebugRenderer {
     }
 
     private static void renderTemperatureText(@NotNull Level level, @NotNull Font font, @NotNull PoseStack poseStack, @NotNull BlockPos playerPos) {
-        float threshold = CROWNSConfigs.CLIENT.visualisationThreshold.getF();
-        Minecraft mc = Minecraft.getInstance();
-        Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
+        float     threshold = CROWNSConfigs.CLIENT.visualisationThreshold.getF();
+        Minecraft mc        = Minecraft.getInstance();
+        Vec3      cam       = mc.gameRenderer.getMainCamera().getPosition();
 
         // Preallocate a mutable BlockPos and Vec3 to avoid object allocation in loops
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
-        Vec3 labelPos;
+        Vec3                     labelPos;
 
         int qx = QuartPos.fromBlock(playerPos.getX());
         int qy = QuartPos.fromBlock(playerPos.getY());
@@ -146,9 +146,9 @@ public class DebugRenderer {
 
     private static int temperatureToColor(float temperature) {
         float t = Math.min(1f, Math.max(0f, (temperature - 200f) / 200f));
-        int r = (int) (t * 255);
-        int g = (int) ((1 - Math.abs(t - 0.5f) * 2) * 255);
-        int b = (int) ((1 - t) * 255);
+        int   r = (int) (t * 255);
+        int   g = (int) ((1 - Math.abs(t - 0.5f) * 2) * 255);
+        int   b = (int) ((1 - t) * 255);
         return (0xFF << 24) | (r << 16) | (g << 8) | b; // ← added alpha
     }
 
@@ -164,7 +164,7 @@ public class DebugRenderer {
 
         // Pitch: tilt up/down to face the camera vertically
         float horizontalDist = (float) Math.sqrt(dx * dx + dz * dz);
-        float pitch = -(float) Math.atan2(dy, horizontalDist);
+        float pitch          = -(float) Math.atan2(dy, horizontalDist);
 
         poseStack.pushPose();
         poseStack.translate(dx, dy, dz);

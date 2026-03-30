@@ -15,18 +15,18 @@ import java.util.function.Supplier;
 public final class DataLayerType<T extends AbstractDataLayer> {
     public static final Map<String, DataLayerType<?>> REGISTRY = new HashMap<>();
 
-    public static final DataLayerType<TemperatureDataLayer> TEMPERATURE = register("temperature", TemperatureDataLayer::new,
+    public static final DataLayerType<TemperatureDataLayer> TEMPERATURE         = register("temperature", TemperatureDataLayer::new,
             PhysicsSaveManager::getDefaultTemperature);
     public static final DataLayerType<TemperatureDataLayer> DEFAULT_TEMPERATURE = register("default_temperature",
             TemperatureDataLayer::new, PhysicsSaveManager::getDefaultTemperature);
-    public static final DataLayerType<ResilienceDataLayer> RESILIENCE = register("resilence", ResilienceDataLayer::new,
+    public static final DataLayerType<ResilienceDataLayer>  RESILIENCE          = register("resilence", ResilienceDataLayer::new,
             (level, pos, blockState) -> PhysicsSaveManager.getDefaultResilience(blockState));
-    public static final DataLayerType<ConductionDataLayer> CONDUCTION = register("conduction", ConductionDataLayer::new,
+    public static final DataLayerType<ConductionDataLayer>  CONDUCTION          = register("conduction", ConductionDataLayer::new,
             (level, pos, blockState) -> PhysicsSaveManager.getDefaultConduction(blockState));
 
 
-    public final String id;
-    private final Supplier<T> factory;
+    public final  String                                        id;
+    private final Supplier<T>                                   factory;
     private final Function3<Level, BlockPos, BlockState, Float> initializer;
 
     private DataLayerType(String id, Supplier<T> factory, Function3<Level, BlockPos, BlockState, Float> initializer) {

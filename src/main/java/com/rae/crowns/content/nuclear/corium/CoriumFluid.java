@@ -40,6 +40,28 @@ public abstract class CoriumFluid extends BaseFlowingFluid {
     @Override
     protected BlockState createLegacyBlock(FluidState state) {
         return super.createLegacyBlock(state).setValue(POWER, state.getValue(POWER));
+    }
+
+    public static class Flowing extends CoriumFluid {
+
+        public Flowing(Properties properties) {
+            super(properties);
+            registerDefaultState(getStateDefinition().any().setValue(LEVEL, 7).setValue(POWER, 15));
+
+        }
+
+        protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
+            super.createFluidStateDefinition(builder);
+            builder.add(LEVEL).add(POWER);
+        }
+
+        public int getAmount(FluidState state) {
+            return state.getValue(LEVEL);
+        }
+
+        public boolean isSource(FluidState state) {
+            return false;
+        }
     }    @Override
     public void tick(Level level, BlockPos pos, FluidState state) {
         //schedule tick ?
@@ -48,7 +70,7 @@ public abstract class CoriumFluid extends BaseFlowingFluid {
         for (Direction direction : Direction.values()) {
             if (direction == Direction.UP)
                 continue;
-            BlockPos adjacentPos = pos.relative(direction);
+            BlockPos   adjacentPos   = pos.relative(direction);
             BlockState adjacentState = level.getBlockState(adjacentPos);
             if (!adjacentState.isAir() && (!adjacentState.liquid() && !TagsInit.CustomBlockTags.UNDESTRUCTABLE.matches(adjacentState))) {
                 int power = state.getValue(POWER);
@@ -94,28 +116,6 @@ public abstract class CoriumFluid extends BaseFlowingFluid {
         this.spread(level, pos, state);
     }
 
-    public static class Flowing extends CoriumFluid {
-
-        public Flowing(Properties properties) {
-            super(properties);
-            registerDefaultState(getStateDefinition().any().setValue(LEVEL, 7).setValue(POWER, 15));
-
-        }
-
-        protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
-            super.createFluidStateDefinition(builder);
-            builder.add(LEVEL).add(POWER);
-        }
-
-        public int getAmount(FluidState state) {
-            return state.getValue(LEVEL);
-        }
-
-        public boolean isSource(FluidState state) {
-            return false;
-        }
-    }
-
     public static class Source extends CoriumFluid {
         public Source(Properties properties) {
             super(properties);
@@ -134,7 +134,11 @@ public abstract class CoriumFluid extends BaseFlowingFluid {
         public boolean isSource(FluidState state) {
             return true;
         }
-    }    @Override
+    }
+
+
+
+    @Override
     protected int getSpreadDelay(Level level, BlockPos pos, FluidState currentState, FluidState newState) {
         return 20;
     }
@@ -160,21 +164,21 @@ public abstract class CoriumFluid extends BaseFlowingFluid {
     protected void spread(Level level, BlockPos pos, FluidState originalFluid) {
 
         if (!originalFluid.isEmpty()) {
-            BlockState currentState = level.getBlockState(pos);
-            int amountAvailable = originalFluid.getAmount();
-            int originalPower = originalFluid.getValue(POWER);
+            BlockState currentState    = level.getBlockState(pos);
+            int        amountAvailable = originalFluid.getAmount();
+            int        originalPower   = originalFluid.getValue(POWER);
             //if there is a space bellow or the same fluid we fall down.
-            BlockPos bellowPos = pos.below();
-            BlockState bellowState = level.getBlockState(bellowPos);
-            FluidState bellowFluid = level.getFluidState(bellowPos);
-            int oldBellowAmount = bellowFluid.getAmount();
+            BlockPos   bellowPos       = pos.below();
+            BlockState bellowState     = level.getBlockState(bellowPos);
+            FluidState bellowFluid     = level.getFluidState(bellowPos);
+            int        oldBellowAmount = bellowFluid.getAmount();
             if (oldBellowAmount < 8 &&
                     this.canSpreadTo(level, pos, currentState, Direction.DOWN, bellowPos, bellowState, bellowFluid, originalFluid.getType())) {
                 //we try to fill completely the block bellow us.
 
-                int newBellowAmount = Mth.clamp(oldBellowAmount + originalFluid.getAmount(), 1, 8);
+                int newBellowAmount   = Mth.clamp(oldBellowAmount + originalFluid.getAmount(), 1, 8);
                 int transmittedAmount = newBellowAmount - oldBellowAmount;
-                int bellowPower = bellowFluid.isEmpty() ? originalPower : bellowFluid.getValue(POWER);
+                int bellowPower       = bellowFluid.isEmpty() ? originalPower : bellowFluid.getValue(POWER);
                 this.spreadTo(level, bellowPos, bellowState, Direction.DOWN,
                         this.getFlowing(newBellowAmount, Mth.clamp((transmittedAmount * originalPower + bellowPower * oldBellowAmount) / newBellowAmount, 0, 15), false));
 
@@ -192,8 +196,8 @@ public abstract class CoriumFluid extends BaseFlowingFluid {
 
                 ArrayList<Direction> directionToSpread = new ArrayList<>();
                 for (Direction direction : Direction.Plane.HORIZONTAL) {
-                    BlockPos blockpos = pos.relative(direction);
-                    BlockState blockstate = level.getBlockState(blockpos);
+                    BlockPos   blockpos      = pos.relative(direction);
+                    BlockState blockstate    = level.getBlockState(blockpos);
                     FluidState relativeState = level.getFluidState(blockpos);
                     if (this.canSpreadTo(level, pos, currentState, direction, blockpos, blockstate, relativeState, originalFluid.getType()) && relativeState.getAmount() < originalFluid.getAmount()) {
                         directionToSpread.add(direction);
@@ -204,11 +208,11 @@ public abstract class CoriumFluid extends BaseFlowingFluid {
                     if (spreadAmount > 0) {
 
                         for (Direction direction : directionToSpread) {
-                            BlockPos blockpos = pos.relative(direction);
-                            BlockState blockstate = level.getBlockState(blockpos);
+                            BlockPos   blockpos     = pos.relative(direction);
+                            BlockState blockstate   = level.getBlockState(blockpos);
                             FluidState fluidPresent = level.getFluidState(blockpos);
-                            int presentPower = fluidPresent.isEmpty() ? originalPower : fluidPresent.getValue(POWER);
-                            int newAmount = Mth.clamp(spreadAmount + fluidPresent.getAmount(), 1, 8);
+                            int        presentPower = fluidPresent.isEmpty() ? originalPower : fluidPresent.getValue(POWER);
+                            int        newAmount    = Mth.clamp(spreadAmount + fluidPresent.getAmount(), 1, 8);
                             FluidState spreadState =
                                     this.getFlowing(newAmount,
                                             Mth.clamp((presentPower * fluidPresent.getAmount()
@@ -241,8 +245,6 @@ public abstract class CoriumFluid extends BaseFlowingFluid {
 
     }
     //return the amount by which we decay
-
-
 
 
 }

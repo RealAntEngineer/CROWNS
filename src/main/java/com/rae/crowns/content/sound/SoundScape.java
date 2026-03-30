@@ -16,11 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SoundScape {
-    private final float pitch;
+    private final float                           pitch;
     private final CrownsSoundScapes.AmbienceGroup group;
-    private final CrownsSoundScapes.PitchGroup pitchGroup;
+    private final CrownsSoundScapes.PitchGroup    pitchGroup;
     List<ContinuousSound> continuous;
-    List<RepeatingSound> repeating;
+    List<RepeatingSound>  repeating;
     private @Nullable Vec3 meanPos;
 
     public SoundScape(float pitch, CrownsSoundScapes.AmbienceGroup group) {
@@ -65,16 +65,16 @@ public class SoundScape {
     }
 
     public float getVolume() {
-        Entity renderViewEntity = Minecraft.getInstance().cameraEntity;
-        float distanceMultiplier = 0;
+        Entity renderViewEntity   = Minecraft.getInstance().cameraEntity;
+        float  distanceMultiplier = 0;
         if (renderViewEntity != null) {
             double distanceTo = renderViewEntity.position()
                     .distanceTo(getMeanPos());
             distanceMultiplier = (float) Mth.lerp(distanceTo / CrownsSoundScapes.MAX_AMBIENT_SOURCE_DISTANCE, 2, 0);
         }
-        int soundCount = CrownsSoundScapes.getSoundCount(group, pitchGroup);
-        float max = AllConfigs.client().ambientVolumeCap.getF();
-        float argMax = (float) CrownsSoundScapes.SOUND_VOLUME_ARG_MAX;
+        int   soundCount = CrownsSoundScapes.getSoundCount(group, pitchGroup);
+        float max        = AllConfigs.client().ambientVolumeCap.getF();
+        float argMax     = (float) CrownsSoundScapes.SOUND_VOLUME_ARG_MAX;
         return Mth.clamp(soundCount / (argMax * 10f), 0.025f, max) * distanceMultiplier;
     }
 

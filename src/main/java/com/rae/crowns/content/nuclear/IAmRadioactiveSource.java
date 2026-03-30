@@ -20,8 +20,8 @@ import java.util.List;
 public interface IAmRadioactiveSource {
 
 
-    double BETA = 0.0065;         // effective delayed neutron fraction
-    double LAMBDA = 0.08;         // decay constant of delayed neutron precursors (1/s)
+    double BETA            = 0.0065;         // effective delayed neutron fraction
+    double LAMBDA          = 0.08;         // decay constant of delayed neutron precursors (1/s)
     double PROMPT_LIFETIME = 2e-5; // prompt neutron lifetime (s)
 
     /**
@@ -38,7 +38,7 @@ public interface IAmRadioactiveSource {
         }
 
         // Normalize population
-        double n = newFissionCount;
+        double n  = newFissionCount;
         double dn = (newFissionCount - oldFissionCount) / deltaTime;
 
         // Inverse kinetics (1 delayed neutron group)
@@ -51,10 +51,10 @@ public interface IAmRadioactiveSource {
     default int impactEnv(@NotNull BlockPos pos, @NotNull Level level, @NotNull Double range) {
         float fastNeutrons = getRadioactiveActivity();
         float slowNeutrons = 0f;
-        int rays = 0;
+        int   rays         = 0;
         //should impact itself
-        List<BlockPos> frontier = RayTraceUtil.getSphereSurface(BlockPos.ZERO, range.intValue(), true);
-        double rangeInverse = 1 / range;
+        List<BlockPos> frontier     = RayTraceUtil.getSphereSurface(BlockPos.ZERO, range.intValue(), true);
+        double         rangeInverse = 1 / range;
         for (BlockPos frontierPos : frontier) {
 
             Vec3 vec = new Vec3(frontierPos.getX(), frontierPos.getY(), frontierPos.getZ()).scale(rangeInverse);
@@ -89,7 +89,7 @@ public interface IAmRadioactiveSource {
         double cy = pos.getY();
         double cz = pos.getZ();
 
-        float fast = (float) (50 * fastNeutrons / (4 * Math.PI * range * range));
+        float fast    = (float) (50 * fastNeutrons / (4 * Math.PI * range * range));
         float thermal = 0f;
 
         BlockPos.MutableBlockPos child = new BlockPos.MutableBlockPos();
@@ -138,9 +138,9 @@ public interface IAmRadioactiveSource {
     default int moreOptimizedImpactEnv(@NotNull BlockPos pos, @NotNull Level level, @NotNull Double range) {
 
         float fastNeutrons = getRadioactiveActivity();
-        int rays = 0;
+        int   rays         = 0;
 
-        int steps = range.intValue();
+        int    steps        = range.intValue();
         double rangeInverse = 1 / range;
 
         List<BlockPos> frontier = RayTraceUtil.getSphereSurface(BlockPos.ZERO, steps, true);
@@ -164,7 +164,7 @@ public interface IAmRadioactiveSource {
             double cy = pos.getY();
             double cz = pos.getZ();
 
-            float fast = (float) (50 * fastNeutrons / (4 * Math.PI * range * range));
+            float fast    = (float) (50 * fastNeutrons / (4 * Math.PI * range * range));
             float thermal = 0f;
 
             for (int i = 0; i < steps; i++) {
@@ -180,7 +180,7 @@ public interface IAmRadioactiveSource {
                 child.set(bx, by, bz);
 
                 BlockState state = level.getBlockState(child);
-                Block block = state.getBlock();
+                Block      block = state.getBlock();
 
                 // ---------- fissile BE logic ----------
                 boolean fissileBlock = fissileBlockCache.computeIfAbsent(

@@ -37,7 +37,7 @@ public class TagsInit extends AllTags {
         TIC("tconstruct"),
         QUARK("quark");
 
-        public final String id;
+        public final String  id;
         public final boolean optionalDefault;
         public final boolean alwaysDatagenDefault;
 
@@ -60,7 +60,7 @@ public class TagsInit extends AllTags {
         UNDESTRUCTABLE(CustomNameSpace.MOD, "nuclear/undestructable");
 
         public final TagKey<Block> tag;
-        public final boolean alwaysDatagen;
+        public final boolean       alwaysDatagen;
 
         CustomBlockTags() {
             this(CustomNameSpace.MOD);
@@ -111,7 +111,7 @@ public class TagsInit extends AllTags {
         ;
 
         public final TagKey<Item> tag;
-        public final boolean alwaysDatagen;
+        public final boolean      alwaysDatagen;
 
         CustomItemTags() {
             this(CustomNameSpace.MOD);
@@ -162,7 +162,7 @@ public class TagsInit extends AllTags {
         ;
 
         public final TagKey<EntityType<?>> tag;
-        public final boolean alwaysDatagen;
+        public final boolean               alwaysDatagen;
 
         CustomEntityTag() {
             this(CustomNameSpace.MOD);
@@ -204,7 +204,7 @@ public class TagsInit extends AllTags {
         ;
 
         public final TagKey<Fluid> tag;
-        public final boolean alwaysDatagen;
+        public final boolean       alwaysDatagen;
 
         CustomFluidTags() {
             this(CustomNameSpace.MOD);

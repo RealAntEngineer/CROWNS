@@ -2,8 +2,8 @@ package com.rae.crowns;
 
 public class Constants {
 
-    public static float barnNa = (float) (6.02f * 1e-5); // multiplication of a surface of 1 barn and 1 mole ( so that you don't use huge power of ten for nothing )
-    public static float fissionEnergy = (float) (200 * 1.6 * 1e-7);// J / millions of fission
+    public static float barnNa             = (float) (6.02f * 1e-5); // multiplication of a surface of 1 barn and 1 mole ( so that you don't use huge power of ten for nothing )
+    public static float fissionEnergy      = (float) (200 * 1.6 * 1e-7);// J / millions of fission
     public static float realismCoefficient = 5e7f;
-    public static float whatSU = (float) (390);
+    public static float whatSU             = (float) (390);
 }

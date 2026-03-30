@@ -32,12 +32,12 @@ import java.util.List;
 @MethodsReturnNonnullByDefault
 public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
-    private static final int SYNC_RATE = 8;
-    public SteamCurrent steamCurrent;
-    protected int currentUpdateCooldown;
-    protected boolean updateSteamFlow;
-    protected int syncCooldown;
-    protected boolean queuedSync;
+    private static final int          SYNC_RATE = 8;
+    public               SteamCurrent steamCurrent;
+    protected            int          currentUpdateCooldown;
+    protected            boolean      updateSteamFlow;
+    protected            int          syncCooldown;
+    protected            boolean      queuedSync;
     float flow;
     private final StateFluidTank WATER_TANK = new StateFluidTank(1000, (f) -> {
         if (!hasLevel()) {
@@ -97,7 +97,7 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
             if (updateSteamFlow) {
                 updateSteamFlow = false;
 
-                Direction facing = getBlockState().getValue(SteamInputBlock.FACING);
+                Direction          facing   = getBlockState().getValue(SteamInputBlock.FACING);
                 List<SteamCurrent> currents = SteamFlowManager.getCurrentsInBounds((ServerLevel) level, new AABB(worldPosition.relative(facing)));
                 if (currents.isEmpty()) {
                     steamCurrent = new SteamCurrent(worldPosition, facing, 16);

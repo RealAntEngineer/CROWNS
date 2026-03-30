@@ -40,28 +40,28 @@ import static com.rae.crowns.content.nuclear.NuclearExplosion.nuclearExplosion;
 
 public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
 
-    private static final int SYNC_RATE = 8;
-    static int rayCount = 0;
-    private static float negativeThermalCoef = 0.0075f;
-    private final int LAZY_TICK_RATE = 5;
-    public float temperature = 300;
-    public float backgroundActivity = 12 * 3;//In MBq ( giga becquerels ) uranium is 12 Mbq per tonnes
-    public float oldNbrOfFission;
-    public float nbrOfFission;//nbr of fission/t
-    public float C = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
-    public LerpedFloat additionalNeutronsAbsorbed = LerpedFloat.linear();
-    public @NotNull HashMap<ResourceLocation, Double> radioactiveElements = new HashMap<>(
+    private static final int                               SYNC_RATE                  = 8;
+    static               int                               rayCount                   = 0;
+    private static       float                             negativeThermalCoef        = 0.0075f;
+    private final        int                               LAZY_TICK_RATE             = 5;
+    public               float                             temperature                = 300;
+    public               float                             backgroundActivity         = 12 * 3;//In MBq ( giga becquerels ) uranium is 12 Mbq per tonnes
+    public               float                             oldNbrOfFission;
+    public               float                             nbrOfFission;//nbr of fission/t
+    public               float                             C                          = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
+    public               LerpedFloat                       additionalNeutronsAbsorbed = LerpedFloat.linear();
+    public @NotNull      HashMap<ResourceLocation, Double> radioactiveElements        = new HashMap<>(
             Map.of(
                     CROWNS.resource("u235"), 0.014 * 0.2,
                     CROWNS.resource("u238"), 0.986 * 0.2,
                     CROWNS.resource("p239"), 0.00 * 0.2
             ));//for U235,U358 and Plutonium -> percentage of total mass
-    protected int syncCooldown;
-    protected boolean queuedSync;
-    float power = 0;
+    protected            int                               syncCooldown;
+    protected            boolean                           queuedSync;
+    float  power    = 0;
     double fastAbsorptionChance;
     double slowAbsorptionChance;
-    int lastLazy = 0;
+    int    lastLazy = 0;
 
     public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
@@ -136,8 +136,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         if (!(level instanceof ServerLevel serverLevel)) return; // Only spawn particles on server side
 
         float nbrOfParticles = (float) (Math.log10(nbrOfFission * 20 / 5000f)) * 3f / 20f;
-        int wholeParticles = Mth.floor(nbrOfParticles);
-        float fractional = nbrOfParticles - wholeParticles;
+        int   wholeParticles = Mth.floor(nbrOfParticles);
+        float fractional     = nbrOfParticles - wholeParticles;
 
         if (level.random.nextFloat() < fractional) {
             wholeParticles += 1; // probabilistically add one extra
@@ -150,12 +150,12 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
             // Random spherical direction using spherical coordinates
             double theta = level.random.nextDouble() * 2 * Math.PI; // azimuthal angle
-            double phi = Math.acos(2 * level.random.nextDouble() - 1); // polar angle
+            double phi   = Math.acos(2 * level.random.nextDouble() - 1); // polar angle
 
             double speed = 1f; // small random speed
-            double dx = speed * Math.sin(phi) * Math.cos(theta);
-            double dy = speed * Math.sin(phi) * Math.sin(theta);
-            double dz = speed * Math.cos(phi);
+            double dx    = speed * Math.sin(phi) * Math.cos(theta);
+            double dy    = speed * Math.sin(phi) * Math.sin(theta);
+            double dz    = speed * Math.cos(phi);
 
             // Use any existing particle type here (e.g., SMOKE)
             serverLevel.sendParticles(ParticleTypes.DUST_PLUME, x, y, z, 1, dx, dy, dz, speed);// You can replace ParticleTypes.SMOKE with your custom particle
@@ -277,7 +277,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         slowAbsorptionChance = 0;
         for (ResourceLocation resourceLocation : radioactiveElements.keySet()) {
             double massFrac = radioactiveElements.get(resourceLocation);
-            float cm = IAmFissileMaterial.molarConcentration.get(resourceLocation);
+            float  cm       = IAmFissileMaterial.molarConcentration.get(resourceLocation);
             fastAbsorptionChance += Math.min(1,
                     IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getFirst()
                             * massFrac * cm * barnNa);
@@ -300,11 +300,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     @Override
-    public float getThermalCapacity() {
-        return C;
-    }
-
-    @Override
     public float getThermalConductivity() {
         return CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
     }
@@ -317,6 +312,11 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public void addTemperature(float dT) {
         temperature = Math.max(temperature + dT, 0);
+    }
+
+    @Override
+    public float getThermalCapacity() {
+        return C;
     }
 
     @Override

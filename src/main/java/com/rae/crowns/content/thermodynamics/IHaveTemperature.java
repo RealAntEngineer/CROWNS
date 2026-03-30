@@ -16,8 +16,8 @@ public interface IHaveTemperature {
 
     default void conductTemperature(BlockPos pos, Level level, float dt) {
         for (Direction direction : Direction.stream().toList()) {
-            BlockState state = level.getBlockState(pos.relative(direction));
-            BlockEntity be = level.getBlockEntity(pos.relative(direction));
+            BlockState  state = level.getBlockState(pos.relative(direction));
+            BlockEntity be    = level.getBlockEntity(pos.relative(direction));
 
             if (be instanceof IHaveTemperature iHaveTemperature) {
                 float transmittedPower;
@@ -34,7 +34,7 @@ public interface IHaveTemperature {
                 //iHaveTemperature.addTemperature(-transmittedPower / iHaveTemperature.getThermalCapacity());
             } else {
                 FluidState fluidState = level.getFluidState(pos.relative(direction));
-                float T;
+                float      T;
                 if (fluidState.isEmpty()) {
                     T = CROWNS.BLOCK_TEMPERATURES.getValue(state.getBlock(), 300f);
                 } else {

@@ -54,9 +54,9 @@ public class AirCurrentMixin {
             case Z -> new Direction[]{Direction.UP, Direction.DOWN, Direction.EAST, Direction.WEST};
         };
 
-        BlockPos fanPos = source.getAirCurrentPos(); // fan block itself
-        SectionPos startSection = SectionPos.of(fanPos);
-        TemperatureDataLayer sTempLayer = data.getLayer(DataLayerType.TEMPERATURE, startSection.asLong());
+        BlockPos             fanPos       = source.getAirCurrentPos(); // fan block itself
+        SectionPos           startSection = SectionPos.of(fanPos);
+        TemperatureDataLayer sTempLayer   = data.getLayer(DataLayerType.TEMPERATURE, startSection.asLong());
         if (sTempLayer == null) return;
 
         double streamTemp = sTempLayer.get(fanPos.getX() & 15, fanPos.getY() & 15, fanPos.getZ() & 15);
@@ -67,32 +67,32 @@ public class AirCurrentMixin {
 
             if (!world.isLoaded(pos)) break;
 
-            SectionPos section = SectionPos.of(pos);
+            SectionPos           section   = SectionPos.of(pos);
             TemperatureDataLayer tempLayer = data.getLayer(DataLayerType.TEMPERATURE, section.asLong());
-            ConductionDataLayer condLayer = data.getLayer(DataLayerType.CONDUCTION, section.asLong());
+            ConductionDataLayer  condLayer = data.getLayer(DataLayerType.CONDUCTION, section.asLong());
             if (tempLayer == null || condLayer == null) continue;
 
-            int rx = pos.getX() & 15;
-            int ry = pos.getY() & 15;
-            int rz = pos.getZ() & 15;
+            int    rx       = pos.getX() & 15;
+            int    ry       = pos.getY() & 15;
+            int    rz       = pos.getZ() & 15;
             double tempHere = tempLayer.get(rx, ry, rz);
             double condHere = condLayer.get(rx, ry, rz);
 
             // --- Conduction with orthogonal neighbors ---
             double totalFlux = 0;
-            double capacity = 3e5;
+            double capacity  = 3e5;
             for (Direction ortho : orthogonalDirs) {
                 BlockPos neighbor = pos.relative(ortho);
                 if (!world.isLoaded(neighbor)) continue;
 
-                SectionPos nSection = SectionPos.of(neighbor);
+                SectionPos           nSection   = SectionPos.of(neighbor);
                 TemperatureDataLayer nTempLayer = data.getLayer(DataLayerType.TEMPERATURE, nSection.asLong());
-                ConductionDataLayer nCondLayer = data.getLayer(DataLayerType.CONDUCTION, nSection.asLong());
+                ConductionDataLayer  nCondLayer = data.getLayer(DataLayerType.CONDUCTION, nSection.asLong());
                 if (nTempLayer == null || nCondLayer == null) continue;
 
-                int nrx = neighbor.getX() & 15;
-                int nry = neighbor.getY() & 15;
-                int nrz = neighbor.getZ() & 15;
+                int    nrx          = neighbor.getX() & 15;
+                int    nry          = neighbor.getY() & 15;
+                int    nrz          = neighbor.getZ() & 15;
                 double tempNeighbor = nTempLayer.get(nrx, nry, nrz);
                 double condNeighbor = nCondLayer.get(nrx, nry, nrz);
 
