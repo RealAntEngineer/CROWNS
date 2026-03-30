@@ -7,6 +7,7 @@ import com.rae.crowns.content.hazards.HazardSystem;
 import com.rae.crowns.content.nuclear.IAmFissileMaterial;
 import com.rae.crowns.content.rendering.VolumeWorldRenderer;
 import com.rae.crowns.content.rendering.overlays.PostGuiOverlayBehaviours;
+import com.rae.crowns.content.rendering.overlays.PreGuiOverlayBehaviours;
 import com.rae.crowns.content.rendering.util.SceneDepth;
 import com.rae.crowns.content.sound.CrownsSoundScapes;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
@@ -60,6 +61,15 @@ public class ClientEvents {
 
     protected static boolean isGameActive() {
         return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
+    }
+
+    @SubscribeEvent
+    public static void renderGuiOverlaysPre(RenderGuiOverlayEvent.Pre event) {
+        Minecraft mc = Minecraft.getInstance();
+
+        if (mc.player == null) return;
+
+        PreGuiOverlayBehaviours.dosimeterGameOverlay(event, mc);
     }
 
     @SubscribeEvent
