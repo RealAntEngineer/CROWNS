@@ -16,6 +16,10 @@ public class ItemRadiation {
         public double alpha_energy; // Also in MeV
         public double beta_energy; // Even more bs
 
+        public DecayContainer(double specific_activity, double alpha, double alpha_energy, double daughter_excited, double branching_ratio) {
+            this(specific_activity, alpha, alpha_energy, 0D, 0D, 0D, 0D, daughter_excited, branching_ratio);
+        }
+
         public DecayContainer(double specific_activity, double alpha, double alpha_energy, double beta_minus, double beta_energy, double beta_plus, double sf, double daughter_excited, double branching_ratio) {
             this.specific_activity = specific_activity;
             this.alpha = alpha;
@@ -28,14 +32,14 @@ public class ItemRadiation {
             this.branching_ratio = branching_ratio;
         }
 
-        public DecayContainer(double specific_activity, double alpha, double alpha_energy, double daughter_excited, double branching_ratio) {
-            this(specific_activity, alpha, alpha_energy, 0D, 0D, 0D, 0D, daughter_excited, branching_ratio);
-        }
-
         public DecayContainer multiply(double v) {
             DecayContainer container = this.copy();
             container.specific_activity *= v;
             return container;
+        }
+
+        public DecayContainer copy() {
+            return new DecayContainer(specific_activity, alpha, alpha_energy, beta_minus, beta_energy, beta_plus, sf, daughter_excited, branching_ratio);
         }
 
         public DecayContainer add(double v) {
@@ -44,23 +48,19 @@ public class ItemRadiation {
             return container;
         }
 
-        public DecayContainer copy() {
-            return new DecayContainer(specific_activity, alpha, alpha_energy, beta_minus, beta_energy, beta_plus, sf, daughter_excited, branching_ratio);
-        }
-
-        public double getGammas() {
-            return specific_activity * branching_ratio;
-        }
-
-        public double getEnergyFluence(double distance) {
-            return (getGammas() * daughter_excited) / (4*Math.PI*Math.pow(distance, 2));
-        }
-
         public double getRoentgen(double distance) { // in R/s
             final double airMassAbsorptionCoefficient = 0.029D;
 
             return getEnergyFluence(distance) * airMassAbsorptionCoefficient * (1.828e-11); // I forgot what this constant does
         } // 3.6 roentgens. Not great, not terrible
+
+        public double getEnergyFluence(double distance) {
+            return (getGammas() * daughter_excited) / (4 * Math.PI * Math.pow(distance, 2));
+        }
+
+        public double getGammas() {
+            return specific_activity * branching_ratio;
+        }
     }
 
     /**
@@ -76,14 +76,14 @@ public class ItemRadiation {
             this.gamma_energy = gamma_energy;
         }
 
-        public double getEnergyFluence(double distance) {
-            return (intensity * gamma_energy) / (4*Math.PI*Math.pow(distance, 2));
-        }
-
         public double getRoentgen(double distance) { // in R/s
             final double airMassAbsorptionCoefficient = 0.029D;
 
             return getEnergyFluence(distance) * airMassAbsorptionCoefficient * (1.828e-11); // I forgot what this constant does
+        }
+
+        public double getEnergyFluence(double distance) {
+            return (intensity * gamma_energy) / (4 * Math.PI * Math.pow(distance, 2));
         }
     }
 }

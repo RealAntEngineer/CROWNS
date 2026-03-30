@@ -33,7 +33,7 @@ import java.util.Map;
 import static com.rae.crowns.Constants.*;
 import static com.rae.crowns.content.nuclear.NuclearExplosion.nuclearExplosion;
 
-public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
+public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTemperature, IAmFissileMaterial {
     private static final int SYNC_RATE = 8;
     public float temperature = 300;
     public float backgroundActivity = 12 * 3;//In MBq ( mega becquerels ) uranium is 12 Mbq per tonnes
@@ -87,17 +87,6 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
     }
 
     @Override
-    public void sendData() {
-        if (syncCooldown > 0) {
-            queuedSync = true;
-            return;
-        }
-        super.sendData();
-        queuedSync = false;
-        syncCooldown = SYNC_RATE;
-    }
-
-    @Override
     protected void write(@NotNull CompoundTag tag, boolean clientPacket) {
         super.write(tag, clientPacket);
 
@@ -138,6 +127,17 @@ public class ControlledAssemblyBE extends KineticBlockEntity implements IHaveTem
     public float getRadioactiveActivity() {
         float easeCoef = 1f; //TODO config
         return backgroundActivity + nbrOfFission * 2.5f * easeCoef;
+    }
+
+    @Override
+    public void sendData() {
+        if (syncCooldown > 0) {
+            queuedSync = true;
+            return;
+        }
+        super.sendData();
+        queuedSync = false;
+        syncCooldown = SYNC_RATE;
     }
 
     public void spawnRadiationParticles(Level level, @NotNull BlockPos pos, float nbrOfFission) {

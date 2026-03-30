@@ -22,7 +22,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings("ALL")
+@SuppressWarnings({"deprecation", "removal", "all"})
 public class TagsInit extends AllTags {
 
     public static void init() {

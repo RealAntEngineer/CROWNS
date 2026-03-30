@@ -7,6 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.rae.crowns.Constants.barnNa;
+
 /**
  * Represents an atomic nucleus with its physical properties, including neutron absorption
  * behavior, radioactive decay, and nuclear transformation capabilities.
@@ -22,7 +24,9 @@ import java.util.Map;
  * </ul>
  */
 public class Nucleus {
-    /** Global registry mapping atomic mass → {@code Nucleus} instance. */
+    /**
+     * Global registry mapping atomic mass → {@code Nucleus} instance.
+     */
     private static final HashMap<Integer, Nucleus> VALUES = new HashMap<>();
 
     /**
@@ -68,7 +72,9 @@ public class Nucleus {
 
 // --- stable ---
 
-    /** @see #Nucleus(int, int, int) */
+    /**
+     * @see #Nucleus(int, int, int)
+     */
     public Nucleus(int mass, int number) {
         this(mass, mass, number);
     }
@@ -86,11 +92,6 @@ public class Nucleus {
     }
 // --- radioactive ---
 
-    /** @see #Nucleus(int, int, int, NuclearEquation, float) */
-    public Nucleus(int mass, int number, NuclearEquation decay_equation, float half_life) {
-        this(mass, mass, number, Couple.create(0f, 0f), NuclearEquation.EMPTY, decay_equation, half_life);
-    }
-
     /**
      * Creates a <b>radioactive</b> nucleus with an explicit registry id.
      *
@@ -104,13 +105,6 @@ public class Nucleus {
      */
     public Nucleus(int id, int mass, int number, NuclearEquation decay_equation, float half_life) {
         this(id, mass, number, Couple.create(0f, 0f), NuclearEquation.EMPTY, decay_equation, half_life);
-    }
-// --- neutron absorbing ---
-
-    /** @see #Nucleus(int, int, int, Couple, NuclearEquation, NuclearEquation, float) */
-    public Nucleus(int mass, int number, Couple<Float> neutronCrossSections,
-                   NuclearEquation absorption_equation, NuclearEquation decay_equation, float half_life) {
-        this(mass, mass, number, neutronCrossSections, absorption_equation, decay_equation, half_life);
     }
 
     /**
@@ -146,21 +140,21 @@ public class Nucleus {
             VALUES.put(this.id, this);
         }
     }
+// --- neutron absorbing ---
+
     /**
-     * Returns the neutron cross-section (σ) for this nucleus, in <b>barns</b>.
-     *
-     * <p>Intended to be multiplied by the material's mass fraction, molar concentration,
-     * and the barn-to-cm² × Avogadro constant ({@code barnNa}) to yield an absorption probability:</p>
-     * <pre>
-     *   absorptionChance = clamp(σ × massFraction × molarConcentration × barnNa, 0, 1)
-     * </pre>
-     *
-     * @param fast {@code true} for the <b>fast</b>-neutron cross-section;
-     *             {@code false} for the <b>thermal</b>-neutron cross-section
-     * @return the cross-section in barns; never {@code null}
+     * @see #Nucleus(int, int, int, NuclearEquation, float)
      */
-    public @NotNull Float getNeutronCrossSections(boolean fast) {
-        return neutronCrossSections.get(fast);
+    public Nucleus(int mass, int number, NuclearEquation decay_equation, float half_life) {
+        this(mass, mass, number, Couple.create(0f, 0f), NuclearEquation.EMPTY, decay_equation, half_life);
+    }
+
+    /**
+     * @see #Nucleus(int, int, int, Couple, NuclearEquation, NuclearEquation, float)
+     */
+    public Nucleus(int mass, int number, Couple<Float> neutronCrossSections,
+                   NuclearEquation absorption_equation, NuclearEquation decay_equation, float half_life) {
+        this(mass, mass, number, neutronCrossSections, absorption_equation, decay_equation, half_life);
     }
 
     /**
@@ -179,13 +173,70 @@ public class Nucleus {
      * @param time   elapsed time in game ticks; must be ≥ 0
      * @param amount current quantity of this nucleus (e.g. in moles); must be ≥ 0
      * @return a {@link NuclearTransformationResult} describing the daughter products,
-     *         neutrons emitted, and energy released for this time step; never {@code null}
+     * neutrons emitted, and energy released for this time step
      */
     public @NotNull NuclearTransformationResult decay(float time, float amount) {
         float lambda = (float) (Math.log(2) / halfLife);
         float advancement = (float) (amount * (1 - Math.exp(-lambda * time)));
         return decayEquation.compute(advancement);
     }
+
+    /**
+     * Computes the neutron absorption and resulting nuclear transformation for this nucleus.
+     *
+     * @param neutrons incoming neutron count (fast or thermal depending on {@code fast})
+     * @param amount   quantity of this nucleus present, in moles
+     * @param volume   volume occupied by the material, in m³
+     * @param depth    thickness of the material along the neutron path, in meters
+     * @param fast     {@code true} to use the fast-neutron cross-section;
+     *                 {@code false} to use the thermal-neutron cross-section
+     * @return a {@link NuclearTransformationResult} describing the daughter products,
+     * neutrons emitted, and energy released; never {@code null}
+     */
+    public @NotNull NuclearTransformationResult fission(float neutrons, float amount, float volume, float depth, boolean fast) {
+        float surface = volume / depth;
+        float neutronFlux = neutrons / surface;
+        float sigma = getNeutronCrossSections(fast);
+        float c = amount / volume;
+        float absorbed = c * neutronFlux * sigma * barnNa;//it's from wikipedia but I'm not convinced
+        return absorptionEquation.compute(absorbed);
+    }
+
+    /**
+     * Returns the neutron cross-section (σ) for this nucleus, in <b>barns</b>.
+     *
+     * <p>Intended to be multiplied by the material's mass fraction, molar concentration,
+     * and the barn-to-cm² × Avogadro constant ({@code barnNa}) to yield an absorption probability:</p>
+     * <pre>
+     *   absorptionChance = clamp(σ × massFraction × molarConcentration × barnNa, 0, 1)
+     * </pre>
+     *
+     * @param fast {@code true} for the <b>fast</b>-neutron cross-section;
+     *             {@code false} for the <b>thermal</b>-neutron cross-section
+     * @return the cross-section in barns; never {@code null}
+     */
+    public @NotNull Float getNeutronCrossSections(boolean fast) {
+        return neutronCrossSections.get(fast);
+    }
+
+    /**
+     *
+     * @param mole number of moles
+     * @return mass in Kg
+     */
+    public float moleToMass(float mole) {
+        return mole * atomic_mass / 1000;
+    }
+
+    /**
+     *
+     * @param mass mass in Kg
+     * @return the number of moles
+     */
+    public float massToMole(float mass) {
+        return mass / atomic_mass * 1000;
+    }
+
     /**
      * Describes a nuclear reaction as a stoichiometric equation: a set of product nuclei
      * with their per-unit yields, the number of neutrons emitted, and the energy released.
@@ -207,6 +258,7 @@ public class Nucleus {
          * nuclei that do not interact with neutrons or for nuclei that burn
          */
         public static final Nucleus.NuclearEquation EMPTY = new Nucleus.NuclearEquation(Map.of(), 0f, 0f);
+
         /**
          * Evaluates this equation for a given reaction advancement and returns the
          * resulting transformation.
@@ -217,7 +269,7 @@ public class Nucleus {
          *
          * @param advancement the extent of reaction (typically {@code amount × time}); must be ≥ 0
          * @return a {@link NuclearTransformationResult} containing the scaled products,
-         *         neutron count, and total energy; never {@code null}
+         * neutron count, and total energy; never {@code null}
          */
         public @NotNull NuclearTransformationResult compute(float advancement) {
             Map<Nucleus, Float> elements = new HashMap<>();
@@ -227,6 +279,7 @@ public class Nucleus {
         }
 
     }
+
     /**
      * Immutable snapshot of the outcome of a nuclear transformation (absorption or decay).
      *

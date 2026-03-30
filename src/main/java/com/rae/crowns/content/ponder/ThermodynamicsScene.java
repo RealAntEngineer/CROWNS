@@ -197,7 +197,7 @@ public class ThermodynamicsScene {
         scene.addKeyframe();
         scene.overlay().showText(20 * 15)
                 .text("At 0 rpm it's %s\nAt 64 rpm it's %s\nAt 128 rpm it's %s\nAt 256 rpm it's %s",
-                        "ΔP = "+FormicApiLang.formatPressure(0).string(),
+                        "ΔP = " + FormicApiLang.formatPressure(0).string(),
                         "ΔP = " + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(64)).string(),
                         "ΔP = " + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(128)).string(),
                         "ΔP = " + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(256)).string()

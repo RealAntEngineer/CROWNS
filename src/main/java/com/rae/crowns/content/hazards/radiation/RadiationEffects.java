@@ -16,20 +16,34 @@ import net.minecraftforge.fml.common.Mod;
 public class RadiationEffects {
     // TODO: add vomiting
 
-    public static void hematopoieticSubsyndrome(LivingEntity target) {
-        MobEffectInstance confusion = new MobEffectInstance(MobEffects.CONFUSION, 100, 1);
-        MobEffectInstance suppression = new MobEffectInstance(EffectsInit.BONE_MARROW_SUPPRESSION.get(), 100);
-        MobEffectInstance weakness = new MobEffectInstance(MobEffects.WEAKNESS, 100);
+    @SubscribeEvent
+    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        Player player = event.player;
 
-        if (Math.random() < 0.01) {
-            target.addEffect(confusion);
+        if (player.isCreative()) return;
+
+        double contamination = ContaminationUtil.getContamination(player);
+
+        if (contamination >= 10) {
+            // Neurovascular subsyndrome is lethal
+            neurovascularSubsyndrome(player);
+        } else if (contamination >= 4) {
+            // Gastrointestinal subsyndrome is bad
+            gastrointestinalSubsyndrome(player);
+        } else if (contamination >= 1) {
+            // Hematopoietic subsyndrome to be implemented: bone marrow suppression, nausea and vomiting occurs here
+            hematopoieticSubsyndrome(player);
         }
+    }
 
-        if (Math.random() < 0.01) {
-            target.addEffect(weakness);
-        }
-
+    public static void neurovascularSubsyndrome(LivingEntity target) {
+        MobEffectInstance confusion = new MobEffectInstance(MobEffects.CONFUSION, 200, 2);
+        MobEffectInstance suppression = new MobEffectInstance(EffectsInit.BONE_MARROW_SUPPRESSION.get(), 100, 1);
         target.addEffect(suppression);
+        target.addEffect(confusion);
+
+        target.hurt(DamageSourceInit.radiation(target.level()), 2F);
     }
 
     public static void gastrointestinalSubsyndrome(LivingEntity target) {
@@ -50,34 +64,20 @@ public class RadiationEffects {
         target.addEffect(suppression);
     }
 
-    public static void neurovascularSubsyndrome(LivingEntity target) {
-        MobEffectInstance confusion = new MobEffectInstance(MobEffects.CONFUSION, 200, 2);
-        MobEffectInstance suppression = new MobEffectInstance(EffectsInit.BONE_MARROW_SUPPRESSION.get(), 100, 1);
-        target.addEffect(suppression);
-        target.addEffect(confusion);
+    public static void hematopoieticSubsyndrome(LivingEntity target) {
+        MobEffectInstance confusion = new MobEffectInstance(MobEffects.CONFUSION, 100, 1);
+        MobEffectInstance suppression = new MobEffectInstance(EffectsInit.BONE_MARROW_SUPPRESSION.get(), 100);
+        MobEffectInstance weakness = new MobEffectInstance(MobEffects.WEAKNESS, 100);
 
-        target.hurt(DamageSourceInit.radiation(target.level()), 2F);
-    }
-
-    @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
-        Player player = event.player;
-
-        if (player.isCreative()) return;
-
-        double contamination = ContaminationUtil.getContamination(player);
-
-        if (contamination >= 10) {
-            // Neurovascular subsyndrome is lethal
-            neurovascularSubsyndrome(player);
-        } else if (contamination >= 4) {
-            // Gastrointestinal subsyndrome is bad
-            gastrointestinalSubsyndrome(player);
-        } else if (contamination >= 1) {
-            // Hematopoietic subsyndrome to be implemented: bone marrow suppression, nausea and vomiting occurs here
-            hematopoieticSubsyndrome(player);
+        if (Math.random() < 0.01) {
+            target.addEffect(confusion);
         }
+
+        if (Math.random() < 0.01) {
+            target.addEffect(weakness);
+        }
+
+        target.addEffect(suppression);
     }
 
     @SubscribeEvent

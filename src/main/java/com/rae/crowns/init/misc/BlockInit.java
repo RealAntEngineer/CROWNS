@@ -1,10 +1,10 @@
 package com.rae.crowns.init.misc;
 
-import com.rae.crowns.content.nuclear.shielding.ReactorCasing;
-import com.rae.crowns.content.nuclear.uranium.UraniumBlocks;
 import com.rae.crowns.content.nuclear.corium.SolidCoriumBlock;
 import com.rae.crowns.content.nuclear.display.ReactorMonitorBlock;
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
+import com.rae.crowns.content.nuclear.shielding.ReactorCasing;
+import com.rae.crowns.content.nuclear.uranium.UraniumBlocks;
 import com.rae.crowns.content.nuclear.uranium.UraniumOreBlock;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlock;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;

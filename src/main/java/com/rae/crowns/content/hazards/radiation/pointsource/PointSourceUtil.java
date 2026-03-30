@@ -14,6 +14,7 @@ import java.util.Optional;
 public class PointSourceUtil {
     /**
      * Finds radioactive blocks within a certain radius of the player
+     *
      * @param player Target player
      * @param radius Radius of the sphere in which blocks are checked
      * @return HashMap<BlockPos, HazardEntry> of all radioactive blocks
@@ -62,8 +63,14 @@ public class PointSourceUtil {
 
             while (x1 != x2) {
                 blocks.add(new BlockPos(x1, y1, z1));
-                if (err1 > 0) { y1 += sy; err1 -= 2 * dx; }
-                if (err2 > 0) { z1 += sz; err2 -= 2 * dx; }
+                if (err1 > 0) {
+                    y1 += sy;
+                    err1 -= 2 * dx;
+                }
+                if (err2 > 0) {
+                    z1 += sz;
+                    err2 -= 2 * dx;
+                }
                 err1 += 2 * dy;
                 err2 += 2 * dz;
                 x1 += sx;
@@ -74,8 +81,14 @@ public class PointSourceUtil {
 
             while (y1 != y2) {
                 blocks.add(new BlockPos(x1, y1, z1));
-                if (err1 > 0) { x1 += sx; err1 -= 2 * dy; }
-                if (err2 > 0) { z1 += sz; err2 -= 2 * dy; }
+                if (err1 > 0) {
+                    x1 += sx;
+                    err1 -= 2 * dy;
+                }
+                if (err2 > 0) {
+                    z1 += sz;
+                    err2 -= 2 * dy;
+                }
                 err1 += 2 * dx;
                 err2 += 2 * dz;
                 y1 += sy;
@@ -86,8 +99,14 @@ public class PointSourceUtil {
 
             while (z1 != z2) {
                 blocks.add(new BlockPos(x1, y1, z1));
-                if (err1 > 0) { y1 += sy; err1 -= 2 * dz; }
-                if (err2 > 0) { x1 += sx; err2 -= 2 * dz; }
+                if (err1 > 0) {
+                    y1 += sy;
+                    err1 -= 2 * dz;
+                }
+                if (err2 > 0) {
+                    x1 += sx;
+                    err2 -= 2 * dz;
+                }
                 err1 += 2 * dy;
                 err2 += 2 * dx;
                 z1 += sz;

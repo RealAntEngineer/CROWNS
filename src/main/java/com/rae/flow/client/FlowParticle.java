@@ -64,7 +64,7 @@ public class FlowParticle extends SimpleAnimatedParticle {
         }
 
         @Override
-        public Particle createParticle(@NotNull FlowParticleData data, ClientLevel worldIn, double x, double y, double z,
+        public Particle createParticle(@NotNull FlowParticleData data, @NotNull ClientLevel worldIn, double x, double y, double z,
                                        double xSpeed, double ySpeed, double zSpeed) {
 
             return new FlowParticle(worldIn, data.getSpline(), (float) data.getInitialT(), this.spriteSet);

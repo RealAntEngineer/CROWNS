@@ -39,7 +39,7 @@ import java.util.Map;
 import static com.rae.crowns.Constants.*;
 import static com.rae.crowns.content.nuclear.NuclearExplosion.nuclearExplosion;
 
-public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
+public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmFissileMaterial, IHaveGoggleInformation {
 
     private static final int SYNC_RATE = 8;
     static int rayCount = 0;

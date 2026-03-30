@@ -34,10 +34,7 @@ public class SteamFlowManager {
         }
         storage.steamCurrents.get(world.dimension().location())
                 .removeIf(steamCurrent -> {
-                    if (steamCurrent == null) {
-                        return true;
-                    }
-                    return false;
+                    return steamCurrent == null;
                 });
         //there shouldn't be null values here.
         storage.steamCurrents.get(world.dimension().location())
