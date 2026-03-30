@@ -9,7 +9,7 @@ public class CROWNSCfgServer extends ConfigBase {
     public final CROWNSKinetics kinetics = nested(0, CROWNSKinetics::new, Comments.kinetics);
 
     public final CROWNSNuclear nuclear = nested(0, CROWNSNuclear::new, Comments.nuclear);
-    public final CROWNSConduction conduction = nested(0, CROWNSConduction::new, Comments.conduction);
+    public final CROWNSThermal conduction = nested(0, CROWNSThermal::new, Comments.conduction);
 
     @Override
     public @NotNull String getName() {
