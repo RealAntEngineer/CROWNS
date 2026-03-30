@@ -31,7 +31,7 @@ public class RadiationSourceDisplaySource extends DisplaySource {
     static final int ENTRIES_PER_PAGE = 8;
 
     @Override
-    public List<MutableComponent> provideText(DisplayLinkContext context, DisplayTargetStats stats) {
+    public @NotNull List<MutableComponent> provideText(@NotNull DisplayLinkContext context, @NotNull DisplayTargetStats stats) {
         boolean isBook = context.getTargetBlockEntity() instanceof LecternBlockEntity;
 
         List<MutableComponent> list = provideEntries(context, stats.maxRows() * (isBook ? ENTRIES_PER_PAGE : 1))

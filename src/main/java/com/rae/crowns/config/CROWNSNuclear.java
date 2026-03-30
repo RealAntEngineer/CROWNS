@@ -1,6 +1,7 @@
 package com.rae.crowns.config;
 
 
+import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlockEntity;
 import net.createmod.catnip.config.ConfigBase;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,6 +11,12 @@ public class CROWNSNuclear extends ConfigBase {
     public final ConfigBase.ConfigFloat radiationRange = f(4, 0, "radiationRange", Comments.radiationRange);
     public final ConfigBase.ConfigFloat neutronFluxMultiplicator = f(0.8f, 0, "neutronFluxMultiplicator", Comments.neutronFluxMultiplicator);
     public final ConfigBase.ConfigFloat negativeThermalCoef = f(0.0075f, 0, "negativeThermalCoef", Comments.negativeThermalCoef);
+
+    @Override
+    public void onReload() {
+        super.onReload();
+        AssemblyBlockEntity.reloadConfig();
+    }
 
     @Override
     public @NotNull String getName() {

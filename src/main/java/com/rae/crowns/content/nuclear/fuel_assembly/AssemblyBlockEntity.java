@@ -41,6 +41,8 @@ import static com.rae.crowns.content.nuclear.NuclearExplosion.nuclearExplosion;
 public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IAmRadioactiveSource, IAmFissileMaterial, IHaveGoggleInformation {
 
     private static final int SYNC_RATE = 8;
+    static int rayCount = 0;
+    private static float negativeThermalCoef = 0.0075f;
     private final int LAZY_TICK_RATE = 5;
     public float temperature = 300;
     public float backgroundActivity = 12 * 3;//In MBq ( giga becquerels ) uranium is 12 Mbq per tonnes
@@ -57,6 +59,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     protected int syncCooldown;
     protected boolean queuedSync;
     float power = 0;
+    double fastAbsorptionChance;
+    double slowAbsorptionChance;
     int lastLazy = 0;
 
     public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
@@ -65,6 +69,15 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         setLazyTickRate(LAZY_TICK_RATE);
 
 
+    }
+
+    public static void resetRayCounter() {
+        //System.out.println(rayCount);
+        rayCount = 0;
+    }
+
+    public static void reloadConfig() {
+        negativeThermalCoef = CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF();
     }
 
     @Override
@@ -188,7 +201,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
                 }
             }
-            moreOptimizedImpactEnv(pos, level, CROWNSConfigs.SERVER.nuclear.radiationRange.get());
+            rayCount += moreOptimizedImpactEnv(pos, level, CROWNSConfigs.SERVER.nuclear.radiationRange.get());
 
             notifyUpdate();
 
@@ -256,6 +269,22 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 }
             }
         }
+        computeAbsorptionChances();
+    }
+
+    public void computeAbsorptionChances() {
+        fastAbsorptionChance = 0;
+        slowAbsorptionChance = 0;
+        for (ResourceLocation resourceLocation : radioactiveElements.keySet()) {
+            double massFrac = radioactiveElements.get(resourceLocation);
+            float cm = IAmFissileMaterial.molarConcentration.get(resourceLocation);
+            fastAbsorptionChance += Math.min(1,
+                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getFirst()
+                            * massFrac * cm * barnNa);
+            slowAbsorptionChance += Math.min(1,
+                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getSecond()
+                            * massFrac * cm * barnNa);
+        }
     }
 
     public @NotNull CompoundTag saveComposition() {
@@ -271,6 +300,11 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     @Override
+    public float getThermalCapacity() {
+        return C;
+    }
+
+    @Override
     public float getThermalConductivity() {
         return CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
     }
@@ -283,11 +317,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public void addTemperature(float dT) {
         temperature = Math.max(temperature + dT, 0);
-    }
-
-    @Override
-    public float getThermalCapacity() {
-        return C;
     }
 
     @Override
@@ -323,31 +352,17 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public @NotNull Couple<Float> absorbNeutrons(@NotNull Couple<Float> radiationFlux) {
-
-
-        assert level != null;
-        int oldLast = lastLazy;
+        int oldLast = lastLazy;//needed cause it could be hit by ray coming from a block that tick before us
         lastLazy = Math.toIntExact(level.getGameTime() / LAZY_TICK_RATE);
         if (oldLast != lastLazy) {//detect change of lazy tick.
             additionalNeutronsAbsorbed.chaseTimed(0, LAZY_TICK_RATE);
         }
 
-        Float temperatureCoef = 1 / Math.max(1, (temperature - 200) * CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF());
+        float temperatureCoef = 1 / Math.max(1, (temperature - 200) * negativeThermalCoef);
         //System.out.println("temperature coef "+ temperatureCoef);
-        double fastAbsorbed = 0f;
-        double slowAbsorbed = 0f;
-        for (ResourceLocation resourceLocation : radioactiveElements.keySet()) {
-            Double massFrac = radioactiveElements.get(resourceLocation);
-            Float cm = IAmFissileMaterial.molarConcentration.get(resourceLocation);
-            Double fastAbsorptionChance = Math.min(1,
-                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getFirst()
-                            * massFrac * cm * barnNa);
-            Double slowAbsorptionChance = Math.min(1,
-                    IAmFissileMaterial.fissileCrossSection.get(resourceLocation).getSecond()
-                            * massFrac * cm * barnNa);
-            fastAbsorbed += radiationFlux.getFirst() * temperatureCoef * fastAbsorptionChance;
-            slowAbsorbed += radiationFlux.getSecond() * temperatureCoef * slowAbsorptionChance;
-        }
+        double fastAbsorbed = radiationFlux.getFirst() * temperatureCoef * fastAbsorptionChance;
+        double slowAbsorbed = radiationFlux.getSecond() * temperatureCoef * slowAbsorptionChance;
+
         additionalNeutronsAbsorbed.chaseTimed(additionalNeutronsAbsorbed.getChaseTarget() + fastAbsorbed + slowAbsorbed,
                 LAZY_TICK_RATE);
         return Couple.create((float) (radiationFlux.getFirst() - fastAbsorbed), (float) (radiationFlux.getSecond() - slowAbsorbed));
