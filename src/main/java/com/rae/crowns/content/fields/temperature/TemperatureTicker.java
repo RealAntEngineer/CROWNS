@@ -151,7 +151,8 @@ public final class TemperatureTicker {
                 if (Math.abs(selfTemp - newTemp) > 1e-3f) {
                     data.setDirty(packedSection);
 
-                    // Mark cross-section dirty neighbors.
+                    // Mark cross-section dirty neighbors. -> should only run on edges and once section
+                    // make a util function that tell you if you are on the edge
                     ctx.forEachNeighbor((nx, ny, nz, ref) -> {
                         if (ref.packedSection() != packedSection) {
                             data.setDirty(ref.packedSection());

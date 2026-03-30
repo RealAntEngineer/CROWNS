@@ -44,6 +44,7 @@ public final class SectionLooper {
             ctx.setLayers(layers);
 
             // --- iterate voxels using single-short loop ---
+            // should give a boolean if it's on the edge
             for (short i = 0; i < 4096; i++) {
                 int x = (i >> 8) & 15;
                 int y = (i >> 4) & 15;

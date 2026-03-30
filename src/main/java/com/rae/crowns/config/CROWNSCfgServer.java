@@ -7,9 +7,8 @@ import org.jetbrains.annotations.NotNull;
 public class CROWNSCfgServer extends ConfigBase {
 
     public final CROWNSKinetics kinetics = nested(0, CROWNSKinetics::new, Comments.kinetics);
-
     public final CROWNSNuclear nuclear = nested(0, CROWNSNuclear::new, Comments.nuclear);
-    public final CROWNSConduction conduction = nested(0, CROWNSConduction::new, Comments.conduction);
+    public final CROWNSThermal conduction = nested(0, CROWNSThermal::new, Comments.thermal);
 
     @Override
     public @NotNull String getName() {
@@ -19,7 +18,7 @@ public class CROWNSCfgServer extends ConfigBase {
     private static class Comments {
         static @NotNull String nuclear = "Parameter and constants for nuclear reactors";
         static @NotNull String kinetics = "Parameters and abilities of CROWNS's kinetic mechanisms";
-        static @NotNull String conduction = "How heat is transferred. Changes can create instability and world corruption, HERE BE DRAGONS ";
+        static @NotNull String thermal = "How heat is transferred. Changes can create instability and world corruption, HERE BE DRAGONS ";
     }
 
 }

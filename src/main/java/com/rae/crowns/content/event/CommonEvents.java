@@ -1,6 +1,6 @@
 package com.rae.crowns.content.event;
 
-import com.rae.crowns.CROWNS;
+import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-@EventBusSubscriber(modid = CROWNS.MODID)
+@EventBusSubscriber
 public class CommonEvents {
 
     @SubscribeEvent
@@ -44,7 +44,8 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onEntityTick(@NotNull EntityTickEvent.Pre event) {
         Entity entity = event.getEntity();
-        if (entity.level() instanceof ServerLevel level && entity instanceof LivingEntity) {
+        //inflict temperature damage
+        if (entity.level() instanceof ServerLevel level && entity instanceof LivingEntity && CROWNSConfigs.SERVER.conduction.heatDamage.get()) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) entity.level());
             if (data == null) return;
             AtomicReference<Float> cumlTemp = new AtomicReference<>(0f);
@@ -83,7 +84,7 @@ public class CommonEvents {
         return layer.get(localX, localY, localZ);
     }
 
-    @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber
     public static class ModBusEvents {
         @SubscribeEvent
         public static void registerCapabilities(RegisterCapabilitiesEvent event) {

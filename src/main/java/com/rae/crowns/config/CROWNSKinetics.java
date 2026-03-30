@@ -20,7 +20,7 @@ public class CROWNSKinetics extends ConfigBase {
 
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return "kinetics";
     }
 
