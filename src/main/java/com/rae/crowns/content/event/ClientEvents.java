@@ -9,6 +9,7 @@ import com.rae.crowns.content.rendering.VolumeWorldRenderer;
 import com.rae.crowns.content.rendering.util.SceneDepth;
 import com.rae.crowns.content.sound.CrownsSoundScapes;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
+import com.rae.crowns.init.misc.TagsInit;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.ChatFormatting;
@@ -141,6 +142,12 @@ public class ClientEvents {
 
         for (String line : hazardStrings) {
             components.add(Component.literal(line).withStyle(ChatFormatting.GRAY));
+        }
+
+        // Other tooltips
+
+        if (TagsInit.CustomBlockTags.SHIELDING.matches(itemStack)) {
+            components.add(Component.literal("[Radiation Shielding]").withStyle(ChatFormatting.DARK_GREEN));
         }
     }
 

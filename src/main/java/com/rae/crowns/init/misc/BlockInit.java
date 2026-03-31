@@ -3,7 +3,7 @@ package com.rae.crowns.init.misc;
 import com.rae.crowns.content.nuclear.corium.SolidCoriumBlock;
 import com.rae.crowns.content.nuclear.display.ReactorMonitorBlock;
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
-import com.rae.crowns.content.nuclear.shielding.ReactorCasing;
+import com.rae.crowns.content.nuclear.shielding.CasingBlocks;
 import com.rae.crowns.content.nuclear.uranium.UraniumBlocks;
 import com.rae.crowns.content.nuclear.uranium.UraniumOreBlock;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlock;
@@ -144,8 +144,15 @@ public class BlockInit {
             .build()
             .register();
 
-    public static final BlockEntry<ReactorCasing> REACTOR_CASING = REGISTRATE
-            .block("reactor_casing", ReactorCasing::new)
+    public static final BlockEntry<CasingBlocks.ReactorCasing> REACTOR_CASING = REGISTRATE
+            .block("reactor_casing", CasingBlocks.ReactorCasing::new)
+            .initialProperties(SharedProperties::softMetal)
+            .item()
+            .build()
+            .register();
+
+    public static final BlockEntry<CasingBlocks.ReactorVessel> REACTOR_VESSEL = REGISTRATE
+            .block("reactor_vessel", CasingBlocks.ReactorVessel::new)
             .initialProperties(SharedProperties::softMetal)
             .item()
             .build()

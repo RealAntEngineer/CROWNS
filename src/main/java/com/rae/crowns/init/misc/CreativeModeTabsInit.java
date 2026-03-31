@@ -51,6 +51,7 @@ public class CreativeModeTabsInit {
                                 output.accept(FluidInit.URANIUM_HEXAFLUORIDE.get().getBucket());
                                 output.acceptAll(makeFuelAssembly().apply(ItemInit.FUEL_ROD.asItem()));
                                 output.accept(BlockInit.REACTOR_CASING);
+                                output.accept(BlockInit.REACTOR_VESSEL);
                                 output.accept(ItemInit.DOSIMETER);
                             })
                             .build());
