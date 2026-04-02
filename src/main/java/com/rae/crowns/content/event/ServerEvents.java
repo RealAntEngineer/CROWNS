@@ -21,7 +21,6 @@ public class ServerEvents {
     @SubscribeEvent
     public static void onServerLevelTick(TickEvent.@NotNull LevelTickEvent event) {
         if (!(event.phase == TickEvent.Phase.END && event.level instanceof ServerLevel serverLevel)) return;
-        AssemblyBlockEntity.resetRayCounter();
         if (!event.haveTime()) return;
         PhysicsWorldData data = PhysicsSaveManager.get(serverLevel);
         if (data == null) return;

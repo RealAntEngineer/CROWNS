@@ -12,52 +12,52 @@ public class NucleusInit {
 
     long Day = 24000L;
 
-    @NotNull Nucleus Sr90 = new Nucleus(90, 38);
-    @NotNull Nucleus Zr92 = new Nucleus(92, 52);
-    @NotNull Nucleus Xe135 = new Nucleus(135, 54, Couple.create(7f, 7f),
+    @NotNull public Nucleus Sr90 = new Nucleus(90, 38);
+    @NotNull public Nucleus Zr92 = new Nucleus(92, 52);
+    @NotNull public Nucleus Xe135 = new Nucleus(135, 54, Couple.create(7f, 7f),
             Nucleus.NuclearEquation.EMPTY,
             Nucleus.NuclearEquation.EMPTY, Day * 0.5f);
-    @NotNull Nucleus Cs137 = new Nucleus(137, 55, new Nucleus.NuclearEquation(Map.of(), 1, 0f),
+    @NotNull public Nucleus Cs137 = new Nucleus(137, 55, new Nucleus.NuclearEquation(Map.of(), 1, 0f),
             30 * Day);
-    @NotNull Nucleus Nd144 = new Nucleus(144, 60);
-    @NotNull Nucleus Sm149 = new Nucleus(149, 62);
+    @NotNull public Nucleus Nd144 = new Nucleus(144, 60);
+    @NotNull public Nucleus Sm149 = new Nucleus(149, 62);
 
     // Delayed neutron precursor groups (DN1..DN6)
-    @NotNull Nucleus DN1 = new Nucleus(
+    @NotNull public Nucleus DN1 = new Nucleus(
             8001, 0, 0,
             new Nucleus.NuclearEquation(Map.of(), 1f, 0f), // emits 1 neutron
             55.6f * 20f // ~1112 ticks
     );
 
-    @NotNull Nucleus DN2 = new Nucleus(
+    @NotNull public Nucleus DN2 = new Nucleus(
             8002, 0, 0,
             new Nucleus.NuclearEquation(Map.of(), 1f, 0f),
             22.7f * 20f // ~454 ticks
     );
 
-    @NotNull Nucleus DN3 = new Nucleus(
+    @NotNull public Nucleus DN3 = new Nucleus(
             8002, 0, 0,
             new Nucleus.NuclearEquation(Map.of(), 1f, 0f),
             6.2f * 20f // ~454 ticks
     );
-    @NotNull Nucleus DN4 = new Nucleus(
+    @NotNull public Nucleus DN4 = new Nucleus(
             8002, 0, 0,
             new Nucleus.NuclearEquation(Map.of(), 1f, 0f),
             2.3f * 20f // ~454 ticks
     );
-    @NotNull Nucleus DN5 = new Nucleus(
+    @NotNull public Nucleus DN5 = new Nucleus(
             8002, 0, 0,
             new Nucleus.NuclearEquation(Map.of(), 1f, 0f),
             0.61f * 20f // ~454 ticks
     );
-    @NotNull Nucleus DN6 = new Nucleus(
+    @NotNull public Nucleus DN6 = new Nucleus(
             8002, 0, 0,
             new Nucleus.NuclearEquation(Map.of(), 1f, 0f),
             0.23f * 20f // ~454 ticks
     );
 
     // U-235 with prompt + delayed neutrons
-    @NotNull Nucleus U235 = new Nucleus(
+    @NotNull public Nucleus U235 = new Nucleus(
             235, 92,
             Couple.create(1f, 583f),
             new Nucleus.NuclearEquation(
@@ -82,10 +82,10 @@ public class NucleusInit {
             100f * Day
     );
 
-    @NotNull Nucleus U236 = new Nucleus(236, 92,
+    @NotNull public Nucleus U236 = new Nucleus(236, 92,
             new Nucleus.NuclearEquation(Map.of(92, 1f, 141, 1f), 3, 0f), 1);
 
-    @NotNull Nucleus U238 = new Nucleus(238, 92, Couple.create(0.3f, 0.0001f),
+    @NotNull public Nucleus U238 = new Nucleus(238, 92, Couple.create(0.3f, 0.0001f),
             new Nucleus.NuclearEquation(Map.of(236, 0.1f), 0, 0f),
             new Nucleus.NuclearEquation(Map.of(234, 1f), 0, 0f), 100f * Day);
 

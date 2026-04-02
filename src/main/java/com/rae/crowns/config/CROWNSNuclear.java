@@ -15,7 +15,6 @@ public class CROWNSNuclear extends ConfigBase {
     @Override
     public void onReload() {
         super.onReload();
-        AssemblyBlockEntity.reloadConfig();
     }
 
     @Override
