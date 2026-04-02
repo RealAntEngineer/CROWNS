@@ -2,6 +2,7 @@ package com.rae.crowns;
 
 import com.rae.crowns.config.CROWNSCfgClient;
 import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.crowns.content.nuclear.Nucleus;
 import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.content.thermal_utilities.FullTableBased;
 import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
@@ -9,26 +10,27 @@ import net.createmod.catnip.lang.Lang;
 import net.createmod.catnip.lang.LangBuilder;
 import net.createmod.catnip.lang.LangNumberFormat;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
+@NonnullDefault
 public class CROWNSLang extends Lang {
     //blatant copy of CreateLang
 
 
-    public static @NotNull LangBuilder translate(@NotNull String langKey, Object... args) {
+    public static LangBuilder translate(String langKey, Object... args) {
         return builder().translate(langKey, args);
     }
 
-    public static @NotNull LangBuilder builder() {
+    public static LangBuilder builder() {
         return new LangBuilder(CROWNS.MODID);
     }
 
-    public static @NotNull LangBuilder text(@NotNull String text) {
+    public static LangBuilder text(String text) {
         return builder().text(text);
     }
 
 
-    public static @NotNull LangBuilder specificRealFluidState(@NotNull SpecificRealGazState state) {
+    public static LangBuilder specificRealFluidState(SpecificRealGazState state) {
         CROWNSCfgClient.FluidVisualMode mode = CROWNSConfigs.CLIENT.fluidStateVisualMode.get();
 
         return switch (mode) {
@@ -62,5 +64,8 @@ public class CROWNSLang extends Lang {
         };
     }
 
-
+    public static LangBuilder nucleus(Nucleus nucleus){
+        String langKey = "nucleus."+nucleus.getAtomic_mass();
+        return builder().translate(langKey, nucleus.getId());
+    }
 }
