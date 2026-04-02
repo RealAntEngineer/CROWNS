@@ -35,23 +35,24 @@ public class Nucleus {
      * Use a custom id when multiple nuclei share the same atomic mass (e.g. delayed neutron
      * precursor groups DN1–DN6, which are abstract decay groups rather than real isotopes).
      */
-    private final int id;
+    private final int           id;
     /**
      * Neutron cross-sections for this nucleus.
      * The first value of the {@link Couple} is the <b>fast</b> neutron cross-section,
      * the second is the <b>thermal</b> neutron cross-section.
      */
     private final Couple<Float> neutronCrossSections;
+
     /**
      * Total number of nucleons (protons + neutrons) in the nucleus.
      * Serves as the unique identifier in the {@link #VALUES} registry.
      */
-    private final int atomic_mass;
+    private final int             atomic_mass;
     /**
      * Number of neutrons inside the nucleus.
      * Must be ≥ 0.
      */
-    private final int atomic_number;
+    private final int             atomic_number;
     /**
      * The {@link NuclearEquation} triggered <em>immediately</em> when this nucleus
      * captures a neutron. Provides instant transformation products.
@@ -68,7 +69,7 @@ public class Nucleus {
      * Time required for half of a sample of this nucleus to decay, expressed in
      * game ticks. {@link Float#MAX_VALUE} indicates a stable (non-decaying) nucleus.
      */
-    private final float halfLife;
+    private final float           halfLife;
 
 // --- stable ---
 
@@ -84,7 +85,7 @@ public class Nucleus {
      *
      * @param id     unique registry key; use when {@code mass} would collide with an existing nucleus
      * @param mass   total number of nucleons (protons + neutrons)
-     * @param number number of neutrons; must be ≥ 0
+     * @param number number of proton; must be ≥ 0
      * @throws IllegalArgumentException if {@code number} is negative or {@code id} is already registered
      */
     public Nucleus(int id, int mass, int number) {
@@ -97,7 +98,7 @@ public class Nucleus {
      *
      * @param id             unique registry key; use when {@code mass} would collide with an existing nucleus
      * @param mass           total number of nucleons (protons + neutrons)
-     * @param number         number of neutrons; must be ≥ 0
+     * @param number         number of proton; must be ≥ 0
      * @param decay_equation the {@link NuclearEquation} describing decay products and energy released
      * @param half_life      time for half the population to decay, in game ticks;
      *                       use {@link Float#MAX_VALUE} for effectively stable nuclei
@@ -176,7 +177,7 @@ public class Nucleus {
      * neutrons emitted, and energy released for this time step
      */
     public @NotNull NuclearTransformationResult decay(float time, float amount) {
-        float lambda = (float) (Math.log(2) / halfLife);
+        float lambda      = (float) (Math.log(2) / halfLife);
         float advancement = (float) (amount * (1 - Math.exp(-lambda * time)));
         return decayEquation.compute(advancement);
     }
@@ -194,11 +195,11 @@ public class Nucleus {
      * neutrons emitted, and energy released; never {@code null}
      */
     public @NotNull NuclearTransformationResult fission(float neutrons, float amount, float volume, float depth, boolean fast) {
-        float surface = volume / depth;
+        float surface     = volume / depth;
         float neutronFlux = neutrons / surface;
-        float sigma = getNeutronCrossSections(fast);
-        float c = amount / volume;
-        float absorbed = c * neutronFlux * sigma * barnNa;//it's from wikipedia but I'm not convinced
+        float sigma       = getNeutronCrossSections(fast);
+        float c           = amount / volume;
+        float absorbed    = c * neutronFlux * sigma * barnNa;//it's from wikipedia but I'm not convinced
         return absorptionEquation.compute(absorbed);
     }
 
@@ -235,6 +236,19 @@ public class Nucleus {
      */
     public float massToMole(float mass) {
         return mass / atomic_mass * 1000;
+    }
+
+    public int getAtomic_number() {
+        return atomic_number;
+    }
+
+
+    public int getAtomic_mass() {
+        return atomic_mass;
+    }
+
+    public int getId() {
+        return id;
     }
 
     /**

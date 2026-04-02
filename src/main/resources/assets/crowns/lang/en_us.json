@@ -96,6 +96,8 @@
   "nucleus.crowns.u238": "Uranium 238",
   "nucleus.crowns.p239": "Plutonium 239",
 
+  "crowns.nucleus.92": "Uranium %d",
+
   "death.attack.crowns.radiation": "%s died from radiation poisoning",
   "death.attack.crowns.high_temperature": "%s got cooked to death",
   "death.attack.crowns.low_temperature": "%s got turned into an ice cube"
