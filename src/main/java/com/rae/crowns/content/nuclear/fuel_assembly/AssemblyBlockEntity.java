@@ -1,6 +1,7 @@
 package com.rae.crowns.content.nuclear.fuel_assembly;
 
 import com.rae.crowns.CROWNS;
+import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
@@ -34,6 +35,7 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,16 +48,14 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public float temperature = 300;
     public float C = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
 
-    private NucleusInit nuclei = new NucleusInit();
     public HashMap<Nucleus, Float> inventory = new HashMap<>(); // Number of mol for each isotope
 
-    public double fastFlux = 0; // > 0.1eV
-    public double slowFlux = 0; // < 0.1eV
+    public float fastFlux = 0; // > 0.1eV
+    public float slowFlux = 0; // < 0.1eV
 
     private static final int SYNC_RATE = 8;
     protected int syncCooldown;
     protected boolean queuedSync;
-
 
     public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
@@ -69,8 +69,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public void initialize() {
         super.initialize();
         if (level !=  null && !level.isClientSide) {
-            inventory.put(nuclei.U235, 10f);
-            inventory.put(nuclei.U238, 10f);
+            inventory.put(NucleusInit.U235, 10f);
+            inventory.put(NucleusInit.U238, 10f);
         }
     }
 
@@ -89,6 +89,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                     sendData();
             }
         }
+
+        temperature = 300;
 
         if (Float.isNaN(temperature)) {
             temperature = 300;
@@ -112,13 +114,26 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         //level.removeBlockEntity(pos);
     }
 
+    public void setComposition(@Nullable CompoundTag composition) {
+        if (composition != null) { // if null we keep the default.
+            inventory.clear();
+            for (Nucleus nucleus : NucleusInit.allNuclei) {
+                if (composition.contains(CROWNSLang.nucleus(nucleus).string())) {
+                    double mol = nucleus.massToMole((float) composition.getDouble(CROWNSLang.nucleus(nucleus).string())); // Will refactor
+                    inventory.put(nucleus, (float) mol);
+                }
+            }
+        }
+    }
+
     public @NotNull CompoundTag saveComposition() {
         CompoundTag composition = new CompoundTag();
 
         for (Nucleus nucleus : inventory.keySet().stream().toList()) {
             double concentration = nucleus.moleToMass(inventory.get(nucleus));
+            String string = CROWNSLang.nucleus(nucleus).string();
 
-            composition.putDouble("Somethinglmfao", concentration);
+            composition.putDouble(string, concentration);
         }
 
         return composition;
@@ -126,11 +141,31 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     protected void read(@NotNull CompoundTag tag, boolean clientPacket) {
-
         fastFlux = tag.getFloat("fastFlux");
         slowFlux = tag.getFloat("slowFlux");
+        setComposition(tag.getCompound("composition"));
         temperature = tag.getFloat("temperature");
         super.read(tag, clientPacket);
+    }
+
+    @Override
+    protected void write(@NotNull CompoundTag tag, boolean clientPacket) {
+        super.write(tag, clientPacket);
+
+        tag.putFloat("fastFlux", fastFlux);
+        tag.putFloat("slowFlux", slowFlux);
+        tag.put("composition", saveComposition());
+        tag.putFloat("temperature", temperature);
+    }
+
+    @Override
+    public void writeSafe(@NotNull CompoundTag tag) {
+        super.writeSafe(tag);
+
+        tag.putFloat("fastFlux", fastFlux);
+        tag.putFloat("slowFlux", slowFlux);
+        tag.put("composition", saveComposition());
+        tag.putFloat("temperature", temperature);
     }
 
     @Override
@@ -164,14 +199,14 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 .style(ChatFormatting.DARK_RED)
                 .forGoggles(tooltip, 1);
 
+        tooltip.add(Component.literal("Composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
 
-        tooltip.add(Component.literal("composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
         for (Nucleus nucleus : inventory.keySet().stream().toList()) {
+            String nucleusName = CROWNSLang.nucleus(nucleus).string();
             double concentration = nucleus.moleToMass(inventory.get(nucleus));
-            tooltip.add(
-                    Component.literal("Something").withStyle(ChatFormatting.YELLOW)
-                    .append(Component.literal(String.format(" : %.2f %%", concentration * 100)).withStyle(ChatFormatting.GRAY))
-            );
+
+            tooltip.add(Component.literal(nucleusName).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))
+                    .append(Component.literal(String.format(" : %.2f %%", concentration * 100)).withStyle(ChatFormatting.GRAY)));
         }
 
         return true;

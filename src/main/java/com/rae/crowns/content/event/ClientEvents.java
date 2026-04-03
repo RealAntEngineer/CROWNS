@@ -3,12 +3,15 @@ package com.rae.crowns.content.event;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.hazards.HazardSystem;
 import com.rae.crowns.content.nuclear.IAmFissileMaterial;
+import com.rae.crowns.content.nuclear.Nucleus;
 import com.rae.crowns.content.rendering.VolumeWorldRenderer;
 import com.rae.crowns.content.rendering.util.SceneDepth;
 import com.rae.crowns.content.sound.CrownsSoundScapes;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
+import com.rae.crowns.init.misc.NucleusInit;
 import com.rae.crowns.init.misc.TagsInit;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
@@ -124,13 +127,15 @@ public class ClientEvents {
         List<Component> components = event.getToolTip();
         CompoundTag composition = itemStack.getTagElement("composition");
         if (composition != null) {
-            components.add(Component.literal("composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
-            for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
-                if (composition.contains(resourceLocation.toString())) {
-                    float concentration = composition.getFloat(resourceLocation.toString());
-                    components.add(
-                            Component.translatable(resourceLocation.toLanguageKey("nucleus")).withStyle(ChatFormatting.YELLOW)
-                                    .append(Component.literal(String.format(" : %.2f %%", concentration * 100)).withStyle(ChatFormatting.GRAY)));
+            components.add(Component.literal("Composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
+
+            for (Nucleus nucleus : NucleusInit.allNuclei) {
+                if (composition.contains(CROWNSLang.nucleus(nucleus).string())) {
+                    String string = CROWNSLang.nucleus(nucleus).string();
+                    double concentration = composition.getDouble(string);
+
+                    components.add(Component.literal(string).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))
+                            .append(Component.literal(String.format(" : %.2f %%", concentration * 100)).withStyle(ChatFormatting.GRAY)));
                 }
             }
         }

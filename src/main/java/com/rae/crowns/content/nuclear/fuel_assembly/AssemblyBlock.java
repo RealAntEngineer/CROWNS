@@ -100,7 +100,7 @@ public class AssemblyBlock extends RotatedPillarBlock implements IBE<AssemblyBlo
         if (level.isClientSide)
             return;
         withBlockEntityDo(level, pos, be -> {
-            be.
+            be.setComposition(itemStack.getOrCreateTag().getCompound("composition"));
         });
     }
 
