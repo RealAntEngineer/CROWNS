@@ -31,7 +31,7 @@ public class Nucleus {
 
     /**
      * Unique identifier for this nucleus within the {@link #VALUES} registry.
-     * Defaults to {@link #atomic_mass} unless explicitly overridden at construction time.
+     * Defaults to {@link #atomicMass} unless explicitly overridden at construction time.
      * Use a custom id when multiple nuclei share the same atomic mass (e.g. delayed neutron
      * precursor groups DN1–DN6, which are abstract decay groups rather than real isotopes).
      */
@@ -47,12 +47,12 @@ public class Nucleus {
      * Total number of nucleons (protons + neutrons) in the nucleus.
      * Serves as the unique identifier in the {@link #VALUES} registry.
      */
-    private final int             atomic_mass;
+    private final int atomicMass;
     /**
-     * Number of neutrons inside the nucleus.
+     * Number of proton inside the nucleus.
      * Must be ≥ 0.
      */
-    private final int             atomic_number;
+    private final int atomicNumber;
     /**
      * The {@link NuclearEquation} triggered <em>immediately</em> when this nucleus
      * captures a neutron. Provides instant transformation products.
@@ -136,8 +136,8 @@ public class Nucleus {
         } else {
             this.id = id;
             this.neutronCrossSections = neutronCrossSections;
-            this.atomic_mass = mass;
-            this.atomic_number = number;
+            this.atomicMass = mass;
+            this.atomicNumber = number;
             VALUES.put(this.id, this);
         }
     }
@@ -226,7 +226,7 @@ public class Nucleus {
      * @return mass in Kg
      */
     public float moleToMass(float mole) {
-        return mole * atomic_mass / 1000;
+        return mole * atomicMass / 1000;
     }
 
     /**
@@ -235,16 +235,16 @@ public class Nucleus {
      * @return the number of moles
      */
     public float massToMole(float mass) {
-        return mass / atomic_mass * 1000;
+        return mass / atomicMass * 1000;
     }
 
-    public int getAtomic_number() {
-        return atomic_number;
+    public int getAtomicNumber() {
+        return atomicNumber;
     }
 
 
-    public int getAtomic_mass() {
-        return atomic_mass;
+    public int getAtomicMass() {
+        return atomicMass;
     }
 
     public int getId() {
