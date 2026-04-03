@@ -89,7 +89,7 @@ public class CreativeModeTabsInit {
                     CompoundTag tag = itemStack.getOrCreateTag();
 
                     CompoundTag compositionNBT = new CompoundTag();
-                    compositionNBT.putDouble("crowns.nucleus.252", uraniumGrades.get(2));
+                    compositionNBT.putDouble("crowns.nucleus.241", uraniumGrades.get(2));
                     tag.put("composition", compositionNBT);
                     itemStack.setTag(tag);
                     itemStacks.add(itemStack);
@@ -116,7 +116,7 @@ public class CreativeModeTabsInit {
                     CompoundTag tag = itemStack.getOrCreateTag();
 
                     CompoundTag compositionNBT = new CompoundTag();
-                    compositionNBT.putDouble("crowns.nucleus.252", uraniumGrades.get(2) * ASSEMBLY_FACTOR);
+                    compositionNBT.putDouble("crowns.nucleus.241", uraniumGrades.get(2) * ASSEMBLY_FACTOR);
 
                     tag.put("composition", compositionNBT);
                     itemStack.setTag(tag);

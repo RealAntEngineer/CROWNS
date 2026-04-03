@@ -92,6 +92,10 @@
   "crowns.units.radiation_flux.symbol.rad_per_seconds": "Rad/s",
   "crowns.units.radiation_flux.symbol.sievert_per_seconds": "Sv/s",
 
+  "crowns.nucleus.235": "Uranium-235",
+  "crowns.nucleus.238": "Uranium-238",
+  "crowns.nucleus.241": "Americium-241",
+
   "death.attack.crowns.radiation": "%s died from radiation poisoning",
   "death.attack.crowns.high_temperature": "%s got cooked to death",
   "death.attack.crowns.low_temperature": "%s got turned into an ice cube"

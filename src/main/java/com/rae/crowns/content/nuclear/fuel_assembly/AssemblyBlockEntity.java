@@ -32,7 +32,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     // TODO: Refactor the simulation
 
     public float temperature = 300;
-    public float C = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
+    public float C = 3000 * 200; //specific thermal capacity J.K-1 it's a 3 ton metal assembly
 
     private final List<Nucleus> whitelist = List.of( // List of nuclei that are shown on goggle tooltip
             NucleusInit.U235,
@@ -43,8 +43,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     public HashMap<Nucleus, Float> inventory = new HashMap<>(); // Number of mol for each isotope
 
-    public float receivingFastFlux = 0; // > 0.1eV
-    public float receivingSlowFlux = 2f; // < 0.1eV
+    public float receivingFastFlux = 0f;
+    public float receivingSlowFlux = 2f;
 
     public float outgoingFlux = 0; // Always fast!
 
@@ -108,9 +108,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         });
 
         inventory.putAll(presentElements); // To avoid a ConcurrentModificationException
-
-        receivingFastFlux = 0f;
-        receivingSlowFlux = 0f; // Approximation, i'm too lazy to add absorption
 
         if (Float.isNaN(temperature)) {
             temperature = 300;
@@ -194,7 +191,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         tooltip.add(Component.literal("Composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
 
         inventory.forEach((nucleus, amount) -> {
-            String nucleusName = CROWNSLang.nucleus(nucleus).string();
+            String nucleusName = CROWNSLang.readableNucleus(nucleus).string();
             double concentration = nucleus.moleToMass(amount);
 
             tooltip.add(Component.literal(nucleusName).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))

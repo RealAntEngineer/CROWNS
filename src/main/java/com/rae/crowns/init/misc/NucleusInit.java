@@ -91,7 +91,7 @@ public class NucleusInit {
             new Nucleus.NuclearEquation(Map.of(236, 0.1f), 0, 0f),
             new Nucleus.NuclearEquation(Map.of(234, 1f), 0, 0f), 100f * Day);
 
-    @NotNull public static Nucleus Cf252 = new Nucleus(252, 98, new Nucleus.NuclearEquation(Map.of(), 3f, 3.20e-11f), 2.647f * Year);
+    @NotNull public static Nucleus Am241Be = new Nucleus(241, 241, 95, new Nucleus.NuclearEquation(Map.of(), 1f, 8.88e-13f), 432.2f * Year);
 
     public static final List<Nucleus> allNuclei = List.of(
             Sr90,
@@ -109,6 +109,6 @@ public class NucleusInit {
             U235,
             U236,
             U238,
-            Cf252
+            Am241Be
     ); // I don't like this, but it works for now
 }
