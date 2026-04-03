@@ -29,6 +29,8 @@ import java.util.*;
 
 public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IHaveGoggleInformation {
 
+    // TODO: Refactor the simulation
+
     public float temperature = 300;
     public float C = 3000 * 200;//specific thermal capacity J.K-1 it's a 3 ton metal assembly
 
@@ -80,9 +82,9 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         }
 
         // Simulation goes here
-        for (Nucleus nucleus : inventory.keySet().stream().toList()) {
-            float mol = inventory.get(nucleus);
+        HashMap<Nucleus, Float> presentElements = new HashMap<>();
 
+        inventory.forEach((nucleus, mol) -> {
             Nucleus.NuclearTransformationResult fast_result = nucleus.fission(receivingFastFlux, mol, 1f, 0.25f, true); // Fast spectrum
             Nucleus.NuclearTransformationResult thermal_result = nucleus.fission(receivingSlowFlux, mol, 1f, 0.25f, false); // Thermal spectrum
             Nucleus.NuclearTransformationResult decay_result = nucleus.decay(1f, mol);
@@ -100,10 +102,15 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 Optional<Float> optionalFloat = Optional.ofNullable(tempFloat);
 
                 optionalNucleus.ifPresent((presentNucleus) -> {
-                    optionalFloat.ifPresent((presentFloat) -> inventory.put(presentNucleus, presentFloat));
+                    optionalFloat.ifPresent((presentFloat) -> presentElements.merge(presentNucleus, presentFloat, Float::sum));
                 });
             });
-        }
+        });
+
+        inventory.putAll(presentElements); // To avoid a ConcurrentModificationException
+
+        receivingFastFlux = 0f;
+        receivingSlowFlux = 0f; // Approximation, i'm too lazy to add absorption
 
         if (Float.isNaN(temperature)) {
             temperature = 300;
@@ -186,15 +193,13 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
         tooltip.add(Component.literal("Composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
 
-        for (Nucleus nucleus : inventory.keySet().stream().toList()) {
-            if (!whitelist.contains(nucleus)) continue;
-
+        inventory.forEach((nucleus, amount) -> {
             String nucleusName = CROWNSLang.nucleus(nucleus).string();
-            double concentration = nucleus.moleToMass(inventory.get(nucleus));
+            double concentration = nucleus.moleToMass(amount);
 
-            tooltip.add(Component.translatable(nucleusName).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))
+            tooltip.add(Component.literal(nucleusName).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))
                     .append(Component.literal(String.format(" : %.2f %%", concentration * 100)).withStyle(ChatFormatting.GRAY)));
-        }
+        });
 
         return true;
     }

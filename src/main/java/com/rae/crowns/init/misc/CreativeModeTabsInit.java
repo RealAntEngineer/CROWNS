@@ -84,6 +84,16 @@ public class CreativeModeTabsInit {
                         itemStacks.add(itemStack);
                     }
 
+                    // Cf neutron source
+                    ItemStack itemStack = item.getDefaultInstance();
+                    CompoundTag tag = itemStack.getOrCreateTag();
+
+                    CompoundTag compositionNBT = new CompoundTag();
+                    compositionNBT.putDouble("crowns.nucleus.252", uraniumGrades.get(2));
+                    tag.put("composition", compositionNBT);
+                    itemStack.setTag(tag);
+                    itemStacks.add(itemStack);
+
                     return itemStacks;
                 },
                 BlockInit.FUEL_ASSEMBLY, item -> {
@@ -100,6 +110,18 @@ public class CreativeModeTabsInit {
                         itemStack.setTag(tag);
                         itemStacks.add(itemStack);
                     }
+
+                    // Californium
+                    ItemStack itemStack = item.getDefaultInstance();
+                    CompoundTag tag = itemStack.getOrCreateTag();
+
+                    CompoundTag compositionNBT = new CompoundTag();
+                    compositionNBT.putDouble("crowns.nucleus.252", uraniumGrades.get(2) * ASSEMBLY_FACTOR);
+
+                    tag.put("composition", compositionNBT);
+                    itemStack.setTag(tag);
+                    itemStacks.add(itemStack);
+
                     return itemStacks;
                 }
         );
