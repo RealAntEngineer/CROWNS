@@ -151,9 +151,9 @@ public class CreativeModeTabsInit {
                         ItemStack itemStack = item.getDefaultInstance();
                         CompoundTag tag = itemStack.getOrCreateTag();
 
-                        double u238mol = getMol(0.8, 3_000_000, 238);
-                        double u235mol = getMol(0.05, 3_000_000, 235);
-                        double pu239mol = getMol(0.15, 3_000_000, 239);
+                        double u238mol = getMol(0.8 * ASSEMBLY_FACTOR, 3_000_000, 238);
+                        double u235mol = getMol(0.05 * ASSEMBLY_FACTOR, 3_000_000, 235);
+                        double pu239mol = getMol(0.15 * ASSEMBLY_FACTOR, 3_000_000, 239);
 
                         CompoundTag compositionNBT = new CompoundTag();
                         compositionNBT.putFloat("238", (float) u238mol);
