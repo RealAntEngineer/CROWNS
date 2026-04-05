@@ -127,7 +127,7 @@ public class ClientEvents {
         List<Component> components = event.getToolTip();
         CompoundTag composition = itemStack.getTagElement("composition");
         if (composition != null) {
-            components.add(Component.literal("Composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
+            components.add(Component.literal("Composition:").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
 
             for (Nucleus nucleus : NucleusInit.allNuclei) {
                 if (composition.contains(CROWNSLang.nucleus(nucleus).string())) {

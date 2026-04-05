@@ -115,7 +115,7 @@ public class NucleusInit {
     // Np237, similar to U235 and Pu239
     @NotNull public static Nucleus Np237 = new Nucleus(
             237, 93,
-            Couple.create(0.01f, 2f),
+            Couple.create(2.8f, 0.001f),
             new Nucleus.NuclearEquation(
                     Map.ofEntries(
                             entry(135, 0.06f),   // Xe-135
@@ -141,7 +141,7 @@ public class NucleusInit {
     @NotNull public static Nucleus U236 = new Nucleus(236, 92,
             new Nucleus.NuclearEquation(Map.of(92, 1f, 141, 1f), 3, 0f), 1);
 
-    @NotNull public static Nucleus U238 = new Nucleus(238, 92, Couple.create(0.3f, 0.0001f),
+    @NotNull public static Nucleus U238 = new Nucleus(238, 92, Couple.create(108f, 2.7f),
             new Nucleus.NuclearEquation(Map.of(23992, 0.1f), 0, 0f),
             new Nucleus.NuclearEquation(Map.of(234, 1f), 0, 0f), 1000f * Day);
 

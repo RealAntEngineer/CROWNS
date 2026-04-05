@@ -285,7 +285,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 .append(Component.literal(String.format(" : %.5f/s", outgoingFlux * 20)).withStyle(ChatFormatting.AQUA)));
         tooltip.add(Component.literal(""));
 
-        tooltip.add(Component.literal("Composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
+        tooltip.add(Component.literal("Composition:").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
 
         inventory.forEach((nucleus, mol) -> {
             if (!whitelist.contains(nucleus.getId())) return;
