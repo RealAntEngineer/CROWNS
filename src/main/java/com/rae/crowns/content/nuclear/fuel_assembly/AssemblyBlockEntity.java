@@ -2,6 +2,7 @@ package com.rae.crowns.content.nuclear.fuel_assembly;
 
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.crowns.content.event.ServerEvents;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.hazards.radiation.pointsource.PointSourceUtil;
@@ -84,6 +85,20 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public void initialize() {
         super.initialize();
+
+        assert level != null;
+        if (!level.isClientSide()) {
+            ServerEvents.assemblies.put(this, getBlockPos());
+        }
+    }
+
+    @Override
+    public void invalidate() {
+        super.invalidate();
+
+        if (level != null && !level.isClientSide()) {
+            ServerEvents.assemblies.remove(this);
+        }
     }
 
     @Override
@@ -155,7 +170,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         }); // To avoid a ConcurrentModificationException
 
         // Neutron transport here
-
+        getAssemblies();
 
         assemblies.forEach((pos, be) -> {
             if (be == this) return;
@@ -202,9 +217,9 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public void lazyTick() {
         super.lazyTick();
-        BlockPos origin = getBlockPos();
+        /*BlockPos origin = getBlockPos();
         assemblies = PointSourceUtil.findAssemblies(origin, level, CROWNSConfigs.SERVER.nuclear.radiationRange.get().intValue());
-
+        */
     }
 
     @Override
@@ -346,6 +361,17 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         }
 
         return composition;
+    }
+
+    private void getAssemblies() {
+        assemblies.clear(); // If any are removed
+
+        ServerEvents.assemblies.forEach((be, pos) -> {
+            double distance = pos.subtract(getBlockPos()).getCenter().length();
+            if (distance > CROWNSConfigs.SERVER.nuclear.radiationRange.get()) return;
+
+            assemblies.put(pos, be);
+        });
     }
 
     private void temperatureChange(double Q) {

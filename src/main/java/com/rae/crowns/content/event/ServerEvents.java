@@ -8,14 +8,19 @@ import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlockEntity;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+
 @Mod.EventBusSubscriber(modid = CROWNS.MODID)
 public class ServerEvents {
+    public static HashMap<AssemblyBlockEntity, BlockPos> assemblies = new HashMap<>();
+
     private static int tickCounter = 1;
 
     @SubscribeEvent
