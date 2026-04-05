@@ -167,9 +167,10 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             line.remove(pos); // Make sure the assembly does not interact with itself
 
             for (BlockPos linePos : line) {
-                if (level.getFluidState(linePos).is(FluidTags.WATER)) moderationFactor = 1 - (1 - moderationFactor) * 0.5;
-                if (TagsInit.CustomBlockTags.COAL_BLOCK.matches(level.getBlockState(linePos))) moderationFactor = 1 - (1 - moderationFactor) * 0.2;
-                if (TagsInit.CustomBlockTags.ABSORBER.matches(level.getBlockState(linePos))) { absorbed = true; break; }
+                BlockState blockState = level.getBlockState(linePos);
+                if (blockState.getFluidState().is(FluidTags.WATER)) moderationFactor = 1 - (1 - moderationFactor) * 0.5;
+                if (TagsInit.CustomBlockTags.COAL_BLOCK.matches(blockState)) moderationFactor = 1 - (1 - moderationFactor) * 0.2;
+                if (TagsInit.CustomBlockTags.ABSORBER.matches(blockState)) { absorbed = true; break; }
             }
 
             if (absorbed) return;
