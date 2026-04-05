@@ -131,10 +131,11 @@ public class ClientEvents {
 
             for (Nucleus nucleus : NucleusInit.allNuclei) {
                 if (composition.contains(CROWNSLang.nucleus(nucleus).string())) {
-                    String string = CROWNSLang.nucleus(nucleus).string();
-                    double concentration = composition.getDouble(string);
+                    String string = CROWNSLang.readableNucleus(nucleus).string();
+                    double mass = nucleus.moleToMass((float) composition.getDouble(CROWNSLang.nucleus(nucleus).string())); // This is an example of why I am going to refactor my code
+                    double concentration = mass / 3000;
 
-                    components.add(Component.literal(string).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))
+                    components.add(Component.literal(" " + string).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))
                             .append(Component.literal(String.format(" : %.2f %%", concentration * 100)).withStyle(ChatFormatting.GRAY)));
                 }
             }

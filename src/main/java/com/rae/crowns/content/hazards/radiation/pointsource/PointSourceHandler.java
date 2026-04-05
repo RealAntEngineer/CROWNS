@@ -57,7 +57,7 @@ public class PointSourceHandler {
             boolean blocked = false;
 
             for (BlockPos pos2 : positions) {
-                if (level.getBlockState(pos2).is(BlockInit.REACTOR_CASING.get())) blocked = true;
+                if (TagsInit.CustomBlockTags.SHIELDING.matches(level.getBlockState(pos))) blocked = true;
             }
             if (blocked) continue;
 

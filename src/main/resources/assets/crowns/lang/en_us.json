@@ -94,7 +94,13 @@
 
   "crowns.nucleus.235": "Uranium-235",
   "crowns.nucleus.238": "Uranium-238",
-  "crowns.nucleus.241": "Americium-241",
+  "crowns.nucleus.241": "§d[Neutron Source] Americium-241",
+  "crowns.nucleus.90": "Strontium-90",
+  "crowns.nucleus.137": "Cesium-137",
+  "crowns.nucleus.135": "§5[Neutron Poison] Xenon-135",
+  "crowns.nucleus.237": "Neptunium-237",
+  "crowns.nucleus.9": "§d[Neutron Source] Beryllium-9",
+  "crowns.nucleus.252": "§d[Neutron Source] Californium-252",
 
   "death.attack.crowns.radiation": "%s died from radiation poisoning",
   "death.attack.crowns.high_temperature": "%s got cooked to death",

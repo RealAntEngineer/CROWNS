@@ -75,21 +75,39 @@ public class CreativeModeTabsInit {
                         ItemStack itemStack = item.getDefaultInstance();
                         CompoundTag tag = itemStack.getOrCreateTag();
 
+                        double u235Percent = grade * ASSEMBLY_FACTOR;
+                        double u235g = 3_000_000 * u235Percent;
+                        double u235Mol = u235g / 235;
+
+                        double u238Percent = (1.0 - grade) * ASSEMBLY_FACTOR;
+                        double u238g = 3_000_000 * u238Percent;
+                        double u238Mol = u238g / 238;
+
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putDouble("crowns.nucleus.235", grade);
-                        compositionNBT.putDouble("crowns.nucleus.238", 1.0 - grade);
+                        compositionNBT.putFloat("crowns.nucleus.235", (float) u235Mol);
+                        compositionNBT.putFloat("crowns.nucleus.238", (float) u238Mol);
 
                         tag.put("composition", compositionNBT);
                         itemStack.setTag(tag);
                         itemStacks.add(itemStack);
                     }
 
-                    // Cf neutron source
+                    // Neutron source
                     ItemStack itemStack = item.getDefaultInstance();
                     CompoundTag tag = itemStack.getOrCreateTag();
 
+                    double am241Percent = 0.4;
+                    double am241g = 3_000_000 * am241Percent;
+                    double am241mol = am241g / 241;
+
+                    double be9Percent = 0.1;
+                    double be9g = 3_000_000 * be9Percent;
+                    double be9Mol = be9g / 9;
+
                     CompoundTag compositionNBT = new CompoundTag();
-                    compositionNBT.putDouble("crowns.nucleus.241", uraniumGrades.get(2));
+                    compositionNBT.putFloat("crowns.nucleus.241", (float) am241mol);
+                    compositionNBT.putFloat("crowns.nucleus.9", (float) be9Mol);
+
                     tag.put("composition", compositionNBT);
                     itemStack.setTag(tag);
                     itemStacks.add(itemStack);
@@ -102,21 +120,38 @@ public class CreativeModeTabsInit {
                         ItemStack itemStack = item.getDefaultInstance();
                         CompoundTag tag = itemStack.getOrCreateTag();
 
+                        double u235Percent = grade * ASSEMBLY_FACTOR;
+                        double u235g = 3_000_000 * u235Percent;
+                        double u235Mol = u235g / 235;
+
+                        double u238Percent = (1.0 - grade) * ASSEMBLY_FACTOR;
+                        double u238g = 3_000_000 * u238Percent;
+                        double u238Mol = u238g / 238;
+
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putDouble("crowns.nucleus.235", grade * ASSEMBLY_FACTOR);
-                        compositionNBT.putDouble("crowns.nucleus.238", (1.0 - grade) * ASSEMBLY_FACTOR);
+                        compositionNBT.putFloat("crowns.nucleus.235", (float) u235Mol);
+                        compositionNBT.putFloat("crowns.nucleus.238", (float) u238Mol);
 
                         tag.put("composition", compositionNBT);
                         itemStack.setTag(tag);
                         itemStacks.add(itemStack);
                     }
 
-                    // Californium
+                    // Neutron source
                     ItemStack itemStack = item.getDefaultInstance();
                     CompoundTag tag = itemStack.getOrCreateTag();
 
+                    double am241Percent = 0.4 * ASSEMBLY_FACTOR;
+                    double am241g = 3_000_000 * am241Percent;
+                    double am241mol = am241g / 241;
+
+                    double be9Percent = 0.1 * ASSEMBLY_FACTOR;
+                    double be9g = 3_000_000 * be9Percent;
+                    double be9Mol = be9g / 9;
+
                     CompoundTag compositionNBT = new CompoundTag();
-                    compositionNBT.putDouble("crowns.nucleus.241", uraniumGrades.get(2) * ASSEMBLY_FACTOR);
+                    compositionNBT.putFloat("crowns.nucleus.241", (float) am241mol);
+                    compositionNBT.putFloat("crowns.nucleus.9", (float) be9Mol);
 
                     tag.put("composition", compositionNBT);
                     itemStack.setTag(tag);

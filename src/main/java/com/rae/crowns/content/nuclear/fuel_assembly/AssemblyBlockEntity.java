@@ -4,10 +4,12 @@ import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
+import com.rae.crowns.content.hazards.radiation.pointsource.PointSourceUtil;
 import com.rae.crowns.content.nuclear.Nucleus;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.init.misc.FluidInit;
 import com.rae.crowns.init.misc.NucleusInit;
+import com.rae.crowns.init.misc.TagsInit;
 import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -19,32 +21,50 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IHaveGoggleInformation {
+    private static final Random r = new Random();
 
-    // TODO: Refactor the simulation
+    // TODO: Refactor the entire class
 
     public float temperature = 300;
     public float C = 3000 * 200; //specific thermal capacity J.K-1 it's a 3 ton metal assembly
 
-    private final List<Nucleus> whitelist = List.of( // List of nuclei that are shown on goggle tooltip
-            NucleusInit.U235,
-            NucleusInit.U238,
-            NucleusInit.Xe135,
-            NucleusInit.Sr90
+    private final List<Integer> whitelist = List.of( // List of nuclei that are shown on goggle tooltip
+            NucleusInit.U235.getId(),
+            NucleusInit.U238.getId(),
+            NucleusInit.Xe135.getId(),
+            NucleusInit.Sr90.getId(),
+            NucleusInit.Cs137.getId(),
+
+            NucleusInit.Am241Be.getId(),
+            NucleusInit.Be9.getId(),
+
+            NucleusInit.Np237.getId(),
+
+            NucleusInit.Cf252.getId(),
+
+            NucleusInit.Pu239.getId(),
+            NucleusInit.Np239.getId(),
+            NucleusInit.U239.getId()
     );
 
     public HashMap<Nucleus, Float> inventory = new HashMap<>(); // Number of mol for each isotope
 
     public float receivingFastFlux = 0f;
-    public float receivingSlowFlux = 2f;
+    public float receivingSlowFlux = 0f;
+
+    private float lastFastFlux = 0f;
+    private float lastSlowFlux = 0f;
 
     public float outgoingFlux = 0; // Always fast!
 
@@ -69,6 +89,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public void tick() {
         super.tick();
         assert level != null;
+        BlockPos origin = getBlockPos();
+
         if (!level.isClientSide()) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) level);
 
@@ -79,15 +101,30 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
                 if (syncCooldown == 0 && queuedSync)
                     sendData();
             }
+        } else {
+            if (temperature > 900) {
+                level.setBlock(origin, getBlockState().setValue(AssemblyBlock.TEMPERATURE, AssemblyBlock.Temperature.HOT), 3);
+            } else if (temperature > 400) {
+                level.setBlock(origin, getBlockState().setValue(AssemblyBlock.TEMPERATURE, AssemblyBlock.Temperature.WARM), 3);
+            } else {
+                level.setBlock(origin, getBlockState().setValue(AssemblyBlock.TEMPERATURE, AssemblyBlock.Temperature.COLD), 3);
+            }
         }
 
         // Simulation goes here
+        outgoingFlux = 0f;
+
         HashMap<Nucleus, Float> presentElements = new HashMap<>();
 
-        inventory.forEach((nucleus, mol) -> {
-            Nucleus.NuclearTransformationResult fast_result = nucleus.fission(receivingFastFlux, mol, 1f, 0.25f, true); // Fast spectrum
-            Nucleus.NuclearTransformationResult thermal_result = nucleus.fission(receivingSlowFlux, mol, 1f, 0.25f, false); // Thermal spectrum
-            Nucleus.NuclearTransformationResult decay_result = nucleus.decay(1f, mol);
+        for (Map.Entry<Nucleus, Float> e : inventory.entrySet()) {
+            Nucleus key = e.getKey();
+            Float value = e.getValue();
+
+            float volume = (1 * (1 + CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF() * (temperature - 300))); // How much the thingamajig "expands"
+
+            Nucleus.NuclearTransformationResult fast_result = key.fission(receivingFastFlux, value, volume, 0.25f, true); // Fast spectrum
+            Nucleus.NuclearTransformationResult thermal_result = key.fission(receivingSlowFlux, value, volume, 0.25f, false); // Thermal spectrum
+            Nucleus.NuclearTransformationResult decay_result = key.decay(1f, value);
 
             outgoingFlux += fast_result.neutron_yielded() + thermal_result.neutron_yielded() + decay_result.neutron_yielded();
 
@@ -95,19 +132,67 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
             // Since it can return null elements, we should check for null before adding
             HashMap<Nucleus, Float> nullableElements = new HashMap<>();
-            nullableElements.putAll(fast_result.elements()); nullableElements.putAll(thermal_result.elements()); nullableElements.putAll(decay_result.elements());
+            nullableElements.putAll(fast_result.elements());
+            nullableElements.putAll(thermal_result.elements());
+            nullableElements.putAll(decay_result.elements());
 
-            nullableElements.forEach((tempNucleus, tempFloat) -> { // For some reason, I got the amazing idea to convert the elements to Optionals and check for null
-                Optional<Nucleus> optionalNucleus = Optional.ofNullable(tempNucleus);
-                Optional<Float> optionalFloat = Optional.ofNullable(tempFloat);
+            for (Map.Entry<Nucleus, Float> entry : nullableElements.entrySet()) {
+                Nucleus tempNucleus = entry.getKey();
+                Float tempFloat = entry.getValue();
 
-                optionalNucleus.ifPresent((presentNucleus) -> {
-                    optionalFloat.ifPresent((presentFloat) -> presentElements.merge(presentNucleus, presentFloat, Float::sum));
-                });
-            });
+                if (tempNucleus != null && tempFloat != null) {
+                    presentElements.merge(tempNucleus, tempFloat, Float::sum);
+                }
+            }
+
+            float totalConsumed = fast_result.consumed() + thermal_result.consumed() + decay_result.consumed();
+            presentElements.merge(key, -totalConsumed, Float::sum);
+        }
+
+        presentElements.forEach((nucleus, mol) -> {
+            inventory.merge(nucleus, mol, Float::sum);
+        }); // To avoid a ConcurrentModificationException
+
+        // Neutron transport here
+
+        HashMap<BlockPos, AssemblyBlockEntity> assemblies = PointSourceUtil.findAssemblies(origin, level, CROWNSConfigs.SERVER.nuclear.radiationRange.get().intValue());
+
+        assemblies.forEach((pos, be) -> {
+            if (be == this) return;
+
+            ArrayList<BlockPos> line = PointSourceUtil.getBresenhamLine(origin, pos);
+            double moderationFactor = 0;
+            boolean absorbed = false;
+
+            line.remove(pos); // Make sure the assembly does not interact with itself
+
+            for (BlockPos linePos : line) {
+                if (level.getFluidState(linePos).is(FluidTags.WATER)) moderationFactor = 1 - (1 - moderationFactor) * 0.5;
+                if (TagsInit.CustomBlockTags.COAL_BLOCK.matches(level.getBlockState(linePos))) moderationFactor = 1 - (1 - moderationFactor) * 0.2;
+                if (TagsInit.CustomBlockTags.ABSORBER.matches(level.getBlockState(linePos))) { absorbed = true; break; }
+            }
+
+            if (absorbed) return;
+
+            Vec3 vecDistance = origin.getCenter().subtract(pos.getCenter());
+            double distance = vecDistance.length();
+
+            double intensity = (1 / (distance * distance)); // Add a bit of randomness for spice
+
+            float thermalFlux = (float) moderationFactor * outgoingFlux;
+            float fastFlux = outgoingFlux - thermalFlux;
+
+            be.receivingSlowFlux += (float)(thermalFlux * intensity);
+            be.receivingFastFlux += (float)(fastFlux * intensity);
         });
 
-        inventory.putAll(presentElements); // To avoid a ConcurrentModificationException
+        lastFastFlux = receivingFastFlux;
+        lastSlowFlux = receivingSlowFlux;
+
+        receivingFastFlux = 0; receivingSlowFlux = 0;
+
+        float temperatureDifference = temperature - 300;
+        temperature -= temperatureDifference * CROWNSConfigs.SERVER.nuclear.heatLossCoef.getF();
 
         if (Float.isNaN(temperature)) {
             temperature = 300;
@@ -184,18 +269,37 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
-        FormicApiLang.formatTemperature(temperature)
-                .style(ChatFormatting.DARK_RED)
-                .forGoggles(tooltip, 1);
+        tooltip.add(Component.literal(""));
+
+        tooltip.add(Component.literal("Temperature:").withStyle(ChatFormatting.DARK_RED)
+                .append(Component.literal(String.format(" : %.2f°C", temperature - 273.15)).withStyle(ChatFormatting.DARK_RED)));
+
+        tooltip.add(Component.literal(""));
+
+        tooltip.add(Component.literal("Thermal flux:").withStyle(ChatFormatting.RED)
+                .append(Component.literal(String.format(" : %.5f/s", lastSlowFlux * 20)).withStyle(ChatFormatting.AQUA)));
+        tooltip.add(Component.literal("Fast flux:").withStyle(ChatFormatting.AQUA)
+                .append(Component.literal(String.format(" : %.5f/s", lastFastFlux * 20)).withStyle(ChatFormatting.AQUA)));
+
+        tooltip.add(Component.literal("Outgoing flux:").withStyle(ChatFormatting.AQUA)
+                .append(Component.literal(String.format(" : %.5f/s", outgoingFlux * 20)).withStyle(ChatFormatting.AQUA)));
+        tooltip.add(Component.literal(""));
 
         tooltip.add(Component.literal("Composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
 
-        inventory.forEach((nucleus, amount) -> {
-            String nucleusName = CROWNSLang.readableNucleus(nucleus).string();
-            double concentration = nucleus.moleToMass(amount);
+        inventory.forEach((nucleus, mol) -> {
+            if (!whitelist.contains(nucleus.getId())) return;
 
-            tooltip.add(Component.literal(nucleusName).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))
-                    .append(Component.literal(String.format(" : %.2f %%", concentration * 100)).withStyle(ChatFormatting.GRAY)));
+            String nucleusName = CROWNSLang.readableNucleus(nucleus).string();
+            double mass = nucleus.moleToMass(mol);
+            double concentration = mass / 3000;
+
+            if (concentration * 100 < 0.001) return;
+
+            tooltip.add(Component.literal("  " + nucleusName).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))
+                    .append(Component.literal(String.format(" : %.2f%%", concentration * 100)).withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(String.format("% .4fmol", mol)).withStyle(ChatFormatting.GRAY))
+            );
         });
 
         return true;
@@ -206,12 +310,16 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         return super.createRenderBoundingBox().inflate(2);
     }
 
+
     public void setComposition(@Nullable CompoundTag composition) {
-        if (composition != null) { // If null we keep the default.
+        if (composition != null) { // If null, keep the default
             inventory.clear();
+
             for (Nucleus nucleus : NucleusInit.allNuclei) {
-                if (composition.contains(CROWNSLang.nucleus(nucleus).string())) {
-                    double mol = nucleus.massToMole((float) composition.getDouble(CROWNSLang.nucleus(nucleus).string())); // Will refactor
+                String key = CROWNSLang.nucleus(nucleus).string();
+
+                if (composition.contains(key)) {
+                    double mol = composition.getDouble(key);
                     inventory.put(nucleus, (float) mol);
                 }
             }
@@ -221,18 +329,20 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public @NotNull CompoundTag saveComposition() {
         CompoundTag composition = new CompoundTag();
 
-        for (Nucleus nucleus : inventory.keySet().stream().toList()) {
-            double concentration = nucleus.moleToMass(inventory.get(nucleus));
-            String string = CROWNSLang.nucleus(nucleus).string();
+        for (Map.Entry<Nucleus, Float> entry : inventory.entrySet()) {
+            Nucleus nucleus = entry.getKey();
+            double mol = entry.getValue();
 
-            composition.putDouble(string, concentration);
+            String key = CROWNSLang.nucleus(nucleus).string();
+            composition.putDouble(key, mol);
         }
 
         return composition;
     }
 
     private void temperatureChange(double Q) {
-        temperature += (float) Q / (3000 * C);
+        float coEf = 1e4f; // Change this for how much you want the temperature increase to slow down
+        temperature += (float) Q / (C * coEf);
     }
 
     private void meltdown(@NotNull BlockPos pos) {

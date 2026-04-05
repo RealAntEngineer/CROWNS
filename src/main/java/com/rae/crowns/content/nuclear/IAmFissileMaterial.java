@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public interface IAmFissileMaterial extends IAmRadioactiveSource {
     //calculate from cross-section (barn), depth (1 meter) and concentration ( as mox fuel isn't a 1m by 1m block of uranium)
     // Absorption law :
