@@ -70,7 +70,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     private static final int SYNC_RATE = 8;
     protected int syncCooldown;
-    protected boolean queuedSync;
+    protected boolean                                queuedSync;
+    private   HashMap<BlockPos, AssemblyBlockEntity> assemblies;
 
     public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
@@ -155,7 +156,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
         // Neutron transport here
 
-        HashMap<BlockPos, AssemblyBlockEntity> assemblies = PointSourceUtil.findAssemblies(origin, level, CROWNSConfigs.SERVER.nuclear.radiationRange.get().intValue());
 
         assemblies.forEach((pos, be) -> {
             if (be == this) return;
@@ -197,6 +197,14 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         if (Float.isNaN(temperature)) {
             temperature = 300;
         }
+    }
+
+    @Override
+    public void lazyTick() {
+        super.lazyTick();
+        BlockPos origin = getBlockPos();
+        assemblies = PointSourceUtil.findAssemblies(origin, level, CROWNSConfigs.SERVER.nuclear.radiationRange.get().intValue());
+
     }
 
     @Override
