@@ -72,7 +72,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     private static final int SYNC_RATE = 8;
     protected int syncCooldown;
     protected boolean                                queuedSync;
-    private   HashMap<BlockPos, AssemblyBlockEntity> assemblies;
+    private   HashMap<BlockPos, AssemblyBlockEntity> assemblies = new HashMap<>();
 
     public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
@@ -86,19 +86,14 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public void initialize() {
         super.initialize();
 
-        assert level != null;
-        if (!level.isClientSide()) {
-            ServerEvents.assemblies.put(this, getBlockPos());
-        }
+        ServerEvents.assemblies.put(this, getBlockPos());
     }
 
     @Override
     public void invalidate() {
         super.invalidate();
 
-        if (level != null && !level.isClientSide()) {
-            ServerEvents.assemblies.remove(this);
-        }
+        ServerEvents.assemblies.remove(this, getBlockPos());
     }
 
     @Override
@@ -182,9 +177,10 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             line.remove(pos); // Make sure the assembly does not interact with itself
 
             for (BlockPos linePos : line) {
-                if (level.getFluidState(linePos).is(FluidTags.WATER)) moderationFactor = 1 - (1 - moderationFactor) * 0.5;
-                if (TagsInit.CustomBlockTags.COAL_BLOCK.matches(level.getBlockState(linePos))) moderationFactor = 1 - (1 - moderationFactor) * 0.2;
-                if (TagsInit.CustomBlockTags.ABSORBER.matches(level.getBlockState(linePos))) { absorbed = true; break; }
+                BlockState blockState = level.getBlockState(linePos);
+                if (blockState.getFluidState().is(FluidTags.WATER)) moderationFactor = 1 - (1 - moderationFactor) * 0.5;
+                if (TagsInit.CustomBlockTags.COAL_BLOCK.matches(blockState)) moderationFactor = 1 - (1 - moderationFactor) * 0.2;
+                if (TagsInit.CustomBlockTags.ABSORBER.matches(blockState)) { absorbed = true; break; }
             }
 
             if (absorbed) return;
