@@ -165,7 +165,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         }); // To avoid a ConcurrentModificationException
 
         // Neutron transport here
-        getAssemblies();
+        //getAssemblies();
 
         assemblies.forEach((pos, be) -> {
             if (be == this) return;
@@ -213,9 +213,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     @Override
     public void lazyTick() {
         super.lazyTick();
-        /*BlockPos origin = getBlockPos();
+        BlockPos origin = getBlockPos();
         assemblies = PointSourceUtil.findAssemblies(origin, level, CROWNSConfigs.SERVER.nuclear.radiationRange.get().intValue());
-        */
     }
 
     @Override
