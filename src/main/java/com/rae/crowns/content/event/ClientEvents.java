@@ -127,12 +127,16 @@ public class ClientEvents {
         List<Component> components = event.getToolTip();
         CompoundTag composition = itemStack.getTagElement("composition");
         if (composition != null) {
+
             components.add(Component.literal("Composition:").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
 
             for (Nucleus nucleus : NucleusInit.allNuclei) {
-                if (composition.contains(CROWNSLang.nucleus(nucleus).string())) {
+                int id = nucleus.getId();
+
+                if (composition.contains(String.valueOf(id))) {
                     String string = CROWNSLang.readableNucleus(nucleus).string();
-                    double mass = nucleus.moleToMass((float) composition.getDouble(CROWNSLang.nucleus(nucleus).string())); // This is an example of why I am going to refactor my code
+
+                    double mass = nucleus.moleToMass((float) composition.getDouble(String.valueOf(id)));
                     double concentration = mass / 3000;
 
                     components.add(Component.literal(" " + string).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))

@@ -75,42 +75,55 @@ public class CreativeModeTabsInit {
                         ItemStack itemStack = item.getDefaultInstance();
                         CompoundTag tag = itemStack.getOrCreateTag();
 
-                        double u235Percent = grade * ASSEMBLY_FACTOR;
-                        double u235g = 3_000_000 * u235Percent;
-                        double u235Mol = u235g / 235;
+                        double u235Mol = getMol(grade, 3_000_000, 235);
 
-                        double u238Percent = (1.0 - grade) * ASSEMBLY_FACTOR;
-                        double u238g = 3_000_000 * u238Percent;
-                        double u238Mol = u238g / 238;
+                        double u238Mol = getMol(1.0 - grade, 3_000_000, 238);
 
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putFloat("crowns.nucleus.235", (float) u235Mol);
-                        compositionNBT.putFloat("crowns.nucleus.238", (float) u238Mol);
+                        compositionNBT.putFloat("235", (float) u235Mol);
+                        compositionNBT.putFloat("238", (float) u238Mol);
 
                         tag.put("composition", compositionNBT);
                         itemStack.setTag(tag);
                         itemStacks.add(itemStack);
                     }
 
-                    // Neutron source
-                    ItemStack itemStack = item.getDefaultInstance();
-                    CompoundTag tag = itemStack.getOrCreateTag();
+                    {
+                        // MOX
+                        ItemStack itemStack = item.getDefaultInstance();
+                        CompoundTag tag = itemStack.getOrCreateTag();
 
-                    double am241Percent = 0.4;
-                    double am241g = 3_000_000 * am241Percent;
-                    double am241mol = am241g / 241;
+                        double u238mol = getMol(0.8, 3_000_000, 238);
+                        double u235mol = getMol(0.05, 3_000_000, 235);
+                        double pu239mol = getMol(0.15, 3_000_000, 239);
 
-                    double be9Percent = 0.1;
-                    double be9g = 3_000_000 * be9Percent;
-                    double be9Mol = be9g / 9;
+                        CompoundTag compositionNBT = new CompoundTag();
+                        compositionNBT.putFloat("238", (float) u238mol);
+                        compositionNBT.putFloat("235", (float) u235mol);
+                        compositionNBT.putFloat("239", (float) pu239mol);
 
-                    CompoundTag compositionNBT = new CompoundTag();
-                    compositionNBT.putFloat("crowns.nucleus.241", (float) am241mol);
-                    compositionNBT.putFloat("crowns.nucleus.9", (float) be9Mol);
+                        tag.put("composition", compositionNBT);
+                        itemStack.setTag(tag);
+                        itemStacks.add(itemStack);
+                    }
 
-                    tag.put("composition", compositionNBT);
-                    itemStack.setTag(tag);
-                    itemStacks.add(itemStack);
+
+                    {
+                        // Neutron source
+                        ItemStack itemStack = item.getDefaultInstance();
+                        CompoundTag tag = itemStack.getOrCreateTag();
+
+                        double am241mol = getMol(0.4, 3_000_000, 241);
+                        double be9Mol = getMol(0.1, 3_000_000, 9);
+
+                        CompoundTag compositionNBT = new CompoundTag();
+                        compositionNBT.putFloat("241", (float) am241mol);
+                        compositionNBT.putFloat("9", (float) be9Mol);
+
+                        tag.put("composition", compositionNBT);
+                        itemStack.setTag(tag);
+                        itemStacks.add(itemStack);
+                    }
 
                     return itemStacks;
                 },
@@ -120,42 +133,55 @@ public class CreativeModeTabsInit {
                         ItemStack itemStack = item.getDefaultInstance();
                         CompoundTag tag = itemStack.getOrCreateTag();
 
-                        double u235Percent = grade * ASSEMBLY_FACTOR;
-                        double u235g = 3_000_000 * u235Percent;
-                        double u235Mol = u235g / 235;
+                        double u235Mol = getMol(grade * ASSEMBLY_FACTOR, 3_000_000, 235);
 
-                        double u238Percent = (1.0 - grade) * ASSEMBLY_FACTOR;
-                        double u238g = 3_000_000 * u238Percent;
-                        double u238Mol = u238g / 238;
+                        double u238Mol = getMol((1.0 - grade) * ASSEMBLY_FACTOR, 3_000_000, 238);
 
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putFloat("crowns.nucleus.235", (float) u235Mol);
-                        compositionNBT.putFloat("crowns.nucleus.238", (float) u238Mol);
+                        compositionNBT.putFloat("235", (float) u235Mol);
+                        compositionNBT.putFloat("238", (float) u238Mol);
 
                         tag.put("composition", compositionNBT);
                         itemStack.setTag(tag);
                         itemStacks.add(itemStack);
                     }
 
-                    // Neutron source
-                    ItemStack itemStack = item.getDefaultInstance();
-                    CompoundTag tag = itemStack.getOrCreateTag();
+                    {
+                        // MOX
+                        ItemStack itemStack = item.getDefaultInstance();
+                        CompoundTag tag = itemStack.getOrCreateTag();
 
-                    double am241Percent = 0.4 * ASSEMBLY_FACTOR;
-                    double am241g = 3_000_000 * am241Percent;
-                    double am241mol = am241g / 241;
+                        double u238mol = getMol(0.8, 3_000_000, 238);
+                        double u235mol = getMol(0.05, 3_000_000, 235);
+                        double pu239mol = getMol(0.15, 3_000_000, 239);
 
-                    double be9Percent = 0.1 * ASSEMBLY_FACTOR;
-                    double be9g = 3_000_000 * be9Percent;
-                    double be9Mol = be9g / 9;
+                        CompoundTag compositionNBT = new CompoundTag();
+                        compositionNBT.putFloat("238", (float) u238mol);
+                        compositionNBT.putFloat("235", (float) u235mol);
+                        compositionNBT.putFloat("239", (float) pu239mol);
 
-                    CompoundTag compositionNBT = new CompoundTag();
-                    compositionNBT.putFloat("crowns.nucleus.241", (float) am241mol);
-                    compositionNBT.putFloat("crowns.nucleus.9", (float) be9Mol);
+                        tag.put("composition", compositionNBT);
+                        itemStack.setTag(tag);
+                        itemStacks.add(itemStack);
+                    }
 
-                    tag.put("composition", compositionNBT);
-                    itemStack.setTag(tag);
-                    itemStacks.add(itemStack);
+
+                    {
+                        // Neutron source
+                        ItemStack itemStack = item.getDefaultInstance();
+                        CompoundTag tag = itemStack.getOrCreateTag();
+
+                        double am241mol = getMol(0.4, 3_000_000, 241);
+                        double be9Mol = getMol(0.1, 3_000_000, 9);
+
+                        CompoundTag compositionNBT = new CompoundTag();
+                        compositionNBT.putFloat("241", (float) am241mol);
+                        compositionNBT.putFloat("9", (float) be9Mol);
+
+                        tag.put("composition", compositionNBT);
+                        itemStack.setTag(tag);
+                        itemStacks.add(itemStack);
+                    } // Scoping hacks my beloved
 
                     return itemStacks;
                 }
@@ -172,6 +198,11 @@ public class CreativeModeTabsInit {
             }
             return Collections.singleton(new ItemStack(item));
         };
+    }
+
+    private static double getMol(double percent, double mass, double amu) {
+        double grams = mass * percent;
+        return grams / amu;
     }
 
 

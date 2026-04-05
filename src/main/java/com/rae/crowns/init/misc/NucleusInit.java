@@ -105,11 +105,11 @@ public class NucleusInit {
                             entry(8005, 0.000748f), // DN5
                             entry(8006, 0.000273f)  // DN6
                     ),
-                    2.39f, // prompt neutrons only
-                    19.54f * 1e12f
+                    2.9f, // prompt neutrons only
+                    20.07f * 1e12f
             ),
-            new Nucleus.NuclearEquation(Map.of(231, 1f), 0f, 0f),
-            1000f * Day
+            new Nucleus.NuclearEquation(Map.of(235, 1f), 0f, 0f),
+            100f * Day
     );
 
     // Np237, similar to U235 and Pu239
@@ -142,13 +142,13 @@ public class NucleusInit {
             new Nucleus.NuclearEquation(Map.of(92, 1f, 141, 1f), 3, 0f), 1);
 
     @NotNull public static Nucleus U238 = new Nucleus(238, 92, Couple.create(108f, 2.7f),
-            new Nucleus.NuclearEquation(Map.of(23992, 0.1f), 0, 0f),
+            new Nucleus.NuclearEquation(Map.of(1001, 0.1f), 0, 0f),
             new Nucleus.NuclearEquation(Map.of(234, 1f), 0, 0f), 1000f * Day);
 
-    @NotNull public static Nucleus U239 = new Nucleus(23992, 239, 92,
-            new Nucleus.NuclearEquation(Map.of(23993, 1f), 0, 0f), 1692f);
+    @NotNull public static Nucleus U239 = new Nucleus(1001, 239, 92,
+            new Nucleus.NuclearEquation(Map.of(1002, 1f), 0, 0f), 1692f);
 
-    @NotNull public static Nucleus Np239 = new Nucleus(23993, 239, 93,
+    @NotNull public static Nucleus Np239 = new Nucleus(1002, 239, 93,
             new Nucleus.NuclearEquation(Map.of(239, 1f), 0, 0f), Day);
 
     @NotNull public static Nucleus Am241Be = new Nucleus(241, 241, 95, new Nucleus.NuclearEquation(Map.of(237, 1f), 10f, 8.88e-13f), 100f * Day); // Exagerated for noticable effect

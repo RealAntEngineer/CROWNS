@@ -54,8 +54,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             NucleusInit.Cf252.getId(),
 
             NucleusInit.Pu239.getId(),
-            NucleusInit.Np239.getId(),
-            NucleusInit.U239.getId()
+            NucleusInit.U239.getId(),
+            NucleusInit.Np239.getId()
     );
 
     public HashMap<Nucleus, Float> inventory = new HashMap<>(); // Number of mol for each isotope
@@ -316,10 +316,10 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             inventory.clear();
 
             for (Nucleus nucleus : NucleusInit.allNuclei) {
-                String key = CROWNSLang.nucleus(nucleus).string();
+                int key = nucleus.getId();
 
-                if (composition.contains(key)) {
-                    double mol = composition.getDouble(key);
+                if (composition.contains(String.valueOf(key))) {
+                    double mol = composition.getDouble(String.valueOf(key));
                     inventory.put(nucleus, (float) mol);
                 }
             }
@@ -333,8 +333,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             Nucleus nucleus = entry.getKey();
             double mol = entry.getValue();
 
-            String key = CROWNSLang.nucleus(nucleus).string();
-            composition.putDouble(key, mol);
+            int key = nucleus.getId();
+            composition.putDouble(String.valueOf(key), mol);
         }
 
         return composition;
