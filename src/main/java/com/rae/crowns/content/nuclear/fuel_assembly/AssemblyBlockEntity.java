@@ -166,7 +166,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
             temperatureChange(E);
             if (temperature > 3422) meltdown(getBlockPos()); // Melting point of tungsten as placeholder
-            if (E > 1e13) standardExplosion(getBlockPos(), 10);
+            if (E > 1e14) standardExplosion(getBlockPos(), 10);
 
             // Since it can return null elements, we should check for null before adding
             HashMap<Nucleus, Float> nullableElements = new HashMap<>();
