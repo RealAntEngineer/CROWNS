@@ -3,24 +3,28 @@ package com.rae.crowns.content.event;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.hazards.HazardSystem;
-import com.rae.crowns.content.nuclear.IAmFissileMaterial;
+import com.rae.crowns.content.nuclear.Nucleus;
 import com.rae.crowns.content.rendering.VolumeWorldRenderer;
 import com.rae.crowns.content.rendering.util.SceneDepth;
 import com.rae.crowns.content.sound.CrownsSoundScapes;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
+import com.rae.crowns.init.misc.NucleusInit;
+import com.rae.crowns.init.misc.TagsInit;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
@@ -123,13 +127,20 @@ public class ClientEvents {
         List<Component> components = event.getToolTip();
         CompoundTag composition = itemStack.getTagElement("composition");
         if (composition != null) {
-            components.add(Component.literal("composition").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
-            for (ResourceLocation resourceLocation : IAmFissileMaterial.fissileCrossSection.keySet()) {
-                if (composition.contains(resourceLocation.toString())) {
-                    float concentration = composition.getFloat(resourceLocation.toString());
-                    components.add(
-                            Component.translatable(resourceLocation.toLanguageKey("nucleus")).withStyle(ChatFormatting.YELLOW)
-                                    .append(Component.literal(String.format(" : %.2f %%", concentration * 100)).withStyle(ChatFormatting.GRAY)));
+
+            components.add(Component.literal("Composition:").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
+
+            for (Nucleus nucleus : NucleusInit.allNuclei) {
+                int id = nucleus.getId();
+
+                if (composition.contains(String.valueOf(id))) {
+                    String string = CROWNSLang.readableNucleus(nucleus).string();
+
+                    double mass = nucleus.moleToMass((float) composition.getDouble(String.valueOf(id)));
+                    double concentration = mass / 3000;
+
+                    components.add(Component.literal(" " + string).withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW))
+                            .append(Component.literal(String.format(" : %.2f %%", concentration * 100)).withStyle(ChatFormatting.GRAY)));
                 }
             }
         }
@@ -141,6 +152,12 @@ public class ClientEvents {
 
         for (String line : hazardStrings) {
             components.add(Component.literal(line).withStyle(ChatFormatting.GRAY));
+        }
+
+        // Other tooltips
+
+        if (TagsInit.CustomBlockTags.SHIELDING.matches(itemStack)) {
+            components.add(Component.literal("[Radiation Shielding]").withStyle(ChatFormatting.DARK_GREEN));
         }
     }
 

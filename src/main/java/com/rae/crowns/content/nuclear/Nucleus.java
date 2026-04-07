@@ -76,8 +76,8 @@ public class Nucleus {
     /**
      * @see #Nucleus(int, int, int)
      */
-    public Nucleus(int mass, int number) {
-        this(mass, mass, number);
+    public Nucleus(short mass, short number) {
+        this(mass | number << 16, mass, number);
     }
 
     /**
@@ -289,7 +289,7 @@ public class Nucleus {
             Map<Nucleus, Float> elements = new HashMap<>();
             element_map.forEach((element, quantity) -> elements.put(VALUES.get(element), quantity * advancement));
             return new NuclearTransformationResult(elements, neutron_yielded * advancement * CROWNSConfigs.SERVER.nuclear.neutronFluxMultiplicator.getF(),
-                    energy_yielded * advancement);
+                    energy_yielded * advancement, advancement);
         }
 
     }
@@ -327,6 +327,6 @@ public class Nucleus {
      *                        not expected in normal fission/decay scenarios.
      */
     public record NuclearTransformationResult(Map<Nucleus, Float> elements, float neutron_yielded,
-                                              float energy_yielded) {
+                                              float energy_yielded, float consumed) {
     }
 }

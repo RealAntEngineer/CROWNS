@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "crowns:reactor_casing",
+    "crowns:reactor_vessel",
     "crowns:depleted_uranium_block"
   ]
 }

@@ -13,6 +13,7 @@
   "block.crowns.depleted_uranium_block": "Depleted Uranium Block",
   "block.crowns.solid_corium": "Corebblestone",
   "block.crowns.reactor_casing": "Reactor Casing",
+  "block.crowns.reactor_vessel": "Reactor Pressure Vessel",
 
   "item.crowns.uranium_ingot": "Natural Uranium Ingot",
   "item.crowns.natural_uranium_nugget": "Natural Uranium Nugget",
@@ -91,11 +92,18 @@
   "crowns.units.radiation_flux.symbol.rad_per_seconds": "Rad/s",
   "crowns.units.radiation_flux.symbol.sievert_per_seconds": "Sv/s",
 
-  "nucleus.crowns.u235": "Uranium 235",
-  "nucleus.crowns.u238": "Uranium 238",
-  "nucleus.crowns.p239": "Plutonium 239",
-
-  "crowns.nucleus.92": "Uranium %d",
+  "crowns.nucleus.235": "§a[Fissile] Uranium-235",
+  "crowns.nucleus.238": "§a[Fertile] Uranium-238",
+  "crowns.nucleus.241": "§d[Neutron Source] Americium-241",
+  "crowns.nucleus.90": "[Fission Fragment] Strontium-90",
+  "crowns.nucleus.137": "[Fission Fragment] Cesium-137",
+  "crowns.nucleus.135": "§5[Neutron Poison] Xenon-135",
+  "crowns.nucleus.237": "§3[Fissionable] Neptunium-237",
+  "crowns.nucleus.9": "§d[Neutron Source] Beryllium-9",
+  "crowns.nucleus.252": "§d[Neutron Source] Californium-252",
+  "crowns.nucleus.239": "§4[Weapons Grade] Plutonium-239",
+  "crowns.nucleus.1001": "[Precursor] Uranium-239",
+  "crowns.nucleus.1002": "[Precursor] Neptunium-239",
 
   "death.attack.crowns.radiation": "%s died from radiation poisoning",
   "death.attack.crowns.high_temperature": "%s got cooked to death",

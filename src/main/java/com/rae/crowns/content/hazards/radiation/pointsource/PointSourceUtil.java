@@ -2,10 +2,13 @@ package com.rae.crowns.content.hazards.radiation.pointsource;
 
 import com.rae.crowns.content.hazards.HazardEntry;
 import com.rae.crowns.content.hazards.HazardSystem;
+import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlockEntity;
+import com.rae.crowns.init.misc.TagsInit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +40,29 @@ public class PointSourceUtil {
                     optionalEntry.ifPresent((entry) -> {
                         blocks.put(new BlockPos(pos), entry);
                     });
+                }
+            }
+        }
+
+        return blocks;
+    }
+
+    public static HashMap<BlockPos, AssemblyBlockEntity> findAssemblies(BlockPos center, Level level, int radius) {
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        HashMap<BlockPos, AssemblyBlockEntity> blocks = new HashMap<>();
+
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dy = -radius; dy <= radius; dy++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    if (dx * dx + dy * dy + dz * dz > radius * radius) continue;
+
+                    pos.set(center.getX() + dx, center.getY() + dy, center.getZ() + dz);
+
+                    BlockEntity blockEntity = level.getBlockEntity(pos);
+
+                    if (blockEntity instanceof AssemblyBlockEntity assembly) {
+                        blocks.put(new BlockPos(pos), assembly);
+                    }
                 }
             }
         }

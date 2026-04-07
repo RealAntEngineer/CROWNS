@@ -58,6 +58,8 @@ public class TagsInit extends AllTags {
         TURBINE_BLADE(),
         GOLD_BLOCK(CustomNameSpace.FORGE, "storage_blocks/gold"),
         COAL_BLOCK(CustomNameSpace.FORGE, "storage_blocks/coal"),
+        MODERATOR(CustomNameSpace.MOD, "nuclear/moderating"),
+        ABSORBER(CustomNameSpace.MOD, "nuclear/absorber"),
         REFACTORY_BLOCK(CustomNameSpace.MOD, "nuclear/refactory"),
         UNDESTRUCTABLE(CustomNameSpace.MOD, "nuclear/undestructable"),
         SHIELDING(CustomNameSpace.MOD, "nuclear/shielding");

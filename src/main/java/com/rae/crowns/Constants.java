@@ -6,4 +6,5 @@ public class Constants {
     public static float fissionEnergy = (float) (200 * 1.6 * Math.pow(10, -7));// J / millions of fission
     public static float realismCoefficient = 5e7f;
     public static float whatSU = (float) (390);
+    public static int maxLight = 15728880;
 }

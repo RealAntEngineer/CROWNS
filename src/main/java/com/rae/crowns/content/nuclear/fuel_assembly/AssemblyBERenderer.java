@@ -71,7 +71,7 @@ public class AssemblyBERenderer extends SafeBlockEntityRenderer<AssemblyBlockEnt
     @Override
     protected void renderSafe(@NotNull AssemblyBlockEntity be, float partialTicks, @NotNull PoseStack ms, MultiBufferSource bufferSource, int light, int overlay) {
 
-        float scaling = Math.min(be.getRadioactiveActivity() / 1000, 1);
+        /*float scaling = Math.min(be.getRadioactiveActivity() / 1000, 1);
         if (scaling > 0.01f) {
             RenderSystem.setShader(() -> ShaderInit.volumeShader);
             RenderSystem.enableBlend();
@@ -105,6 +105,6 @@ public class AssemblyBERenderer extends SafeBlockEntityRenderer<AssemblyBlockEnt
             RenderSystem.disableBlend();
             RenderSystem.defaultBlendFunc();
             ms.popPose();
-        }
+        }*/
     }
 }
