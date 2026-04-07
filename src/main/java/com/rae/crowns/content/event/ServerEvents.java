@@ -19,6 +19,7 @@ import java.util.HashMap;
 
 @Mod.EventBusSubscriber(modid = CROWNS.MODID)
 public class ServerEvents {
+    //todo wrong place to put this
     //public static HashMap<AssemblyBlockEntity, BlockPos> assemblies = new HashMap<>();
 
     private static int tickCounter = 1;

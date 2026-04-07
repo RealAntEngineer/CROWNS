@@ -70,7 +70,7 @@ public class CROWNSLang extends Lang {
     }
 
     public static LangBuilder nucleus(Nucleus nucleus){
-        String langKey = "crowns.nucleus." + nucleus.getId();
-        return builder().add(Component.literal(langKey));
+        String langKey = "nucleus."+nucleus.getAtomicNumber();
+        return builder().translate(langKey, nucleus.getId());
     }
 }

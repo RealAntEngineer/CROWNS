@@ -20,8 +20,8 @@ public class NucleusInit {
             Nucleus.NuclearEquation.EMPTY,
             Nucleus.NuclearEquation.EMPTY, 1200);
     @NotNull public static Nucleus Cs137 = new Nucleus(137, 137, 55, Nucleus.NuclearEquation.EMPTY, 3f * Day);
-    @NotNull public static Nucleus Nd144 = new Nucleus(144, 60);
-    @NotNull public static Nucleus Sm149 = new Nucleus(149, 62);
+    @NotNull public static Nucleus Nd144 = new Nucleus(144, 144, 60);
+    @NotNull public static Nucleus Sm149 = new Nucleus(144, 149, 62);
     @NotNull public static Nucleus Be9 = new Nucleus(9, 9, 4); // It's just a thing
 
     // Delayed neutron precursor groups (DN1..DN6)
