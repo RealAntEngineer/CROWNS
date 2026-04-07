@@ -2,6 +2,7 @@ package com.rae.crowns.init.data;
 
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.util.UpdateSectionsPacket;
+import com.rae.crowns.content.nuclear.packets.RenderExplosionPacket;
 import com.rae.crowns.content.thermodynamics.turbine.UpdateSteamFlowPacket;
 import com.simibubi.create.foundation.networking.SimplePacketBase;
 import net.minecraft.core.BlockPos;
@@ -23,7 +24,8 @@ import static net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT;
 
 public enum PacketInit {
     UPDATE_STEAM_FLOW_DATA(UpdateSteamFlowPacket.class, UpdateSteamFlowPacket::new, NetworkDirection.PLAY_TO_CLIENT),
-    UPDATE_SAVED_DATA(UpdateSectionsPacket.class, UpdateSectionsPacket::new, PLAY_TO_CLIENT);
+    UPDATE_SAVED_DATA(UpdateSectionsPacket.class, UpdateSectionsPacket::new, PLAY_TO_CLIENT),
+    RENDER_EXPLOSION(RenderExplosionPacket.class, RenderExplosionPacket::new, PLAY_TO_CLIENT);
 
     public static final ResourceLocation CHANNEL_NAME = CROWNS.resource("main");
     public static final int NETWORK_VERSION = 3;

@@ -115,21 +115,23 @@ public class NucleusInit {
     // Np237, similar to U235 and Pu239
     @NotNull public static Nucleus Np237 = new Nucleus(
             237, 93,
-            Couple.create(2.8f, 0.001f),
+            Couple.create(280f, 0.001f),
             new Nucleus.NuclearEquation(
                     Map.ofEntries(
-                            entry(135, 0.06f),   // Xe-135
-                            entry(137, 0.06f),   // Cs-137
-                            entry(90, 0.06f),    // Sr-90
-                            entry(149, 0.011f),  // Sm-149
-                            entry(92, 0.06f),    // Zr-92
-                            entry(144, 0.05f),   // Nd-144
-                            entry(8001, 0.0000215f), // DN1
-                            entry(8002, 0.0001424f), // DN2
-                            entry(8003, 0.0001274f), // DN3
-                            entry(8004, 0.0002568f), // DN4
-                            entry(8005, 0.0000748f), // DN5
-                            entry(8006, 0.0000273f)  // DN6
+                            entry(141, 0.06f),   // Ba-141
+                            entry(92, 0.06f),    // Kr-92
+                            entry(135, 0.03f),   // Xe-135
+                            entry(137, 0.03f),   // Cs-137
+                            entry(90, 0.03f),    // Sr-90
+                            entry(149, 0.008f),  // Sm-149
+                            entry(93, 0.02f),    // Zr-92
+                            entry(144, 0.01f),   // Nd-144
+                            entry(8001, 0.000105f), // DN1
+                            entry(8002, 0.000924f), // DN2
+                            entry(8003, 0.001274f), // DN3
+                            entry(8004, 0.000568f), // DN4
+                            entry(8005, 0.000748f), // DN5
+                            entry(8006, 0.000273f)  // DN6
                     ),
                     2.39f, // prompt neutrons only
                     19.54f * 1e12f

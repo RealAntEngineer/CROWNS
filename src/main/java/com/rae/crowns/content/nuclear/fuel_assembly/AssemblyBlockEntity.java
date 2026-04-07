@@ -7,9 +7,12 @@ import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.hazards.radiation.pointsource.PointSourceUtil;
 import com.rae.crowns.content.nuclear.Nucleus;
+import com.rae.crowns.content.nuclear.packets.RenderExplosionPacket;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
+import com.rae.crowns.init.data.PacketInit;
 import com.rae.crowns.init.misc.FluidInit;
 import com.rae.crowns.init.misc.NucleusInit;
+import com.rae.crowns.init.misc.ParticleInit;
 import com.rae.crowns.init.misc.TagsInit;
 import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
@@ -18,22 +21,36 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.rae.crowns.content.nuclear.NuclearExplosion.nuclearExplosion;
+import static org.joml.Math.clamp;
+
 public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IHaveGoggleInformation {
     private static final Random r = new Random();
+    private static final Logger log = LoggerFactory.getLogger(AssemblyBlockEntity.class);
 
     // TODO: Refactor the entire class
 
@@ -74,8 +91,12 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     protected boolean                                queuedSync;
     private   HashMap<BlockPos, AssemblyBlockEntity> assemblies = new HashMap<>();
 
+    private final @NotNull RandomSource random;
+
     public AssemblyBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState state) {
         super(blockEntityType, blockPos, state);
+
+        this.random = RandomSource.create();
     }
 
     @Override
@@ -86,14 +107,14 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     public void initialize() {
         super.initialize();
 
-        ServerEvents.assemblies.put(this, getBlockPos());
+        //ServerEvents.assemblies.put(this, getBlockPos());
     }
 
     @Override
     public void invalidate() {
         super.invalidate();
 
-        ServerEvents.assemblies.remove(this, getBlockPos());
+        //ServerEvents.assemblies.remove(this, getBlockPos());
     }
 
     @Override
@@ -123,23 +144,29 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         }
 
         // Simulation goes here
+        boolean explosive = false;
+
         outgoingFlux = 0f;
 
         HashMap<Nucleus, Float> presentElements = new HashMap<>();
 
         for (Map.Entry<Nucleus, Float> e : inventory.entrySet()) {
-            Nucleus key = e.getKey();
-            Float value = e.getValue();
+            Nucleus nucleus = e.getKey();
+            Float mol = e.getValue();
 
             float volume = (1 * (1 + CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF() * (temperature - 300))); // How much the thingamajig "expands"
 
-            Nucleus.NuclearTransformationResult fast_result = key.fission(receivingFastFlux, value, volume, 0.25f, true); // Fast spectrum
-            Nucleus.NuclearTransformationResult thermal_result = key.fission(receivingSlowFlux, value, volume, 0.25f, false); // Thermal spectrum
-            Nucleus.NuclearTransformationResult decay_result = key.decay(1f, value);
+            Nucleus.NuclearTransformationResult fast_result = nucleus.fission(receivingFastFlux, mol, volume, 0.25f, true); // Fast spectrum
+            Nucleus.NuclearTransformationResult thermal_result = nucleus.fission(receivingSlowFlux, mol, volume, 0.25f, false); // Thermal spectrum
+            Nucleus.NuclearTransformationResult decay_result = nucleus.decay(1f, mol);
 
             outgoingFlux += fast_result.neutron_yielded() + thermal_result.neutron_yielded() + decay_result.neutron_yielded();
 
-            temperatureChange(fast_result.energy_yielded() + thermal_result.energy_yielded() + decay_result.energy_yielded());
+            double E = fast_result.energy_yielded() + thermal_result.energy_yielded() + decay_result.energy_yielded();
+
+            temperatureChange(E);
+            if (temperature > 3422) meltdown(getBlockPos()); // Melting point of tungsten as placeholder
+            if (E > 1e13) standardExplosion(getBlockPos(), 10);
 
             // Since it can return null elements, we should check for null before adding
             HashMap<Nucleus, Float> nullableElements = new HashMap<>();
@@ -157,7 +184,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             }
 
             float totalConsumed = fast_result.consumed() + thermal_result.consumed() + decay_result.consumed();
-            presentElements.merge(key, -totalConsumed, Float::sum);
+            presentElements.merge(nucleus, -totalConsumed, Float::sum);
         }
 
         presentElements.forEach((nucleus, mol) -> {
@@ -165,7 +192,6 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         }); // To avoid a ConcurrentModificationException
 
         // Neutron transport here
-        //getAssemblies();
 
         assemblies.forEach((pos, be) -> {
             if (be == this) return;
@@ -359,24 +385,55 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
     }
 
     private void getAssemblies() {
-        assemblies.clear(); // If any are removed
+        /*assemblies.clear(); // If any are removed
 
         ServerEvents.assemblies.forEach((be, pos) -> {
             double distance = pos.subtract(getBlockPos()).getCenter().length();
             if (distance > CROWNSConfigs.SERVER.nuclear.radiationRange.get()) return;
 
             assemblies.put(pos, be);
-        });
+        });*/
     }
 
     private void temperatureChange(double Q) {
-        float coEf = 1e4f; // Change this for how much you want the temperature increase to slow down
+        float coEf = 0.75f * 1e4f; // Change this for how much you want the temperature increase to slow down
         temperature += (float) Q / (C * coEf);
+    }
+
+    private void standardExplosion(@NotNull BlockPos pos, float power) {
+        assert this.level != null;
+
+        // TODO: transition to NuclearExplosion.java
+
+        level.explode(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, power, Level.ExplosionInteraction.BLOCK);
+        level.setBlock(worldPosition, Blocks.AIR.defaultBlockState(), 3);
+
+        if (!level.isClientSide()) {
+            RenderExplosionPacket packet = new RenderExplosionPacket(
+                    pos.getX() + 0.5,
+                    pos.getY() + 0.5,
+                    pos.getZ() + 0.5,
+                    25
+            );
+
+            PacketInit.getChannel().send(
+                    PacketDistributor.NEAR.with(
+                            PacketDistributor.TargetPoint.p(
+                                    pos.getX() + 0.5,
+                                    pos.getY() + 0.5,
+                                    pos.getZ() + 0.5,
+                                    64,
+                                    level.dimension()
+                            )
+                    ),
+                    packet
+            );
+        }
     }
 
     private void meltdown(@NotNull BlockPos pos) {
         assert level != null;
         level.setBlockAndUpdate(pos, FluidInit.CORIUM.get().getFlowing(8, 15, false).createLegacyBlock());
-        //level.removeBlockEntity(pos);
+        level.removeBlockEntity(pos);
     }
 }
