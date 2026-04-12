@@ -1,4 +1,4 @@
-![Creating Space Logo](https://realantengineer.github.io//assets/images/logo/creatingspace_text.png)
+![Creating Space Logo](https://realantengineer.github.io//assets/images/logo/crowns_text.png)
 
 ----
 
@@ -9,7 +9,7 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/RealAntEngineer/crowns?style=for-the-badge)
 
 <a href="https://www.curseforge.com/minecraft/mc-mods/create-crowns"><img src="https://realantengineer.github.io//assets/images/Available_on_Curseforge.png" width=24.25% height=24.25% /></a>
-<a href="https://modrinth.com/mod/crowns"><img src="https://realantengineer.github.io//assets/images/Available_on_Modrinth.png" width=24.25% height=24.25% /></a>
+<a href="https://modrinth.com/mod/create-crowns"><img src="https://realantengineer.github.io//assets/images/Available_on_Modrinth.png" width=24.25% height=24.25% /></a>
 <a href="https://discord.gg/Dn9DhTqarH"><img src="https://realantengineer.github.io//assets/images/Chat_With_Us_on_discord.png" width=24.25% height=24.25% /></a>
 
 ----
