@@ -43,6 +43,8 @@ minecraft {
 
             property 'forge.logging.markers', 'REGISTRIES'
 
+            //jvmArgument("-XX:+AllowEnhancedClassRedefinition")
+
             //property 'forge.logging.console.level', 'debug'
 
             property 'mixin.env.remapRefMap', 'true'

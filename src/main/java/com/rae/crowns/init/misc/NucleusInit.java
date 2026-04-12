@@ -21,7 +21,7 @@ public class NucleusInit {
             Nucleus.NuclearEquation.EMPTY, 1200);
     @NotNull public static Nucleus Cs137 = new Nucleus(137, 137, 55, Nucleus.NuclearEquation.EMPTY, 3f * Day);
     @NotNull public static Nucleus Nd144 = new Nucleus(144, 144, 60);
-    @NotNull public static Nucleus Sm149 = new Nucleus(144, 149, 62);
+    @NotNull public static Nucleus Sm149 = new Nucleus(149, 149, 62);
     @NotNull public static Nucleus Be9 = new Nucleus(9, 9, 4); // It's just a thing
 
     // Delayed neutron precursor groups (DN1..DN6)
@@ -60,16 +60,16 @@ public class NucleusInit {
 
     // U-235 with prompt + delayed neutrons
     @NotNull public static Nucleus U235 = new Nucleus(
-            235, 92,
+            235,235, 92,
             Couple.create(1f, 583f),
             new Nucleus.NuclearEquation(
                     Map.ofEntries(
-                            entry(135, 0.06f),   // Xe-135
-                            entry(137, 0.06f),   // Cs-137
-                            entry(90, 0.06f),    // Sr-90
-                            entry(149, 0.011f),  // Sm-149
-                            entry(92, 0.06f),    // Zr-92
-                            entry(144, 0.05f),   // Nd-144
+                            entry(Xe135.getId(), 0.06f),   // Xe-135
+                            entry(Cs137.getId(), 0.06f),   // Cs-137
+                            entry(Sr90.getId(), 0.06f),    // Sr-90
+                            entry(Sm149.getId(), 0.011f),  // Sm-149
+                            entry(Zr92.getId(), 0.06f),    // Zr-92
+                            entry(Nd144.getId(), 0.05f),   // Nd-144
                             entry(8001, 0.000215f), // DN1
                             entry(8002, 0.001424f), // DN2
                             entry(8003, 0.001274f), // DN3
@@ -97,7 +97,7 @@ public class NucleusInit {
                             entry(90, 0.03f),    // Sr-90
                             entry(149, 0.008f),  // Sm-149
                             entry(93, 0.02f),    // Zr-92
-                            entry(144, 0.01f),   // Nd-144
+                            entry(Nd144.getId(), 0.01f),   // Nd-144
                             entry(8001, 0.000105f), // DN1
                             entry(8002, 0.000924f), // DN2
                             entry(8003, 0.001274f), // DN3
@@ -112,20 +112,22 @@ public class NucleusInit {
             100f * Day
     );
 
+    @NotNull public static Nucleus Kr92 = new Nucleus(92, 92, 36, Nucleus.NuclearEquation.EMPTY, 1.841f * 20f);
+
     // Np237, similar to U235 and Pu239
     @NotNull public static Nucleus Np237 = new Nucleus(
-            237, 93,
+            237,237, 93,
             Couple.create(280f, 0.001f),
             new Nucleus.NuclearEquation(
                     Map.ofEntries(
                             entry(141, 0.06f),   // Ba-141
-                            entry(92, 0.06f),    // Kr-92
-                            entry(135, 0.03f),   // Xe-135
-                            entry(137, 0.03f),   // Cs-137
-                            entry(90, 0.03f),    // Sr-90
-                            entry(149, 0.008f),  // Sm-149
-                            entry(93, 0.02f),    // Zr-92
-                            entry(144, 0.01f),   // Nd-144
+                            entry(Kr92.getId(), 0.06f),    // Kr-92
+                            entry(Xe135.getId(), 0.03f),   // Xe-135
+                            entry(Cs137.getId(), 0.03f),   // Cs-137
+                            entry(Sr90.getId(), 0.03f),    // Sr-90
+                            entry(Sm149.getId(), 0.008f),  // Sm-149
+                            entry(Zr92.getId(), 0.02f),    // Zr-92
+                            entry(Nd144.getId(), 0.01f),   // Nd-144
                             entry(8001, 0.000105f), // DN1
                             entry(8002, 0.000924f), // DN2
                             entry(8003, 0.001274f), // DN3
@@ -140,10 +142,10 @@ public class NucleusInit {
             800f * Day
     );
 
-    @NotNull public static Nucleus U236 = new Nucleus(236, 92,
+    @NotNull public static Nucleus U236 = new Nucleus(236,236, 92,
             new Nucleus.NuclearEquation(Map.of(92, 1f, 141, 1f), 3, 0f), 1);
 
-    @NotNull public static Nucleus U238 = new Nucleus(238, 92, Couple.create(108f, 2.7f),
+    @NotNull public static Nucleus U238 = new Nucleus(238,238, 92, Couple.create(108f, 2.7f),
             new Nucleus.NuclearEquation(Map.of(1001, 0.1f), 0, 0f),
             new Nucleus.NuclearEquation(Map.of(234, 1f), 0, 0f), 1000f * Day);
 
@@ -173,7 +175,6 @@ public class NucleusInit {
 
     @NotNull public static Nucleus Ba141 = new Nucleus(141, 141, 56, Nucleus.NuclearEquation.EMPTY, 1207f);
 
-    @NotNull public static Nucleus Kr92 = new Nucleus(92, 92, 36, Nucleus.NuclearEquation.EMPTY, 1.841f * 20f);
 
     public static final List<Nucleus> allNuclei = List.of(
             Sr90,
