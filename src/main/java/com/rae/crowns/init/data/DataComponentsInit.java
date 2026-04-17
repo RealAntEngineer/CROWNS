@@ -1,7 +1,7 @@
 package com.rae.crowns.init.data;
 
 import com.rae.crowns.CROWNS;
-import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;

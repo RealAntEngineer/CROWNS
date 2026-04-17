@@ -139,6 +139,7 @@ repositories {
     maven {
         url = "https://maven.theillusivec4.top/"
     }
+    maven { url = 'https://jitpack.io' }
 
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // ForgeConfigAPIPort
 
@@ -155,9 +156,11 @@ dependencies {
     compileOnly("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
     runtimeOnly("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
+
     //this is a local maven... you would need to publish it locally for it to work,
     // it's that way right now because the jitpack isn't setup correctly for formicapi 1.21.1 (need to correct jarjar)
-    implementation('com.rae.formicapi:FormicAPI:1.21.1-1.6.8')
+    //implementation('com.rae.formicapi:FormicAPI:1.21.1-1.6.8')
+    implementation 'com.github.RealAntEngineer:FormicAPI:v1.21.1-2.1.3'
 
 }
 

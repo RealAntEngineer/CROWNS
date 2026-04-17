@@ -3,13 +3,13 @@ package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.misc.BlockEntityInit;
-import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
+
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -25,15 +25,16 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
+@NonnullDefault
 public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
     private static final int          SYNC_RATE = 8;
-    public               SteamCurrent steamCurrent;
+    public @Nullable     SteamCurrent steamCurrent;
     protected            int          currentUpdateCooldown;
     protected            boolean      updateSteamFlow;
     protected            int          syncCooldown;
@@ -150,7 +151,7 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
     }
 
     @Override
-    public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
+    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
         containedFluidTooltip(tooltip, isPlayerSneaking, WATER_TANK);
         CreateLang.builder().add(
                 Component.literal(" Flow = " + flow + "/ 1000")

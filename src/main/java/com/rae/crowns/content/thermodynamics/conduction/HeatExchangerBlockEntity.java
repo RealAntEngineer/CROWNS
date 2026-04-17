@@ -9,8 +9,8 @@ import com.rae.crowns.init.data.DataComponentsInit;
 import com.rae.crowns.init.misc.BlockEntityInit;
 import com.rae.crowns.init.misc.BlockInit;
 import com.rae.formicapi.FormicApiLang;
-import com.rae.formicapi.thermal_utilities.FullTableBased;
-import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.FullTableBased;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.fluids.pipes.StraightPipeBlockEntity;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -38,7 +38,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static com.rae.formicapi.thermal_utilities.FullTableBased.DEFAULT_STATE;
+import static com.rae.formicapi.content.thermal_utilities.FullTableBased.DEFAULT_STATE;
+
 
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
     //really heavy -> to optimize and run less by second

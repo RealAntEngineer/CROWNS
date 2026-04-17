@@ -2,8 +2,8 @@ package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.init.client.ShapesInit;
 import com.rae.crowns.init.misc.BlockEntityInit;
-import com.rae.formicapi.multiblock.MBKineticController;
-import com.rae.formicapi.multiblock.MBStructureBlock;
+import com.rae.formicapi.content.multiblock.MBKineticController;
+import com.rae.formicapi.content.multiblock.MBStructureBlock;
 import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

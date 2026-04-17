@@ -9,7 +9,7 @@ import com.rae.crowns.init.data.DataComponentsInit;
 import com.rae.crowns.init.data.EntityDataSerializersInit;
 import com.rae.crowns.init.data.PacketInit;
 import com.rae.crowns.init.misc.*;
-import com.rae.formicapi.data.managers.FloatMapDataLoader;
+import com.rae.formicapi.content.data.managers.FloatMapDataLoader;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
