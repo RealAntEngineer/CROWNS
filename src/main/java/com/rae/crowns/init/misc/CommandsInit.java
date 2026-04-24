@@ -11,6 +11,7 @@ import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.nuclear.NuclearExplosion;
+import com.rae.crowns.content.thermodynamics.turbine.SteamFlowData;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -75,7 +76,7 @@ public class CommandsInit {
                 .then(Commands.literal("clearSteamCurrents")
                         .executes(context -> {
                             ServerPlayer player = context.getSource().getPlayerOrException();
-
+                            player.sendSystemMessage(Component.literal("Clearing "+ SteamFlowManager.getSFAmount()+ " across all dimensions"));
                             SteamFlowManager.clear();
                             return Command.SINGLE_SUCCESS;
                         })

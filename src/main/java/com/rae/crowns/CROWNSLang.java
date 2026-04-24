@@ -4,7 +4,7 @@ import com.rae.crowns.config.CROWNSCfgClient;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.content.thermal_utilities.FullTableBased;
-import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import net.createmod.catnip.lang.Lang;
 import net.createmod.catnip.lang.LangBuilder;
 import net.createmod.catnip.lang.LangNumberFormat;
@@ -28,7 +28,7 @@ public class CROWNSLang extends Lang {
     }
 
 
-    public static @NotNull LangBuilder specificRealFluidState(@NotNull SpecificRealGazState state) {
+    public static @NotNull LangBuilder specificRealFluidState(@NotNull SpecificRealGasState state) {
         CROWNSCfgClient.FluidVisualMode mode = CROWNSConfigs.CLIENT.fluidStateVisualMode.get();
 
         return switch (mode) {
@@ -47,7 +47,7 @@ public class CROWNSLang extends Lang {
             case PS -> builder().add(Component.literal(" ")).add(
                     FormicApiLang.formatPressure(state.pressure()).component()
                             .append(" | ")
-                            .append(FormicApiLang.numberWithSymbol(FullTableBased.getS(state.specificEnthalpy(), state.pressure())).text("J/Kg/K").component()));
+                            .append(FormicApiLang.numberWithSymbol(state.specificEntropy()).text("J/Kg/K").component()));
             case PHTSX -> builder().add(Component.literal(" ")).add(
                     FormicApiLang.formatPressure(state.pressure()).component()
                             .append(" | ")
@@ -55,7 +55,7 @@ public class CROWNSLang extends Lang {
                             .append(" | ")
                             .append(FormicApiLang.formatTemperature(state.temperature()).component())
                             .append(" | ")
-                            .append(FormicApiLang.numberWithSymbol(FullTableBased.getS(state.specificEnthalpy(), state.pressure())).text("J/Kg/K").component())
+                            .append(FormicApiLang.numberWithSymbol(state.specificEntropy()).text("J/Kg/K").component())
                             .append(" | ")
                             .append(
                                     Component.literal("x = " + LangNumberFormat.format(state.vaporQuality() * 100) + "%")));

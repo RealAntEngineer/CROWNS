@@ -3,14 +3,14 @@ package com.rae.crowns.content.thermodynamics;
 
 import com.rae.crowns.init.data.DataComponentsInit;
 import com.rae.formicapi.content.thermal_utilities.FullTableBased;
-import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-import static com.rae.formicapi.content.thermal_utilities.FullTableBased.DEFAULT_STATE;
+import static com.rae.formicapi.content.thermal_utilities.SpecificRealGasState.DEFAULT_STATE;
 
 
 public class StateFluidTank extends SmartFluidTank {
@@ -21,17 +21,17 @@ public class StateFluidTank extends SmartFluidTank {
     public void heat(float amount) {
         if (fluid.getAmount() > 0) {
 
-            SpecificRealGazState oldState = fluid.get(DataComponentsInit.REAL_GAZ_STATE);
+            SpecificRealGasState oldState = fluid.get(DataComponentsInit.REAL_GAS_STATE);
             if (oldState == null) {
                 oldState = DEFAULT_STATE;
             }
-            SpecificRealGazState state = FullTableBased.isobaricTransfer(oldState, amount / getFluidAmount());
-            fluid.set(DataComponentsInit.REAL_GAZ_STATE, state);
+            SpecificRealGasState state = FullTableBased.isobaricTransfer(oldState, amount / getFluidAmount());
+            fluid.set(DataComponentsInit.REAL_GAS_STATE, state);
         }
     }
 
-    public SpecificRealGazState getState() {
-        SpecificRealGazState oldState = fluid.get(DataComponentsInit.REAL_GAZ_STATE);
+    public SpecificRealGasState getState() {
+        SpecificRealGasState oldState = fluid.get(DataComponentsInit.REAL_GAS_STATE);
         if (oldState == null) {
             oldState = DEFAULT_STATE;
         }

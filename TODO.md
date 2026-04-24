@@ -9,3 +9,4 @@
 - [src/main\java\com\rae\crowns\init\data\StateMapSerializer.java:12] // TODO put this in the formic API
 - [src/main\java\com\rae\crowns\init\misc\FluidInit.java:40] .source(BaseFlowingFluid.Source::new) // TODO: remove when Registrate fixes FluidBuilder
 - [src/main\java\com\rae\crowns\init\misc\TagsInit.java:56] //TODO this is poor coding, use a float map instead.
+- [src/main\java\com\rae\crowns\mixin\FluidTransportBehaviourMixin.java:111] //TODO don't do anything if the states are not present

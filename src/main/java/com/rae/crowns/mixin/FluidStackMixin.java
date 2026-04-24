@@ -18,9 +18,9 @@ public class FluidStackMixin {
 
             // Get component patches without realGazState
             DataComponentPatch firstPatch = first.copy().getComponentsPatch().forget((p) ->
-                    p.equals(DataComponentsInit.REAL_GAZ_STATE));
+                    p.equals(DataComponentsInit.REAL_GAS_STATE));
             DataComponentPatch secondPatch = second.copy().getComponentsPatch().forget((p) ->
-                    p.equals(DataComponentsInit.REAL_GAZ_STATE));
+                    p.equals(DataComponentsInit.REAL_GAS_STATE));
             boolean flag = firstPatch.equals(secondPatch);
             cir.setReturnValue(flag && first.is(second.getFluid()));
         }

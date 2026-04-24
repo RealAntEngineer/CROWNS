@@ -9,7 +9,7 @@ import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
 import com.rae.formicapi.content.multiblock.MBStructureBlock;
 import com.rae.formicapi.content.thermal_utilities.FullTableBased;
-import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,7 +32,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.rae.crowns.Constants.whatSU;
-import static com.rae.formicapi.content.thermal_utilities.FullTableBased.DEFAULT_STATE;
+import static com.rae.formicapi.content.thermal_utilities.SpecificRealGasState.DEFAULT_STATE;
 
 public class SteamCurrent {
 
@@ -48,12 +48,12 @@ public class SteamCurrent {
     @NotNull
     private       Map<BlockPos, Float>                powerForStage = new ConcurrentHashMap<>();
     @NotNull
-    private       Map<BlockPos, SpecificRealGazState> stateMap      = new HashMap<>();
+    private       Map<BlockPos, SpecificRealGasState> stateMap      = new HashMap<>();
 
     @Nullable
-    private SpecificRealGazState inputFluidState;
+    private SpecificRealGasState inputFluidState;
     @Nullable
-    private SpecificRealGazState outputFluidState;
+    private SpecificRealGasState outputFluidState;
 
     @NotNull
     private Direction direction;
@@ -63,7 +63,7 @@ public class SteamCurrent {
     private float   flow;
     private AABB    boundingBox;
     private boolean reloadSpline;
-
+    boolean valid = true;
     public SteamCurrent(@NotNull BlockPos injectorPos, @NotNull Direction direction, float maxDistance) {
         this.injectorPos = injectorPos;
         this.direction = direction;
@@ -80,10 +80,10 @@ public class SteamCurrent {
             @Nullable FlowLine spline,
             @NotNull List<BlockPos> stagesPos,
             boolean reloadSpline,
-            @Nullable SpecificRealGazState inputFluidState,
-            @Nullable SpecificRealGazState outputFluidState,
+            @Nullable SpecificRealGasState inputFluidState,
+            @Nullable SpecificRealGasState outputFluidState,
             @NotNull Map<BlockPos, Float> powerForStage,
-            @NotNull Map<BlockPos, SpecificRealGazState> stateMap,
+            @NotNull Map<BlockPos, SpecificRealGasState> stateMap,
             float flow
     ) {
         this.injectorPos = injectorPos;
@@ -132,11 +132,11 @@ public class SteamCurrent {
         float flow = nbt.getFloat("flow");
 
         // Input/output states
-        SpecificRealGazState inputFluidState =
-                nbt.contains("inputState") ? new SpecificRealGazState(nbt.getCompound("inputState")) : null;
+        SpecificRealGasState inputFluidState =
+                nbt.contains("inputState") ? new SpecificRealGasState(nbt.getCompound("inputState")) : null;
 
-        SpecificRealGazState outputFluidState =
-                nbt.contains("outputState") ? new SpecificRealGazState(nbt.getCompound("outputState")) : null;
+        SpecificRealGasState outputFluidState =
+                nbt.contains("outputState") ? new SpecificRealGasState(nbt.getCompound("outputState")) : null;
 
         // powerForStage map
         Map<BlockPos, Float> powerForStage = new HashMap<>();
@@ -149,14 +149,14 @@ public class SteamCurrent {
         }
 
         // stateMap
-        Map<BlockPos, SpecificRealGazState> stateMap = new HashMap<>();
+        Map<BlockPos, SpecificRealGasState> stateMap = new HashMap<>();
         if (nbt.contains("stateMap", Tag.TAG_LIST)) {
             ListTag list = nbt.getList("stateMap", Tag.TAG_COMPOUND);
             for (Tag t : list) {
                 CompoundTag tag = (CompoundTag) t;
                 stateMap.put(
                         BlockPos.of(tag.getLong("pos")),
-                        new SpecificRealGazState(tag.getCompound("state"))
+                        new SpecificRealGasState(tag.getCompound("state"))
                 );
             }
         }
@@ -242,7 +242,7 @@ public class SteamCurrent {
         return new SPR(idx, power);
     }
 
-    public void setInputFluidState(@NotNull SpecificRealGazState inputFluidState) {
+    public void setInputFluidState(@NotNull SpecificRealGasState inputFluidState) {
         this.inputFluidState = inputFluidState;
     }
 
@@ -289,12 +289,12 @@ public class SteamCurrent {
 
         // recompute physics
         powerForStage = new ConcurrentHashMap<>();
-        Map<BlockPos, SpecificRealGazState> newStateMap = new HashMap<>();
+        Map<BlockPos, SpecificRealGasState> newStateMap = new HashMap<>();
 
-        SpecificRealGazState previousState = getInputFluidState(level);
+        SpecificRealGasState previousState = getInputFluidState(level);
         newStateMap.put(injectorPos, previousState);
 
-        SpecificRealGazState nextState = previousState;
+        SpecificRealGasState nextState = previousState;
         float                yield     = CROWNSConfigs.SERVER.kinetics.turbineIsentropicYield.getF();
         for (ISteamPressureChange stage : stages) {
             if (!(stage instanceof BlockEntity stageBe)) continue;
@@ -353,7 +353,7 @@ public class SteamCurrent {
             );
             points.add(Vec3.atCenterOf(aligned));
 
-            SpecificRealGazState s = stateMap.get(p);
+            SpecificRealGasState s = stateMap.get(p);
             Color color = (s != null && s.vaporQuality() > 0)
                     ? Color.WHITE.mixWith(new Color(0f, 0f, 1f, 1f), 1 - s.vaporQuality())
                     : new Color(0f, 0f, 1f, 1f);
@@ -371,7 +371,7 @@ public class SteamCurrent {
                 if (getDirection().getOpposite() == steamCollector.getBlockState().getValue(SteamCollectorBlock.FACING)) {
                     //TODO if the input is potion, this will transform it in water
                     FluidStack water = new FluidStack(Fluids.WATER, (int) getFlow(level));
-                    water.set(DataComponentsInit.REAL_GAZ_STATE, getOutputFluidState());
+                    water.set(DataComponentsInit.REAL_GAS_STATE, getOutputFluidState());
                     steamCollector.getTank().fill(water, IFluidHandler.FluidAction.EXECUTE);
                 }
             } catch (Exception ignored) {
@@ -379,10 +379,13 @@ public class SteamCurrent {
         }
     }
 
-    public @NotNull SpecificRealGazState getInputFluidState(@NotNull Level level) {
+    public @NotNull SpecificRealGasState getInputFluidState(@NotNull Level level) {
         BlockEntity be = level.getBlockEntity(injectorPos);
         if (be instanceof SteamInputBlockEntity) {
             inputFluidState = ((SteamInputBlockEntity) be).getState();
+            valid = true;
+        } else {
+            valid = false;
         }
         if (inputFluidState == null) inputFluidState = DEFAULT_STATE;
         return inputFluidState;
@@ -400,7 +403,7 @@ public class SteamCurrent {
         return direction;
     }
 
-    public @NotNull SpecificRealGazState getOutputFluidState() {
+    public @NotNull SpecificRealGasState getOutputFluidState() {
         if (outputFluidState == null) outputFluidState = DEFAULT_STATE;
         return outputFluidState;
     }
@@ -471,8 +474,7 @@ public class SteamCurrent {
     }
 
     public boolean isValid(@NotNull Level level) {
-        BlockEntity be = level.getBlockEntity(injectorPos);
-        return be instanceof SteamInputBlockEntity injector && !injector.isRemoved();
+        return level.isClientSide || valid;
     }
 
     public boolean intersects(@NotNull AABB bound) {

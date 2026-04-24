@@ -10,7 +10,7 @@ import com.rae.crowns.init.misc.BlockEntityInit;
 import com.rae.crowns.init.misc.BlockInit;
 import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.content.thermal_utilities.FullTableBased;
-import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.fluids.pipes.StraightPipeBlockEntity;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static com.rae.formicapi.content.thermal_utilities.FullTableBased.DEFAULT_STATE;
+import static com.rae.formicapi.content.thermal_utilities.SpecificRealGasState.DEFAULT_STATE;
 
 
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
@@ -284,7 +284,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         }
 
         private static float getFluidTemperature(FluidStack stack) {
-            SpecificRealGazState state = stack.get(DataComponentsInit.REAL_GAZ_STATE);
+            SpecificRealGasState state = stack.get(DataComponentsInit.REAL_GAS_STATE);
             if (state == null)
                 return DEFAULT_STATE.temperature();
 
@@ -295,13 +295,13 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             if (stack.getAmount() <= 0)
                 return;
 
-            SpecificRealGazState oldState = stack.get(DataComponentsInit.REAL_GAZ_STATE);
+            SpecificRealGasState oldState = stack.get(DataComponentsInit.REAL_GAS_STATE);
             if (oldState == null) oldState = DEFAULT_STATE;
 
-            SpecificRealGazState newState =
+            SpecificRealGasState newState =
                     FullTableBased.isobaricTransfer(oldState, amount / stack.getAmount());
 
-            stack.set(DataComponentsInit.REAL_GAZ_STATE, newState);
+            stack.set(DataComponentsInit.REAL_GAS_STATE, newState);
         }
 
     }
