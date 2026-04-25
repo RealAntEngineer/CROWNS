@@ -1,11 +1,15 @@
 package com.rae.crowns.content.nuclear;
 
-import com.rae.crowns.config.CROWNSConfigs;
+import com.rae.crowns.Constants;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.createmod.catnip.data.Couple;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 import static com.rae.crowns.Constants.barnNa;
 
@@ -52,19 +56,22 @@ public class Nucleus {
      * Number of proton inside the nucleus.
      * Must be ≥ 0.
      */
-    private final int atomicNumber;
+    private final int                       atomicNumber;
     /**
      * The {@link NuclearEquation} triggered <em>immediately</em> when this nucleus
      * captures a neutron. Provides instant transformation products.
      * Use {@link NuclearEquation#EMPTY} if the nucleus does not absorb neutrons, if it "burned".
      */
-    private final NuclearEquation absorptionEquation;
+    private final Supplier<NuclearEquation> absorptionEquationSupplier;
+    private NuclearEquation absorptionEquation;
     /**
      * The {@link NuclearEquation} triggered over time as this nucleus undergoes
      * radioactive decay. Evaluated against the current amount and elapsed time.
      * Use {@link NuclearEquation#EMPTY} for stable nuclei or if it "burned".
      */
-    private final NuclearEquation decayEquation;
+    private final Supplier<NuclearEquation>           decayEquationSupplier;
+    private NuclearEquation           decayEquation;
+
     /**
      * Time required for half of a sample of this nucleus to decay, expressed in
      * game ticks. {@link Float#MAX_VALUE} indicates a stable (non-decaying) nucleus.
@@ -89,7 +96,7 @@ public class Nucleus {
      * @throws IllegalArgumentException if {@code number} is negative or {@code id} is already registered
      */
     public Nucleus(int id, int mass, int number) {
-        this(id, mass, number, NuclearEquation.EMPTY, Float.MAX_VALUE);
+        this(id, mass, number, () -> NuclearEquation.EMPTY, Float.MAX_VALUE);
     }
 // --- radioactive ---
 
@@ -104,8 +111,8 @@ public class Nucleus {
      *                       use {@link Float#MAX_VALUE} for effectively stable nuclei
      * @throws IllegalArgumentException if {@code number} is negative or {@code id} is already registered
      */
-    public Nucleus(int id, int mass, int number, NuclearEquation decay_equation, float half_life) {
-        this(id, mass, number, Couple.create(0f, 0f), NuclearEquation.EMPTY, decay_equation, half_life);
+    public Nucleus(int id, int mass, int number, Supplier<NuclearEquation> decay_equation, float half_life) {
+        this(id, mass, number, Couple.create(0f, 0f), () -> NuclearEquation.EMPTY, decay_equation, half_life);
     }
 
     /**
@@ -125,9 +132,9 @@ public class Nucleus {
      * @throws IllegalArgumentException if {@code number} is negative or {@code id} is already registered
      */
     public Nucleus(int id, int mass, int number, Couple<Float> neutronCrossSections,
-                   NuclearEquation absorption_equation, NuclearEquation decay_equation, float half_life) {
-        this.absorptionEquation = absorption_equation;
-        this.decayEquation = decay_equation;
+                   Supplier<NuclearEquation> absorption_equation, Supplier<NuclearEquation> decay_equation, float half_life) {
+        this.absorptionEquationSupplier = absorption_equation;
+        this.decayEquationSupplier = decay_equation;
         this.halfLife = half_life;
         if (number < 0) {
             throw new IllegalArgumentException("Number must be greater than zero");
@@ -144,18 +151,18 @@ public class Nucleus {
 // --- neutron absorbing ---
 
     /**
-     * @see #Nucleus(int, int, int, NuclearEquation, float)
+     * @see #Nucleus(int, int, int, Supplier, float)
      */
-    public Nucleus(int mass, int number, NuclearEquation decay_equation, float half_life) {
-        this(mass, mass, number, Couple.create(0f, 0f), NuclearEquation.EMPTY, decay_equation, half_life);
+    public Nucleus(int mass, int number, Supplier<NuclearEquation> decay_equation, float half_life) {
+        this(mass | number << 16, mass, number, Couple.create(0f, 0f), () -> NuclearEquation.EMPTY, decay_equation, half_life);
     }
 
     /**
-     * @see #Nucleus(int, int, int, Couple, NuclearEquation, NuclearEquation, float)
+     * @see #Nucleus(int, int, int, Couple, Supplier, Supplier, float)
      */
     public Nucleus(int mass, int number, Couple<Float> neutronCrossSections,
-                   NuclearEquation absorption_equation, NuclearEquation decay_equation, float half_life) {
-        this(mass, mass, number, neutronCrossSections, absorption_equation, decay_equation, half_life);
+                   Supplier<NuclearEquation> absorption_equation, Supplier<NuclearEquation> decay_equation, float half_life) {
+        this(mass | number << 16, mass, number, neutronCrossSections, absorption_equation, decay_equation, half_life);
     }
 
     /**
@@ -167,7 +174,7 @@ public class Nucleus {
      *   advancement = amount × (1 − e^(−λ × time))
      * </pre>
      * <p>This represents the quantity of nucleus that has actually transformed during
-     * the time step, which is then forwarded to the {@link #decayEquation}.
+     * the time step, which is then forwarded to the {@link #decayEquationSupplier}.
      * For stable nuclei ({@link #halfLife} == {@link Float#MAX_VALUE}),
      * the exponent approaches zero and advancement will be effectively {@code 0}.</p>
      *
@@ -179,6 +186,9 @@ public class Nucleus {
     public @NotNull NuclearTransformationResult decay(float time, float amount) {
         float lambda      = (float) (Math.log(2) / halfLife);
         float advancement = (float) (amount * (1 - Math.exp(-lambda * time)));
+        if (decayEquation== null){
+            decayEquation = decayEquationSupplier.get();
+        }
         return decayEquation.compute(advancement);
     }
 
@@ -200,6 +210,9 @@ public class Nucleus {
         float sigma       = getNeutronCrossSections(fast);
         float c           = amount / volume;
         float absorbed    = c * neutronFlux * sigma * barnNa;//it's from wikipedia but I'm not convinced
+        if (absorptionEquation == null){
+            absorptionEquation = absorptionEquationSupplier.get();
+        }
         return absorptionEquation.compute(absorbed);
     }
 
@@ -251,6 +264,10 @@ public class Nucleus {
         return id;
     }
 
+    public static Collection<Nucleus> getAllValues(){
+        return VALUES.values();
+    }
+
     /**
      * Describes a nuclear reaction as a stoichiometric equation: a set of product nuclei
      * with their per-unit yields, the number of neutrons emitted, and the energy released.
@@ -258,20 +275,21 @@ public class Nucleus {
      * <p>A {@code NuclearEquation} is stateless and reusable. It is evaluated by calling
      * {@link #compute(float)} with a reaction <em>advancement</em> value).</p>
      *
-     * @param element_map     mapping of atomic-mass/id integer → stoichiometric coefficient.
+     * @param element_coefficients     mapping of atomic-mass/id integer → stoichiometric coefficient.
      *                        Each key must correspond to a nucleus registered in {@link #VALUES}.
      *                        Coefficients are multiplied by the advancement to obtain absolute quantities.
      * @param neutron_yielded number of neutrons produced per mole of advancement.
      *                        Scaled by the server's {@code neutronFluxMultiplicator} at evaluation time.
      * @param energy_yielded  energy released per mole of advancement (J).
      */
-    public record NuclearEquation(Map<Integer, Float> element_map, float neutron_yielded, float energy_yielded) {
+    public record NuclearEquation(Map<Nucleus, Float> element_coefficients, float neutron_yielded, float energy_yielded) {
         /**
          * A no-op {@code NuclearEquation} representing the absence of any nuclear reaction.
          * Produces no products, no neutrons, and no energy. Used for stable nuclei and
          * nuclei that do not interact with neutrons or for nuclei that burn
          */
         public static final Nucleus.NuclearEquation EMPTY = new Nucleus.NuclearEquation(Map.of(), 0f, 0f);
+
 
         /**
          * Evaluates this equation for a given reaction advancement and returns the
@@ -286,9 +304,10 @@ public class Nucleus {
          * neutron count, and total energy; never {@code null}
          */
         public @NotNull NuclearTransformationResult compute(float advancement) {
-            Map<Nucleus, Float> elements = new HashMap<>();
-            element_map.forEach((element, quantity) -> elements.put(VALUES.get(element), quantity * advancement));
-            return new NuclearTransformationResult(elements, neutron_yielded * advancement * CROWNSConfigs.SERVER.nuclear.neutronFluxMultiplicator.getF(),
+            Map<Nucleus, Float> elements = new Object2FloatOpenHashMap<>(element_coefficients.size());
+            element_coefficients.forEach((nucleus, coeff) ->
+                    elements.put(nucleus, coeff * advancement));
+        return new NuclearTransformationResult(elements, neutron_yielded * advancement * Constants.neutronFluxMultiplicator,
                     energy_yielded * advancement, advancement);
         }
 

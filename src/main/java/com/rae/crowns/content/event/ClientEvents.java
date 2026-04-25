@@ -130,11 +130,11 @@ public class ClientEvents {
 
             components.add(Component.literal("Composition:").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
 
-            for (Nucleus nucleus : NucleusInit.allNuclei) {
+            for (Nucleus nucleus : Nucleus.getAllValues()) {
                 int id = nucleus.getId();
 
                 if (composition.contains(String.valueOf(id))) {
-                    String string = CROWNSLang.readableNucleus(nucleus).string();
+                    String string = CROWNSLang.nucleus(nucleus).string();
 
                     double mass = nucleus.moleToMass((float) composition.getDouble(String.valueOf(id)));
                     double concentration = mass / 3000;

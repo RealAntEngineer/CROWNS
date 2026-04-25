@@ -47,14 +47,13 @@ public class NuclearExplosion extends Explosion {
     private static final ExplosionDamageCalculator EXPLOSION_DAMAGE_CALCULATOR = new ExplosionDamageCalculator();
     private static final int MAX_DROPS_PER_COMBINED_STACK = 16;
     private final boolean fire;
-    private final Explosion.@NotNull BlockInteraction blockInteraction;
+    private final @NotNull Explosion.BlockInteraction blockInteraction;
     private final @NotNull RandomSource random;
     private final @NotNull Level level;
     private final double x;
     private final double y;
     private final double z;
-    @javax.annotation.Nullable
-    private final Entity source;
+    private final  @Nullable Entity source;
     private final float radius;
     private final @NotNull DamageSource damageSource;
     private final ExplosionDamageCalculator damageCalculator;

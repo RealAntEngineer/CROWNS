@@ -1,6 +1,7 @@
 package com.rae.crowns.config;
 
 
+import com.rae.crowns.Constants;
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlockEntity;
 import net.createmod.catnip.config.ConfigBase;
 import org.jetbrains.annotations.NotNull;
@@ -14,8 +15,16 @@ public class CROWNSNuclear extends ConfigBase {
     public final ConfigBase.ConfigFloat heatLossCoef = f(0.01f, 0, "heatLossCoef", Comments.heatLossCoef);
 
     @Override
+    public void onLoad() {
+        super.onLoad();
+        Constants.neutronFluxMultiplicator = neutronFluxMultiplicator.getF();
+
+    }
+
+    @Override
     public void onReload() {
         super.onReload();
+        Constants.neutronFluxMultiplicator = neutronFluxMultiplicator.getF();
     }
 
     @Override

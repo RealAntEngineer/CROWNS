@@ -80,8 +80,8 @@ public class CreativeModeTabsInit {
                         double u238Mol = getMol(1.0 - grade, 3_000_000, 238);
 
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putFloat("235", (float) u235Mol);
-                        compositionNBT.putFloat("238", (float) u238Mol);
+                        compositionNBT.putFloat(String.valueOf(NucleusInit.U235.getId()), (float) u235Mol);
+                        compositionNBT.putFloat(String.valueOf(NucleusInit.U238.getId()), (float) u238Mol);
 
                         tag.put("composition", compositionNBT);
                         itemStack.setTag(tag);
@@ -98,9 +98,9 @@ public class CreativeModeTabsInit {
                         double pu239mol = getMol(0.15, 3_000_000, 239);
 
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putFloat("238", (float) u238mol);
-                        compositionNBT.putFloat("235", (float) u235mol);
-                        compositionNBT.putFloat("239", (float) pu239mol);
+                        compositionNBT.putFloat(String.valueOf(NucleusInit.U238.getId()), (float) u238mol);
+                        compositionNBT.putFloat(String.valueOf(NucleusInit.U235.getId()), (float) u235mol);
+                        compositionNBT.putFloat(String.valueOf(NucleusInit.Pu239.getId()), (float) pu239mol);
 
                         tag.put("composition", compositionNBT);
                         itemStack.setTag(tag);
@@ -117,8 +117,8 @@ public class CreativeModeTabsInit {
                         double be9Mol = getMol(0.1, 3_000_000, 9);
 
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putFloat("241", (float) am241mol);
-                        compositionNBT.putFloat("9", (float) be9Mol);
+                        compositionNBT.putFloat(String.valueOf(NucleusInit.Am241Be.getId()), (float) am241mol);
+                        compositionNBT.putFloat(String.valueOf(NucleusInit.Be9.getId()), (float) be9Mol);
 
                         tag.put("composition", compositionNBT);
                         itemStack.setTag(tag);
@@ -138,8 +138,8 @@ public class CreativeModeTabsInit {
                         double u238Mol = getMol((1.0 - grade) * ASSEMBLY_FACTOR, 3_000_000, 238);
 
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putFloat("235", (float) u235Mol);
-                        compositionNBT.putFloat("238", (float) u238Mol);
+                        compositionNBT.putFloat(String.valueOf(NucleusInit.U235.getId()), (float) u235Mol);
+                        compositionNBT.putFloat(String.valueOf(NucleusInit.U238.getId()), (float) u238Mol);
 
                         tag.put("composition", compositionNBT);
                         itemStack.setTag(tag);
@@ -151,14 +151,14 @@ public class CreativeModeTabsInit {
                         ItemStack itemStack = item.getDefaultInstance();
                         CompoundTag tag = itemStack.getOrCreateTag();
 
-                        double u238mol = getMol(0.8 * ASSEMBLY_FACTOR, 3_000_000, 238);
+                        double u238mol = NucleusInit.U238.massToMole((float) (0.8 * ASSEMBLY_FACTOR * 3_000_000));
                         double u235mol = getMol(0.05 * ASSEMBLY_FACTOR, 3_000_000, 235);
                         double pu239mol = getMol(0.15 * ASSEMBLY_FACTOR, 3_000_000, 239);
 
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putFloat("238", (float) u238mol);
-                        compositionNBT.putFloat("235", (float) u235mol);
-                        compositionNBT.putFloat("239", (float) pu239mol);
+                        compositionNBT.putFloat(String.valueOf(NucleusInit.U238.getId()), (float) u238mol);
+                        compositionNBT.putFloat(String.valueOf(NucleusInit.U235.getId()), (float) u235mol);
+                        compositionNBT.putFloat(String.valueOf(NucleusInit.Pu239.getId()), (float) pu239mol);
 
                         tag.put("composition", compositionNBT);
                         itemStack.setTag(tag);
@@ -175,8 +175,8 @@ public class CreativeModeTabsInit {
                         double be9Mol = getMol(0.1, 3_000_000, 9);
 
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putFloat("241", (float) am241mol);
-                        compositionNBT.putFloat("9", (float) be9Mol);
+                        compositionNBT.putFloat(String.valueOf(NucleusInit.Am241Be.getId()), (float) am241mol);
+                        compositionNBT.putFloat(String.valueOf(NucleusInit.Be9.getId()), (float) be9Mol);
 
                         tag.put("composition", compositionNBT);
                         itemStack.setTag(tag);
@@ -200,6 +200,7 @@ public class CreativeModeTabsInit {
         };
     }
 
+    //TODO replace by Nucleus::massToMol
     private static double getMol(double percent, double mass, double amu) {
         double grams = mass * percent;
         return grams / amu;
