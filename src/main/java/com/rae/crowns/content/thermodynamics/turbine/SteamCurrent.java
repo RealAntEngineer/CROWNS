@@ -6,9 +6,9 @@ import com.rae.crowns.content.thermodynamics.ISteamPressureChange;
 import com.rae.crowns.init.misc.BlockInit;
 import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
-import com.rae.formicapi.multiblock.MBStructureBlock;
-import com.rae.formicapi.thermal_utilities.FullTableBased;
-import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.multiblock.MBStructureBlock;
+import com.rae.formicapi.content.thermal_utilities.FullTableBased;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -31,7 +31,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.rae.crowns.Constants.whatSU;
-import static com.rae.formicapi.thermal_utilities.FullTableBased.DEFAULT_STATE;
+import static com.rae.formicapi.content.thermal_utilities.FullTableBased.DEFAULT_STATE;
 
 public class SteamCurrent {
 

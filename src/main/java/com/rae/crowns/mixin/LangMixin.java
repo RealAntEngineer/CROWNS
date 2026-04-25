@@ -1,7 +1,7 @@
 package com.rae.crowns.mixin;
 
 import com.rae.crowns.CROWNSLang;
-import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.lang.LangBuilder;
 import net.minecraft.nbt.CompoundTag;

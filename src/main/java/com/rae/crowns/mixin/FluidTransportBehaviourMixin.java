@@ -1,7 +1,7 @@
 package com.rae.crowns.mixin;
 
-import com.rae.formicapi.thermal_utilities.FullTableBased;
-import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.FullTableBased;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
 import com.simibubi.create.content.fluids.FluidReactions;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
 import com.simibubi.create.content.fluids.PipeConnection;
