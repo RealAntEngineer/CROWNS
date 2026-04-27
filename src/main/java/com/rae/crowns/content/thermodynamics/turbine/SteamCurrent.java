@@ -40,6 +40,7 @@ public class SteamCurrent {
     private final float                               maxDistance;
     @NotNull
     private final BlockPos                            injectorPos;
+    boolean valid = true;
     // dynamic state
     @NotNull
     private       List<BlockPos>                      stagesPos     = new ArrayList<>();
@@ -49,21 +50,18 @@ public class SteamCurrent {
     private       Map<BlockPos, Float>                powerForStage = new ConcurrentHashMap<>();
     @NotNull
     private       Map<BlockPos, SpecificRealGasState> stateMap      = new HashMap<>();
-
     @Nullable
     private SpecificRealGasState inputFluidState;
     @Nullable
     private SpecificRealGasState outputFluidState;
-
     @NotNull
     private Direction direction;
     @Nullable
     private FlowLine  spline; // created on server and synced to client via NBT
-
     private float   flow;
     private AABB    boundingBox;
     private boolean reloadSpline;
-    boolean valid = true;
+
     public SteamCurrent(@NotNull BlockPos injectorPos, @NotNull Direction direction, float maxDistance) {
         this.injectorPos = injectorPos;
         this.direction = direction;
@@ -271,7 +269,10 @@ public class SteamCurrent {
         } else {
             // CLIENT SIDE: only rendering
             if (spline != null && flow > 0) {
-                level.addParticle(new FlowParticleData(spline, 0), injectorPos.getX(), injectorPos.getY(), injectorPos.getZ(), 0, 0, 0);
+                level.addParticle(
+                        new FlowParticleData(spline, 0),
+                        injectorPos.getX(), injectorPos.getY(), injectorPos.getZ(),
+                        0, 0, 0);
             }
         }
     }
@@ -294,12 +295,27 @@ public class SteamCurrent {
         SpecificRealGasState previousState = getInputFluidState(level);
         newStateMap.put(injectorPos, previousState);
 
-        SpecificRealGasState nextState = previousState;
-        float                yield     = CROWNSConfigs.SERVER.kinetics.turbineIsentropicYield.getF();
+        SpecificRealGasState nextState   = previousState;
+        float                yield       = CROWNSConfigs.SERVER.kinetics.turbineIsentropicYield.getF();
+        float                minPressure = CROWNSConfigs.SERVER.kinetics.turbineLowPressureBound.getF();
+
+
+
         for (ISteamPressureChange stage : stages) {
             if (!(stage instanceof BlockEntity stageBe)) continue;
 
             float pressureRatio = stage.pressureRatio();
+
+            float targetPressure = previousState.pressure() * pressureRatio;
+
+            if (targetPressure < minPressure) {
+                // Adjust pressure ratio to respect the minimum pressure
+                pressureRatio = minPressure / previousState.pressure();
+                if (pressureRatio < 1f) {
+                    pressureRatio = 1f; // No expansion possible
+                }
+            }
+
             try {
                 if (pressureRatio < 1f) {
                     nextState = FullTableBased.isentropicExpansion(previousState, 1f / pressureRatio);
@@ -307,7 +323,8 @@ public class SteamCurrent {
                     nextState = FullTableBased.isentropicCompression(previousState, pressureRatio);
                 }
             } catch (IllegalStateException error) {
-                CROWNS.LOGGER.error("{} caused by trying to expand water from {} with a ratio of {}", error.getMessage(), previousState, pressureRatio);
+                CROWNS.LOGGER.error("{} caused by trying to expand water from {} with a ratio of {}",
+                        error.getMessage(), previousState, pressureRatio);
                 throw error;
             }
 
@@ -449,7 +466,8 @@ public class SteamCurrent {
             BlockState state = world.getBlockState(currentPos);
 
             if (!state.isAir()) {
-                if (state.is(BlockInit.STEAM_COLLECTOR.get()) && state.getValue(DirectionalBlock.FACING) == getDirection().getOpposite()) {
+                if (state.is(BlockInit.STEAM_COLLECTOR.get()) &&
+                        state.getValue(DirectionalBlock.FACING) == getDirection().getOpposite()) {
                     collectorPos = currentPos;
                 }
 

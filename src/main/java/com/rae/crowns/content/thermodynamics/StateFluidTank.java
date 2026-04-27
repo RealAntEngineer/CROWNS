@@ -34,6 +34,7 @@ public class StateFluidTank extends SmartFluidTank {
         SpecificRealGasState oldState = fluid.get(DataComponentsInit.REAL_GAS_STATE);
         if (oldState == null) {
             oldState = DEFAULT_STATE;
+            fluid.set(DataComponentsInit.REAL_GAS_STATE, DEFAULT_STATE);
         }
         return oldState;
     }
