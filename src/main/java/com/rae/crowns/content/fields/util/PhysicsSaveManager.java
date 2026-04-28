@@ -21,15 +21,15 @@ import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @Mod.EventBusSubscriber(modid = CROWNS.MODID)
 public class PhysicsSaveManager {
-    private static final Map<ResourceKey<Level>, PhysicsWorldData> worldDataMap = new WeakHashMap<>();
-    private static final Map<ResourceKey<Level>, LongSet> worldLoadedSections = new HashMap<>();
+    private static final Map<ResourceKey<Level>, PhysicsWorldData> worldDataMap = new ConcurrentHashMap<>();
+    private static final    Map<ResourceKey<Level>, LongSet> worldLoadedSections = new ConcurrentHashMap<>();
+    private static MinecraftServer                  serverInstance;
     //they are here to count the sections that are loaded or not.
 
     @SubscribeEvent
@@ -138,8 +138,17 @@ public class PhysicsSaveManager {
     }
 
     public static void serverStarted(@NotNull MinecraftServer server) {
+        serverInstance = server;
         for (ServerLevel level : server.getAllLevels()) {
             worldDataMap.put(level.dimension(), PhysicsWorldData.loadData(level));
         }
     }
+
+    public static Iterable<ServerLevel> getServers(){
+        if (serverInstance!=null){
+            return serverInstance.getAllLevels();
+        }
+        return List.of();
+    }
+
 }
