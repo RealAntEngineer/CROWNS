@@ -56,7 +56,7 @@ public class AirCurrentMixin {
 
         BlockPos fanPos = source.getAirCurrentPos(); // fan block itself
         SectionPos startSection = SectionPos.of(fanPos);
-        TemperatureDataLayer sTempLayer = data.getLayer(DataLayerType.TEMPERATURE, startSection.asLong());
+        TemperatureDataLayer sTempLayer = data.getLayer(startSection.asLong(), DataLayerType.TEMPERATURE);
         if (sTempLayer == null) return;
 
         double streamTemp = sTempLayer.get(fanPos.getX() & 15, fanPos.getY() & 15, fanPos.getZ() & 15);
@@ -68,8 +68,8 @@ public class AirCurrentMixin {
             if (!world.isLoaded(pos)) break;
 
             SectionPos section = SectionPos.of(pos);
-            TemperatureDataLayer tempLayer = data.getLayer(DataLayerType.TEMPERATURE, section.asLong());
-            ConductionDataLayer condLayer = data.getLayer(DataLayerType.CONDUCTION, section.asLong());
+            TemperatureDataLayer tempLayer = data.getLayer(section.asLong(), DataLayerType.TEMPERATURE);
+            ConductionDataLayer condLayer = data.getLayer(section.asLong(), DataLayerType.CONDUCTION);
             if (tempLayer == null || condLayer == null) continue;
 
             int rx = pos.getX() & 15;
@@ -86,8 +86,8 @@ public class AirCurrentMixin {
                 if (!world.isLoaded(neighbor)) continue;
 
                 SectionPos nSection = SectionPos.of(neighbor);
-                TemperatureDataLayer nTempLayer = data.getLayer(DataLayerType.TEMPERATURE, nSection.asLong());
-                ConductionDataLayer nCondLayer = data.getLayer(DataLayerType.CONDUCTION, nSection.asLong());
+                TemperatureDataLayer nTempLayer = data.getLayer(nSection.asLong(), DataLayerType.TEMPERATURE);
+                ConductionDataLayer nCondLayer = data.getLayer(nSection.asLong(), DataLayerType.CONDUCTION);
                 if (nTempLayer == null || nCondLayer == null) continue;
 
                 int nrx = neighbor.getX() & 15;

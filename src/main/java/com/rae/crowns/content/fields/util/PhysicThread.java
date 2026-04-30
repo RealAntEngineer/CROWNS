@@ -1,5 +1,6 @@
 package com.rae.crowns.content.fields.util;
 
+import com.rae.crowns.content.fields.temperature.MatrixTemperatureTicker;
 import com.rae.crowns.content.fields.temperature.TemperatureTicker;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -66,6 +67,7 @@ public class PhysicThread extends Thread {
 
         PhysicsWorldData data = PhysicsSaveManager.get(serverLevel);
         if (data == null) return;
+        data.setCurrentTime((int) serverLevel.getGameTime());
         data.initialise(serverLevel);
         data.updateChangedBlocks(serverLevel);
         //this is too long... do the gathering of section to tick every few iteration (10 ticks ?)
@@ -83,7 +85,7 @@ public class PhysicThread extends Thread {
             }
         }
 
-        TemperatureTicker.tick(toTick, data);
+        MatrixTemperatureTicker.tick(toTick, data);
         //RANSTicker.tick(toTick, data);
 
 

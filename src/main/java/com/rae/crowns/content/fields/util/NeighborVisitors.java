@@ -48,7 +48,7 @@ public class NeighborVisitors {
             int dy = ny - y;
             int dz = nz - z;
 
-            AbstractDataLayer nLayer = data.getLayer(layerType, ref.packedSection());
+            AbstractDataLayer nLayer = data.getLayer(ref.packedSection(), layerType);
             if (nLayer == null) return;
 
             float nv = nLayer.get(ref.localX(), ref.localY(), ref.localZ());

@@ -131,7 +131,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) level);
 
             if (data != null && !data
-                    .ticked(SectionPos.of(getBlockPos()).asLong())) return;
+                    .ticked(SectionPos.of(getBlockPos()).asLong(), (int) level.getGameTime())) return;
             if (syncCooldown > 0) {
                 syncCooldown--;
                 if (syncCooldown == 0 && queuedSync)

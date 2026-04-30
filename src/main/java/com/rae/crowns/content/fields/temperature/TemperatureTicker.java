@@ -58,10 +58,10 @@ public final class TemperatureTicker {
             int sz = pos.getZ() >> 4;
             long packedSection = packSection(sx, sy, sz);
 
-            TemperatureDataLayer temperatureData = data.getLayer(DataLayerType.TEMPERATURE, packedSection);
-            TemperatureDataLayer defaultTemperatureData = data.getLayer(DataLayerType.DEFAULT_TEMPERATURE, packedSection);
-            ConductionDataLayer conductionData = data.getLayer(DataLayerType.CONDUCTION, packedSection);
-            ResilienceDataLayer resilienceData = data.getLayer(DataLayerType.RESILIENCE, packedSection);
+            TemperatureDataLayer temperatureData = data.getLayer(packedSection, DataLayerType.TEMPERATURE);
+            TemperatureDataLayer defaultTemperatureData = data.getLayer(packedSection, DataLayerType.DEFAULT_TEMPERATURE);
+            ConductionDataLayer conductionData = data.getLayer(packedSection, DataLayerType.CONDUCTION);
+            ResilienceDataLayer resilienceData = data.getLayer(packedSection, DataLayerType.RESILIENCE);
 
             boolean corrupted = false;
 
@@ -192,8 +192,8 @@ public final class TemperatureTicker {
             float neighborTemp;
             float neighborCond;
             if (ref.packedSection() != ctx.packedSectionPos()) {
-                TemperatureDataLayer nTempLayer = data.getLayer(DataLayerType.TEMPERATURE, ref.packedSection());
-                ConductionDataLayer nCondLayer = data.getLayer(DataLayerType.CONDUCTION, ref.packedSection());
+                TemperatureDataLayer nTempLayer = data.getLayer(ref.packedSection(), DataLayerType.TEMPERATURE);
+                ConductionDataLayer nCondLayer = data.getLayer(ref.packedSection(), DataLayerType.CONDUCTION);
 
                 if (nTempLayer == null || nCondLayer == null)
                     return;
