@@ -1,6 +1,6 @@
 package com.rae.crowns.content.fields.util;
 
-import com.rae.crowns.content.fields.temperature.UnifiedMatrixTemperatureTicker;
+import com.rae.crowns.content.fields.temperature.MatrixTemperatureTicker;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -84,7 +84,7 @@ public class PhysicThread extends Thread {
             }
         }
 
-        UnifiedMatrixTemperatureTicker.tick(toTick, data);
+        MatrixTemperatureTicker.tick(toTick, data);
         //RANSTicker.tick(toTick, data);
 
 

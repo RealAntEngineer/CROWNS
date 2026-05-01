@@ -4,7 +4,7 @@ import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.temperature.ConductionDataLayer;
 import com.rae.crowns.content.fields.temperature.ResilienceDataLayer;
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
-import com.rae.crowns.content.fields.temperature.UnifiedMatrixTemperatureTicker;
+import com.rae.crowns.content.fields.temperature.MatrixTemperatureTicker;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.init.data.PacketInit;
 import it.unimi.dsi.fastutil.longs.*;
@@ -51,7 +51,7 @@ public class PhysicsWorldData extends SavedData {
 
     //matrix
 
-    private UnifiedMatrixTemperatureTicker.ThermalMatrix cachedMatrix;
+    private MatrixTemperatureTicker.ThermalMatrix cachedMatrix;
 
     public static @NotNull PhysicsWorldData loadData(@NotNull ServerLevel server) {
         return server.getDataStorage()
@@ -604,11 +604,11 @@ public class PhysicsWorldData extends SavedData {
         return collector;
     }
 
-    public UnifiedMatrixTemperatureTicker.ThermalMatrix getCachedMatrix() {
+    public MatrixTemperatureTicker.ThermalMatrix getCachedMatrix() {
         return cachedMatrix;
     }
 
-    public void setCachedMatrix(UnifiedMatrixTemperatureTicker.ThermalMatrix newMatrix) {
+    public void setCachedMatrix(MatrixTemperatureTicker.ThermalMatrix newMatrix) {
         this.cachedMatrix = newMatrix;
     }
 

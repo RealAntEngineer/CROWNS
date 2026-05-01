@@ -4,7 +4,6 @@ import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.fields.util.PosPackingUtil;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
-import com.rae.formicapi.fondation.math.solvers.ConjugateGradient;
 import com.rae.formicapi.fondation.math.solvers.LeastSquare;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
@@ -21,7 +20,7 @@ import java.util.*;
  * Builds a single unified CSR matrix for ALL ticking sections at once.
  * Only rebuilds when sections are added/removed/modified.
  */
-public final class UnifiedMatrixTemperatureTicker {
+public final class MatrixTemperatureTicker {
     private static final int[][] OFFSETS     = new int[][]{
             {1, 0, 0}, {-1, 0, 0},
             {0, 1, 0}, {0, -1, 0},
@@ -563,7 +562,7 @@ public final class UnifiedMatrixTemperatureTicker {
         float defaultTemp = defaultTempLayer.get(x, y, z);
 
         double gamma = DT / CAPACITY;
-        double beta  = 1000.0 * DT / CAPACITY;
+        double beta  = 1000.0 * gamma;
 
         // Update source
         b[globalIdx] = res * beta * defaultTemp;
