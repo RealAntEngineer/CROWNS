@@ -5,6 +5,7 @@ import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.fields.util.PosPackingUtil;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.formicapi.fondation.math.solvers.ConjugateGradient;
+import com.rae.formicapi.fondation.math.solvers.LeastSquare;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.longs.*;
@@ -27,9 +28,8 @@ public final class UnifiedMatrixTemperatureTicker {
             {0, 0, 1}, {0, 0, -1}
     };        // 6 directions: +x, -x, +y, -y, +z, -z
 
-    public static        int     TICK_PERIOD = 1;
-    public static        float   DT          = TICK_PERIOD / 20f;
-    public static        float   CAPACITY    = 3e5f;
+    public static        float   DT          = 1 / 20f;
+    public static        float   CAPACITY    = 3e4f;
 
     public static void tick(@NotNull LongSet tickingSections, @NotNull PhysicsWorldData data) {
         data.resetTicked();
@@ -49,11 +49,11 @@ public final class UnifiedMatrixTemperatureTicker {
             rhs[i] += thermalMatrix.b[i];
         }
 
-        double[] solution = ConjugateGradient.solve(
+        double[] solution = LeastSquare.solve(
                 thermalMatrix.matrix,
                 rhs,
-                50,
-                1e-6f
+                200,
+                1e-1f
         );
 
         System.arraycopy(solution, 0, thermalMatrix.T_next, 0, solution.length);
@@ -204,7 +204,9 @@ public final class UnifiedMatrixTemperatureTicker {
                 row.put(neighbor.globalIndex(), condCoeff);
                 diagCoeff -= condCoeff;
             } else {
+                // FIXED: boundary term only affects RHS, NOT diagonal
                 b[globalIdx] += condCoeff * neighbor.temperature();
+                // DO NOT add to diagCoeff here!
             }
         }
 
@@ -405,27 +407,32 @@ public final class UnifiedMatrixTemperatureTicker {
                             int localIdx  = index3DTo1D(x, y, z);
                             int globalIdx = sectionStartIdx + localIdx;
 
-                            float selfCond = condLayer.get(x, y, z);
-                            float res      = resLayer.get(x, y, z);
+                            // Check if any neighbors cross into newly added sections
+                            boolean needsUpdate = false;
+                            for (int[] offset : OFFSETS) {
+                                int nx = x + offset[0];
+                                int ny = y + offset[1];
+                                int nz = z + offset[2];
 
-                            double gamma = DT / CAPACITY;
-                            double beta  = 1000.0 * DT / CAPACITY;
+                                if (nx >= 0 && nx < 16 && ny >= 0 && ny < 16 && nz >= 0 && nz < 16) {
+                                    continue; // Same section
+                                }
 
-                            Int2DoubleMap newRow    = new Int2DoubleOpenHashMap();
-                            double        diagCoeff = 1.0 - res * beta;
+                                int worldX = existingPos.minBlockX() + nx;
+                                int worldY = existingPos.minBlockY() + ny;
+                                int worldZ = existingPos.minBlockZ() + nz;
 
-                            processNeighborsForRow(
-                                    x, y, z,
-                                    existingPos, existingSection, sectionStartIdx,
-                                    selfCond, res, gamma,
-                                    globalIdx,
-                                    neighbors,
-                                    newRow,
-                                    b,
-                                    diagCoeff
-                            );
+                                long nSection = SectionPos.asLong(worldX >> 4, worldY >> 4, worldZ >> 4);
 
-                            matrix.updateRow(globalIdx, newRow);
+                                if (addedSections.contains(nSection)) {
+                                    needsUpdate = true;
+                                    break;
+                                }
+                            }
+
+                            if (needsUpdate) {
+                                updateVoxelRow(x, y, z, existingSection, existingPos, sectionStartIdx, matrix, b, data, neighbors);
+                            }
                         }
                     }
                 }
@@ -434,14 +441,14 @@ public final class UnifiedMatrixTemperatureTicker {
     }
 
     /**
-     * Find which section an index belongs to
+     * Helper to find which section an index belongs to
      */
-    private static long findSectionForIndex(int globalIdx, Long2IntMap sectionToIndex) {
+    private static long findSectionForIndex(int index, Long2IntMap sectionToIndex) {
         for (Long2IntMap.Entry entry : sectionToIndex.long2IntEntrySet()) {
-            long section  = entry.getLongKey();
             int  startIdx = entry.getIntValue();
+            long section  = entry.getLongKey();
 
-            if (globalIdx >= startIdx && globalIdx < startIdx + 4096) {
+            if (index >= startIdx && index < startIdx + 4096) {
                 return section;
             }
         }
@@ -449,8 +456,7 @@ public final class UnifiedMatrixTemperatureTicker {
     }
 
     /**
-     * Build a single unified matrix for all ticking sections.
-     * Maps section indices to global matrix indices for efficient lookup.
+     * Build the unified matrix for all ticking sections at once
      */
     private static ThermalMatrix buildUnifiedMatrix(@NotNull LongSet tickingSections, @NotNull PhysicsWorldData data) {
         if (tickingSections.isEmpty()) {
@@ -465,42 +471,45 @@ public final class UnifiedMatrixTemperatureTicker {
             );
         }
 
-        // Build section index map: section position -> starting index in global vector
+        // Sort sections for consistent indexing
+        LongList sortedSections = new LongArrayList(tickingSections);
+        sortedSections.sort(null);
+
+        int totalNodes = sortedSections.size() * 4096; // 16x16x16 voxels per section
+
+        // Build section → start index map
         Long2IntMap sectionToIndex = new Long2IntOpenHashMap();
         sectionToIndex.defaultReturnValue(-1);
 
-        LongList sortedSections = new LongArrayList(tickingSections);
-        sortedSections.sort(null); // Sort for consistency
-
-        int globalIndex = 0;
+        int currentIndex = 0;
         for (long section : sortedSections) {
-            sectionToIndex.put(section, globalIndex);
-            globalIndex += 4096; // 16^3 nodes per section
+            sectionToIndex.put(section, currentIndex);
+            currentIndex += 4096;
         }
 
-        int              totalSize     = globalIndex;
-        MutableCSRMatrix matrixBuilder = new MutableCSRMatrix(totalSize, totalSize);
-        double[]         b             = new double[totalSize];
+        // Create data structures
+        MutableCSRMatrix matrix = new MutableCSRMatrix(totalNodes, totalNodes);
+        double[]         b      = new double[totalNodes];
 
-        // Build matrix for each section
+        // Build matrix contributions for each section
         for (long packedSection : sortedSections) {
             int sectionStartIdx = sectionToIndex.get(packedSection);
-            buildSectionContribution(packedSection, sectionStartIdx, sectionToIndex, matrixBuilder, b, data);
+            buildSectionContribution(packedSection, sectionStartIdx, sectionToIndex, matrix, b, data);
         }
 
         return new ThermalMatrix(
                 new LongOpenHashSet(tickingSections),
                 sectionToIndex,
-                matrixBuilder,
+                matrix,
                 b,
-                new double[totalSize], // T_current
-                new double[totalSize], // T_next
-                totalSize
+                new double[totalNodes],
+                new double[totalNodes],
+                totalNodes
         );
     }
 
     /**
-     * Build the matrix contribution for a single section, handling cross-section boundaries.
+     * Build the matrix contribution for a single section
      */
     private static void buildSectionContribution(
             long packedSection,
@@ -511,70 +520,59 @@ public final class UnifiedMatrixTemperatureTicker {
             PhysicsWorldData data
     ) {
         SectionPos sectionPos = SectionPos.of(packedSection);
-
-        // Load layers
-        TemperatureDataLayer defaultTempLayer = data.getLayer(packedSection, DataLayerType.DEFAULT_TEMPERATURE);
-        ConductionDataLayer  condLayer        = data.getLayer(packedSection, DataLayerType.CONDUCTION);
-        ResilienceDataLayer  resLayer         = data.getLayer(packedSection, DataLayerType.RESILIENCE);
-
-        if (defaultTempLayer == null || condLayer == null || resLayer == null) {
-            // Set identity for missing data
-            for (int i = 0; i < 4096; i++) {
-                matrix.set(sectionStartIdx + i, sectionStartIdx + i, 1.0);
-            }
-            return;
-        }
-
-        // Pre-load neighbor sections for boundary handling
+        // Preload neighbor data
         NeighborCache neighbors = new NeighborCache(sectionPos, data, sectionToIndex);
 
-        // Build matrix row by row
+        // Build voxel rows
         for (int z = 0; z < 16; z++) {
             for (int y = 0; y < 16; y++) {
                 for (int x = 0; x < 16; x++) {
-                    int localIdx  = index3DTo1D(x, y, z);
-                    int globalIdx = sectionStartIdx + localIdx;
+                    updateVoxelRow(x, y, z, packedSection, sectionPos, sectionStartIdx, matrix, b, data, neighbors);
 
-                    float selfCond    = condLayer.get(x, y, z);
-                    float res         = resLayer.get(x, y, z);
-                    float defaultTemp = defaultTempLayer.get(x, y, z);
-
-                    double gamma = DT / CAPACITY;
-                    double beta  = 1000.0 * DT / CAPACITY;
-
-                    double diagCoeff = 1.0 - res * beta;
-                    b[globalIdx] = res * beta * defaultTemp;
-
-                    // Process 6 neighbors
-                    processNeighbors(
-                            x, y, z,
-                            sectionPos, packedSection, sectionStartIdx,
-                            selfCond, res, gamma,
-                            globalIdx,
-                            neighbors,
-                            matrix,
-                            b
-                    );
-
-                    // Set diagonal after accumulating neighbor contributions
-                    matrix.set(globalIdx, globalIdx, diagCoeff);
                 }
             }
         }
     }
 
     /**
-     * Process all 6 neighbors for a voxel, handling both same-section and cross-section cases.
+     * Update a single voxel row in the matrix
      */
-    private static void processNeighbors(
+    private static boolean updateVoxelRow(
             int x, int y, int z,
-            SectionPos sectionPos, long packedSection, int sectionStartIdx,
-            float selfCond, float res, double gamma,
-            int globalIdx,
-            NeighborCache neighbors,
+            long packedSection,
+            SectionPos sectionPos,
+            int sectionStartIdx,
             MutableCSRMatrix matrix,
-            double[] b
+            double[] b,
+            PhysicsWorldData data,
+            NeighborCache neighbors
     ) {
+        TemperatureDataLayer defaultTempLayer = data.getLayer(packedSection, DataLayerType.DEFAULT_TEMPERATURE);
+        ConductionDataLayer  condLayer        = data.getLayer(packedSection, DataLayerType.CONDUCTION);
+        ResilienceDataLayer  resLayer         = data.getLayer(packedSection, DataLayerType.RESILIENCE);
+
+        if (defaultTempLayer == null || condLayer == null || resLayer == null) {
+            return false;
+        }
+
+        int localIdx  = index3DTo1D(x, y, z);
+        int globalIdx = sectionStartIdx + localIdx;
+
+        float selfCond    = condLayer.get(x, y, z);
+        float res         = resLayer.get(x, y, z);
+        float defaultTemp = defaultTempLayer.get(x, y, z);
+
+        double gamma = DT / CAPACITY;
+        double beta  = 1000.0 * DT / CAPACITY;
+
+        // Update source
+        b[globalIdx] = res * beta * defaultTemp;
+
+        // Build new row
+        Int2DoubleMap newRow = new Int2DoubleOpenHashMap();
+        newRow.defaultReturnValue(0.0);
+
+        double diag = 1.0 + res * beta;
 
         for (int[] offset : OFFSETS) {
             int nx = x + offset[0];
@@ -583,25 +581,30 @@ public final class UnifiedMatrixTemperatureTicker {
 
             NeighborInfo neighbor = getNeighborInfo(nx, ny, nz, sectionPos, packedSection, sectionStartIdx, neighbors);
 
-            if (neighbor == null) continue; // Neighbor not loaded
+            if (neighbor == null) continue;
 
-            float  b1        = neighbor.conductivity();
-            double k_eff     = (selfCond <= 0 || b1 <= 0) ? 0.0 : 2.0 * selfCond * b1 / (selfCond + b1);
+            float  neighborCond = neighbor.conductivity();
+            double k_eff        = (selfCond <= 0 || neighborCond <= 0)
+                    ? 0.0
+                    : 2.0 * selfCond * neighborCond / (selfCond + neighborCond);
+
             double condCoeff = (1.0 - res) * gamma * k_eff;
 
             if (neighbor.isInMatrix()) {
-                // Neighbor is in the global matrix - add off-diagonal entry
-                matrix.add(globalIdx, neighbor.globalIndex(), condCoeff);
-
-                // Subtract from diagonal (we'll set it after the loop)
-                double currentDiag = matrix.get(globalIdx, globalIdx);
-                matrix.set(globalIdx, globalIdx, currentDiag - condCoeff);
+                newRow.put(neighbor.globalIndex(), -condCoeff);
+                diag += condCoeff;
             } else {
-                // Neighbor is outside ticking sections - treat as boundary condition
-                // Add flux contribution to source vector
+
                 b[globalIdx] += condCoeff * neighbor.temperature();
+                diag += condCoeff;
             }
         }
+
+        newRow.put(globalIdx, diag);
+
+        matrix.updateRow(globalIdx, newRow);
+
+        return true;
     }
 
     /**
@@ -696,7 +699,7 @@ public final class UnifiedMatrixTemperatureTicker {
         }
 
         boolean       allSuccess         = true;
-        Set<BlockPos> needNeighborUpdate = new HashSet<>(positions);
+        Set<BlockPos> needNeighborUpdate = new HashSet<>();
 
         // Stamp all primary voxels
         for (Map.Entry<Long, List<BlockPos>> entry : bySection.entrySet()) {
@@ -711,12 +714,16 @@ public final class UnifiedMatrixTemperatureTicker {
                 if (!stampVoxel(pos, data)) {
                     allSuccess = false;
                 } else {
-                    // Mark neighbors for update
+                    // FIXED: Mark neighbors for update (but don't duplicate the stamped position itself)
                     for (int dx = -1; dx <= 1; dx++) {
                         for (int dy = -1; dy <= 1; dy++) {
                             for (int dz = -1; dz <= 1; dz++) {
                                 if (dx == 0 && dy == 0 && dz == 0) continue;
-                                needNeighborUpdate.add(pos.offset(dx, dy, dz));
+                                BlockPos neighborPos = pos.offset(dx, dy, dz);
+                                // Only add if it's not in the positions list (avoid duplication)
+                                if (!positions.contains(neighborPos)) {
+                                    needNeighborUpdate.add(neighborPos);
+                                }
                             }
                         }
                     }
@@ -725,11 +732,9 @@ public final class UnifiedMatrixTemperatureTicker {
         }
 
         // Update neighbor rows (they reference the stamped voxels)
+        // No need to check if already stamped since we filtered them out above
         for (BlockPos neighborPos : needNeighborUpdate) {
-            if (!positions.contains(neighborPos)) {
-                // Only update if not already stamped
-                stampVoxel(neighborPos, data);
-            }
+            stampVoxel(neighborPos, data);
         }
 
         return allSuccess;
@@ -749,12 +754,11 @@ public final class UnifiedMatrixTemperatureTicker {
             return false; // No matrix to stamp into
         }
 
-        int  sx            = pos.getX() >> 4;
-        int  sy            = pos.getY() >> 4;
-        int  sz            = pos.getZ() >> 4;
+        int sx = pos.getX() >> 4;
+        int sy = pos.getY() >> 4;
+        int sz = pos.getZ() >> 4;
         long packedSection = SectionPos.asLong(sx, sy, sz);
 
-        // Check if this section is in the matrix
         int sectionStartIdx = matrix.sectionToIndex.get(packedSection);
         if (sectionStartIdx < 0) {
             return false; // Section not in matrix, needs rebuild
@@ -762,70 +766,10 @@ public final class UnifiedMatrixTemperatureTicker {
 
         SectionPos sectionPos = SectionPos.of(packedSection);
 
-        // Load data
-        TemperatureDataLayer defaultTempLayer = data.getLayer(packedSection, DataLayerType.DEFAULT_TEMPERATURE);
-        ConductionDataLayer  condLayer        = data.getLayer(packedSection, DataLayerType.CONDUCTION);
-        ResilienceDataLayer  resLayer         = data.getLayer(packedSection, DataLayerType.RESILIENCE);
-
-        if (defaultTempLayer == null || condLayer == null || resLayer == null) {
-            return false;
-        }
-
-        int lx = pos.getX() & 15;
-        int ly = pos.getY() & 15;
-        int lz = pos.getZ() & 15;
-
-        int localIdx  = index3DTo1D(lx, ly, lz);
-        int globalIdx = sectionStartIdx + localIdx;
-
-        // Get voxel properties
-        float selfCond    = condLayer.get(lx, ly, lz);
-        float res         = resLayer.get(lx, ly, lz);
-        float defaultTemp = defaultTempLayer.get(lx, ly, lz);
-
-        // Update source vector
-        double beta  = 1000.0 * DT / CAPACITY;
-        double gamma = DT / CAPACITY;
-
-        // ---- RHS: source only ----
-        matrix.b[globalIdx] = res * beta * defaultTemp;
-
-        Int2DoubleMap newRow = new Int2DoubleOpenHashMap();
-        newRow.defaultReturnValue(0.0);
-
-        // ---- implicit diagonal ----
-        double diagCoeff = 1.0 + res * beta;
-
         NeighborCache neighbors = new NeighborCache(sectionPos, data, matrix.sectionToIndex);
 
-        for (int[] offset : OFFSETS) {
-            int nx = lx + offset[0];
-            int ny = ly + offset[1];
-            int nz = lz + offset[2];
-
-            NeighborInfo neighbor = getNeighborInfo(nx, ny, nz, sectionPos, packedSection, sectionStartIdx, neighbors);
-            if (neighbor == null) continue;
-
-            float  cond = neighbor.conductivity();
-            double k_eff = (selfCond <= 0 || cond <= 0) ? 0.0 : 2.0 * selfCond * cond / (selfCond + cond);
-
-            double coeff = gamma * k_eff;
-
-            if (neighbor.isInMatrix()) {
-                // implicit coupling
-                newRow.put(neighbor.globalIndex(), -coeff);
-                diagCoeff += coeff;
-            } else {
-                // boundary contribution to RHS
-                matrix.b[globalIdx] += coeff * neighbor.temperature();
-            }
-        }
-
-        newRow.put(globalIdx, diagCoeff);
-
-        matrix.matrix.updateRow(globalIdx, newRow);
-
-        return true;
+        return updateVoxelRow(pos.getX(), pos.getY(), pos.getZ(),
+                packedSection, sectionPos, sectionStartIdx, matrix.matrix(), matrix.b, data, neighbors);
     }
 
     private static int index3DTo1D(int x, int y, int z) {
