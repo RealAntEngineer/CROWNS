@@ -48,6 +48,9 @@ public class PhysicsWorldData extends SavedData {
     private final LongSet                          nearDynamicSections = new LongOpenHashSet();//recomputed
     private              int                                                      currentTime     = -1;//recomputed
 
+
+    //matrix
+
     private UnifiedMatrixTemperatureTicker.ThermalMatrix cachedMatrix;
 
     public static @NotNull PhysicsWorldData loadData(@NotNull ServerLevel server) {
