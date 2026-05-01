@@ -47,6 +47,6 @@ public class ServerEvents {
     public static void onServerStarted(@NotNull ServerStartedEvent event) {
         SteamFlowManager.serverStarted(event.getServer());
         PhysicsSaveManager.serverStarted(event.getServer());
-        PhysicThread.launchPhysicThread((double) 1 /TemperatureTicker.TICK_PERIOD);
+        PhysicThread.launchPhysicThread((double) 1 /TemperatureTicker.DT);
     }
 }

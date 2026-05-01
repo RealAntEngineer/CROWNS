@@ -4,6 +4,7 @@ import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.fields.util.PosPackingUtil;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
+import com.rae.formicapi.fondation.math.solvers.ConjugateGradient;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.longs.*;
@@ -20,34 +21,44 @@ import java.util.*;
  * Only rebuilds when sections are added/removed/modified.
  */
 public final class UnifiedMatrixTemperatureTicker {
-    public static int   TICK_PERIOD = 1;
-    public static float DT          = TICK_PERIOD / 20f;
-    public static float CAPACITY    = 3e5f;
+    private static final int[][] OFFSETS     = new int[][]{
+            {1, 0, 0}, {-1, 0, 0},
+            {0, 1, 0}, {0, -1, 0},
+            {0, 0, 1}, {0, 0, -1}
+    };        // 6 directions: +x, -x, +y, -y, +z, -z
+
+    public static        int     TICK_PERIOD = 1;
+    public static        float   DT          = TICK_PERIOD / 20f;
+    public static        float   CAPACITY    = 3e5f;
 
     public static void tick(@NotNull LongSet tickingSections, @NotNull PhysicsWorldData data) {
         data.resetTicked();
         updateDynamicData(data);
 
-        // Get or build unified matrix
         ThermalMatrix thermalMatrix = getOrBuildMatrix(tickingSections, data);
         if (thermalMatrix == null || thermalMatrix.size == 0) {
             return;
         }
 
-        // Extract current temperatures
         extractAllTemperatures(thermalMatrix, data);
 
-        // Perform single matrix-vector multiply: T_next = A·T_current + b
-        thermalMatrix.matrix.multiply(thermalMatrix.T_current, thermalMatrix.T_next);
+        double[] rhs = Arrays.copyOf(thermalMatrix.T_current, thermalMatrix.size);;
 
-        // Add source vector
+        // add source term (DO NOT rebuild boundary or diffusion here)
         for (int i = 0; i < thermalMatrix.size; i++) {
-            thermalMatrix.T_next[i] += thermalMatrix.b[i];
+            rhs[i] += thermalMatrix.b[i];
         }
 
-        // Write back and check for changes
-        writeBackAllTemperatures(thermalMatrix, data);
+        double[] solution = ConjugateGradient.solve(
+                thermalMatrix.matrix,
+                rhs,
+                50,
+                1e-6f
+        );
 
+        System.arraycopy(solution, 0, thermalMatrix.T_next, 0, solution.length);
+
+        writeBackAllTemperatures(thermalMatrix, data);
         data.setDirty();
     }
 
@@ -59,7 +70,9 @@ public final class UnifiedMatrixTemperatureTicker {
 
         if (cached == null) {
             // No cache - build from scratch
-            return buildUnifiedMatrix(tickingSections, data);
+            cached = buildUnifiedMatrix(tickingSections, data);
+            data.setCachedMatrix(cached);
+            return cached;
         }
 
         // Check what changed
@@ -562,14 +575,8 @@ public final class UnifiedMatrixTemperatureTicker {
             MutableCSRMatrix matrix,
             double[] b
     ) {
-        // 6 directions: +x, -x, +y, -y, +z, -z
-        int[][] offsets = {
-                {1, 0, 0}, {-1, 0, 0},
-                {0, 1, 0}, {0, -1, 0},
-                {0, 0, 1}, {0, 0, -1}
-        };
 
-        for (int[] offset : offsets) {
+        for (int[] offset : OFFSETS) {
             int nx = x + offset[0];
             int ny = y + offset[1];
             int nz = z + offset[2];
@@ -777,53 +784,45 @@ public final class UnifiedMatrixTemperatureTicker {
         float defaultTemp = defaultTempLayer.get(lx, ly, lz);
 
         // Update source vector
-        double beta = 1000.0 * DT / CAPACITY;
+        double beta  = 1000.0 * DT / CAPACITY;
+        double gamma = DT / CAPACITY;
+
+        // ---- RHS: source only ----
         matrix.b[globalIdx] = res * beta * defaultTemp;
 
-        // Build new row for this voxel
         Int2DoubleMap newRow = new Int2DoubleOpenHashMap();
         newRow.defaultReturnValue(0.0);
 
-        double gamma     = DT / CAPACITY;
-        double diagCoeff = 1.0 - res * beta;
+        // ---- implicit diagonal ----
+        double diagCoeff = 1.0 + res * beta;
 
-        // Preload neighbor cache
         NeighborCache neighbors = new NeighborCache(sectionPos, data, matrix.sectionToIndex);
 
-        // Process 6 neighbors
-        int[][] offsets = {
-                {1, 0, 0}, {-1, 0, 0},
-                {0, 1, 0}, {0, -1, 0},
-                {0, 0, 1}, {0, 0, -1}
-        };
-
-        for (int[] offset : offsets) {
+        for (int[] offset : OFFSETS) {
             int nx = lx + offset[0];
             int ny = ly + offset[1];
             int nz = lz + offset[2];
 
             NeighborInfo neighbor = getNeighborInfo(nx, ny, nz, sectionPos, packedSection, sectionStartIdx, neighbors);
-
             if (neighbor == null) continue;
 
-            float  b         = neighbor.conductivity();
-            double k_eff     = (selfCond <= 0 || b <= 0) ? 0.0 : 2.0 * selfCond * b / (selfCond + b);
-            double condCoeff = (1.0 - res) * gamma * k_eff;
+            float  cond = neighbor.conductivity();
+            double k_eff = (selfCond <= 0 || cond <= 0) ? 0.0 : 2.0 * selfCond * cond / (selfCond + cond);
+
+            double coeff = gamma * k_eff;
 
             if (neighbor.isInMatrix()) {
-                // Neighbor is in matrix - add off-diagonal entry
-                newRow.put(neighbor.globalIndex(), condCoeff);
-                diagCoeff -= condCoeff;
+                // implicit coupling
+                newRow.put(neighbor.globalIndex(), -coeff);
+                diagCoeff += coeff;
             } else {
-                // Boundary condition - update source vector
-                matrix.b[globalIdx] += condCoeff * neighbor.temperature();
+                // boundary contribution to RHS
+                matrix.b[globalIdx] += coeff * neighbor.temperature();
             }
         }
 
-        // Set diagonal
         newRow.put(globalIdx, diagCoeff);
 
-        // Update the matrix row
         matrix.matrix.updateRow(globalIdx, newRow);
 
         return true;
@@ -955,9 +954,8 @@ public final class UnifiedMatrixTemperatureTicker {
      * @param T_next         Work buffer for next temps
      * @param size           Total number of nodes
      */
-        public record ThermalMatrix(LongSet sections, Long2IntMap sectionToIndex, MutableCSRMatrix matrix, double[] b,
-                                    double[] T_current, double[] T_next, int size) {
-
+    public record ThermalMatrix(LongSet sections, Long2IntMap sectionToIndex, MutableCSRMatrix matrix, double[] b,
+                                double[] T_current, double[] T_next, int size) {
     }
 
     /**
