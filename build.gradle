@@ -130,9 +130,23 @@ repositories {
         url = "https://modmaven.dev"
     }
 
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+
     maven {
-        name = "Modrinth"
-        url = "https://api.modrinth.com/maven"
+        url = "https://maven.squiddev.cc"
+        content {
+            includeGroup("cc.tweaked")
+        }
     }
 
     //curios
@@ -142,6 +156,11 @@ repositories {
     maven { url = 'https://jitpack.io' }
 
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // ForgeConfigAPIPort
+
+    maven {
+        url = "https://maven.ryanhcode.dev/releases"
+        name = "RyanHCode Maven"
+    }
 
 }
 
@@ -161,6 +180,8 @@ dependencies {
     // it's that way right now because the jitpack isn't setup correctly for formicapi 1.21.1 (need to correct jarjar)
     implementation('com.rae.formicapi:FormicAPI:1.21.1-2.2.5')//local
     //implementation "com.github.RealAntEngineer:FormicAPI:v${minecraft_version}-${formicapi_version}"//jitpack
+    implementation "dev.simulated_team.simulated:simulated-neoforge-1.21.1:1.2.1"
+
 
 }
 
@@ -216,36 +237,4 @@ idea {
         downloadSources = true
         downloadJavadoc = true
     }
-}
-
-tasks.register("generateTodoReport") {
-    description = "Scans source files and generates a TODO.md file."
-    group = "documentation"
-}.configure {
-        def sourceDirs = [
-                file("src/main/java"),
-                file("src/main/resources"),
-                file("src/main/kotlin")
-        ]
-
-        def outputFile = file("TODO.md")
-        outputFile.parentFile.mkdirs()
-        outputFile.text = "# TODO Report\n\n"
-
-        sourceDirs.each { dir ->
-            if (!dir.exists()) return
-            fileTree(dir).matching {
-                include '**/*.java', '**/*.kt', '**/*.scala', '**/*.txt', '**/*.mcfunction'
-            }.each { file ->
-                def lines = file.readLines()
-                lines.eachWithIndex { line, i ->
-                    if (line.contains("TODO")) {
-                        def relativePath = file.path.replaceFirst(/^.*[\\\/]src[\\\/]main/, 'src/main')
-                        outputFile.append("- [${relativePath}:${i + 1}] ${line.trim()}\n")                    }
-                }
-            }
-        }
-
-        println "Generated ${outputFile.path} with collected TODOs."
-
 }
