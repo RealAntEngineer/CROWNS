@@ -5,9 +5,6 @@ import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
 import com.rae.flow.client.FlowParticleData;
 import com.rae.flow.commun.FlowLine;
 import com.rae.formicapi.FormicApiLang;
-import com.rae.formicapi.content.config.FormicAPIConfigs;
-import com.rae.formicapi.fondation.units.IUnit;
-import com.rae.formicapi.fondation.units.Pressure;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import net.createmod.catnip.theme.Color;
 import net.createmod.ponder.api.level.PonderLevel;
@@ -15,7 +12,6 @@ import net.createmod.ponder.api.scene.SceneBuilder;
 import net.createmod.ponder.api.scene.SceneBuildingUtil;
 import net.createmod.ponder.api.scene.Selection;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -165,10 +161,10 @@ public class ThermodynamicsScene {
     }
 
     private static void spawnFlow(
-            PonderLevel world,
-            Vec3 from,
-            Vec3 to,
-            Vec3 spawnPos,
+            @NotNull PonderLevel world,
+            @NotNull Vec3 from,
+            @NotNull Vec3 to,
+            @NotNull Vec3 spawnPos,
             List<Color> colors
     ) {
         FlowLine spline = new FlowLine(
@@ -197,26 +193,17 @@ public class ThermodynamicsScene {
         scene.overlay().showText(20 * 4)
                 .text("At the difference of the turbine the increase in pressure depends on the speed");
 
-        Pressure unit = FormicAPIConfigs.CLIENT.units.pressure.get();
         scene.idleSeconds(8);
         scene.addKeyframe();
         scene.overlay().showText(20 * 15)
                 .text("At 0 rpm it's %s\nAt 64 rpm it's %s\nAt 128 rpm it's %s\nAt 256 rpm it's %s",
-                        "ΔP = 0 " + getUnitSymbol(unit).getString(),
-                        "Δ" + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(64)).string(),
-                        "Δ" + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(128)).string(),
-                        "Δ" + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(256)).string()
+                        "ΔP = " + FormicApiLang.formatPressure(0).string(),
+                        "ΔP = " + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(64)).string(),
+                        "ΔP = " + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(128)).string(),
+                        "ΔP = " + FormicApiLang.formatPressure(CompressorBlockEntity.getPressureDelta(256)).string()
                 );
         scene.markAsFinished();
 
-    }
-
-    private static Component getUnitSymbol(IUnit unit){
-        if (unit instanceof Enum<?> enumUnit) {
-            String unitName = unit.getClass().getSimpleName();
-            return FormicApiLang.translate("units." + unitName.toLowerCase() + ".symbol." + enumUnit.name().toLowerCase()).component();
-        }
-        return Component.empty();
     }
 
 }

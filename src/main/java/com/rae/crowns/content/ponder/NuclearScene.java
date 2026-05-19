@@ -187,7 +187,7 @@ public class NuclearScene {
 
     }
 
-    private static Selection getCircularReactorRing(SceneBuildingUtil util, int radius) {
+    private static @Nullable Selection getCircularReactorRing(@NotNull SceneBuildingUtil util, int radius) {
         // Reactor interior bounds
         int min = 0;
         int max = 4;
