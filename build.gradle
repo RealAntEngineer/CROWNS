@@ -1,9 +1,8 @@
-
 plugins {
     id 'idea'
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.78'
+    id 'net.neoforged.moddev' version '2.0.107'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -15,8 +14,7 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-version = minecraft_version + "_" + mod_version
-
+version = minecraft_version + "-" + mod_version
 group = mod_group_id
 
 
@@ -38,10 +36,8 @@ neoForge {
         minecraftVersion = project.parchment_minecraft_version
     }
 
-    validateAccessTransformers = true
-
     // This line is optional. Access Transformers are automatically detected
-    // accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
+    accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
 
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
@@ -55,7 +51,7 @@ neoForge {
 
         server {
             server()
-            programArgument '--nogui'
+            programArgument ''
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
@@ -90,7 +86,6 @@ neoForge {
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             logLevel = org.slf4j.event.Level.WARN
-
 
         }
     }
@@ -135,17 +130,37 @@ repositories {
         url = "https://modmaven.dev"
     }
 
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+
     maven {
-        name = "Modrinth"
-        url = "https://api.modrinth.com/maven"
+        url = "https://maven.squiddev.cc"
+        content {
+            includeGroup("cc.tweaked")
+        }
     }
 
     //curios
     maven {
         url = "https://maven.theillusivec4.top/"
     }
+    maven { url = 'https://jitpack.io' }
 
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // ForgeConfigAPIPort
+
+    maven {
+        url = "https://maven.ryanhcode.dev/releases"
+        name = "RyanHCode Maven"
+    }
 
 }
 
@@ -161,6 +176,13 @@ dependencies {
     compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
     runtimeOnly("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
 
+    //this is a local maven... you would need to publish it locally for it to work,
+    // it's that way right now because the jitpack isn't setup correctly for formicapi 1.21.1 (need to correct jarjar)
+    implementation('com.rae.formicapi:FormicAPI:1.21.1-2.2.5')//local
+    //implementation "com.github.RealAntEngineer:FormicAPI:v${minecraft_version}-${formicapi_version}"//jitpack
+    implementation "dev.simulated_team.simulated:simulated-neoforge-1.21.1:1.2.1"
+
+
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
@@ -175,7 +197,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             mod_id                 : mod_id,
             mod_name               : mod_name,
             mod_license            : mod_license,
-            mod_version            : minecraft_version + "_"+ mod_version,
+            mod_version            : mod_version,
             mod_authors            : mod_authors,
             mod_description        : mod_description
     ]

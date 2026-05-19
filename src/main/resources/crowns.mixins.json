@@ -1,19 +1,20 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "priority": 1100,
+  "priority": 900,
   "package": "com.rae.crowns.mixin",
   "compatibilityLevel": "JAVA_21",
   "refmap": "crowns.refmap.json",
   "plugin": "com.rae.crowns.mixin.CROWNSMixinPlugin",
   "mixins": [
+    "AirCurrentMixin",
     "BlazeBurnerMixin",
-    "ChunkSerializerMixin",
     "FluidStackMixin",
     "FluidTankMixin",
     "FluidTransportBehaviourMixin",
     "LangMixin",
-    "ServerLevelMixin"
+    "ServerLevelMixin",
+    "SmartBlockEntityMixin"
   ],
   "client": [
   ],

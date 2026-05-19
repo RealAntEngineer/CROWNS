@@ -47,8 +47,8 @@ public enum ParticleTypeInit {
     private static class ParticleEntry<D extends ParticleOptions> {
         private static final DeferredRegister<ParticleType<?>> REGISTER = DeferredRegister.create(Registries.PARTICLE_TYPE, CROWNS.MODID);
 
-        private final String name;
-        private final Supplier<? extends ICustomParticleData<D>> typeFactory;
+        private final String                                           name;
+        private final Supplier<? extends ICustomParticleData<D>>       typeFactory;
         private final DeferredHolder<ParticleType<?>, ParticleType<D>> object;
 
         public ParticleEntry(String name, Supplier<? extends ICustomParticleData<D>> typeFactory) {

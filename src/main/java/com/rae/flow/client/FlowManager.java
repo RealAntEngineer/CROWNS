@@ -2,12 +2,12 @@ package com.rae.flow.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.rae.flow.commun.FlowLine;
-
 import net.createmod.catnip.outliner.Outliner;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,40 +17,42 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @SuppressWarnings("ALL")
 public class FlowManager {
-    private final Map<Object, FlowEntry> flows = Collections.synchronizedMap(new HashMap<>());
     private static FlowManager INSTANCE;
+    private final Map<Object, FlowEntry> flows = Collections.synchronizedMap(new HashMap<>());
 
-    public static FlowManager getINSTANCE() {
+    public static @NotNull FlowManager getINSTANCE() {
         if (INSTANCE == null) {
             INSTANCE = new FlowManager();
 
         }
         return INSTANCE;
     }
-    public void tickFlow(){
+
+    public void tickFlow() {
 
     }
+
     public void renderFlow(PoseStack ms, SuperRenderTypeBuffer buffer, Vec3 camera, float pt) {
         flows.forEach((key, entry) -> {
             FlowLine flow = entry.getFlow();
             List<Color> colors = flow.getColorsAtPoints();
             AtomicBoolean cancelRender = new AtomicBoolean(false);
-            colors.forEach(c-> {
-                        c.setAlpha(1f);
-                        if (entry.isFading()) {
-                            int prevTicks = entry.ticksTillRemoval + 1;
-                            float fadeticks = Outliner.OutlineEntry.FADE_TICKS;
-                            float lastAlpha = prevTicks >= 0 ? 1 : 1 + (prevTicks / fadeticks);
-                            float currentAlpha = 1 + (entry.ticksTillRemoval / fadeticks);
-                            float alpha = Mth.lerp(pt, lastAlpha, currentAlpha);
+            colors.forEach(c -> {
+                c.setAlpha(1f);
+                if (entry.isFading()) {
+                    int prevTicks = entry.ticksTillRemoval + 1;
+                    float fadeticks = Outliner.OutlineEntry.FADE_TICKS;
+                    float lastAlpha = prevTicks >= 0 ? 1 : 1 + (prevTicks / fadeticks);
+                    float currentAlpha = 1 + (entry.ticksTillRemoval / fadeticks);
+                    float alpha = Mth.lerp(pt, lastAlpha, currentAlpha);
 
-                            c.setAlpha( alpha * alpha * alpha);
+                    c.setAlpha(alpha * alpha * alpha);
 
-                            if (c.getAlpha() < 1 / 8f)
-                                cancelRender.set(true);
-                        }
-                    });
-            if (cancelRender.get()){
+                    if (c.getAlpha() < 1 / 8f)
+                        cancelRender.set(true);
+                }
+            });
+            if (cancelRender.get()) {
                 return;
             }
             flow.render(ms, buffer, camera, pt);

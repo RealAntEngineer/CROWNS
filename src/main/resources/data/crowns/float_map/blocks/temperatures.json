@@ -3,7 +3,9 @@
   "values": {
     "minecraft:fire": 700,
     "minecraft:magma_block": 600,
+    "crowns:solid_corium": 500,
     "minecraft:ice": 273,
-    "minecraft:packed_ice": 220
+    "minecraft:packed_ice": 220,
+    "minecraft:blue_ice": 150
   }
 }

@@ -1,13 +1,10 @@
 package com.rae.crowns.mixin;
 
-import com.rae.crowns.content.fields.temperature.TemperatureManager;
-import com.rae.crowns.content.fields.temperature.TemperatureWorldData;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,41 +17,34 @@ public abstract class BlazeBurnerMixin extends SmartBlockEntity implements IHave
         super(type, pos, state);
     }
 
-    @Override
-    public void initialize() {
-        super.initialize();
-        if (level instanceof ServerLevel serverLevel) {
-            TemperatureWorldData data = TemperatureManager.get(serverLevel);
-            if (data != null) {
-                data.putDynamic(getBlockPos(), this);
-            }
-        }
-    }
-
-    @Shadow() public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
+    @Shadow(remap = false)
+    protected abstract BlazeBurnerBlock.HeatLevel getHeatLevel();
 
     @Override
-    public int getThermalCapacity() {
-        return 1000;
-    }
-
-    @Override
-    public int getThermalConductivity() {
+    public float getThermalConductivity() {
         return 100000;
     }
 
     @Override
     public float getTemperature() {
-        return switch (getHeatLevelFromBlock()){
+        return switch (getHeatLevelFromBlock()) {
             case NONE -> 300f;
             case SMOULDERING -> 500F;
-            case FADING -> 900F;
-            case KINDLED -> 1800F;
-            case SEETHING -> 3000F;
+            case FADING -> 600F;
+            case KINDLED -> 1200F;
+            case SEETHING -> 1600F;
         };
     }
 
+    @Shadow(remap = false)
+    public abstract BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock();
+
     @Override
     public void addTemperature(float dT) {
+    }
+
+    @Override
+    public float getThermalCapacity() {
+        return 1000;
     }
 }

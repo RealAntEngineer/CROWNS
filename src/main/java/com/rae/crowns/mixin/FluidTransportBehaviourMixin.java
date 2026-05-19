@@ -1,8 +1,8 @@
 package com.rae.crowns.mixin;
 
-import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
-import com.rae.formicapi.thermal_utilities.helper.WaterAsRealGaz;
 import com.rae.crowns.init.data.DataComponentsInit;
+import com.rae.formicapi.content.thermal_utilities.FullTableBased;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import com.simibubi.create.content.fluids.FluidReactions;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
 import com.simibubi.create.content.fluids.PipeConnection;
@@ -31,22 +31,22 @@ import java.util.function.Predicate;
 public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour {
 
 
-    @Shadow(remap = false) public Map<Direction, PipeConnection> interfaces;
+    @Shadow(remap = false)
+    public Map<Direction, PipeConnection> interfaces;
 
-    @Shadow(remap = false) public FluidTransportBehaviour.UpdatePhase phase;
-
-    @Shadow(remap = false) public abstract boolean canPullFluidFrom(FluidStack fluid, BlockState state, Direction direction);
+    @Shadow(remap = false)
+    public FluidTransportBehaviour.UpdatePhase phase;
 
     public FluidTransportBehaviourMixin(SmartBlockEntity be) {
         super(be);
     }
 
-    @Inject(method = "tick", at = @At("HEAD"),cancellable = true, remap = false)
-    public void replaceTick(CallbackInfo ci) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    @Inject(method = "tick", at = @At("HEAD"), cancellable = true, remap = false)
+    public void replaceTick(CallbackInfo ci) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         super.tick();
-        Level world = getWorld();
-        BlockPos pos = getPos();
-        boolean onServer = !world.isClientSide || blockEntity.isVirtual();
+        Level    world    = getWorld();
+        BlockPos pos      = getPos();
+        boolean  onServer = !world.isClientSide || blockEntity.isVirtual();
 
         if (interfaces == null)
             return;
@@ -55,12 +55,12 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
         // Do not provide a lone pipe connection with its own flow input
         PipeConnection singleSource = null;
 
-        //if (!onServer) {
-		//	connections.forEach(connection -> {
-		//		connection.visualizeFlow(pos);
-		//		connection.visualizePressure(pos);
-		//	});
-		//}
+//		if (onClient) {
+//			connections.forEach(connection -> {
+//				connection.visualizeFlow(pos);
+//				connection.visualizePressure(pos);
+//			});
+//		}
 
         if (phase == FluidTransportBehaviour.UpdatePhase.WAIT_FOR_PUMPS) {
             phase = FluidTransportBehaviour.UpdatePhase.FLIP_FLOWS;
@@ -108,15 +108,16 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
 
                     //modified part
                     singleSource = null;
-                    PatchedDataComponentMap inFlowTag = fluidInFlow.getComponents();
-                    SpecificRealGazState inFlowState = inFlowTag.getOrDefault(DataComponentsInit.REAL_GAZ_STATE, WaterAsRealGaz.DEFAULT_STATE);
+                    //TODO don't do anything if the states are not present
+                    PatchedDataComponentMap inFlowTag    = fluidInFlow.getComponents();
+                    SpecificRealGasState    inFlowState  = inFlowTag.getOrDefault(DataComponentsInit.REAL_GAS_STATE, SpecificRealGasState.DEFAULT_STATE);
                     PatchedDataComponentMap availableTag = availableFlow.getComponents();
-                    SpecificRealGazState availableState = availableTag.getOrDefault(DataComponentsInit.REAL_GAZ_STATE, WaterAsRealGaz.DEFAULT_STATE);
-                    SpecificRealGazState mixedState = WaterAsRealGaz.mix(availableState, availableFlow.getAmount(),
-                            inFlowState,fluidInFlow.getAmount());
+                    SpecificRealGasState    availableState = availableTag.getOrDefault(DataComponentsInit.REAL_GAS_STATE, SpecificRealGasState.DEFAULT_STATE);
+                    SpecificRealGasState mixedState = FullTableBased.mix(availableState, availableFlow.getAmount(),
+                            inFlowState, fluidInFlow.getAmount());
 
                     availableFlow = fluidInFlow;
-                    availableTag.set(DataComponentsInit.REAL_GAZ_STATE, mixedState);
+                    availableTag.set(DataComponentsInit.REAL_GAS_STATE, mixedState);
                     availableFlow.applyComponents(availableTag);
 
                     continue;
@@ -147,4 +148,7 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
             connection.tickFlowProgress(world, pos);
         ci.cancel();
     }
+
+    @Shadow(remap = false)
+    public abstract boolean canPullFluidFrom(FluidStack fluid, BlockState state, Direction direction);
 }

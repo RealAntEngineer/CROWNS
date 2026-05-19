@@ -1,8 +1,7 @@
 package com.rae.crowns.mixin;
 
-import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
 import com.rae.crowns.init.data.DataComponentsInit;
-
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import net.minecraft.tags.FluidTags;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -14,27 +13,31 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.rae.formicapi.thermal_utilities.helper.WaterAsRealGaz.DEFAULT_STATE;
-import static com.rae.formicapi.thermal_utilities.helper.WaterAsRealGaz.mix;
+import static com.rae.formicapi.content.thermal_utilities.FullTableBased.mix;
+import static com.rae.formicapi.content.thermal_utilities.SpecificRealGasState.DEFAULT_STATE;
+
 
 @Mixin(value = FluidTank.class)
 public abstract class FluidTankMixin {
-    @Shadow @NotNull protected FluidStack fluid;
-
-    @Shadow public abstract int getFluidAmount();
+    @Shadow
+    @NotNull
+    protected FluidStack fluid;
 
     @Inject(method = "fill", at = @At(value = "RETURN"))
     public void mergeStateNBT(FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
-           if (resource.is(FluidTags.WATER)) {
-               SpecificRealGazState newState = resource.get(DataComponentsInit.REAL_GAZ_STATE);
-               if (newState == null) {
-                   newState = DEFAULT_STATE;
-               }
-               SpecificRealGazState oldState = fluid.isEmpty()?DEFAULT_STATE:fluid.get(DataComponentsInit.REAL_GAZ_STATE);
-               if (oldState == null) {
-                   oldState = DEFAULT_STATE;
-               }
-               fluid.set(DataComponentsInit.REAL_GAZ_STATE, mix(newState, resource.getAmount(), oldState, getFluidAmount()));
-           }
+        if (resource.is(FluidTags.WATER)) {
+            SpecificRealGasState newState = resource.get(DataComponentsInit.REAL_GAS_STATE);
+            if (newState == null) {
+                newState = DEFAULT_STATE;
+            }
+            SpecificRealGasState oldState = fluid.isEmpty() ? DEFAULT_STATE : fluid.get(DataComponentsInit.REAL_GAS_STATE);
+            if (oldState == null) {
+                oldState = DEFAULT_STATE;
+            }
+            fluid.set(DataComponentsInit.REAL_GAS_STATE, mix(newState, resource.getAmount(), oldState, getFluidAmount()));
+        }
     }
+
+    @Shadow
+    public abstract int getFluidAmount();
 }

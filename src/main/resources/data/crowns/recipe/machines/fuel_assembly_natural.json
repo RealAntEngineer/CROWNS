@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "UUU",
+    "UIU",
+    "UUU"
+  ],
+  "key": {
+    "U": {
+      "item": "crowns:fuel_rod",
+      "components": {
+        "minecraft:custom_data": {
+          "composition": {
+            "crowns:u235": 0.0078125,
+            "crowns:u238": 0.9921875
+          }
+        }
+      }
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "id": "crowns:fuel_assembly",
+    "components": {
+      "minecraft:custom_data": {
+        "composition": {
+          "crowns:u235": 0.001953125,
+          "crowns:u238": 0.248046875
+        }
+      }
+    },
+    "count": 1
+  }
+}

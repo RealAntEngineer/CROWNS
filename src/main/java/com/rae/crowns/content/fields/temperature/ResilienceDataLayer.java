@@ -1,48 +1,32 @@
 package com.rae.crowns.content.fields.temperature;
 
+import com.rae.crowns.content.fields.util.AbstractDataLayer;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 
-import java.nio.ByteBuffer;
+public class ResilienceDataLayer extends AbstractDataLayer {
+    public static final int    SIZE = 16 * 16 * 16;
+    private final       byte[] data = new byte[SIZE];
 
-/**
- * implement resilience to  for a Section (16, 16, 16)
- * temperature is coded on a byte from 0 to 255 with a step of 1/255
- */
-public class ResilienceDataLayer {
-    public static final int SIZE = 16 * 16 * 16;
-    private final byte[] data;
-
-
-    public ResilienceDataLayer() {
-        this.data = new byte[16 * 16 * 16];
+    @Override
+    public @NotNull ResilienceDataLayer fromBytes(byte @NotNull [] bytes) {
+        System.arraycopy(bytes, 0, data, 0, Math.min(bytes.length, SIZE));
+        return this;
     }
+
+    @Override
     public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(SIZE);
-        for (byte val : data) {
-            buffer.put(val);
-        }
-        return buffer.array();
+        return data.clone();
     }
 
-    public static ResilienceDataLayer fromBytes(byte[] bytes) {
-        ResilienceDataLayer temp = new ResilienceDataLayer();
-        ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        for (int i = 0; i < SIZE; i++) {
-            temp.data[i] = buffer.get();
-        }
-        return temp;
+    @Override
+    protected float decode(int index) {
+        return (data[index] + 128) / 255f;
     }
 
-    public byte[] getRaw() {
-        return data;
-    }
-
-    public float get(int x, int y, int z) {
-        return  (data[y << 8 | z << 4 | x] + 128f) / 255f;
-    }
-
-
-    public void set(int x, int y, int z, float resilience) {//map
-        data[y << 8 | z << 4 | x] = (byte) (Mth.clamp(resilience,0,1) * 255f - 128);
+    @Override
+    protected void encode(int index, float value) {
+        int scaled = Math.round(Mth.clamp(value, 0f, 1f) * 255f);
+        data[index] = (byte) (scaled - 128);
     }
 }

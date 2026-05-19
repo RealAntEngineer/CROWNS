@@ -1,7 +1,11 @@
 {
   "replace": false,
   "values": {
+    "minecraft:lava": 0.95,
+    "minecraft:flowing_lava": 0.4,
     "minecraft:water": 0.1,
-    "minecraft:flowing_water": 0.1
+    "minecraft:flowing_water": 0.1,
+    "crowns:flowing_corium": 0.4,
+    "crowns:corium": 1
   }
 }

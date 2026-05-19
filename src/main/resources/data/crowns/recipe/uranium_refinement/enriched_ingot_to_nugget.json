@@ -2,11 +2,11 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "crowns:enriched_uranium_ingot"
+     "item" : "crowns:enriched_uranium_ingot"
     }
   ],
   "result": {
-    "item": "crowns:enriched_uranium_nugget",
+    "id": "crowns:enriched_uranium_nugget",
     "count": 9
   }
 }

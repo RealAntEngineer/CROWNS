@@ -1,6 +1,7 @@
 package com.rae.crowns.mixin;
 
-import com.rae.crowns.content.fields.temperature.TemperatureManager;
+import com.rae.crowns.content.fields.util.PhysicsSaveManager;
+import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
@@ -11,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.WritableLevelData;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,16 +25,19 @@ import java.util.function.Supplier;
 public abstract class ServerLevelMixin extends Level {
 
 
-    @Shadow public abstract ServerLevel getLevel();
-
-    protected ServerLevelMixin(WritableLevelData p_270739_, ResourceKey<Level> p_270683_, RegistryAccess p_270200_, Holder<DimensionType> p_270240_, Supplier<ProfilerFiller> p_270692_, boolean p_270904_, boolean p_270470_, long p_270248_, int p_270466_) {
+    protected ServerLevelMixin(@NotNull WritableLevelData p_270739_, @NotNull ResourceKey<Level> p_270683_, @NotNull RegistryAccess p_270200_, @NotNull Holder<DimensionType> p_270240_, @NotNull Supplier<ProfilerFiller> p_270692_, boolean p_270904_, boolean p_270470_, long p_270248_, int p_270466_) {
         super(p_270739_, p_270683_, p_270200_, p_270240_, p_270692_, p_270904_, p_270470_, p_270248_, p_270466_);
     }
 
     @Inject(method = "onBlockStateChange", at = @At("HEAD"))
-    private void onSetBlockState(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo ci) {
-        /*if (!oldState.equals(newState)) {
-            TemperatureManager.get(getLevel()).set(pos, TemperatureManager.getDefaultTemperature(getLevel(),pos));
-        }*/
+    private void onSetBlockState(@NotNull BlockPos pos, @NotNull BlockState oldState, BlockState newState, CallbackInfo ci) {
+        if (!oldState.equals(newState)) {
+            PhysicsWorldData data = PhysicsSaveManager.get(getLevel());
+            if (data == null) return;
+            data.registerChanged(pos.immutable());
+        }
     }
+
+    @Shadow
+    public abstract ServerLevel getLevel();
 }

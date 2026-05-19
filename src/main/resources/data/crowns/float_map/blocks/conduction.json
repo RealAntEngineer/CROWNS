@@ -1,8 +1,17 @@
 {
   "replace": false,
   "values": {
-    "minecraft:air": 0.1,
-    "minecraft:copper_block": 10000,
+    "minecraft:air": 1e4,
+    "minecraft:coal_block": 1e4,
+    "minecraft:ice": 1e4,
+    "minecraft:packed_ice": 1e5,
+    "minecraft:blue_ice": 3e5,
+    "minecraft:magma_block": 1e4,
+    "minecraft:copper_block": 1e5,
+    "minecraft:gold_block": 1e5,
+    "minecraft:waxed_copper_block": 1e5,
+    "minecraft:exposed_copper": 4e5,
+    "minecraft:waxed_exposed_copper": 4e5,
     "#minecraft:wool": 1e-4
   }
 }

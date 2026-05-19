@@ -15,6 +15,7 @@ public class CompressorBlock extends DirectionalKineticBlock implements IBE<Comp
     public CompressorBlock(Properties pProperties) {
         super(pProperties);
     }
+
     @Override
     public float getShadeBrightness(BlockState pState, BlockGetter pLevel, BlockPos pPos) {
         return 1.0F;
@@ -24,6 +25,7 @@ public class CompressorBlock extends DirectionalKineticBlock implements IBE<Comp
     public boolean propagatesSkylightDown(BlockState pState, BlockGetter pReader, BlockPos pPos) {
         return true;
     }
+
     @Override
     public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
         return face.getAxis() == state.getValue(FACING).getAxis();
@@ -33,6 +35,7 @@ public class CompressorBlock extends DirectionalKineticBlock implements IBE<Comp
     public Direction.Axis getRotationAxis(BlockState state) {
         return state.getValue(FACING).getAxis();
     }
+
     @Override
     public boolean showCapacityWithAnnotation() {
         return true;

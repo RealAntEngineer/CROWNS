@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " I ",
+    " I ",
+    " I "
+  ],
+  "key": {
+    "I": {
+      "item": "crowns:uranium_ingot"
+    }
+  },
+  "result": {
+    "id": "crowns:fuel_rod",
+    "components": {
+      "minecraft:custom_data": {
+        "composition": {
+          "crowns:u235": 0.0078125,
+          "crowns:u238": 0.9921875
+        }
+      }
+    },
+    "count": 8
+  }
+}

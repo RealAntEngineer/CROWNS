@@ -1,45 +1,47 @@
 package com.rae.crowns.content.fields.temperature;
 
+import com.rae.crowns.content.fields.util.AbstractDataLayer;
 import net.minecraft.util.Mth;
-
-import java.nio.ByteBuffer;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * implement conduction coef for a Section (16, 16, 16)
- * conduction is coded on a byte from 0 to 655.36 (it's the byte squared, yes it's confusing for the datapack)
+ * Conduction coefficient for a Section (16×16×16)
+ * Stored as 8-bit mini-float: 2-bit mantissa + 6-bit signed exponent (-16 → +47)
+ * Uses bit-shifts instead of Math.pow for speed.
  */
-public class ConductionDataLayer {
-    public static final int SIZE = 16 * 16 * 16;
-    private final byte[] data;
+public class ConductionDataLayer extends AbstractDataLayer {
+    public static final float  MIN_VALUE = 1.0f / (1 << 16);      // 2^-16
+    public static final float  MAX_VALUE = 1.75f * (1L << 47);    // 1.75 * 2^47
+    private final       byte[] data      = new byte[SIZE];
 
-
-    public ConductionDataLayer() {
-        this.data = new byte[16 * 16 * 16];
+    @Override
+    public @NotNull ConductionDataLayer fromBytes(byte @NotNull [] bytes) {
+        System.arraycopy(bytes, 0, data, 0, Math.min(bytes.length, SIZE));
+        return this;
     }
+
+    @Override
     public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(SIZE);
-        for (byte val : data) {
-            buffer.put(val);
-        }
-        return buffer.array();
+        return data.clone();
     }
 
-    public static ConductionDataLayer fromBytes(byte[] bytes) {
-        ConductionDataLayer temp = new ConductionDataLayer();
-        ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        for (int i = 0; i < SIZE; i++) {
-            temp.data[i] = buffer.get();
-        }
-        return temp;
+    @Override
+    protected float decode(int index) {
+        int   b        = data[index] & 0xFF;
+        int   mantissa = b & 0b11;//last 2 bits
+        int   exponent = ((b >> 2) & 0b111111) - 16;//first 6 bit
+        float m        = 1.0f + mantissa / 4.0f;
+        return exponent >= 0 ? m * (1L << exponent) : m / (1L << -exponent);
     }
 
-    public float get(int x, int y, int z) {
-        int temp = data[y << 8 | z << 4 | x] + 128;
-        return temp*temp/100f;
-    }
-
-
-    public void set(int x, int y, int z, float conduction) {//map
-        data[y << 8 | z << 4 | x] = (byte) (Mth.clamp(Math.sqrt(Math.abs(conduction*100)),0,255) - 128);
+    @Override
+    protected void encode(int index, float value) {
+        float clamped  = Mth.clamp(value, MIN_VALUE, MAX_VALUE);
+        int   exponent = (int) Math.floor(Math.log(clamped) / Math.log(2));
+        exponent = Mth.clamp(exponent, -16, 47);
+        float normalized = exponent >= 0 ? clamped / (1L << exponent) : clamped * (1L << -exponent);
+        int   mantissa   = Mth.clamp(Math.round((normalized - 1f) * 4f), 0, 3);
+        int   stored     = ((exponent + 16) << 2) | mantissa;
+        data[index] = (byte) stored;
     }
 }

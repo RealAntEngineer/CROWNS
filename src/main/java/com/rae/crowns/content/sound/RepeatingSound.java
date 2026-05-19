@@ -9,11 +9,11 @@ import net.minecraft.world.phys.Vec3;
 
 public class RepeatingSound {
 
-    private SoundEvent event;
-    private float sharedPitch;
-    private int repeatDelay;
-    private SoundScape scape;
-    private float relativeVolume;
+    private final SoundEvent event;
+    private final float      sharedPitch;
+    private final int        repeatDelay;
+    private final SoundScape scape;
+    private final float      relativeVolume;
 
     public RepeatingSound(SoundEvent event, SoundScape scape, float sharedPitch, float relativeVolume,
                           int repeatDelay) {
@@ -28,8 +28,8 @@ public class RepeatingSound {
         if (AnimationTickHolder.getTicks() % repeatDelay != 0)
             return;
 
-        ClientLevel world = Minecraft.getInstance().level;
-        Vec3 meanPos = scape.getMeanPos();
+        ClientLevel world   = Minecraft.getInstance().level;
+        Vec3        meanPos = scape.getMeanPos();
 
         world.playLocalSound(meanPos.x, meanPos.y, meanPos.z, event, SoundSource.AMBIENT,
                 scape.getVolume() * relativeVolume, sharedPitch, true);

@@ -1,12 +1,17 @@
 {
-  "type": "minecraft:crafting_shapeless",
-  "ingredients": [
-    {
-      "count": 9,
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
       "item": "crowns:depleted_uranium_nugget"
     }
+  },
+  "pattern": [
+    "###",
+    "###",
+    "###"
   ],
   "result": {
-    "item": "crowns:depleted_uranium_ingot"
+    "id": "crowns:depleted_uranium_ingot",
+    "count": 1
   }
 }

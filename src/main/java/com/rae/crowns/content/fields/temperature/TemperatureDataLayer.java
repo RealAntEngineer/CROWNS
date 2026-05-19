@@ -1,65 +1,64 @@
 package com.rae.crowns.content.fields.temperature;
 
-import net.minecraft.util.Mth;
+
+import com.rae.crowns.content.fields.util.AbstractDataLayer;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
 /**
- * implement temperature for a Section (16, 16, 16)
- * temperature is coded on a short from 0 to 6553.5 with a step of 0.1
+ * Temperature data for a Section (16×16×16)
+ * <p>
+ * Temperatures are stored as fixed-point integers with 5 decimal digits of precision.
+ * The int range (-2_147_483_648 to 2_147_483_647) is mapped linearly to temperature space
+ * by offsetting with Integer.MIN_VALUE.
+ * <p>
+ * Encoding:
+ * stored = (int)(temperature * SCALE) + Integer.MIN_VALUE
+ * <p>
+ * Decoding:
+ * temperature = (stored - Integer.MIN_VALUE) / SCALE
  */
-public class TemperatureDataLayer {
-    public static final int SIZE = 16 * 16 * 16;
-    private static final int SHORT_SIZE  = 256 * 256;
-    private final short[] data;
-    private final short[] defaultData;
-    public static final int MIN_TEMPERATURE = 0;
-    public static final int MAX_TEMPERATURE = 6553;
+public class TemperatureDataLayer extends AbstractDataLayer {
+    public static final double  SCALE           = 10f; // 1 decimal places
+    public static final double  MIN_TEMPERATURE = 0.0d;
+    public static final double  MAX_TEMPERATURE =
+            (Short.MAX_VALUE - (long) Short.MIN_VALUE) / SCALE; // ≈ 42949.67295
+    private final       float[] data            = new float[SIZE];
+    //private final int[] defaultData = new int[SIZE];
 
-
-    public TemperatureDataLayer() {
-        this.data = new short[16 * 16 * 16];
-        this.defaultData = new short[16*16*16];// One short per block in a chunk section
+    @Override
+    public @NotNull TemperatureDataLayer fromBytes(byte @NotNull [] bytes) {
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        for (int i = 0; i < SIZE; i++) data[i] = (float) ((buffer.getShort() - Short.MIN_VALUE) / SCALE);
+        //for (int i = 0; i < SIZE; i++) defaultData[i] = buffer.getInt();
+        return this;
     }
+
+    @Override
     public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(SIZE * 4);
-        for (short val : data) {
-            buffer.putShort(val);
-        }
-        for (short val : defaultData) {
-            buffer.putShort(val);
-        }
+        ByteBuffer buffer = ByteBuffer.allocate(SIZE * 2);// * 2);
+        for (float value : data) buffer.putShort((short) ((value * SCALE) + Short.MIN_VALUE));
+        //for (int val : defaultData) buffer.putInt(val);
         return buffer.array();
     }
 
-    public static TemperatureDataLayer fromBytes(byte[] bytes) {
-        TemperatureDataLayer temp = new TemperatureDataLayer();
-        ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        for (int i = 0; i < SIZE; i++) {
-            temp.data[i] = buffer.getShort();
-        }
-        for (int i = 0; i < SIZE; i++) {
-            temp.defaultData[i] = buffer.getShort();
-        }
-        return temp;
-    }
-
-    public short[] getRaw() {
-        return data;
-    }
-
+    @Override
     public float get(int x, int y, int z) {
-        return (float) (data[y << 8 | z << 4 | x] + SHORT_SIZE/2) / 10;
-    }
-    public float getDefault(int x, int y, int z) {
-        return (float) (defaultData[y << 8 | z << 4 | x] + SHORT_SIZE/2) / 10;
+        return data[index(x, y, z)];
     }
 
-
-    public void set(int x, int y, int z, float temperature) {//map
-        data[y << 8 | z << 4 | x] = (short) ((int) Mth.clamp(temperature, MIN_TEMPERATURE, MAX_TEMPERATURE) * 10 - SHORT_SIZE/2);
+    @Override
+    protected float decode(int index) {
+        return 0;
     }
-    public void setDefault(int x, int y, int z, float temperature) {//map
-        defaultData[y << 8 | z << 4 | x] = (short) ((int)Mth.clamp(temperature,MIN_TEMPERATURE,MAX_TEMPERATURE) * 10 - SHORT_SIZE/2);
+
+    @Override
+    public void set(int x, int y, int z, float value) {
+        data[index(x, y, z)] = value;
+    }
+
+    @Override
+    protected void encode(int index, float value) {
     }
 }

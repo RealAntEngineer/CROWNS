@@ -23,7 +23,7 @@ public class CoriumFluidType extends FluidType {
 
     @Override
     public int getLightLevel(FluidState state, BlockAndTintGetter getter, BlockPos pos) {
-        return state.getType() instanceof CoriumFluid?state.getValue(CoriumFluid.POWER):super.getLightLevel(state, getter, pos);
+        return state.getType() instanceof CoriumFluid ? state.getValue(CoriumFluid.POWER) : super.getLightLevel(state, getter, pos);
     }
 
     @Override

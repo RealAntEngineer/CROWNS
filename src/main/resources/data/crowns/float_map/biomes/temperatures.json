@@ -2,6 +2,7 @@
   "replace": false,
   "values": {
     "minecraft:frozen_ocean": 273,
-    "minecraft:desert": 320
+    "minecraft:desert": 320,
+    "#minecraft:is_nether":350
   }
 }

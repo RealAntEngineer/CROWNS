@@ -1,7 +1,7 @@
 package com.rae.crowns.init.data;
 
 import com.rae.crowns.CROWNS;
-import com.rae.formicapi.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
@@ -13,11 +13,11 @@ import java.util.function.UnaryOperator;
 public class DataComponentsInit {
     private static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, CROWNS.MODID);
 
-    public static final DataComponentType<SpecificRealGazState> REAL_GAZ_STATE = register(
-            "real_gaz_state",
+    public static final DataComponentType<SpecificRealGasState> REAL_GAS_STATE = register(
+            "real_gas_state",
             builder ->
-                    builder.persistent(SpecificRealGazState.CODEC)
-                    .networkSynchronized(SpecificRealGazState.STREAM_CODEC)
+                    builder.persistent(SpecificRealGasState.CODEC)
+                            .networkSynchronized(SpecificRealGasState.STREAM_CODEC)
     );
 
     private static <T> DataComponentType<T> register(String name, UnaryOperator<DataComponentType.Builder<T>> builder) {
