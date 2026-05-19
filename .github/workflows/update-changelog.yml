@@ -1,0 +1,84 @@
+# .github/workflows/update-changelog.yml
+name: Update Changelog
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog entry
+        run: |
+          DATE=$(date +"%Y-%m-%d")
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [ -z "$LAST_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s")
+            VERSION="Unreleased"
+          else
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s")
+            VERSION="${LAST_TAG} -> HEAD"
+          fi
+
+          # Skip if there are no new commits
+          if [ -z "$COMMITS" ]; then
+            echo "No new commits to add."
+            exit 0
+          fi
+
+          # Create temporary changelog section
+          {
+            echo "## [$VERSION] - $DATE"
+            echo
+            echo "$COMMITS"
+            echo
+          } > new_changelog_section.md
+
+          # Create CHANGELOG.md if it doesn't exist
+          if [ ! -f CHANGELOG.md ]; then
+            echo "# Changelog" > CHANGELOG.md
+            echo >> CHANGELOG.md
+          fi
+
+          # Insert new section after the title
+          awk '
+            NR==1 {
+              print
+              print ""
+              while ((getline line < "new_changelog_section.md") > 0)
+                print line
+              next
+            }
+            { print }
+          ' CHANGELOG.md > CHANGELOG.tmp
+
+          mv CHANGELOG.tmp CHANGELOG.md
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add CHANGELOG.md
+
+          # Only commit if CHANGELOG.md changed
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "docs: update changelog [skip ci]"
+          git push
