@@ -24,8 +24,10 @@ import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import org.lwjgl.system.NonnullDefault;
 import org.slf4j.Logger;
 
+@NonnullDefault
 @SuppressWarnings("ALL")
 @Mod(CROWNS.MODID)//CreatingRotationOperatedWithNuclearScience
 public class CROWNS {

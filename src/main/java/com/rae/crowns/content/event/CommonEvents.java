@@ -52,7 +52,7 @@ public class CommonEvents {
             AtomicReference<Integer> numberOfTemps = new AtomicReference<>(0);
             BlockPos.betweenClosedStream(entity.getBoundingBox()).forEach(blockPos -> {
                 SectionPos sectionPos = SectionPos.of(blockPos);
-                cumlTemp.set(cumlTemp.get() + getTemperature(data.getLayer(DataLayerType.TEMPERATURE, sectionPos.asLong()), blockPos));
+                cumlTemp.set(cumlTemp.get() + getTemperature(data.getLayer(sectionPos.asLong(), DataLayerType.TEMPERATURE), blockPos));
                 numberOfTemps.set(numberOfTemps.get() + 1);
             });
 

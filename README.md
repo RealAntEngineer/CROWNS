@@ -1,25 +1,32 @@
+![Creating Space Logo](https://realantengineer.github.io//assets/images/logo/crowns_text.png)
 
-Installation information
-=======
+----
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+![GitHub commit activity](https://img.shields.io/github/commit-activity/t/RealAntEngineer/crowns?style=for-the-badge)
+![GitHub last commit](https://img.shields.io/github/last-commit/RealAntEngineer/crowns?style=for-the-badge)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/RealAntEngineer/crowns?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/RealAntEngineer/crowns?style=for-the-badge)
+![GitHub Repo stars](https://img.shields.io/github/stars/RealAntEngineer/crowns?style=for-the-badge)
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+<a href="https://www.curseforge.com/minecraft/mc-mods/create-crowns"><img src="https://realantengineer.github.io//assets/images/Available_on_Curseforge.png" width=24.25% height=24.25% /></a>
+<a href="https://modrinth.com/mod/create-crowns"><img src="https://realantengineer.github.io//assets/images/Available_on_Modrinth.png" width=24.25% height=24.25% /></a>
+<a href="https://discord.gg/Dn9DhTqarH"><img src="https://realantengineer.github.io//assets/images/Chat_With_Us_on_discord.png" width=24.25% height=24.25% /></a>
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+----
+## Presentation
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+_Creating Rotation Operated With Nuclear Science_ is a Create addon that add a way to create a lot of S.U. 
+by using nuclear power and realistic power plants
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+
+## Contributing
+
+We welcome contributions from the community! To contribute:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/YourFeature`).
+3. Commit your changes (`git commit -am 'Add a new feature'`).
+4. Push to the branch (`git push origin feature/YourFeature`).
+5. Open a Pull Request.
+
+Please read the [CONTRIBUTING](CONTRIBUTING.md) file for more details.
