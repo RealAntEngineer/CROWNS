@@ -137,8 +137,8 @@ public class DebugRenderer {
         }
 
         if (buffer instanceof MultiBufferSource.BufferSource) {
-            BakedGlyph texturedGlyph = font.getFontSet(Style.DEFAULT_FONT)
-                    .whiteGlyph();
+            /*BakedGlyph texturedGlyph = font.getFontSet(Style.DEFAULT_FONT)
+                    .whiteGlyph();*/
             //buffer.endBatch(texturedGlyph.renderType(Font.DisplayMode.NORMAL));
             //buffer.endBatch();
         }
