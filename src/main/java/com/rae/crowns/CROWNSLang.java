@@ -14,9 +14,6 @@ import org.lwjgl.system.NonnullDefault;
 
 @NonnullDefault
 public class CROWNSLang extends Lang {
-    //blatant copy of CreateLang
-
-
     public static LangBuilder translate(String langKey, Object... args) {
         return builder().translate(langKey, args);
     }
@@ -28,7 +25,6 @@ public class CROWNSLang extends Lang {
     public static LangBuilder text(String text) {
         return builder().text(text);
     }
-
 
     public static LangBuilder specificRealFluidState(SpecificRealGasState state) {
         CROWNSCfgClient.FluidVisualMode mode = CROWNSConfigs.CLIENT.fluidStateVisualMode.get();

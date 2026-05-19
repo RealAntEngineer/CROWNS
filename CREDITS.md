@@ -5,7 +5,7 @@ RealAntEngineers, purpl3xity
 9m113konkurs, RealAntEngineers
 
 # Artists
-HeyAlexis, Foxer, elemelk
+Cosmos, MrSodium
 
 # Testers
-Cosmos, MrSodium
+HeyAlexis, Foxer, elemelk
