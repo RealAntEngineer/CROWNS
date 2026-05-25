@@ -119,7 +119,7 @@ public class CommandsInit {
                 "___________thermodynamic simulation status___________\n" +
                         "   -" + data.getDynamicData().size() + " dynamic data blocks\n" +
                         "   -" + data.getLoadedSections().size() + " loaded chunk sections\n" +
-                        "   -" + data.getLoadedSections().stream().filter(data::ticked).toList().size() + " ticked sections\n" +
+                        "   -" + data.getLoadedSections().stream().filter((s) -> data.ticked(s, (int) context.getSource().getLevel().getGameTime())).toList().size() + " ticked sections\n" +
                         "   -initialization :\n" +
                         "      -" + DataLayerType.CONDUCTION.id + " " + initialise.getOrDefault(DataLayerType.CONDUCTION, new ArrayList<>()).size() + "\n" +
                         "      -" + DataLayerType.RESILIENCE.id + " " + initialise.getOrDefault(DataLayerType.RESILIENCE, new ArrayList<>()).size() + "\n" +
