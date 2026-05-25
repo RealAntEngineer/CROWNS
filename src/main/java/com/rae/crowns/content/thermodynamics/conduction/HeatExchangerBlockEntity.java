@@ -123,7 +123,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                     float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) * dt / iteration;
                     WATER_TANK.heat(power);
                     PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) level);
-                    if (data != null && data.ticked(SectionPos.of(getBlockPos()).asLong())) {
+                    if (data != null && data.ticked(SectionPos.of(getBlockPos()).asLong(), (int) level.getGameTime())) {
                         this.addTemperature(-power / this.getThermalCapacity());
                     }
                 }
@@ -262,7 +262,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
             PhysicsWorldData data = PhysicsSaveManager.get(level);
             boolean canCoolBlock =
-                    data != null && data.ticked(SectionPos.of(exchanger.getBlockPos()).asLong());
+                    data != null && data.ticked(SectionPos.of(exchanger.getBlockPos()).asLong(), (int) level.getGameTime());
 
             for (int i = 0; i < iteration; i++) {
                 // ENERGY, not temperature

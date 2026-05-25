@@ -2,6 +2,7 @@ package com.rae.crowns.content.fields.util;
 
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.temperature.ConductionDataLayer;
+import com.rae.crowns.content.fields.temperature.MatrixTemperatureTicker;
 import com.rae.crowns.content.fields.temperature.ResilienceDataLayer;
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
@@ -19,13 +20,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.rae.crowns.content.fields.util.PosPackingUtil.packSection;
 
+@NonnullDefault
 public class PhysicsWorldData extends SavedData {//Only for the server
 
     //in the future hook into ChunkSection directly : easier for communication and initialization
@@ -40,12 +43,18 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     private final        LongSet                                                  changedSections     = new LongOpenHashSet();//stored
     private final        LongSet                                                  dirty               = new LongOpenHashSet();//stored
     private final        LongSet                                                  loadedSections      = new LongOpenHashSet();//stored
-    private final        LongSet                                                  tickedSections      = new LongOpenHashSet();//recomputed
+    private final        Long2IntMap                                              tickedSections      = new Long2IntOpenHashMap();//recomputed
     private final        Long2ObjectMap<IHaveTemperature>                         dynamicData         = new Long2ObjectOpenHashMap<>();//recomputed
     private final        Long2IntMap                                              sectionDynamicCount = new Long2IntOpenHashMap();//recomputed
     private final        LongSet                                                  nearDynamicSections = new LongOpenHashSet();//recomputed
+    private              int                                                      currentTime         = -1;//recomputed
 
-    public static @NotNull PhysicsWorldData loadData(@NotNull ServerLevel server) {
+
+    //matrix
+
+    private MatrixTemperatureTicker.ThermalMatrix cachedMatrix;
+
+    public static PhysicsWorldData loadData(ServerLevel server) {
         return server.getDataStorage()
                 .computeIfAbsent(new Factory<>(PhysicsWorldData::new, (c, p) -> PhysicsWorldData.load(c)), "thermal_grid");
     }
@@ -58,7 +67,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         registerLayer(DataLayerType.RESILIENCE);
     }
 
-    public static @NotNull PhysicsWorldData load(@NotNull CompoundTag nbt) {
+    public static PhysicsWorldData load(CompoundTag nbt) {
         PhysicsWorldData data = new PhysicsWorldData();
 
         if (!nbt.contains("DataLayerVersion") ||
@@ -156,7 +165,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     }
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, @NotNull HolderLookup.Provider provider) {
+    public CompoundTag save(CompoundTag compoundTag, HolderLookup.Provider provider) {
         CompoundTag nbt = new CompoundTag();
         nbt.putLong("DataLayerVersion", DATA_VERSION);
         nbt.put("layers", serializeLayers(layers));
@@ -209,7 +218,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     // ------------------------------
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractDataLayer> void putLayer(DataLayerType<?> type, long section, T dataLayer) {
+    public <T extends AbstractDataLayer> void putLayer(long section, DataLayerType<?> type, T dataLayer) {
         ((Long2ObjectMap<T>) layers.get(type)).put(section, dataLayer);
         loadedSections.add(section);
     }
@@ -217,13 +226,13 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     public AbstractDataLayer[] getLayers(long section, DataLayerType<?>... types) {
         AbstractDataLayer[] result = new AbstractDataLayer[types.length];
         for (int i = 0; i < types.length; i++) {
-            result[i] = getLayer(types[i], section);
+            result[i] = getLayer(section, types[i]);
         }
         return result;
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractDataLayer> T getLayer(DataLayerType<T> type, long section) {
+    public <T extends AbstractDataLayer> @Nullable T getLayer(long section, DataLayerType<T> type) {
         Long2ObjectMap<AbstractDataLayer> map = layers.get(type);
         if (map == null) return null;
         return (T) map.get(section);
@@ -233,7 +242,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     //  INITIALIZATION / PUT
     // ------------------------------
 
-    public @NotNull LongSet getNearDynamic() {
+    public LongSet getNearDynamic() {
         return nearDynamicSections; // You can safely expose this if you're not modifying it
     }
 
@@ -241,14 +250,14 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     //  SECTION INITIALIZATION
     // ---------------
 
-    public @NotNull LongSet getLoadedSections() {
+    public LongSet getLoadedSections() {
         return loadedSections;
     }
 
     // ------------------------------
     //  SECTION INITIALIZATION
     // ------------------------------
-    public void initialise(@NotNull ServerLevel level) {
+    public void initialise(ServerLevel level) {
         long startTime = System.nanoTime(); // More accurate timing
         int  processed = 0;
 
@@ -324,7 +333,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         dirty.remove(sectionPos);
     }
 
-    public void updateChangedBlocks(@NotNull ServerLevel level) {
+    public void updateChangedBlocks(ServerLevel level) {
         float              initialTimeMS = System.currentTimeMillis();
         DataLayerType<?>[] types         = {DataLayerType.DEFAULT_TEMPERATURE, DataLayerType.CONDUCTION, DataLayerType.RESILIENCE};
 
@@ -345,7 +354,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         }
     }
 
-    public void set(@NotNull BlockPos pos, @NotNull DataLayerType<?>[] types, float... values) {
+    public void set(BlockPos pos, DataLayerType<?>[] types, float... values) {
         if (types.length != values.length) {
             throw new IllegalArgumentException("Types and values arrays must have the same length");
         }
@@ -363,7 +372,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
         // --- Set values dynamically ---
         for (int i = 0; i < types.length; i++) {
-            AbstractDataLayer layer = getLayer(types[i], packedSection);
+            AbstractDataLayer layer = getLayer(packedSection, types[i]);
             if (layer != null) {
                 layer.set(lx, ly, lz, values[i]);
             }
@@ -377,7 +386,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     }
 
     //IHaveTemperature management
-    public void putDynamic(@NotNull BlockPos pos, IHaveTemperature dynamic) {
+    public void putDynamic(BlockPos pos, IHaveTemperature dynamic) {
         //System.out.println("setting dynamic data at "+ pos);
         dynamicData.put(pos.asLong(), dynamic);
         DataLayerType<?>[] layerTypes = {
@@ -429,7 +438,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     }
 
     // --- HELPER FOR DYNAMIC RANGE CHECK ---
-    private static boolean isInDynamicRange(@NotNull Vec3i pos, int sx, int sy, int sz) {
+    private static boolean isInDynamicRange(Vec3i pos, int sx, int sy, int sz) {
         //block pos
         final int px = pos.getX();
         final int py = pos.getY();
@@ -459,7 +468,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         setDirty(section);
     }
 
-    public void removeDynamic(@NotNull BlockPos pos) {
+    public void removeDynamic(BlockPos pos) {
         dynamicData.remove(pos.asLong());
 
         int sx = pos.getX() >> 4;
@@ -488,7 +497,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         }
     }
 
-    public @NotNull Long2ObjectMap<IHaveTemperature> getDynamicData() {
+    public Long2ObjectMap<IHaveTemperature> getDynamicData() {
         return dynamicData;
     }
 
@@ -504,13 +513,17 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return dirty.contains(sectionPos);
     }
 
-    public void registerChanged(@NotNull BlockPos immutable) {
+    public void setCurrentTime(int time) {
+        this.currentTime = time;
+    }
+
+    public void registerChanged(BlockPos immutable) {
         if (loadedSections.contains(SectionPos.of(immutable).asLong())) {
             changedBlocks.add(immutable);
         }
     }
 
-    public void syncWithPlayers(@NotNull List<ServerPlayer> players) {
+    public void syncWithPlayers(List<ServerPlayer> players) {
         if (players.isEmpty()) return;
 
         final int batchSize = 10;
@@ -551,12 +564,12 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         }
     }
 
-    public boolean ticked(long sectionPos) {
-        return tickedSections.contains(sectionPos);
+    public boolean ticked(long sectionPos, int tick) {
+        return tickedSections.getOrDefault(sectionPos, -1) < tick + 1;//small acceptable delay
     }
 
     public void addToTicked(long sectionPos) {
-        tickedSections.add(sectionPos);
+        tickedSections.put(sectionPos, currentTime);
     }
 
     public void resetTicked() {
@@ -564,10 +577,10 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     }
 
     public boolean checkValidity(long sectionPos) {
-        TemperatureDataLayer temperatureData        = getLayer(DataLayerType.TEMPERATURE, sectionPos);
-        TemperatureDataLayer defaultTemperatureData = getLayer(DataLayerType.DEFAULT_TEMPERATURE, sectionPos);
-        ConductionDataLayer  conductionData         = getLayer(DataLayerType.CONDUCTION, sectionPos);
-        ResilienceDataLayer  resilienceData         = getLayer(DataLayerType.RESILIENCE, sectionPos);
+        TemperatureDataLayer temperatureData        = getLayer(sectionPos, DataLayerType.TEMPERATURE);
+        TemperatureDataLayer defaultTemperatureData = getLayer(sectionPos, DataLayerType.DEFAULT_TEMPERATURE);
+        ConductionDataLayer  conductionData         = getLayer(sectionPos, DataLayerType.CONDUCTION);
+        ResilienceDataLayer  resilienceData         = getLayer(sectionPos, DataLayerType.RESILIENCE);
 
         boolean corrupted = false;
 
@@ -606,4 +619,14 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         });
         return collector;
     }
+
+    public MatrixTemperatureTicker.ThermalMatrix getCachedMatrix() {
+        return cachedMatrix;
+    }
+
+    public void setCachedMatrix(MatrixTemperatureTicker.ThermalMatrix newMatrix) {
+        this.cachedMatrix = newMatrix;
+    }
+
+
 }

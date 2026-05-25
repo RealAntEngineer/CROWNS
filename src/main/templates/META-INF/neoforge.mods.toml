@@ -5,9 +5,9 @@ license="MIT"
 
 
 [[mods]]
-modId="crowns"
-version="2.1.6"
-displayName="Creating Rotation Operated With Nuclear Science"
+modId="${mod_id}"
+version = "${mod_version}"
+displayName="${mod_name}"
 logoFile= "logo.png"
 credits='''
 
@@ -17,14 +17,14 @@ authors="Real Ant Engineer"
 description='''
 '''
 
-[[dependencies.crowns]]
+[[dependencies.${mod_id}]]
 modId="create"
 mandatory=true
-versionRange="[6.0.4,)"
+versionRange="[6.0.8,)"
 ordering="NONE"
 side="BOTH"
 
-[[dependencies.crowns]]
+[[dependencies.${mod_id}]]
 modId="formicapi"
 mandatory=true
 versionRange="[2.2.3,)"
