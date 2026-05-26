@@ -12,7 +12,7 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import org.jetbrains.annotations.NotNull;
 
-@EventBusSubscriber(modid = CROWNS.MODID)
+//@EventBusSubscriber(modid = CROWNS.MODID)
 public class DataEvents {
     //put this inside the Physics world data, that way we will have access to the private maps
 

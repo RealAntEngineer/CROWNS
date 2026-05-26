@@ -100,7 +100,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) level);
 
             if (data != null && !data
-                    .ticked(SectionPos.of(getBlockPos()).asLong())) return;
+                    .ticked(SectionPos.of(getBlockPos()).asLong(), (int) level.getGameTime())) return;
             if (syncCooldown > 0) {
                 syncCooldown--;
                 if (syncCooldown == 0 && queuedSync)
@@ -166,7 +166,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         assert level != null;
         if (!level.isClientSide()) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) level);
-            if (data == null || !data.ticked(SectionPos.of(getBlockPos()).asLong())) return;
+            if (data == null || !data.ticked(SectionPos.of(getBlockPos()).asLong(), (int) level.getGameTime())) return;
             oldNbrOfFission = nbrOfFission;
             nbrOfFission = additionalNeutronsAbsorbed.getValue() + backgroundActivity; //for now a 100% change of fission : no absorption
             //this is fine here. because
