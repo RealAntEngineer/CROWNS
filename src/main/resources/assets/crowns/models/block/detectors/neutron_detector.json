@@ -3,9 +3,10 @@
 	"credit": "Made with Blockbench",
 
 	"texture_size": [32, 32],
+	"ambientocclusion": false,
 	"textures": {
-		"0": "crowns:block/detectors/neutronDetector",
-		"particle": "crowns:block/detectors/neutronDetector"
+		"0": "crowns:block/detectors/neutron_detector",
+		"particle": "crowns:block/detectors/neutron_detector"
 	},
 	"elements": [
 		{

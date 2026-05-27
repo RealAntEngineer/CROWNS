@@ -1,5 +1,5 @@
 # Made in Blockbench 5.1.4
-mtllib neutronDetector.mtl
+mtllib neutron_detector.mtl
 
 o cube
 v 0.125 1 0.125
