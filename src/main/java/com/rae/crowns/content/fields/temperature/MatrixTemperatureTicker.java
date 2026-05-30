@@ -180,13 +180,8 @@ public final class MatrixTemperatureTicker {
             double[] b,
             double diagCoeff
     ) {
-        int[][] offsets = {
-                {1, 0, 0}, {-1, 0, 0},
-                {0, 1, 0}, {0, -1, 0},
-                {0, 0, 1}, {0, 0, -1}
-        };
 
-        for (int[] offset : offsets) {
+        for (int[] offset : OFFSETS) {
             int nx = x + offset[0];
             int ny = y + offset[1];
             int nz = z + offset[2];
@@ -203,7 +198,7 @@ public final class MatrixTemperatureTicker {
                 row.put(neighbor.globalIndex(), condCoeff);
                 diagCoeff -= condCoeff;
             } else {
-                // FIXED: boundary term only affects RHS, NOT diagonal
+                // boundary term only affects RHS, NOT diagonal
                 b[globalIdx] += condCoeff * neighbor.temperature();
                 // DO NOT add to diagCoeff here!
             }
@@ -684,11 +679,8 @@ public final class MatrixTemperatureTicker {
      * Stamp multiple voxels at once (more efficient than individual stamps).
      * Also updates neighbor rows that reference the stamped voxels.
      */
-    public static boolean stampVoxels(@NotNull List<BlockPos> positions, @NotNull PhysicsWorldData data) {
+    public static void stampVoxels(@NotNull Set<BlockPos> positions, @NotNull PhysicsWorldData data) {
         ThermalMatrix matrix = data.getCachedMatrix();
-        if (matrix == null) {
-            return false;
-        }
 
         // Group by section for efficiency
         Map<Long, List<BlockPos>> bySection = new HashMap<>();
@@ -697,7 +689,6 @@ public final class MatrixTemperatureTicker {
             bySection.computeIfAbsent(section, k -> new ArrayList<>()).add(pos);
         }
 
-        boolean       allSuccess         = true;
         Set<BlockPos> needNeighborUpdate = new HashSet<>();
 
         // Stamp all primary voxels
@@ -705,20 +696,17 @@ public final class MatrixTemperatureTicker {
             long section = entry.getKey();
 
             if (!matrix.sections.contains(section)) {
-                allSuccess = false;
                 continue;
             }
 
             for (BlockPos pos : entry.getValue()) {
-                if (!stampVoxel(pos, data)) {
-                    allSuccess = false;
-                } else {
-                    // FIXED: Mark neighbors for update (but don't duplicate the stamped position itself)
+                if (stampVoxel(pos, data)) {
+                    // Mark neighbors for update (but don't duplicate the stamped position itself)
                     for (int dx = -1; dx <= 1; dx++) {
                         for (int dy = -1; dy <= 1; dy++) {
                             for (int dz = -1; dz <= 1; dz++) {
                                 if (dx == 0 && dy == 0 && dz == 0) continue;
-                                BlockPos neighborPos = pos.offset(dx, dy, dz);
+                                BlockPos neighborPos = pos.offset(dx, dy, dz);//move this to long instead of pos
                                 // Only add if it's not in the positions list (avoid duplication)
                                 if (!positions.contains(neighborPos)) {
                                     needNeighborUpdate.add(neighborPos);
@@ -736,7 +724,6 @@ public final class MatrixTemperatureTicker {
             stampVoxel(neighborPos, data);
         }
 
-        return allSuccess;
     }
 
     /**
@@ -749,9 +736,6 @@ public final class MatrixTemperatureTicker {
      */
     public static boolean stampVoxel(@NotNull BlockPos pos, @NotNull PhysicsWorldData data) {
         ThermalMatrix matrix = data.getCachedMatrix();
-        if (matrix == null) {
-            return false; // No matrix to stamp into
-        }
 
         int sx = pos.getX() >> 4;
         int sy = pos.getY() >> 4;
@@ -839,7 +823,7 @@ public final class MatrixTemperatureTicker {
     }
 
     private static void updateDynamicData(@NotNull PhysicsWorldData data) {
-        List<BlockPos> toStamp = new ArrayList<>();
+        Set<BlockPos> toStamp = new ArrayList<>();
 
         data.getDynamicData().forEach((key, value) -> {
             BlockPos pos = BlockPos.of(key);
