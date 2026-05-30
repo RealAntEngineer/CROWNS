@@ -38,7 +38,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
     protected float getTimeStep() { return DT; }
 
     @Override
-    protected DataLayerType[] getRequiredLayers() {
+    protected DataLayerType<?>[] getRequiredLayers() {
         return new DataLayerType[]{
                 DataLayerType.TEMPERATURE,
                 DataLayerType.DEFAULT_TEMPERATURE,
@@ -258,8 +258,5 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
         public void setSolution(double[] solution) {
             System.arraycopy(solution, 0, T_next, 0, solution.length);
         }
-
-        public double[] currentTemperatures() { return T_current; }
-        public double[] nextTemperatures()    { return T_next; }
     }
 }

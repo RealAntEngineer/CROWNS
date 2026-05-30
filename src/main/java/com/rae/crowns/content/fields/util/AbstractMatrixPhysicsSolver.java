@@ -47,7 +47,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
     protected abstract float getTimeStep();
 
     /** Data layer types needed for neighbor lookups (preloaded into {@link NeighborCache}). */
-    protected abstract DataLayerType[] getRequiredLayers();
+    protected abstract DataLayerType<?>[] getRequiredLayers();
 
     /** Allocate a new, empty physics matrix of the concrete type. */
     protected abstract M createMatrix(LongSet sections, Long2IntMap sectionToIndex, int totalSize);
@@ -264,7 +264,8 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
                     int globalIdx = sectionStartIdx + index3DTo1D(x, y, z);
 
                     // Clear old entries for this row before rebuilding
-                    asm.clearRow(globalIdx);
+                    Map<Integer, Double> row = asm.getRow(globalIdx);
+                    if (row != null) row.clear();
                     src[globalIdx] = 0.0;
 
                     double diag = buildVoxelRow(
@@ -311,7 +312,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         int worldY = sectionPos.minBlockY() + ny;
         int worldZ = sectionPos.minBlockZ() + nz;
 
-        long nSection = SectionPos.asLong(worldX >> 4, worldY >> 4, worldZ >> 4);
+        long nSection = PosPackingUtil.packSection(worldX >> 4, worldY >> 4, worldZ >> 4);
         int nlx = worldX & 15;
         int nly = worldY & 15;
         int nlz = worldZ & 15;
@@ -439,11 +440,13 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
      */
     protected class NeighborCache {
         private final Long2IntMap sectionToIndex;
-        private final Map<Long, Map<DataLayerType, Object>> layerCache = new HashMap<>();
+        //TODO use an array of size 7 with the 6 first as neighbor (use the same mapping as neighbor_offset)
+        // and last as center
+        private final Map<Long, Map<DataLayerType<?>, Object>> layerCache = new HashMap<>();
 
         public NeighborCache(SectionPos center, PhysicsWorldData data, Long2IntMap sectionToIndex) {
             this.sectionToIndex = sectionToIndex;
-            DataLayerType[] needed = getRequiredLayers();
+            DataLayerType<?>[] needed = getRequiredLayers();
 
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dy = -1; dy <= 1; dy++) {
@@ -453,8 +456,8 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
                                 center.getY() + dy,
                                 center.getZ() + dz);
 
-                        Map<DataLayerType, Object> layers = new HashMap<>();
-                        for (DataLayerType type : needed) {
+                        Map<DataLayerType<?>, Object> layers = new HashMap<>();
+                        for (DataLayerType<?> type : needed) {
                             Object layer = data.getLayer(sec, type);
                             if (layer != null) layers.put(type, layer);
                         }
@@ -465,8 +468,8 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         }
 
         @SuppressWarnings("unchecked")
-        public <T> T getLayer(long section, DataLayerType type) {
-            Map<DataLayerType, Object> layers = layerCache.get(section);
+        public <T> T getLayer(long section, DataLayerType<?> type) {
+            Map<DataLayerType<?>, Object> layers = layerCache.get(section);
             return layers != null ? (T) layers.get(type) : null;
         }
 

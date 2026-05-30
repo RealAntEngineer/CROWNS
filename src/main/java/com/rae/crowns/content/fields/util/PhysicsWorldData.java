@@ -51,7 +51,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
     //matrix
 
-    private final HashMap<AbstractMatrixPhysicsSolver, AbstractMatrixPhysicsSolver.PhysicsMatrix> cachedMatrices = new HashMap<>();
+    private final HashMap<AbstractMatrixPhysicsSolver<?>, AbstractMatrixPhysicsSolver.PhysicsMatrix> cachedMatrices = new HashMap<>();
 
     public static PhysicsWorldData loadData(ServerLevel server) {
         return server.getDataStorage()
@@ -559,7 +559,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             }
 
             // Remove sent sections from dirty set
-            batch.forEach(changedSections::remove);
+            batch.forEach((s) ->changedSections.remove((long) s));
         }
     }
 
@@ -619,16 +619,11 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return collector;
     }
 
-    public AbstractMatrixPhysicsSolver.PhysicsMatrix getCachedMatrix(AbstractMatrixPhysicsSolver solver) {
+    public AbstractMatrixPhysicsSolver.PhysicsMatrix getCachedMatrix(AbstractMatrixPhysicsSolver<?> solver) {
         return cachedMatrices.get(solver);
     }
 
-    public void setCachedMatrix(AbstractMatrixPhysicsSolver solver, AbstractMatrixPhysicsSolver.PhysicsMatrix newMatrix) {
+    public void setCachedMatrix(AbstractMatrixPhysicsSolver<?> solver, AbstractMatrixPhysicsSolver.PhysicsMatrix newMatrix) {
         this.cachedMatrices.put(solver, newMatrix);
-    }
-
-
-    private static class DynamicDataManagement {
-
     }
 }
