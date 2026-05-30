@@ -2,7 +2,6 @@ package com.rae.crowns.content.fields.util;
 
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.temperature.ConductionDataLayer;
-import com.rae.crowns.content.fields.temperature.MatrixTemperatureTicker;
 import com.rae.crowns.content.fields.temperature.ResilienceDataLayer;
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;

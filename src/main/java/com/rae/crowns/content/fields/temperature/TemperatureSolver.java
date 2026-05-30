@@ -3,6 +3,7 @@ package com.rae.crowns.content.fields.temperature;
 import com.rae.crowns.content.fields.util.AbstractMatrixPhysicsSolver;
 import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
+import com.rae.formicapi.fondation.math.operators.HashSparseMatrix;
 import com.rae.formicapi.fondation.math.solvers.LeastSquare;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.longs.*;
@@ -12,30 +13,43 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-
 /**
- * Concrete implementation of matrix-based temperature diffusion solver.
- * Extends AbstractMatrixPhysicsSolver with temperature-specific physics.
+ * Implicit finite-difference temperature diffusion solver.
+ *
+ * <p>Discretises the heat equation:
+ * <pre>
+ *   C * (T_next - T_current) / dt = k∇²T_next + β*resilience*(T_default - T_next)
+ * </pre>
+ * Rearranged into the linear system {@code A * T_next = T_current + b_source}.
+ *
+ * <p>Only implements field I/O, dynamic data updates, and the per-voxel
+ * coefficient formula. All matrix management is handled by the base class.
  */
 public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<TemperatureSolver.ThermalMatrix> {
 
-    public static float DT = 1 / 20f;
+    public static float DT       = 1 / 20f;
     public static float CAPACITY = 3e4f;
 
+    // -------------------------------------------------------------------------
+    // Configuration
+    // -------------------------------------------------------------------------
+
     @Override
-    protected float getTimeStep() {
-        return DT;
-    }
+    protected float getTimeStep() { return DT; }
 
     @Override
     protected DataLayerType[] getRequiredLayers() {
         return new DataLayerType[]{
-            DataLayerType.TEMPERATURE,
-            DataLayerType.DEFAULT_TEMPERATURE,
-            DataLayerType.CONDUCTION,
-            DataLayerType.RESILIENCE
+                DataLayerType.TEMPERATURE,
+                DataLayerType.DEFAULT_TEMPERATURE,
+                DataLayerType.CONDUCTION,
+                DataLayerType.RESILIENCE
         };
     }
+
+    // -------------------------------------------------------------------------
+    // Matrix factory and cache
+    // -------------------------------------------------------------------------
 
     @Override
     protected ThermalMatrix createMatrix(LongSet sections, Long2IntMap sectionToIndex, int totalSize) {
@@ -52,47 +66,60 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
         data.setCachedMatrix(this, matrix);
     }
 
+    // -------------------------------------------------------------------------
+    // Field I/O
+    // -------------------------------------------------------------------------
+
     @Override
     protected void extractFieldValues(ThermalMatrix matrix, PhysicsWorldData data) {
         for (long packedSection : matrix.sections()) {
-            int sectionStartIdx = matrix.sectionToIndex().get(packedSection);
-            if (sectionStartIdx < 0) continue;
+            int start = matrix.sectionToIndex().get(packedSection);
+            if (start < 0) continue;
 
-            TemperatureDataLayer tempLayer = data.getLayer(packedSection, DataLayerType.TEMPERATURE);
-            if (tempLayer == null) continue;
+            TemperatureDataLayer layer = data.getLayer(packedSection, DataLayerType.TEMPERATURE);
+            if (layer == null) continue;
 
-            for (int z = 0; z < 16; z++) {
-                for (int y = 0; y < 16; y++) {
-                    for (int x = 0; x < 16; x++) {
-                        int localIdx = index3DTo1D(x, y, z);
-                        int globalIdx = sectionStartIdx + localIdx;
-                        matrix.T_current[globalIdx] = tempLayer.get(x, y, z);
-                    }
-                }
-            }
+            for (int z = 0; z < 16; z++)
+                for (int y = 0; y < 16; y++)
+                    for (int x = 0; x < 16; x++)
+                        matrix.T_current[start + index3DTo1D(x, y, z)] = layer.get(x, y, z);
         }
     }
 
     @Override
     protected void writeBackFieldValues(ThermalMatrix matrix, PhysicsWorldData data) {
         for (long packedSection : matrix.sections()) {
-            int sectionStartIdx = matrix.sectionToIndex().get(packedSection);
-            if (sectionStartIdx < 0) continue;
+            int start = matrix.sectionToIndex().get(packedSection);
+            if (start < 0) continue;
 
-            TemperatureDataLayer tempLayer = data.getLayer(packedSection, DataLayerType.TEMPERATURE);
-            if (tempLayer == null) continue;
+            TemperatureDataLayer layer = data.getLayer(packedSection, DataLayerType.TEMPERATURE);
+            if (layer == null) continue;
 
-            for (int z = 0; z < 16; z++) {
-                for (int y = 0; y < 16; y++) {
-                    for (int x = 0; x < 16; x++) {
-                        int localIdx = index3DTo1D(x, y, z);
-                        int globalIdx = sectionStartIdx + localIdx;
-                        tempLayer.set(x, y, z, (float) matrix.T_next[globalIdx]);
-                    }
-                }
-            }
+            for (int z = 0; z < 16; z++)
+                for (int y = 0; y < 16; y++)
+                    for (int x = 0; x < 16; x++)
+                        layer.set(x, y, z, (float) matrix.T_next[start + index3DTo1D(x, y, z)]);
         }
     }
+
+    // -------------------------------------------------------------------------
+    // RHS assembly: A*T_next = T_current + b_source
+    // -------------------------------------------------------------------------
+
+    /**
+     * Combines T_current and the source term into the RHS passed to the solver.
+     */
+    @Override
+    protected double[] buildRhs(ThermalMatrix matrix) {
+        double[] rhs = Arrays.copyOf(matrix.T_current, matrix.size());
+        double[] src = matrix.sourceVector();
+        for (int i = 0; i < rhs.length; i++) rhs[i] += src[i];
+        return rhs;
+    }
+
+    // -------------------------------------------------------------------------
+    // Physics: implicit diffusion + resilience
+    // -------------------------------------------------------------------------
 
     @Override
     protected double buildVoxelRow(
@@ -103,164 +130,128 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             int sectionStartIdx,
             PhysicsWorldData data,
             NeighborCache neighbors,
-            Int2DoubleMap row,
+            HashSparseMatrix assemblyMatrix,
             double[] sourceVector
     ) {
-        // Load voxel properties
-        ConductionDataLayer  condLayer        = neighbors.getLayer(packedSection, DataLayerType.CONDUCTION);
-        ResilienceDataLayer  resLayer         = neighbors.getLayer(packedSection, DataLayerType.RESILIENCE);
-        TemperatureDataLayer defaultTempLayer = neighbors.getLayer(packedSection, DataLayerType.DEFAULT_TEMPERATURE);
+        ConductionDataLayer  condLayer    = neighbors.getLayer(packedSection, DataLayerType.CONDUCTION);
+        ResilienceDataLayer  resLayer     = neighbors.getLayer(packedSection, DataLayerType.RESILIENCE);
+        TemperatureDataLayer defaultLayer = neighbors.getLayer(packedSection, DataLayerType.DEFAULT_TEMPERATURE);
 
-        if (condLayer == null || resLayer == null || defaultTempLayer == null) {
-            return 1.0; // Identity row if data missing
-        }
+        // Degenerate case — no data: identity row so the voxel just keeps its value
+        if (condLayer == null || resLayer == null || defaultLayer == null) return 1.0;
 
-        float selfCond = condLayer.get(x, y, z);
-        float res = resLayer.get(x, y, z);
-        float defaultTemp = defaultTempLayer.get(x, y, z);
+        float selfCond   = condLayer.get(x, y, z);
+        float res        = resLayer.get(x, y, z);
+        float defaultTemp = defaultLayer.get(x, y, z);
 
-        double gamma = DT / CAPACITY;
-        double beta = 1000.0 * DT / CAPACITY;
+        double gamma = (double) DT / CAPACITY;          // diffusion time-scale
+        double beta  = 1000.0 * DT / CAPACITY;          // resilience time-scale
 
-        // Source term: resilience pulling toward default temperature
+        // Resilience source: pulls voxel toward its default temperature
         sourceVector[globalIdx] = res * beta * defaultTemp;
 
-        // Diagonal coefficient starts with identity and resilience penalty
-        double diagCoeff = 1.0 - res * beta;
+        // Diagonal starts at 1 (implicit identity from T_current) and loses beta
+        double diag = 1.0 - res * beta;
 
-        // Process all 6 neighbors for diffusion
-        for (int[] offset : NEIGHBOR_OFFSETS) {
-            int nx = x + offset[0];
-            int ny = y + offset[1];
-            int nz = z + offset[2];
+        for (int[] off : NEIGHBOR_OFFSETS) {
+            NeighborInfo nb = getNeighborInfo(
+                    x + off[0], y + off[1], z + off[2],
+                    sectionPos, packedSection, sectionStartIdx, neighbors);
 
-            NeighborInfo neighbor = getNeighborInfo(nx, ny, nz, sectionPos, packedSection, sectionStartIdx, neighbors);
-            if (neighbor == null) continue;
+            if (nb == null) continue;
 
-            // Get neighbor conductivity
-            ConductionDataLayer nCondLayer = neighbors.getLayer(neighbor.section(), DataLayerType.CONDUCTION);
-            if (nCondLayer == null) continue;
+            ConductionDataLayer nbCond = neighbors.getLayer(nb.section(), DataLayerType.CONDUCTION);
+            if (nbCond == null) continue;
 
-            float neighborCond = nCondLayer.get(neighbor.localX(), neighbor.localY(), neighbor.localZ());
+            float neighborCond = nbCond.get(nb.localX(), nb.localY(), nb.localZ());
 
-            // Harmonic mean for effective conductivity
-            double k_eff = (selfCond <= 0 || neighborCond <= 0) ? 0.0 :
-                           2.0 * selfCond * neighborCond / (selfCond + neighborCond);
+            // Harmonic mean of the two conductivities
+            double k_eff = (selfCond <= 0 || neighborCond <= 0) ? 0.0
+                    : 2.0 * selfCond * neighborCond / (selfCond + neighborCond);
 
-            double condCoeff = (1.0 - res) * gamma * k_eff;
+            double coeff = (1.0 - res) * gamma * k_eff;
 
-            if (neighbor.isInMatrix()) {
-                // Neighbor is in the system - add off-diagonal term
-                row.put(neighbor.globalIndex(), condCoeff);
-                diagCoeff -= condCoeff;
+            if (nb.isInMatrix()) {
+                // Interior: off-diagonal coupling
+                assemblyMatrix.set(globalIdx, nb.globalIndex(), coeff);
+                diag -= coeff;
             } else {
-                // Boundary condition - neighbor not in system
-                TemperatureDataLayer nTempLayer = neighbors.getLayer(neighbor.section(), DataLayerType.TEMPERATURE);
-                if (nTempLayer != null) {
-                    float boundaryTemp = nTempLayer.get(neighbor.localX(), neighbor.localY(), neighbor.localZ());
-                    sourceVector[globalIdx] += condCoeff * boundaryTemp;
+                // Boundary: known temperature folds into the RHS
+                TemperatureDataLayer nbTemp = neighbors.getLayer(nb.section(), DataLayerType.TEMPERATURE);
+                if (nbTemp != null) {
+                    sourceVector[globalIdx] += coeff * nbTemp.get(nb.localX(), nb.localY(), nb.localZ());
                 }
             }
         }
 
-        return diagCoeff;
+        return diag;
     }
+
+    // -------------------------------------------------------------------------
+    // Dynamic data (block entities that act as heat sources)
+    // -------------------------------------------------------------------------
 
     @Override
     protected void updateDynamicData(@NotNull PhysicsWorldData data) {
         List<BlockPos> toStamp = new ArrayList<>();
 
-        data.getDynamicData().forEach((key, value) -> {
+        data.getDynamicData().forEach((key, source) -> {
+            if (source instanceof BlockEntity be && be.isRemoved()) return;
+
             BlockPos pos = BlockPos.of(key);
-
-            if (value instanceof BlockEntity blockEntity && blockEntity.isRemoved()) {
-                return;
-            }
-
             int sx = pos.getX() >> 4;
             int sy = pos.getY() >> 4;
             int sz = pos.getZ() >> 4;
             long packedSection = SectionPos.asLong(sx, sy, sz);
 
-            TemperatureDataLayer temperatureData = data.getLayer(packedSection, DataLayerType.TEMPERATURE);
-            TemperatureDataLayer defaultTemperatureData = data.getLayer(packedSection, DataLayerType.DEFAULT_TEMPERATURE);
-            ConductionDataLayer conductionData = data.getLayer(packedSection, DataLayerType.CONDUCTION);
-            ResilienceDataLayer resilienceData = data.getLayer(packedSection, DataLayerType.RESILIENCE);
+            TemperatureDataLayer tempLayer    = data.getLayer(packedSection, DataLayerType.TEMPERATURE);
+            TemperatureDataLayer defaultLayer = data.getLayer(packedSection, DataLayerType.DEFAULT_TEMPERATURE);
+            ConductionDataLayer  condLayer    = data.getLayer(packedSection, DataLayerType.CONDUCTION);
+            ResilienceDataLayer  resLayer     = data.getLayer(packedSection, DataLayerType.RESILIENCE);
 
-            if (temperatureData == null || defaultTemperatureData == null ||
-                    conductionData == null || resilienceData == null) {
-                return;
-            }
+            if (tempLayer == null || defaultLayer == null || condLayer == null || resLayer == null) return;
 
             int lx = pos.getX() & 15;
             int ly = pos.getY() & 15;
             int lz = pos.getZ() & 15;
 
-            float temp = value.getTemperature();
-
-            temperatureData.set(lx, ly, lz, temp);
-            defaultTemperatureData.set(lx, ly, lz, temp);
-            resilienceData.set(lx, ly, lz, 0);
-            conductionData.set(lx, ly, lz, value.getThermalConductivity());
+            float temp = source.getTemperature();
+            tempLayer.set(lx, ly, lz, temp);
+            defaultLayer.set(lx, ly, lz, temp);
+            resLayer.set(lx, ly, lz, 0f);
+            condLayer.set(lx, ly, lz, source.getThermalConductivity());
 
             data.setDirty(packedSection);
-
             toStamp.add(pos);
         });
 
-        if (!toStamp.isEmpty()) {
-            stampVoxels(toStamp, data);
-        }
+        if (!toStamp.isEmpty()) stampVoxels(toStamp, data);
     }
 
-    @Override
-    public void tick(@NotNull LongSet tickingSections, @NotNull PhysicsWorldData data) {
-        data.resetTicked();
-        updateDynamicData(data);
-
-        ThermalMatrix thermalMatrix = getOrBuildMatrix(tickingSections, data);
-        if (thermalMatrix == null || thermalMatrix.size() == 0) {
-            return;
-        }
-
-        extractFieldValues(thermalMatrix, data);
-
-        // Build right-hand side: T_current + source term
-        double[] rhs = Arrays.copyOf(thermalMatrix.T_current, thermalMatrix.size());
-        for (int i = 0; i < thermalMatrix.size(); i++) {
-            rhs[i] += thermalMatrix.b[i];
-        }
-
-        // Solve: A * T_next = rhs
-        double[] solution = LeastSquare.solve(
-                thermalMatrix.matrix(),
-                rhs,
-                getSolverMaxIterations(),
-                getSolverTolerance()
-        );
-
-        System.arraycopy(solution, 0, thermalMatrix.T_next, 0, solution.length);
-
-        writeBackFieldValues(thermalMatrix, data);
-        data.setDirty();
-    }
+    // -------------------------------------------------------------------------
+    // Concrete matrix type
+    // -------------------------------------------------------------------------
 
     /**
-     * Thermal matrix with temperature-specific state vectors
+     * Thermal matrix carrying the two temperature state vectors.
+     *
+     * <p>{@code T_current} is populated each tick from world data before the solve.
+     * {@code T_next} receives the solution and is written back afterward.
      */
     public static class ThermalMatrix extends PhysicsMatrix {
-        private final double[] T_current;
-        private final double[] T_next;
+        double[] T_current;
+        double[] T_next;
 
         public ThermalMatrix(LongSet sections, Long2IntMap sectionToIndex, int size) {
             super(sections, sectionToIndex, size);
-            this.T_current = new double[size];
-            this.T_next = new double[size];
+            T_current = new double[size];
+            T_next    = new double[size];
         }
 
         @Override
         protected void onGrow(int newSize) {
-            
+            T_current = Arrays.copyOf(T_current, newSize);
+            T_next    = Arrays.copyOf(T_next,    newSize);
         }
 
         @Override
@@ -268,12 +259,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             System.arraycopy(solution, 0, T_next, 0, solution.length);
         }
 
-        public double[] getCurrentTemperatures() {
-            return T_current;
-        }
-
-        public double[] getNextTemperatures() {
-            return T_next;
-        }
+        public double[] currentTemperatures() { return T_current; }
+        public double[] nextTemperatures()    { return T_next; }
     }
 }

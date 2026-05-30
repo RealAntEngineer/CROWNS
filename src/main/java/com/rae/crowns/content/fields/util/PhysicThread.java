@@ -1,6 +1,6 @@
 package com.rae.crowns.content.fields.util;
 
-import com.rae.crowns.content.fields.temperature.MatrixTemperatureTicker;
+import com.rae.crowns.content.fields.temperature.TemperatureSolver;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 public class PhysicThread extends Thread {
 
     private static   PhysicThread INSTANCE;
+    private static  TemperatureSolver tempSolver = new TemperatureSolver();
     private final    long         intervalNs;
     private volatile boolean      running = true;
     private          int          tickCounter;
@@ -84,7 +85,7 @@ public class PhysicThread extends Thread {
             }
         }
 
-        MatrixTemperatureTicker.tick(toTick, data);
+        tempSolver.tick(toTick, data);
         //RANSTicker.tick(toTick, data);
 
 

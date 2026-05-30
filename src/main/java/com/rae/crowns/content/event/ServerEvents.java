@@ -1,7 +1,7 @@
 package com.rae.crowns.content.event;
 
 import com.rae.crowns.CROWNS;
-import com.rae.crowns.content.fields.temperature.MatrixTemperatureTicker;
+import com.rae.crowns.content.fields.temperature.TemperatureSolver;
 import com.rae.crowns.content.fields.util.PhysicThread;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
@@ -38,7 +38,7 @@ public class ServerEvents {
     public static void onServerStarted(@NotNull ServerStartedEvent event) {
         SteamFlowManager.serverStarted(event.getServer());
         PhysicsSaveManager.serverStarted(event.getServer());
-        PhysicThread.launchPhysicThread((double) 1 / MatrixTemperatureTicker.DT);
+        PhysicThread.launchPhysicThread((double) 1 / TemperatureSolver.DT);
     }
 
 }
