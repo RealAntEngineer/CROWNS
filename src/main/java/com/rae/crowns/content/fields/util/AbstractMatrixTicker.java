@@ -2,14 +2,10 @@ package com.rae.crowns.content.fields.util;
 
 
 import com.rae.crowns.content.fields.temperature.ConductionDataLayer;
-import com.rae.crowns.content.fields.temperature.MutableCSRMatrix;
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.SectionPos;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class implement everything needed to do a voxel simulation.

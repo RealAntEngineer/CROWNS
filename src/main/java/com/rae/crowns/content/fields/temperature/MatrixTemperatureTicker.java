@@ -1,9 +1,6 @@
 package com.rae.crowns.content.fields.temperature;
 
-import com.rae.crowns.content.fields.util.AbstractMatrixTicker;
-import com.rae.crowns.content.fields.util.DataLayerType;
-import com.rae.crowns.content.fields.util.PhysicsWorldData;
-import com.rae.crowns.content.fields.util.PosPackingUtil;
+import com.rae.crowns.content.fields.util.*;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.formicapi.fondation.math.solvers.LeastSquare;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;

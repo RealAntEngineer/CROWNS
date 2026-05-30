@@ -52,7 +52,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
     //matrix
 
-    private MatrixTemperatureTicker.PhysicsMatrix cachedMatrix;
+    private final HashMap<AbstractMatrixPhysicsSolver, AbstractMatrixPhysicsSolver.PhysicsMatrix> cachedMatrices = new HashMap<>();
 
     public static PhysicsWorldData loadData(ServerLevel server) {
         return server.getDataStorage()
@@ -620,12 +620,12 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return collector;
     }
 
-    public MatrixTemperatureTicker.PhysicsMatrix getCachedMatrix() {
-        return cachedMatrix;
+    public AbstractMatrixPhysicsSolver.PhysicsMatrix getCachedMatrix(AbstractMatrixPhysicsSolver solver) {
+        return cachedMatrices.get(solver);
     }
 
-    public void setCachedMatrix(MatrixTemperatureTicker.PhysicsMatrix newMatrix) {
-        this.cachedMatrix = newMatrix;
+    public void setCachedMatrix(AbstractMatrixPhysicsSolver solver, AbstractMatrixPhysicsSolver.PhysicsMatrix newMatrix) {
+        this.cachedMatrices.put(solver, newMatrix);
     }
 
 
