@@ -22,6 +22,13 @@ public class PosPackingUtil {
                 | ((long) sy & 0xFFFFF);
     }
 
+    public static long offsetPackedSection(long packed, int dx, int dy, int dz) {
+        return packed
+                + ((long) dx << 42)  // X field
+                + ((long) dz << 20)  // Z field
+                + dy;                // Y field
+    }
+
     public static int unpackSectionX(long packed) {
         return (int) (packed >> 42);
     }
