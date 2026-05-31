@@ -14,11 +14,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SteamFlowData extends SavedData {
     //static Codec<Map<ResourceLocation,List<SteamCurrent>>> CODEC = Codec.unboundedMap(ResourceLocation.CODEC,Codec.list(SteamCurrent.CODEC));
     static final Codec<List<ResourceLocation>> KEYS_CODEC = Codec.list(ResourceLocation.CODEC);
-    Map<ResourceLocation, List<SteamCurrent>> steamCurrents = new HashMap<>();
+    ConcurrentHashMap<ResourceLocation, List<SteamCurrent>> steamCurrents = new ConcurrentHashMap<>();
 
     public static SteamFlowData loadData(MinecraftServer server) {
         return server.overworld()
@@ -63,5 +64,4 @@ public class SteamFlowData extends SavedData {
 
         return nbt;
     }
-
 }
