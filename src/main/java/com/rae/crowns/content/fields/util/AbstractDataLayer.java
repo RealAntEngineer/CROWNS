@@ -33,6 +33,8 @@ public abstract class AbstractDataLayer {
      * Calculates a linear index from 3D coordinates (0–15).
      */
     protected static int index(int x, int y, int z) {
+        if (x < 0 || x > 15 || y < 0 || y > 15 || z < 0 || z > 15)
+            throw new IllegalStateException("Invalid voxel coord: " + x + "," + y + "," + z);
         return (y << 8) | (z << 4) | x;
     }
 

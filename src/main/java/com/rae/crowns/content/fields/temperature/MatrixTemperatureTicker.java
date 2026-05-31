@@ -195,12 +195,11 @@ public final class MatrixTemperatureTicker {
             double condCoeff = (1.0 - res) * gamma * k_eff;
 
             if (neighbor.isInMatrix()) {
-                row.put(neighbor.globalIndex(), condCoeff);
-                diagCoeff -= condCoeff;
+                row.put(neighbor.globalIndex(), -condCoeff);
+                diagCoeff += condCoeff;
             } else {
-                // FIXED: boundary term only affects RHS, NOT diagonal
                 b[globalIdx] += condCoeff * neighbor.temperature();
-                // DO NOT add to diagCoeff here!
+                diagCoeff += condCoeff;
             }
         }
 
@@ -357,25 +356,18 @@ public final class MatrixTemperatureTicker {
             SectionPos existingPos = SectionPos.of(existingSection);
 
             boolean hasNewNeighbor = false;
-            for (int dx = -1; dx <= 1; dx++) {
-                for (int dy = -1; dy <= 1; dy++) {
-                    for (int dz = -1; dz <= 1; dz++) {
-                        if (dx == 0 && dy == 0 && dz == 0) continue;
+            for (int[] offset : OFFSETS) {
 
-                        long neighborSection = SectionPos.asLong(
-                                existingPos.getX() + dx,
-                                existingPos.getY() + dy,
-                                existingPos.getZ() + dz
-                        );
+                long neighborSection = SectionPos.asLong(
+                        existingPos.getX() + offset[0],
+                        existingPos.getY() + offset[1],
+                        existingPos.getZ() + offset[2]);
 
-                        if (addedSections.contains(neighborSection)) {
-                            hasNewNeighbor = true;
-                            break;
-                        }
-                    }
-                    if (hasNewNeighbor) break;
+                if (addedSections.contains(neighborSection)) {
+                    hasNewNeighbor = true;
+                    break;
                 }
-                if (hasNewNeighbor) break;
+
             }
 
             if (hasNewNeighbor) {
@@ -708,7 +700,7 @@ public final class MatrixTemperatureTicker {
                 if (!stampVoxel(pos, data)) {
                     allSuccess = false;
                 } else {
-                    // FIXED: Mark neighbors for update (but don't duplicate the stamped position itself)
+                    // Mark neighbors for update (but don't duplicate the stamped position itself)
                     for (int dx = -1; dx <= 1; dx++) {
                         for (int dy = -1; dy <= 1; dy++) {
                             for (int dz = -1; dz <= 1; dz++) {
@@ -762,7 +754,7 @@ public final class MatrixTemperatureTicker {
 
         NeighborCache neighbors = new NeighborCache(sectionPos, data, matrix.sectionToIndex);
 
-        return updateVoxelRow(pos.getX(), pos.getY(), pos.getZ(),
+        return updateVoxelRow(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15,
                 packedSection, sectionPos, sectionStartIdx, matrix.matrix(), matrix.b, data, neighbors);
     }
 

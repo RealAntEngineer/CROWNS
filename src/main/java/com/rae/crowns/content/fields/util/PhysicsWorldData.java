@@ -52,7 +52,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
     //matrix
 
-    private MatrixTemperatureTicker.ThermalMatrix cachedMatrix;
+    private @Nullable MatrixTemperatureTicker.ThermalMatrix cachedMatrix;
 
     public static PhysicsWorldData loadData(ServerLevel server) {
         return server.getDataStorage()
@@ -620,13 +620,11 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return collector;
     }
 
-    public MatrixTemperatureTicker.ThermalMatrix getCachedMatrix() {
+    public @Nullable MatrixTemperatureTicker.ThermalMatrix getCachedMatrix() {
         return cachedMatrix;
     }
 
     public void setCachedMatrix(MatrixTemperatureTicker.ThermalMatrix newMatrix) {
         this.cachedMatrix = newMatrix;
     }
-
-
 }

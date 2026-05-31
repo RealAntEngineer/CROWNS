@@ -35,7 +35,7 @@ public class SteamFlowManager {
             storage.steamCurrents.put(world.dimension().location(), new ArrayList<>());
         }
         int before = getSFAmount();
-        storage.steamCurrents.get(world.dimension().location())
+        storage.steamCurrents.getOrDefault(world.dimension().location(), List.of())
                 .removeIf(Objects::isNull);//ensure no Null Values
         int after = getSFAmount();
 
