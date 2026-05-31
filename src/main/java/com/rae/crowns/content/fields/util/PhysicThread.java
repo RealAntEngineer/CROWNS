@@ -8,9 +8,9 @@ import net.minecraft.server.level.ServerLevel;
 
 public class PhysicThread extends Thread {
 
-    private static   PhysicThread INSTANCE;
-    private static  TemperatureSolver tempSolver = new TemperatureSolver();
-    private final    long         intervalNs;
+    private static       PhysicThread      INSTANCE;
+    private static final TemperatureSolver tempSolver = new TemperatureSolver();
+    private final        long              intervalNs;
     private volatile boolean      running = true;
     private          int          tickCounter;
 

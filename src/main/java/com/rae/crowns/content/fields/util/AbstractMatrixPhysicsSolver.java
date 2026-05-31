@@ -424,6 +424,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         public abstract void setSolution(double[] solution);
     }
 
+    //TODO would be best to have this as a mutable class, that way there is less impact on the garbage collector
     /** Compact description of a neighboring voxel. */
     protected record NeighborInfo(
             int  globalIndex,   // index in the global matrix (-1 = not in matrix)
@@ -442,7 +443,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         private final Long2IntMap sectionToIndex;
         //TODO use an array of size 7 with the 6 first as neighbor (use the same mapping as neighbor_offset)
         // and last as center
-        private final Map<Long, Map<DataLayerType<?>, Object>> layerCache = new HashMap<>();
+        private final Map<Long, EnumMap<DataLayerType<?>, Object>> layerCache = new HashMap<>();
 
         public NeighborCache(SectionPos center, PhysicsWorldData data, Long2IntMap sectionToIndex) {
             this.sectionToIndex = sectionToIndex;
