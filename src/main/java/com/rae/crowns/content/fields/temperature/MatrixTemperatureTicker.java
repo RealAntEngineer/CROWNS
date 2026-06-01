@@ -148,7 +148,7 @@ public final class MatrixTemperatureTicker {
                     newRow.clear();
 
 
-                    double diagCoeff = 1.0 - res * beta;
+                    double diagCoeff = 1.0 + res * beta;
 
                     // Process neighbors
                     processNeighborsForRow(
@@ -639,10 +639,8 @@ public final class MatrixTemperatureTicker {
             for (int z = 0; z < 16; z++) {
                 for (int y = 0; y < 16; y++) {
                     for (int x = 0; x < 16; x++) {
-                        float newTemp = (float) Math.max(
-                                TemperatureDataLayer.MIN_TEMPERATURE,
-                                Math.min(matrix.T_next[idx++], TemperatureDataLayer.MAX_TEMPERATURE)
-                        );
+                        float newTemp = (float) Math.clamp(matrix.T_next[idx++],
+                                TemperatureDataLayer.MIN_TEMPERATURE, TemperatureDataLayer.MAX_TEMPERATURE);
 
                         float oldTemp = layer.get(x, y, z);
 
@@ -914,7 +912,7 @@ public final class MatrixTemperatureTicker {
     private static class NeighborCache {
         private final Long2IntMap                     sectionToIndex;
 
-        //arrays [neighbors, center] for fast access
+        //arrays [neighbors..., center] for fast access
         private final ConductionDataLayer[]  condCache = new ConductionDataLayer[7];
         private final TemperatureDataLayer[] tempCache = new TemperatureDataLayer[7];
 
@@ -940,8 +938,8 @@ public final class MatrixTemperatureTicker {
             }
 
             AbstractDataLayer[]    layers = data.getLayers(center.asLong(), DataLayerType.CONDUCTION, DataLayerType.TEMPERATURE);
-            if (layers[0] != null) condCache[i] = (ConductionDataLayer) layers[0];
-            if (layers[1] != null) tempCache[i] = (TemperatureDataLayer) layers[1];
+            if (layers[0] != null) condCache[6] = (ConductionDataLayer) layers[0];
+            if (layers[1] != null) tempCache[6] = (TemperatureDataLayer) layers[1];
         }
 
         public ConductionDataLayer getSectionConduction(int section) {
