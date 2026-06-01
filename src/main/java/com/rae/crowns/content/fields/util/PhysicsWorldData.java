@@ -36,6 +36,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     public static final  int                                                      DATA_VERSION        = 13;
     private static final int                                                      DYNAMIC_RANGE       = 1;
     // Generic unified map: one Long2ObjectMap per DataLayerType
+    //TODO use an enum map instead (will require creating a key Data layer type and a map to get it, instead of the Registry for exemple ?)
     private final        Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> layers              = new HashMap<>();//stored
     // Dynamic and meta state
     private final        Long2ObjectMap<DataLayerType<?>[]>                       toInitialise        = new Long2ObjectOpenHashMap<>();//stored
@@ -48,11 +49,8 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     private final        Long2IntMap                                              sectionDynamicCount = new Long2IntOpenHashMap();//recomputed
     private final        LongSet                                                  nearDynamicSections = new LongOpenHashSet();//recomputed
     private              int                                                      currentTime         = -1;//recomputed
-
-
-    //matrix
-
-    private @Nullable MatrixTemperatureTicker.ThermalMatrix cachedMatrix;
+    // Matrix
+    private @Nullable MatrixTemperatureTicker.ThermalMatrix cachedMatrix = null;
 
     public static PhysicsWorldData loadData(ServerLevel server) {
         return server.getDataStorage()

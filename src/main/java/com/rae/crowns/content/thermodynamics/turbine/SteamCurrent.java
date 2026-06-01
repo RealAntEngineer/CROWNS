@@ -353,7 +353,7 @@ public class SteamCurrent {
         Direction      dir        = this.direction;
         List<BlockPos> sortedKeys = new ArrayList<>();
         for (BlockPos p : stateMap.keySet()) {
-            if (p != null && level.getBlockEntity(p) != null) sortedKeys.add(p);
+            if (p != null && level.getChunkAt(p).getBlockEntity(p) != null) sortedKeys.add(p);
         }
 
         final int sign = dir.getAxisDirection() == Direction.AxisDirection.POSITIVE ? 1 : -1;
@@ -383,7 +383,7 @@ public class SteamCurrent {
 
     private void transferToCollector(@NotNull Level level) {
         assert collectorPos != null;
-        BlockEntity be = level.getBlockEntity(collectorPos);
+        BlockEntity be = level.getChunkAt(collectorPos).getBlockEntity(collectorPos);
         if (be instanceof SteamCollectorBlockEntity steamCollector) {
             try {
                 if (getDirection().getOpposite() == steamCollector.getBlockState().getValue(SteamCollectorBlock.FACING)) {
@@ -398,7 +398,7 @@ public class SteamCurrent {
     }
 
     public @NotNull SpecificRealGasState getInputFluidState(@NotNull Level level) {
-        BlockEntity be = level.getBlockEntity(injectorPos);
+        BlockEntity be = level.getChunkAt(injectorPos).getBlockEntity(injectorPos);
         if (be instanceof SteamInputBlockEntity) {
             inputFluidState = ((SteamInputBlockEntity) be).getState();
             valid = true;
@@ -410,7 +410,7 @@ public class SteamCurrent {
     }
 
     public float getFlow(@NotNull Level level) {
-        BlockEntity be = level.getBlockEntity(injectorPos);
+        BlockEntity be = level.getChunkAt(injectorPos).getBlockEntity(injectorPos, LevelChunk.EntityCreationType.CHECK);
         if (be instanceof SteamInputBlockEntity) {
             flow = ((SteamInputBlockEntity) be).getFlow();
         }
@@ -476,7 +476,7 @@ public class SteamCurrent {
                     break;
                 } else {
                     BlockPos    controller       = MBStructureBlock.getMaster(world, currentPos);
-                    BlockEntity controllerEntity = world.getBlockEntity(controller);
+                    BlockEntity controllerEntity = world.getChunkAt(controller).getBlockEntity(controller);
                     if (controllerEntity instanceof TurbineStageBlockEntity) {
                         Direction controllerFacing = world.getBlockState(controller).getValue(DirectionalBlock.FACING);
                         if (facing.getAxis() == controllerFacing.getAxis()) {

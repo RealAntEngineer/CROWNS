@@ -138,6 +138,7 @@ public class PhysicsSaveManager {
     public static void serverStarted(MinecraftServer server) {
         serverInstance = server;
         worldDataMap.clear();
+        worldLoadedSections.clear();
         for (ServerLevel level : server.getAllLevels()) {
             worldDataMap.put(level.dimension(), PhysicsWorldData.loadData(level));
         }

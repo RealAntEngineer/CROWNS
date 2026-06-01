@@ -197,7 +197,7 @@ public class ThermodynamicsScene {
         scene.overlay().showText(20 * 4)
                 .text("At the difference of the turbine the increase in pressure depends on the speed");
 
-        Pressure unit = FormicAPIConfigs.CLIENT.units.pressure.get();
+        Pressure unit = FormicAPIConfigs.COMMON.units.pressure.get();
         scene.idleSeconds(8);
         scene.addKeyframe();
         scene.overlay().showText(20 * 15)

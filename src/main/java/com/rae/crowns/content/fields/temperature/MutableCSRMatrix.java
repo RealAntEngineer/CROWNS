@@ -66,6 +66,7 @@ public class MutableCSRMatrix implements MutableMatrix {
         } else {
             rowMaps[row].put(col, value);
         }
+        //onl dirty if the column doesn't exist yet or if it's removed
         dirty = true;
     }
 
@@ -77,7 +78,7 @@ public class MutableCSRMatrix implements MutableMatrix {
 
         if (value != 0.0) {
             rowMaps[row].put(col, rowMaps[row].get(col) + value);
-            dirty = true;
+            dirty = true;//no need for full rebuild no ?
         }
     }
 

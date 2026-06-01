@@ -1,5 +1,6 @@
 package com.rae.crowns.content.fields.temperature;
 
+import com.rae.crowns.content.fields.util.AbstractDataLayer;
 import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.fields.util.PosPackingUtil;
@@ -35,7 +36,8 @@ public final class MatrixTemperatureTicker {
         updateDynamicData(data);
 
         ThermalMatrix thermalMatrix = getOrBuildMatrix(tickingSections, data);
-        if (thermalMatrix == null || thermalMatrix.size == 0) {
+        data.setCachedMatrix(thermalMatrix);
+        if (thermalMatrix.size == 0) {
             return;
         }
 
@@ -52,7 +54,7 @@ public final class MatrixTemperatureTicker {
                 thermalMatrix.matrix,
                 rhs,
                 200,
-                1e-1f
+                1e-3f
         );
 
         System.arraycopy(solution, 0, thermalMatrix.T_next, 0, solution.length);
@@ -69,9 +71,7 @@ public final class MatrixTemperatureTicker {
 
         if (cached == null) {
             // No cache - build from scratch
-            cached = buildUnifiedMatrix(tickingSections, data);
-            data.setCachedMatrix(cached);
-            return cached;
+            return buildUnifiedMatrix(tickingSections, data);
         }
 
         // Check what changed
@@ -124,7 +124,9 @@ public final class MatrixTemperatureTicker {
 
         // Pre-load neighbor cache
         NeighborCache neighbors = new NeighborCache(sectionPos, data, matrix.sectionToIndex);
-
+        Int2DoubleMap newRow = new Int2DoubleOpenHashMap(8, 0.9f);
+        //we will always have 7 items, 8 to avoid collision and to have a power of 2
+        newRow.defaultReturnValue(0.0);
         // Update all voxels in this section
         for (int z = 0; z < 16; z++) {
             for (int y = 0; y < 16; y++) {
@@ -142,9 +144,9 @@ public final class MatrixTemperatureTicker {
                     // Update source vector
                     matrix.b[globalIdx] = res * beta * defaultTemp;
 
-                    // Build new row
-                    Int2DoubleMap newRow = new Int2DoubleOpenHashMap();
-                    newRow.defaultReturnValue(0.0);
+                    // Build new row -> row should be an array, it's of size 7 so it's not efficient to use a map
+                    newRow.clear();
+
 
                     double diagCoeff = 1.0 - res * beta;
 
@@ -775,8 +777,8 @@ public final class MatrixTemperatureTicker {
         // Check if in same section
         if (nx >= 0 && nx < 16 && ny >= 0 && ny < 16 && nz >= 0 && nz < 16) {
             // Same section
-            ConductionDataLayer  condLayer = neighbors.getSectionConduction(packedSection);
-            TemperatureDataLayer tempLayer = neighbors.getSectionTemperature(packedSection);
+            ConductionDataLayer  condLayer = neighbors.getSectionConduction(6);
+            TemperatureDataLayer tempLayer = neighbors.getSectionTemperature(6);
 
             if (condLayer == null || tempLayer == null) return null;
 
@@ -798,8 +800,15 @@ public final class MatrixTemperatureTicker {
 
         long nSection = SectionPos.asLong(worldX >> 4, worldY >> 4, worldZ >> 4);
 
-        ConductionDataLayer  nCondLayer = neighbors.getSectionConduction(nSection);
-        TemperatureDataLayer nTempLayer = neighbors.getSectionTemperature(nSection);
+        int nidx =
+            nx == -1 ? 0 :
+            nx == 16 ? 1 :
+            ny == -1 ? 2 :
+            ny == 16 ? 3 :
+            nz == -1 ? 4 : 5;
+
+        ConductionDataLayer  nCondLayer = neighbors.getSectionConduction(nidx);
+        TemperatureDataLayer nTempLayer = neighbors.getSectionTemperature(nidx);
 
         if (nCondLayer == null || nTempLayer == null) return null;
 
@@ -904,38 +913,43 @@ public final class MatrixTemperatureTicker {
      */
     private static class NeighborCache {
         private final Long2IntMap                     sectionToIndex;
-        private final Map<Long, ConductionDataLayer>  condCache = new HashMap<>();
-        private final Map<Long, TemperatureDataLayer> tempCache = new HashMap<>();
+
+        //arrays [neighbors, center] for fast access
+        private final ConductionDataLayer[]  condCache = new ConductionDataLayer[7];
+        private final TemperatureDataLayer[] tempCache = new TemperatureDataLayer[7];
 
         public NeighborCache(SectionPos center, PhysicsWorldData data, Long2IntMap sectionToIndex) {
             this.sectionToIndex = sectionToIndex;
 
-            // Preload center and 26 neighbors
-            for (int dx = -1; dx <= 1; dx++) {
-                for (int dy = -1; dy <= 1; dy++) {
-                    for (int dz = -1; dz <= 1; dz++) {
-                        long section = SectionPos.asLong(
-                                center.getX() + dx,
-                                center.getY() + dy,
-                                center.getZ() + dz
-                        );
+            // Preload center and 6 neighbors
 
-                        ConductionDataLayer  cond = data.getLayer(section, DataLayerType.CONDUCTION);
-                        TemperatureDataLayer temp = data.getLayer(section, DataLayerType.TEMPERATURE);
+            int i = 0;
+            for (int[] offset :  OFFSETS) {
+                int dx= offset[0], dy = offset[1], dz = offset[2];
+                long section = SectionPos.asLong(
+                        center.getX() + dx,
+                        center.getY() + dy,
+                        center.getZ() + dz
+                );
 
-                        if (cond != null) condCache.put(section, cond);
-                        if (temp != null) tempCache.put(section, temp);
-                    }
-                }
+                AbstractDataLayer[]    layers = data.getLayers(section, DataLayerType.CONDUCTION, DataLayerType.TEMPERATURE);
+                if (layers[0] != null) condCache[i] = (ConductionDataLayer) layers[0];
+                if (layers[1] != null) tempCache[i] = (TemperatureDataLayer) layers[1];
+
+                i++;
             }
+
+            AbstractDataLayer[]    layers = data.getLayers(center.asLong(), DataLayerType.CONDUCTION, DataLayerType.TEMPERATURE);
+            if (layers[0] != null) condCache[i] = (ConductionDataLayer) layers[0];
+            if (layers[1] != null) tempCache[i] = (TemperatureDataLayer) layers[1];
         }
 
-        public ConductionDataLayer getSectionConduction(long section) {
-            return condCache.get(section);
+        public ConductionDataLayer getSectionConduction(int section) {
+            return condCache[section];
         }
 
-        public TemperatureDataLayer getSectionTemperature(long section) {
-            return tempCache.get(section);
+        public TemperatureDataLayer getSectionTemperature(int section) {
+            return tempCache[section];
         }
 
         public int getSectionStartIndex(long section) {
