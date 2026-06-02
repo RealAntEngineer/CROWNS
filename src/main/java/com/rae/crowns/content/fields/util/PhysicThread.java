@@ -1,17 +1,17 @@
 package com.rae.crowns.content.fields.util;
 
-import com.rae.crowns.content.fields.temperature.MatrixTemperatureTicker;
-import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
+import com.rae.crowns.content.fields.temperature.TemperatureSolver;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.server.level.ServerLevel;
 
 public class PhysicThread extends Thread {
 
-    private static   PhysicThread INSTANCE;
-    private final    long         intervalNs;
-    private volatile boolean      running = true;
-    private          int          tickCounter;
+    private static   PhysicThread      INSTANCE;
+    private final    TemperatureSolver tempSolver = new TemperatureSolver();
+    private final    long              intervalNs;
+    private volatile boolean           running    = true;
+    private          int               tickCounter;
 
     public PhysicThread(double ticksPerSecond) {
         this.intervalNs = (long) (1_000_000_000D / ticksPerSecond);
@@ -40,11 +40,12 @@ public class PhysicThread extends Thread {
                 for (ServerLevel serverLevel : PhysicsSaveManager.getServers()) {
                     tick(serverLevel);
                 }
-
+                //System.out.println("Tick taking " + (System.nanoTime() - now) * 1e-6 + " ms");
                 nextTickTime += intervalNs;
 
                 // Catch up if we're lagging behind
                 if (now > nextTickTime) {
+                    // + update the DT on the temperature solver
                     nextTickTime = now + intervalNs;
                 }
             } else {
@@ -84,14 +85,13 @@ public class PhysicThread extends Thread {
             }
         }
 
-        MatrixTemperatureTicker.tick(toTick, data);
+        tempSolver.tick(toTick, data);
         //RANSTicker.tick(toTick, data);
 
 
         if (tickCounter % (20) == 0) {
             PhysicsSaveManager.sendUpdate(serverLevel);
         }
-        SteamFlowManager.tick(serverLevel);
         tickCounter++;
     }
 

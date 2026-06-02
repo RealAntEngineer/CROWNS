@@ -120,6 +120,8 @@ public class DebugRenderer {
         MultiBufferSource.BufferSource buffer =
                 mc.renderBuffers().bufferSource();
         float defaultTemp = CROWNS.BIOME_TEMPERATURES.getValue(biome.value(), 300f);
+        float width = font.width(formatTemp(defaultTemp)) / 2f;
+
         for (int x = -RADIUS; x <= RADIUS; x++) {
             for (int y = -RADIUS; y <= RADIUS; y++) {
                 for (int z = -RADIUS; z <= RADIUS; z++) {
@@ -131,7 +133,7 @@ public class DebugRenderer {
 
                     int color = temperatureToColor(temp);
                     labelPos = Vec3.atCenterOf(mutablePos);
-                    renderFloatingText(poseStack, font, formatTemp(temp), labelPos, color, cam, mc, buffer);
+                    renderFloatingText(poseStack, font, width,formatTemp(temp), labelPos, color, cam, mc, buffer);
                 }
             }
         }
@@ -145,14 +147,14 @@ public class DebugRenderer {
     }
 
     private static int temperatureToColor(float temperature) {
-        float t = Math.min(1f, Math.max(0f, (temperature - 200f) / 200f));
+        float t = Math.clamp((temperature - 200f) / 200f, 0f, 1f);
         int   r = (int) (t * 255);
         int   g = (int) ((1 - Math.abs(t - 0.5f) * 2) * 255);
         int   b = (int) ((1 - t) * 255);
         return (0xFF << 24) | (r << 16) | (g << 8) | b; // ← added alpha
     }
 
-    private static void renderFloatingText(@NotNull PoseStack poseStack, @NotNull Font font, @NotNull String text,
+    private static void renderFloatingText(@NotNull PoseStack poseStack, @NotNull Font font,float width, @NotNull String text,
                                            @NotNull Vec3 worldPos, int color, @NotNull Vec3 cam, @NotNull Minecraft mc,
                                            MultiBufferSource.BufferSource buffer) {
         double dx = worldPos.x - cam.x;
@@ -171,7 +173,6 @@ public class DebugRenderer {
         poseStack.mulPose(new Quaternionf().rotationYXZ(yaw, pitch, 0f));
         poseStack.scale(-0.02F, -0.02F, -0.02F);
 
-        float width = font.width(text) / 2f;
         font.drawInBatch(text, -width, 0, color, false, poseStack.last().pose(),
                 buffer, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
 
@@ -180,6 +181,30 @@ public class DebugRenderer {
 
     private static String formatTemp(double temp) {
         long rounded = Math.round(temp * 10);
-        return (rounded / 10) + "." + (Math.abs(rounded) % 10) + "K";
+        int intPart = (int)(rounded / 10);
+        int decDigit = (int)(rounded % 10); // always positive: 0–6000 K, no negatives
+
+        // Determine digit count via thresholds
+        int intDigits = intPart >= 1000 ? 4
+                : intPart >= 100  ? 3
+                  : intPart >= 10   ? 2
+                    : 1;
+
+        // Format: intDigits + '.' + 1 decimal + 'K'
+        char[] buf = new char[intDigits + 3];
+        int pos = buf.length - 1;
+
+        buf[pos--] = 'K';
+        buf[pos--] = (char)('0' + decDigit);
+        buf[pos--] = '.';
+
+        int n = intPart;
+        int count = intDigits;
+        while (count-- > 0) {
+            buf[pos--] = (char)('0' + (n % 10));
+            n /= 10;
+        }
+
+        return new String(buf);
     }
 }

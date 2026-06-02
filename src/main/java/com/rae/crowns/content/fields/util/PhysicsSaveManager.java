@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PhysicsSaveManager {
     private static final Map<ResourceKey<Level>, PhysicsWorldData> worldDataMap = new ConcurrentHashMap<>();
     private static final    Map<ResourceKey<Level>, LongSet> worldLoadedSections = new ConcurrentHashMap<>();
-    private static MinecraftServer                  serverInstance;
+    private static @Nullable MinecraftServer                  serverInstance;
     //they are here to count the sections that are loaded or not.
 
     @SubscribeEvent
@@ -48,7 +48,7 @@ public class PhysicsSaveManager {
     }
 
 
-    //doesn't give use newly generated chunks ?
+    //doesn't give us newly generated chunks ?
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
@@ -138,7 +138,7 @@ public class PhysicsSaveManager {
     public static void serverStarted(MinecraftServer server) {
         serverInstance = server;
         worldDataMap.clear();
-        worldLoadedSections.clear();
+        //worldLoadedSections.clear();
         for (ServerLevel level : server.getAllLevels()) {
             worldDataMap.put(level.dimension(), PhysicsWorldData.loadData(level));
         }

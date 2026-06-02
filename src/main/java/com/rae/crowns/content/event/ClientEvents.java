@@ -24,7 +24,6 @@ import java.util.List;
 
 @EventBusSubscriber(modid = CROWNS.MODID)
 public class ClientEvents {
-
     @SubscribeEvent
     public static void onClientLevelTick(LevelTickEvent.Post event) {
         if (!(event.getLevel().isClientSide)) return;

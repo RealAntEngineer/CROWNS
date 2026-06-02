@@ -13,16 +13,25 @@ public class ConductionDataLayer extends AbstractDataLayer {
     public static final float  MIN_VALUE = 1.0f / (1 << 16);      // 2^-16
     public static final float  MAX_VALUE = 1.75f * (1L << 47);    // 1.75 * 2^47
     private final       byte[] data      = new byte[SIZE];
+    private final       float[] values   = new float[SIZE];
 
     @Override
     public @NotNull ConductionDataLayer fromBytes(byte @NotNull [] bytes) {
         System.arraycopy(bytes, 0, data, 0, Math.min(bytes.length, SIZE));
+        for (int i = 0; i < SIZE ; i++){
+            values[i] = decode(i);
+        }
         return this;
     }
 
     @Override
     public byte[] toBytes() {
         return data.clone();
+    }
+
+    @Override
+    public float get(int x, int y, int z) {
+        return values[index(x, y, z)];
     }
 
     @Override

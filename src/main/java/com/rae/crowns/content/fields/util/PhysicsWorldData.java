@@ -2,7 +2,6 @@ package com.rae.crowns.content.fields.util;
 
 import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.temperature.ConductionDataLayer;
-import com.rae.crowns.content.fields.temperature.MatrixTemperatureTicker;
 import com.rae.crowns.content.fields.temperature.ResilienceDataLayer;
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
@@ -26,8 +25,6 @@ import org.lwjgl.system.NonnullDefault;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import static com.rae.crowns.content.fields.util.PosPackingUtil.packSection;
-
 @NonnullDefault
 public class PhysicsWorldData extends SavedData {//Only for the server
 
@@ -49,8 +46,9 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     private final        Long2IntMap                                              sectionDynamicCount = new Long2IntOpenHashMap();//recomputed
     private final        LongSet                                                  nearDynamicSections = new LongOpenHashSet();//recomputed
     private              int                                                      currentTime         = -1;//recomputed
-    // Matrix
-    private @Nullable MatrixTemperatureTicker.ThermalMatrix cachedMatrix = null;
+
+    //matrix
+    private final HashMap<AbstractMatrixPhysicsSolver<?>, AbstractMatrixPhysicsSolver.PhysicsMatrix> cachedMatrices = new HashMap<>();
 
     public static PhysicsWorldData loadData(ServerLevel server) {
         return server.getDataStorage()
@@ -361,7 +359,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         int  sx            = pos.getX() >> 4;
         int  sy            = pos.getY() >> 4;
         int  sz            = pos.getZ() >> 4;
-        long packedSection = packSection(sx, sy, sz);
+        long packedSection = SectionPos.asLong(sx, sy, sz);
 
         // --- Local coordinates inside the section ---
         int lx = pos.getX() & 15;
@@ -406,7 +404,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
                     int nsz = sz + dz;
 
                     if (isInDynamicRange(pos, nsx, nsy, nsz)) {
-                        long packed = packSection(nsx, nsy, nsz);
+                        long packed = SectionPos.asLong(nsx, nsy, nsz);
                         nearDynamicSections.add(packed);
                         sectionDynamicCount.put(packed, sectionDynamicCount.getOrDefault(packed, 0) + 1);
                         if (loadedSections.contains(packed)) {
@@ -481,7 +479,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
                     int nsz = sz + dz;
 
                     if (isInDynamicRange(pos, nsx, nsy, nsz)) {
-                        long packed = packSection(nsx, nsy, nsz);
+                        long packed = SectionPos.asLong(nsx, nsy, nsz);
                         int  count  = sectionDynamicCount.getOrDefault(packed, 0) - 1;
                         if (count <= 0) {
                             sectionDynamicCount.remove(packed);
@@ -558,7 +556,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             }
 
             // Remove sent sections from dirty set
-            batch.forEach(changedSections::remove);
+            batch.forEach((s) ->changedSections.remove((long) s));
         }
     }
 
@@ -618,11 +616,11 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return collector;
     }
 
-    public @Nullable MatrixTemperatureTicker.ThermalMatrix getCachedMatrix() {
-        return cachedMatrix;
+    public @Nullable AbstractMatrixPhysicsSolver.PhysicsMatrix getCachedMatrix(AbstractMatrixPhysicsSolver<?> solver) {
+        return cachedMatrices.get(solver);
     }
 
-    public void setCachedMatrix(MatrixTemperatureTicker.ThermalMatrix newMatrix) {
-        this.cachedMatrix = newMatrix;
+    public void setCachedMatrix(AbstractMatrixPhysicsSolver<?> solver, AbstractMatrixPhysicsSolver.PhysicsMatrix newMatrix) {
+        this.cachedMatrices.put(solver, newMatrix);
     }
 }
