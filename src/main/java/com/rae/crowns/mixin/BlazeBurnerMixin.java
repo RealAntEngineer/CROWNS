@@ -28,11 +28,11 @@ public abstract class BlazeBurnerMixin extends SmartBlockEntity implements IHave
     @Override
     public float getTemperature() {
         return switch (getHeatLevelFromBlock()) {
-            case NONE -> 300f;
             case SMOULDERING -> 500F;
             case FADING -> 600F;
             case KINDLED -> 1200F;
             case SEETHING -> 1600F;
+            default -> 300f;
         };
     }
 
