@@ -1,5 +1,6 @@
 package com.rae.crowns.content.fields.temperature;
 
+import com.rae.crowns.content.fields.util.AbstractDataLayer;
 import com.rae.crowns.content.fields.util.AbstractMatrixPhysicsSolver;
 import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
@@ -41,7 +42,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
     protected float getTimeStep() { return DT; }
 
     @Override
-    protected DataLayerType<?>[] getRequiredLayers() {
+    protected DataLayerType[] getRequiredLayers() {
         return new DataLayerType[]{
                 DataLayerType.TEMPERATURE,
                 DataLayerType.DEFAULT_TEMPERATURE,
@@ -79,7 +80,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             int start = matrix.sectionToIndex().get(packedSection);
             if (start < 0) continue;
 
-            TemperatureDataLayer layer = data.getLayer(packedSection, DataLayerType.TEMPERATURE);
+            TemperatureDataLayer layer = (TemperatureDataLayer) data.getLayer(packedSection, DataLayerType.TEMPERATURE);
             if (layer == null) continue;
 
             for (int z = 0; z < 16; z++)
@@ -95,7 +96,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             int start = matrix.sectionToIndex().get(packedSection);
             if (start < 0) continue;
 
-            TemperatureDataLayer layer = data.getLayer(packedSection, DataLayerType.TEMPERATURE);
+            TemperatureDataLayer layer = (TemperatureDataLayer) data.getLayer(packedSection, DataLayerType.TEMPERATURE);
             if (layer == null) continue;
 
             for (int z = 0; z < 16; z++)
@@ -234,10 +235,10 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             int sz = pos.getZ() >> 4;
             long packedSection = SectionPos.asLong(sx, sy, sz);
 
-            TemperatureDataLayer tempLayer    = data.getLayer(packedSection, DataLayerType.TEMPERATURE);
-            TemperatureDataLayer defaultLayer = data.getLayer(packedSection, DataLayerType.DEFAULT_TEMPERATURE);
-            ConductionDataLayer  condLayer    = data.getLayer(packedSection, DataLayerType.CONDUCTION);
-            ResilienceDataLayer  resLayer     = data.getLayer(packedSection, DataLayerType.RESILIENCE);
+            AbstractDataLayer    tempLayer    = data.getLayer(packedSection, DataLayerType.TEMPERATURE);
+            AbstractDataLayer defaultLayer = data.getLayer(packedSection, DataLayerType.DEFAULT_TEMPERATURE);
+            AbstractDataLayer  condLayer    = data.getLayer(packedSection, DataLayerType.CONDUCTION);
+            AbstractDataLayer  resLayer     = data.getLayer(packedSection, DataLayerType.RESILIENCE);
 
             if (tempLayer == null || defaultLayer == null || condLayer == null || resLayer == null) return;
 

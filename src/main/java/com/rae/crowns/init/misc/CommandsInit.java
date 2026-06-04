@@ -11,7 +11,6 @@ import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.nuclear.NuclearExplosion;
-import com.rae.crowns.content.thermodynamics.turbine.SteamFlowData;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -26,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
 
 public class CommandsInit {
 
@@ -73,6 +73,16 @@ public class CommandsInit {
                         )
                 )
 
+                .then(Commands.literal("reinitialiseAllSection")
+                        .executes(context -> {
+                            ServerLevel level = context.getSource().getLevel();
+                            Objects.requireNonNull(PhysicsSaveManager.get(level)
+                            ).reinitializeAll();
+                            return Command.SINGLE_SUCCESS;
+                        })
+                        
+                )
+
                 .then(Commands.literal("clearSteamCurrents")
                         .executes(context -> {
                             ServerPlayer player = context.getSource().getPlayerOrException();
@@ -114,7 +124,7 @@ public class CommandsInit {
             return Command.SINGLE_SUCCESS;
         }
 
-        Map<DataLayerType<?>, List<Long>> initialise = data.remainingInitialise();
+        Map<DataLayerType, List<Long>> initialise = data.remainingInitialise();
         context.getSource().sendSystemMessage(Component.literal(
                 "___________thermodynamic simulation status___________\n" +
                         "   -" + data.getDynamicData().size() + " dynamic data blocks\n" +
@@ -128,7 +138,7 @@ public class CommandsInit {
         ));
 
         if (isDetailed) {
-            for (Map.Entry<DataLayerType<?>, List<Long>> entry : initialise.entrySet()) {
+            for (Map.Entry<DataLayerType, List<Long>> entry : initialise.entrySet()) {
                 context.getSource().sendSystemMessage(Component.literal(
                         entry.getValue().stream().map(SectionPos::of).toList().toString()
                 ));

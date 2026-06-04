@@ -59,7 +59,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
     /**
      * Data layer types needed for neighbor lookups (preloaded into {@link NeighborCache}).
      */
-    protected abstract DataLayerType<?>[] getRequiredLayers();
+    protected abstract DataLayerType[] getRequiredLayers();
 
     /**
      * Allocate a new, empty physics matrix of the concrete type.
@@ -422,7 +422,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         private final int[]     globalIndices = new int[7];
 
         public NeighborCache(long center, PhysicsWorldData data, Long2IntMap sectionToIndex) {
-            DataLayerType<?>[] needed = getRequiredLayers();
+            DataLayerType[] needed = getRequiredLayers();
             this.layerCache = new AbstractDataLayer[7][needed.length];
 
             int i = 0;
