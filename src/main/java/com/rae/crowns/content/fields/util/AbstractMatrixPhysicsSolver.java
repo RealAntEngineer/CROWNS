@@ -4,10 +4,7 @@ import com.rae.crowns.content.fields.temperature.PaddedCSRMatrix;
 import com.rae.formicapi.fondation.math.operators.CSRMatrix;
 import com.rae.formicapi.fondation.math.operators.HashSparseMatrix;
 import com.rae.formicapi.fondation.math.solvers.LeastSquare;
-import it.unimi.dsi.fastutil.longs.Long2IntMap;
-import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +34,7 @@ import java.util.*;
  */
 public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysicsSolver.PhysicsMatrix> {
 
-    protected static final int[][] NEIGHBOR_OFFSETS = {
+    protected static final byte[][] NEIGHBOR_OFFSETS = {
             {1, 0, 0}, {-1, 0, 0},
             {0, 1, 0}, {0, -1, 0},
             {0, 0, 1}, {0, 0, -1}
@@ -47,8 +44,8 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
     // Abstract — physics specific
     // -------------------------------------------------------------------------
 
-    protected static int index3DTo1D(int x, int y, int z) {
-        return x + y * 16 + z * 256;
+    protected static short index3DTo1D(int x, int y, int z) {
+        return (short) ((y << 8) | (z << 4) | x);
     }
 
     /**
@@ -81,6 +78,9 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
      * field vector(s), so they are available when building the RHS.
      */
     protected abstract void extractFieldValues(M matrix, PhysicsWorldData data);
+
+
+    protected abstract void rebuildSourceVector(M matrix, PhysicsWorldData data);
 
     /**
      * Write the solved field values from {@code matrix} back to world data.
@@ -119,7 +119,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
      * @param sourceVector    RHS vector; add source contributions here
      */
     protected abstract void buildVoxelRow(
-            int x, int y, int z,
+            short x, short y, short z,
             int globalIdx,
             long packedSection,
             int sectionStartIdx,
@@ -152,8 +152,8 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         if (physicsMatrix == null || physicsMatrix.size() == 0) return;
 
         extractFieldValues(physicsMatrix, data);
+        rebuildSourceVector(physicsMatrix, data);  // <-- every tick, not just on dirty
 
-        // Compile to CSR and solve
         double[] solution = LeastSquare.solve(
                 physicsMatrix.assemblyMatrix(),
                 buildRhs(physicsMatrix),
@@ -198,9 +198,11 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
 
         if (added.isEmpty() && removed.isEmpty()) {
             // Same set of sections — patch only dirty ones
+            //TODO this is wrong, dirty sections are not section to rebuild but section that need to be ticked
             for (long section : tickingSections) {
                 if (data.isDirty(section)) {
                     buildSectionRows(section, cached, data);
+                    data.setClean(section);
                 }
             }
             return cached;
@@ -279,9 +281,9 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         PaddedCSRMatrix asm       = matrix.assemblyMatrix();
         double[]        src       = matrix.sourceVector();
 
-        for (int z = 0; z < 16; z++) {
-            for (int y = 0; y < 16; y++) {
-                for (int x = 0; x < 16; x++) {
+        for (short z = 0; z < 16; z++) {
+            for (short y = 0; y < 16; y++) {
+                for (short x = 0; x < 16; x++) {
                     int globalIdx = sectionStartIdx + index3DTo1D(x, y, z);
 
                     // Clear old entries for this row before rebuilding
@@ -300,21 +302,74 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
     }
 
     /**
-     * Mark all sections within 1 block of each position as dirty,
-     * so their matrix rows are rebuilt next tick.
+     * Directly rebuild the affected rows
      */
     protected void stampVoxels(List<BlockPos> positions, PhysicsWorldData data) {
-        Set<Long> affected = new HashSet<>();
-        for (BlockPos pos : positions) {
-            int sx = pos.getX() >> 4;
-            int sy = pos.getY() >> 4;
-            int sz = pos.getZ() >> 4;
-            for (int dx = -1; dx <= 1; dx++)
-                for (int dy = -1; dy <= 1; dy++)
-                    for (int dz = -1; dz <= 1; dz++)
-                        affected.add(SectionPos.asLong(sx + dx, sy + dy, sz + dz));
+        M matrix = getCachedMatrix(data);
+        if (matrix == null) {
+            return;
         }
-        affected.forEach(data::setDirty);
+
+        Long2ObjectMap<List<BlockPos>> bySection = new Long2ObjectOpenHashMap<>();
+
+        for (BlockPos pos : positions) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dz = -1; dz <= 1; dz++) {
+                        BlockPos affected = pos.offset(dx, dy, dz);
+
+                        long section = SectionPos.asLong(
+                                affected.getX() >> 4,
+                                affected.getY() >> 4,
+                                affected.getZ() >> 4
+                        );
+
+                        bySection
+                                .computeIfAbsent(section, k -> new ArrayList<>())
+                                .add(affected);
+                    }
+                }
+            }
+        }
+
+        PaddedCSRMatrix asm = matrix.assemblyMatrix();
+        double[] src = matrix.sourceVector();
+
+        for (Long2ObjectMap.Entry<List<BlockPos>> entry : bySection.long2ObjectEntrySet()) {
+            long packedSection = entry.getLongKey();
+
+            int sectionStartIdx = matrix.sectionToIndex().get(packedSection);
+            if (sectionStartIdx < 0) {
+                continue;
+            }
+
+            NeighborCache neighbors =
+                    new NeighborCache(packedSection, data, matrix.sectionToIndex());
+
+            for (BlockPos pos : entry.getValue()) {
+                short x = (short)(pos.getX() & 15);
+                short y = (short)(pos.getY() & 15);
+                short z = (short)(pos.getZ() & 15);
+
+                int globalIdx = sectionStartIdx + index3DTo1D(x, y, z);
+
+                // clear previous row if necessary
+                // asm.clearRow(globalIdx);
+
+                src[globalIdx] = 0.0;
+
+                buildVoxelRow(
+                        x, y, z,
+                        globalIdx,
+                        packedSection,
+                        sectionStartIdx,
+                        data,
+                        neighbors,
+                        asm,
+                        src
+                );
+            }
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -426,7 +481,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
             this.layerCache = new AbstractDataLayer[7][needed.length];
 
             int i = 0;
-            for (int[] offset : NEIGHBOR_OFFSETS) {
+            for (byte[] offset : NEIGHBOR_OFFSETS) {
                 int  dx  = offset[0], dy = offset[1], dz = offset[2];
                 long sec = SectionPos.offset(center, dx, dy, dz);
 

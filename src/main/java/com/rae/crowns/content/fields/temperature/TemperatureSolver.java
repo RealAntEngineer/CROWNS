@@ -11,6 +11,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+
+import static com.rae.crowns.content.fields.util.AbstractDataLayer.index;
+
 /**
  * Implicit finite-difference temperature diffusion solver.
  *
@@ -33,6 +36,8 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
     private static final int CONDUCTION = 2;
     private static final int RESILIENCE = 3;
 
+    double gamma = (double) DT / CAPACITY;          // diffusion time-scale
+    double beta  = 1000.0 * DT / CAPACITY;          // resilience time-scale
 
     // -------------------------------------------------------------------------
     // Configuration
@@ -83,10 +88,40 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             TemperatureDataLayer layer = (TemperatureDataLayer) data.getLayer(packedSection, DataLayerType.TEMPERATURE);
             if (layer == null) continue;
 
-            for (int z = 0; z < 16; z++)
-                for (int y = 0; y < 16; y++)
-                    for (int x = 0; x < 16; x++)
-                        matrix.T_current[start + index3DTo1D(x, y, z)] = layer.get(x, y, z);
+            for (short localIdx = 0; localIdx < 4096; localIdx++)
+                        matrix.T_current[start + localIdx] = layer.getDirect(localIdx);
+        }
+    }
+
+    /**
+     * Recomputes {@code β·res·T_default} for every voxel each tick.
+     *
+     * <p>This must run every tick even when the matrix rows are not rebuilt,
+     * because the source is combined with {@code T_current} in {@link #buildRhs}
+     * and {@code T_current} changes every tick. Skipping this would add a stale
+     * large source on top of an already-updated field, causing runaway on voxels
+     * with high {@code res} and high {@code T_default}.
+     */
+    @Override
+    protected void rebuildSourceVector(ThermalMatrix matrix, PhysicsWorldData data) {
+        double[] src = matrix.sourceVector();
+        Arrays.fill(src, 0.0);
+
+        for (long packedSection : matrix.sections()) {
+            int sectionStartIdx = matrix.sectionToIndex().get(packedSection);
+            if (sectionStartIdx < 0) continue;
+
+            AbstractDataLayer  resLayer     = data.getLayer(packedSection, DataLayerType.RESILIENCE);
+            AbstractDataLayer defaultLayer = data.getLayer(packedSection, DataLayerType.DEFAULT_TEMPERATURE);
+            if (resLayer == null || defaultLayer == null) continue;
+
+
+            for (short localIndex = 0; localIndex < 4096; localIndex++) {
+                int   idx         = sectionStartIdx + localIndex;
+                float res         = resLayer.getDirect(localIndex);
+                float defaultTemp = defaultLayer.getDirect(localIndex);
+                src[idx] = res * beta * defaultTemp;
+            }
         }
     }
 
@@ -99,10 +134,8 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             TemperatureDataLayer layer = (TemperatureDataLayer) data.getLayer(packedSection, DataLayerType.TEMPERATURE);
             if (layer == null) continue;
 
-            for (int z = 0; z < 16; z++)
-                for (int y = 0; y < 16; y++)
-                    for (int x = 0; x < 16; x++)
-                        layer.set(x, y, z, (float) matrix.T_next[start + index3DTo1D(x, y, z)]);
+            for (short localIdx = 0; localIdx < 4096; localIdx++)
+                        layer.setDirect(localIdx, (float) matrix.T_next[start + localIdx]);
         }
 
         // Dynamic sources receive the delta the solver computed for their voxel,
@@ -140,9 +173,12 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
     // Physics: implicit diffusion + resilience
     // -------------------------------------------------------------------------
 
+
+    double[] values = new double[7];//reusable values when building the row, expecting only one row at a time.
+    int[] cols = new int[7];
     @Override
     protected void buildVoxelRow(
-            int x, int y, int z,
+            short x, short y, short z,
             int globalIdx,
             long packedSection,
             int sectionStartIdx,
@@ -160,13 +196,10 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             assemblyMatrix.set(globalIdx, globalIdx, 1.0);
             return;
         }
-
-        float selfCond   = condLayer.get(x, y, z);
-        float res        = resLayer.get(x, y, z);
-        float defaultTemp = defaultLayer.get(x, y, z);
-
-        double gamma = (double) DT / CAPACITY;          // diffusion time-scale
-        double beta  = 1000.0 * DT / CAPACITY;          // resilience time-scale
+        short localIdx = index3DTo1D(x, y, z);
+        float selfCond   = condLayer.getDirect(localIdx);
+        float res        = resLayer.getDirect(localIdx);
+        float defaultTemp = defaultLayer.getDirect(localIdx);
 
         // Resilience source: pulls voxel toward its default temperature
         sourceVector[globalIdx] = res * beta * defaultTemp;
@@ -175,11 +208,11 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
         double diag = 1.0 + res * beta;
 
         int count = 0;
-        double[] values = new double[7];
-        int[] cols = new int[7];
-        for (int[] off : NEIGHBOR_OFFSETS) {
-            int nx = x + off[0], ny = y + off[1], nz = z + off[2];
-            int lnx = nx & 15, lny = ny & 15, lnz = nz & 15;
+
+
+        for (byte[] off : NEIGHBOR_OFFSETS) {
+            short nx  = (short) (x + off[0]), ny = (short) (y + off[1]), nz = (short) (z + off[2]);
+            short lnx = (short) (nx & 15), lny = (short) (ny & 15), lnz = (short) (nz & 15);
 
             int nidx = NeighborCache.getIndex(nx, ny, nz);
 
@@ -247,12 +280,13 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             int lz = pos.getZ() & 15;
 
             float temp = source.getTemperature();
-            tempLayer.set(lx, ly, lz, temp);
-            defaultLayer.set(lx, ly, lz, temp);
-            resLayer.set(lx, ly, lz, 0f);
-            condLayer.set(lx, ly, lz, source.getThermalConductivity());
+            short localIdx = index3DTo1D(lx, ly, lz);
+            tempLayer.setDirect(localIdx, temp);
+            defaultLayer.setDirect(localIdx, temp);
+            resLayer.setDirect(localIdx, 0f);
+            condLayer.setDirect(localIdx, source.getThermalConductivity());
 
-            data.setDirty(packedSection);
+            //data.setDirty(packedSection);
             toStamp.add(pos);
         });
 

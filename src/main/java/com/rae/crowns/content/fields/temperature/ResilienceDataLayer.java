@@ -18,12 +18,12 @@ public class ResilienceDataLayer extends AbstractDataLayer {
     }
 
     @Override
-    protected float decode(int index) {
+    protected float decode(short index) {
         return (data[index] + 128) / 255f;
     }
 
     @Override
-    protected void encode(int index, float value) {
+    protected void encode(short index, float value) {
         int scaled = Math.round(Mth.clamp(value, 0f, 1f) * 255f);
         data[index] = (byte) (scaled - 128);
     }

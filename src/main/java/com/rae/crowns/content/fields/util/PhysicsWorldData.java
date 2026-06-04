@@ -286,15 +286,15 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             for (DataLayerType type : layersToInit) {
                 AbstractDataLayer layer = type.createLayer();
 
-                for (int i = 0; i < 4096; i++) {
+                for (short i = 0; i < 4096; i++) {
                     int dx = i & 15;
-                    int dy = (i >> 4) & 15;
-                    int dz = (i >> 8) & 15;
+                    int dy = (i >> 8) & 15;
+                    int dz = (i >> 4) & 15;
 
                     mutablePos.set(base.getX() + dx, base.getY() + dy, base.getZ() + dz);
                     BlockState blockState = level.getBlockState(mutablePos);
                     float      value      = type.getInitializer().apply(level, mutablePos, blockState);
-                    layer.set(dx, dy, dz, value);
+                    layer.setDirect(i, value);
 
                     // Only track temperature changes for dirty check
                     if (type == DataLayerType.TEMPERATURE) {
@@ -362,7 +362,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         for (int i = 0; i < types.length; i++) {
             AbstractDataLayer layer = getLayer(packedSection, types[i]);
             if (layer != null) {
-                layer.set(lx, ly, lz, values[i]);
+                layer.set((short) lx, (short) ly, (short) lz, values[i]);
             }
         }
     }
@@ -492,6 +492,8 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return dynamicData.get(pos);
     }
 
+
+    //Dirty sections are section that need to be ticked, not sections that need to be rebuilt
     public boolean isDirty(long sectionPos) {
         return dirty.contains(sectionPos);
     }
@@ -512,7 +514,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         final int batchSize = 10;
 
         // --- Get changed sections ---
-        List<Long> changed = new ArrayList<>(changedSections);
+        List<Long> changed = new ArrayList<>(tickedSections.keySet().stream().filter(s -> tickedSections.get(s) + 9 > currentTime).toList());
         if (changed.isEmpty()) return;
 
         // --- Data maps ---

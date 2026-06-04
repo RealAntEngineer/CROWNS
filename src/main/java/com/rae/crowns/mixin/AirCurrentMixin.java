@@ -59,7 +59,7 @@ public class AirCurrentMixin {
         TemperatureDataLayer sTempLayer   = (TemperatureDataLayer) data.getLayer(startSection.asLong(), DataLayerType.TEMPERATURE);
         if (sTempLayer == null) return;
 
-        double streamTemp = sTempLayer.get(fanPos.getX() & 15, fanPos.getY() & 15, fanPos.getZ() & 15);
+        double streamTemp = sTempLayer.get((short) (fanPos.getX() & 15), (short) (fanPos.getY() & 15), (short) (fanPos.getZ() & 15));
 
         // --- Move along airflow ---
         for (int i = 0; i < Math.ceil(maxDistance); i++) {
@@ -75,8 +75,8 @@ public class AirCurrentMixin {
             int    rx       = pos.getX() & 15;
             int    ry       = pos.getY() & 15;
             int    rz       = pos.getZ() & 15;
-            double tempHere = tempLayer.get(rx, ry, rz);
-            double condHere = condLayer.get(rx, ry, rz);
+            double tempHere = tempLayer.get((short) rx, (short) ry, (short) rz);
+            double condHere = condLayer.get((short) rx, (short) ry, (short) rz);
 
             // --- Conduction with orthogonal neighbors ---
             double totalFlux = 0;
@@ -93,12 +93,12 @@ public class AirCurrentMixin {
                 int    nrx          = neighbor.getX() & 15;
                 int    nry          = neighbor.getY() & 15;
                 int    nrz          = neighbor.getZ() & 15;
-                double tempNeighbor = nTempLayer.get(nrx, nry, nrz);
-                double condNeighbor = nCondLayer.get(nrx, nry, nrz);
+                double tempNeighbor = nTempLayer.get((short) nrx, (short) nry, (short) nrz);
+                double condNeighbor = nCondLayer.get((short) nrx, (short) nry, (short) nrz);
 
                 double delta = tempNeighbor - tempHere;
                 totalFlux += delta * condNeighbor;
-                nTempLayer.set(nrx, nry, nrz, (float) (tempNeighbor - delta * condNeighbor / 20 / capacity));
+                nTempLayer.set((short) nrx, (short) nry, (short) nrz, (float) (tempNeighbor - delta * condNeighbor / 20 / capacity));
             }
 
             // --- Convection (move along the current) ---
@@ -108,9 +108,9 @@ public class AirCurrentMixin {
             streamTemp += totalFlux / 20 / capacity;
 
             if (world.getBlockState(pos).isAir()) {
-                tempLayer.set(rx, ry, rz, (float) streamTemp);
+                tempLayer.set((short) rx, (short) ry, (short) rz, (float) streamTemp);
             } else {
-                tempLayer.set(rx, ry, rz, (float) (tempHere - (tempHere - streamTemp) / 20 / capacity));
+                tempLayer.set((short) rx, (short) ry, (short) rz, (float) (tempHere - (tempHere - streamTemp) / 20 / capacity));
             }
         }
     }

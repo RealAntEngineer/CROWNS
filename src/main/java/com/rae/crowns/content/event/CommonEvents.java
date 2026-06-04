@@ -81,7 +81,7 @@ public class CommonEvents {
         int localY = pos.getY() & 15;
         int localZ = pos.getZ() & 15;
 
-        return layer.get(localX, localY, localZ);
+        return layer.get((short) localX, (short) localY, (short) localZ);
     }
 
     @EventBusSubscriber

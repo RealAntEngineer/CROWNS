@@ -81,13 +81,13 @@ public class PhysicThread extends Thread {
                 //verify data
                 if (data.checkValidity(packed)) {//&& data.isDirty(packed)) {
                     toTick.add(packed);
+                    data.addToTicked(packed);
                 }
             }
         }
 
         tempSolver.tick(toTick, data);
         //RANSTicker.tick(toTick, data);
-
 
         if (tickCounter % (20) == 0) {
             PhysicsSaveManager.sendUpdate(serverLevel);
