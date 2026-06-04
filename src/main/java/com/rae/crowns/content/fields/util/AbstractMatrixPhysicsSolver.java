@@ -40,6 +40,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
             {0, 0, 1}, {0, 0, -1}
     };
 
+    float dt;
     // -------------------------------------------------------------------------
     // Abstract — physics specific
     // -------------------------------------------------------------------------
@@ -51,7 +52,13 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
     /**
      * Timestep used by this solver.
      */
-    protected abstract float getTimeStep();
+    protected float getTimeStep(){
+        return dt;
+    }
+
+    public void setTimeStep(float dt){
+        this.dt = dt;
+    }
 
     /**
      * Data layer types needed for neighbor lookups (preloaded into {@link NeighborCache}).
@@ -138,14 +145,14 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
     // -------------------------------------------------------------------------
 
     protected float getSolverTolerance() {
-        return 1e-1f;
+        return 1e-3f;
     }
 
     /**
      * Main entry point. Builds/updates the matrix, solves, writes back.
      */
     public void tick(@NotNull LongSet tickingSections, @NotNull PhysicsWorldData data) {
-        data.resetTicked();
+        //data.resetTicked();
         updateDynamicData(data);
 
         M physicsMatrix = getOrBuildMatrix(tickingSections, data);
@@ -156,9 +163,10 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
 
         double[] solution = LeastSquare.solve(
                 physicsMatrix.assemblyMatrix(),
+                physicsMatrix.getInitX(),
                 buildRhs(physicsMatrix),
                 getSolverMaxIterations(),
-                getSolverTolerance()
+                getSolverTolerance() * physicsMatrix.size() //so it's not decreasing real per block tolerance
         );
 
         physicsMatrix.setSolution(solution);
@@ -460,6 +468,8 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
          * @param solution the solution vector returned by the linear solver
          */
         public abstract void setSolution(double[] solution);
+
+        public abstract double[] getInitX();
     }
 
     //TODO would be best to have this as a mutable class, that way there is less impact on the garbage collector

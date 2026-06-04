@@ -12,8 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static com.rae.crowns.content.fields.util.AbstractDataLayer.index;
-
 /**
  * Implicit finite-difference temperature diffusion solver.
  *
@@ -322,6 +320,11 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
         @Override
         public void setSolution(double[] solution) {
             System.arraycopy(solution, 0, T_next, 0, solution.length);
+        }
+
+        @Override
+        public double[] getInitX() {
+            return T_current.clone();
         }
     }
 }

@@ -33,32 +33,33 @@ public class PhysicThread extends Thread {
     public void run() {
         long nextTickTime = System.nanoTime();
 
+        tempSolver.setTimeStep(TemperatureSolver.DT);
+
         while (running) {
             long now = System.nanoTime();
 
-            if (now >= nextTickTime) {
+            // If we're behind, catch up as fast as possible
+            while (now >= nextTickTime) {
                 for (ServerLevel serverLevel : PhysicsSaveManager.getServers()) {
                     tick(serverLevel);
                 }
-                //System.out.println("Tick taking " + (System.nanoTime() - now) * 1e-6 + " ms");
                 nextTickTime += intervalNs;
+                tempSolver.setTimeStep((float) ((System.nanoTime() - now)/ 1_000_000_000D));
+                //System.out.println("Ticking time" + (System.nanoTime() - now) / 1e6 + "ms");
+                // Update now so we don't spin unnecessarily
+                now = System.nanoTime();
+            }
 
-                // Catch up if we're lagging behind
-                if (now > nextTickTime) {
-                    // + update the DT on the temperature solver
-                    nextTickTime = now + intervalNs;
-                }
-            } else {
-                long sleepTime = nextTickTime - now;
+            // Sleep until next tick (if ahead)
+            long sleepTime = nextTickTime - now;
 
-                // Sleep with nanosecond precision
+            if (sleepTime > 0) {
                 try {
                     Thread.sleep(
                             sleepTime / 1_000_000,
                             (int) (sleepTime % 1_000_000)
                     );
-                } catch (InterruptedException ignored) {
-                }
+                } catch (InterruptedException ignored) {}
             }
         }
     }
@@ -94,5 +95,4 @@ public class PhysicThread extends Thread {
         }
         tickCounter++;
     }
-
 }

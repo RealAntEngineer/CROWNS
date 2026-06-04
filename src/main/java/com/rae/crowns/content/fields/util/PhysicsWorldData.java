@@ -370,7 +370,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     //to avoid ticking stable sections.
     public void setDirty(long sectionPos) {
         dirty.add(sectionPos);
-        changedSections.add(sectionPos);
+        //changedSections.add(sectionPos);
     }
 
     //IHaveTemperature management
@@ -514,7 +514,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         final int batchSize = 10;
 
         // --- Get changed sections ---
-        List<Long> changed = new ArrayList<>(tickedSections.keySet().stream().filter(s -> tickedSections.get(s) + 9 > currentTime).toList());
+        List<Long> changed = new ArrayList<>(changedSections);
         if (changed.isEmpty()) return;
 
         // --- Data maps ---
@@ -555,6 +555,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
     public void addToTicked(long sectionPos) {
         tickedSections.put(sectionPos, currentTime);
+        changedSections.add(sectionPos);
     }
 
     public void resetTicked() {
