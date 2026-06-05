@@ -161,9 +161,10 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
      */
     @Override
     protected double[] buildRhs(ThermalMatrix matrix) {
-        double[] rhs = Arrays.copyOf(matrix.T_current, matrix.size());
+        double[] rhs = matrix.cgRhs;
         double[] src = matrix.sourceVector();
-        for (int i = 0; i < rhs.length; i++) rhs[i] += src[i];
+        double[] t   = matrix.T_current;
+        for (int i = 0; i < rhs.length; i++) rhs[i] = t[i] + src[i];
         return rhs;
     }
 
@@ -234,7 +235,8 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
                 count++;
 
             } else {
-                // Boundary: known temperature folds into the RHS
+                //TODO check the validity of this
+                //Boundary: known temperature folds into the RHS
                 TemperatureDataLayer nbTemp = (TemperatureDataLayer) neighbors.getLayer(nidx, TEMPERATURE);
                 if (nbTemp != null) {
                     sourceVector[globalIdx] += coeff * nbTemp.get(lnx, lny, lnz);
@@ -306,7 +308,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
         double[] T_next;
 
         public ThermalMatrix(LongSet sections, Long2IntMap sectionToIndex, int size) {
-            super(sections, sectionToIndex, size);
+            super(sections, sectionToIndex, size, 7);
             T_current = new double[size];
             T_next    = new double[size];
         }
@@ -324,7 +326,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
 
         @Override
         public double[] getInitX() {
-            return T_current.clone();
+            return T_next;
         }
     }
 }

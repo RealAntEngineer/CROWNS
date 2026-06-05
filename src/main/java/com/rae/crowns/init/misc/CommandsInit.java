@@ -8,6 +8,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.rae.crowns.content.fields.util.DataLayerType;
+import com.rae.crowns.content.fields.util.PhysicThread;
 import com.rae.crowns.content.fields.util.PhysicsSaveManager;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
 import com.rae.crowns.content.nuclear.NuclearExplosion;
@@ -21,11 +22,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 public class CommandsInit {
 
@@ -114,8 +113,7 @@ public class CommandsInit {
     }
 
 
-    private static int dumpStatus(CommandContext<CommandSourceStack> context, boolean detailed) throws CommandSyntaxException {
-        // If the argument node was reached, read it; otherwise use the default
+    private static int dumpStatus(CommandContext<CommandSourceStack> context, boolean detailed) {
         boolean isDetailed = detailed && BoolArgumentType.getBool(context, "detailed");
 
         PhysicsWorldData data = PhysicsSaveManager.get(context.getSource().getLevel());
@@ -125,17 +123,47 @@ public class CommandsInit {
         }
 
         Map<DataLayerType, List<Long>> initialise = data.remainingInitialise();
-        context.getSource().sendSystemMessage(Component.literal(
-                "___________thermodynamic simulation status___________\n" +
-                        "   -" + data.getDynamicData().size() + " dynamic data blocks\n" +
-                        "   -" + data.getLoadedSections().size() + " loaded chunk sections\n" +
-                        "   -" + data.getLoadedSections().stream().filter((section) ->  data.ticked(section, (int) context.getSource().getLevel().getGameTime())).toList().size() + " ticked sections\n" +
-                        "   -initialization :\n" +
-                        "      -" + DataLayerType.CONDUCTION.id + " " + initialise.getOrDefault(DataLayerType.CONDUCTION, new ArrayList<>()).size() + "\n" +
-                        "      -" + DataLayerType.RESILIENCE.id + " " + initialise.getOrDefault(DataLayerType.RESILIENCE, new ArrayList<>()).size() + "\n" +
-                        "      -" + DataLayerType.TEMPERATURE.id + " " + initialise.getOrDefault(DataLayerType.TEMPERATURE, new ArrayList<>()).size() + "\n" +
-                        "      -" + DataLayerType.DEFAULT_TEMPERATURE.id + " " + initialise.getOrDefault(DataLayerType.DEFAULT_TEMPERATURE, new ArrayList<>()).size()
-        ));
+        long gameTime = context.getSource().getLevel().getGameTime();
+
+        send(context, "___________thermodynamic simulation status___________");
+        send(context, "   -" + data.getDynamicData().size() + " dynamic data blocks");
+        send(context, "   -" + data.getLoadedSections().size() + " loaded chunk sections");
+        send(context, "   -" + data.getLoadedSections().stream()
+                .filter(section -> data.ticked(section, (int) gameTime)).toList().size() + " ticked sections");
+
+        boolean anyPending = Stream.of(
+                DataLayerType.CONDUCTION,
+                DataLayerType.RESILIENCE,
+                DataLayerType.TEMPERATURE,
+                DataLayerType.DEFAULT_TEMPERATURE
+        ).anyMatch(type -> !initialise.getOrDefault(type, new ArrayList<>()).isEmpty());
+
+        if (anyPending) {
+            send(context, "   -initialization :");
+            send(context, "      -" + DataLayerType.CONDUCTION.id          + " " + initialise.getOrDefault(DataLayerType.CONDUCTION,          new ArrayList<>()).size());
+            send(context, "      -" + DataLayerType.RESILIENCE.id          + " " + initialise.getOrDefault(DataLayerType.RESILIENCE,          new ArrayList<>()).size());
+            send(context, "      -" + DataLayerType.TEMPERATURE.id         + " " + initialise.getOrDefault(DataLayerType.TEMPERATURE,         new ArrayList<>()).size());
+            send(context, "      -" + DataLayerType.DEFAULT_TEMPERATURE.id + " " + initialise.getOrDefault(DataLayerType.DEFAULT_TEMPERATURE, new ArrayList<>()).size());
+        } else {
+            send(context, "   -initialization : empty");
+        }
+        // ── Tick stats ───────────────────────────────────────────────────────────
+        send(context, "   -tick performance (last 60 s) :");
+        PhysicThread thread = PhysicThread.getInstance();
+        if (thread != null && thread.isRunning()) {
+            double[] s = thread.stats.snapshot();
+            if (s != null) {
+                send(context, String.format("      -mean   : %.2f ms", s[0]));
+                send(context, String.format("      -min    : %.2f ms", s[1]));
+                send(context, String.format("      -max    : %.2f ms", s[2]));
+                send(context, String.format("      -median : %.2f ms", s[3]));
+                send(context, String.format("      -stddev : %.2f ms", s[4]));
+            } else {
+                send(context, "      -no data yet");
+            }
+        } else {
+            send(context, "      -physics thread not running");
+        }
 
         if (isDetailed) {
             for (Map.Entry<DataLayerType, List<Long>> entry : initialise.entrySet()) {
@@ -144,6 +172,11 @@ public class CommandsInit {
                 ));
             }
         }
+
         return Command.SINGLE_SUCCESS;
+    }
+
+    private static void send(CommandContext<CommandSourceStack> context, String msg) {
+        context.getSource().sendSystemMessage(Component.literal(msg));
     }
 }

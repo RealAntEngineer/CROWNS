@@ -9,6 +9,7 @@ import com.rae.crowns.content.nuclear.IAmRadioactiveSource;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.init.misc.FluidInit;
 import com.rae.formicapi.FormicApiLang;
+import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -18,6 +19,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -25,6 +28,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -257,6 +261,21 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
         lastLazy = tag.getInt("lastLazy");
         setComposition(tag.getCompound("composition"));
         super.read(tag, registries, clientPacket);
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput componentInput) {
+        CustomData data = componentInput.get(DataComponents.CUSTOM_DATA);
+        if (data != null) {
+            this.setComposition(data.copyTag().getCompound("composition"));
+        }
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder components) {
+        CompoundTag compoundtag = new CompoundTag();
+        compoundtag.put("composition", saveComposition());
+        components.set(DataComponents.CUSTOM_DATA, CustomData.of(compoundtag));
     }
 
     public void setComposition(@Nullable CompoundTag composition) {

@@ -7,6 +7,15 @@
       "entries": [
         {
           "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "include": [
+                "minecraft:custom_data"
+              ],
+              "source": "block_entity"
+            }
+          ],
           "name": "crowns:fuel_assembly"
         }
       ],

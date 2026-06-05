@@ -3,7 +3,7 @@ package com.rae.crowns.content.fields.util;
 import com.rae.crowns.content.fields.temperature.PaddedCSRMatrix;
 import com.rae.formicapi.fondation.math.operators.CSRMatrix;
 import com.rae.formicapi.fondation.math.operators.HashSparseMatrix;
-import com.rae.formicapi.fondation.math.solvers.LeastSquare;
+import com.rae.formicapi.fondation.math.solvers.LeastSquare2;
 import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -161,13 +161,18 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         extractFieldValues(physicsMatrix, data);
         rebuildSourceVector(physicsMatrix, data);  // <-- every tick, not just on dirty
 
-        double[] solution = LeastSquare.solve(
+        double[] solution = LeastSquare2.solve(
                 physicsMatrix.assemblyMatrix(),
-                physicsMatrix.getInitX(),
                 buildRhs(physicsMatrix),
                 getSolverMaxIterations(),
-                getSolverTolerance() * physicsMatrix.size() //so it's not decreasing real per block tolerance
-        );
+                getSolverTolerance() * physicsMatrix.size(), //so it's not decreasing real per block tolerance
+                physicsMatrix.getInitX(),
+                physicsMatrix.cgR,
+                physicsMatrix.cgP,
+                physicsMatrix.cgAtb,
+                physicsMatrix.cgAp,
+                physicsMatrix.cgTemp
+                );
 
         physicsMatrix.setSolution(solution);
         writeBackFieldValues(physicsMatrix, data);
@@ -400,13 +405,48 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         private       PaddedCSRMatrix assemblyMatrix;
         private       double[]        sourceVector;
         private       int              size;
+        private final int      maxNnzPerRow;
+        public        double[] cgRhs;
 
-        protected PhysicsMatrix(LongSet sections, Long2IntMap sectionToIndex, int size) {
+        /**
+         * Solver working arrays — allocated once, reused every tick, grown with the matrix.
+         *
+         * <p>The CG solver on normal equations needs four scratch vectors per solve.
+         * At 92 sections x 4096 voxels = 376 832 doubles each, allocating these fresh
+         * every tick costs ~12 MB per call and ~240 MB/s at 20 ticks/s, creating severe
+         * GC pressure. Owning them here eliminates all per-tick allocation for the solver.
+         *
+         * <ul>
+         *   <li>{@code cgR}    — residual vector,      length = size</li>
+         *   <li>{@code cgP}    — search direction,     length = size</li>
+         *   <li>{@code cgAp}   — AtA·p accumulator,    length = size</li>
+         *   <li>{@code cgTemp} — intermediate A·p,     length = size</li>
+         * </ul>
+         *
+         * Pass these to {@link LeastSquare#solve} via the overload that accepts
+         * pre-allocated working buffers.
+         */
+        double[] cgR;
+        double[] cgP;
+        double[] cgAtb;
+        double[] cgAp;
+        double[] cgTemp;
+
+
+        protected PhysicsMatrix(LongSet sections, Long2IntMap sectionToIndex, int size, int maxNnzPerRow) {
             this.sections = sections;
             this.sectionToIndex = sectionToIndex;
             this.size = size;
-            this.assemblyMatrix = new PaddedCSRMatrix(size, size, 7);
+            this.maxNnzPerRow   = maxNnzPerRow;
+            this.assemblyMatrix = new PaddedCSRMatrix(size, size, maxNnzPerRow);
             this.sourceVector = new double[size];
+            this.cgR            = new double[size];
+            this.cgP            = new double[size];
+            this.cgAp           = new double[size];
+            this.cgAtb           = new double[size];
+            this.cgTemp         = new double[size];
+            this.cgRhs = new double[size];
+
         }
 
         public LongSet sections() {
@@ -451,6 +491,13 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
             this.assemblyMatrix = newAsm;
             this.sourceVector = newSrc;
             this.size = newSize;
+
+            this.cgR            = Arrays.copyOf(cgR,    newSize);
+            this.cgP            = Arrays.copyOf(cgP,    newSize);
+            this.cgAp           = Arrays.copyOf(cgAp,   newSize);
+            this.cgAtb           = Arrays.copyOf(cgAtb,   newSize);
+            this.cgTemp         = Arrays.copyOf(cgTemp, newSize);
+            this.cgRhs          = Arrays.copyOf(cgRhs, newSize);
 
             onGrow(newSize);
         }

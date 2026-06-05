@@ -50,11 +50,11 @@ public class CROWNSLang extends Lang {
                             .append(FormicApiLang.numberWithSymbol(state.specificEntropy()).text("J/Kg/K").component()));
             case PHTSX -> builder().add(Component.literal(" ")).add(
                     FormicApiLang.formatPressure(state.pressure()).component()
-                            .append(" | ")
+                            .append(" | H = ")
                             .append(FormicApiLang.numberWithSymbol(state.specificEnthalpy()).text("J/Kg").component())
                             .append(" | ")
                             .append(FormicApiLang.formatTemperature(state.temperature()).component())
-                            .append(" | ")
+                            .append(" | S = ")
                             .append(FormicApiLang.numberWithSymbol(state.specificEntropy()).text("J/Kg/K").component())
                             .append(" | ")
                             .append(

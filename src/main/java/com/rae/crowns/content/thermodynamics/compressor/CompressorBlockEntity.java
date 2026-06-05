@@ -76,12 +76,6 @@ public class CompressorBlockEntity extends KineticBlockEntity {
         );
     }
 
-    //TODO use a config
-    public float pressureRatio() {
-        //depend on speed ?
-        return 8;
-    }
-
     //make 2 tanks ?
     @Override
     public void tick() {
@@ -102,7 +96,8 @@ public class CompressorBlockEntity extends KineticBlockEntity {
 
                 float                pressureDelta = getPressureDelta(speed);
                 SpecificRealGasState outputState   = FullTableBased.isentropicCompression(inputState, (inputState.pressure() + pressureDelta) / inputState.pressure());
-                power = (int) ((outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount() * 20f / Constants.whatSU / yield);
+                //only consume power if it has more energy afterward
+                power = Math.max((int) ((outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount() * 20f / Constants.whatSU / yield), 0) ;
 
                 water.set(DataComponentsInit.REAL_GAS_STATE, outputState);
                 INPUT_WATER_TANK.drain(Math.min((int) Math.abs(speed), OUTPUT_WATER_TANK.fill(water, IFluidHandler.FluidAction.EXECUTE)), IFluidHandler.FluidAction.EXECUTE);
@@ -151,9 +146,8 @@ public class CompressorBlockEntity extends KineticBlockEntity {
         super.addToGoggleTooltip(tooltip, isPlayerSneaking);
         SpecificRealGasState inputState = INPUT_WATER_TANK.getState();
         CreateLang.builder().add(
-                        Component.literal("input : ")
-                                .append(
-                                        CROWNSLang.specificRealFluidState(inputState).component()))
+                        Component.literal("input : ").append(
+                                CROWNSLang.specificRealFluidState(inputState).component()))
                 .forGoggles(tooltip, 1);
         SpecificRealGasState outputState = OUTPUT_WATER_TANK.getState();
         CreateLang.builder().add(

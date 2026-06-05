@@ -27,14 +27,19 @@ public abstract class FluidTankMixin {
     public void mergeStateNBT(FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
         if (resource.is(FluidTags.WATER)) {
             SpecificRealGasState newState = resource.get(DataComponentsInit.REAL_GAS_STATE);
+            boolean newNoData = false, oldNoData = false;
             if (newState == null) {
                 newState = DEFAULT_STATE;
+                newNoData = true;
             }
             SpecificRealGasState oldState = fluid.isEmpty() ? DEFAULT_STATE : fluid.get(DataComponentsInit.REAL_GAS_STATE);
             if (oldState == null) {
                 oldState = DEFAULT_STATE;
+                oldNoData = true;
             }
-            fluid.set(DataComponentsInit.REAL_GAS_STATE, mix(newState, resource.getAmount(), oldState, getFluidAmount()));
+            if (!newNoData || !oldNoData) {
+                fluid.set(DataComponentsInit.REAL_GAS_STATE, mix(newState, resource.getAmount(), oldState, getFluidAmount()));
+            }
         }
     }
 
