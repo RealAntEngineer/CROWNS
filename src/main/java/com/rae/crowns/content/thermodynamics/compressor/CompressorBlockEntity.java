@@ -5,7 +5,7 @@ import com.rae.crowns.Constants;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.formicapi.content.thermal_utilities.FullTableBased;
-import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import com.simibubi.create.content.kinetics.KineticNetwork;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -84,7 +84,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
                 if (syncCooldown == 0 && queuedSync)
                     sendData();
             }
-            SpecificRealGazState inputState = INPUT_WATER_TANK.getState();
+            SpecificRealGasState inputState = INPUT_WATER_TANK.getState();
             int flow = (int) Math.abs(speed);
             FluidStack water = INPUT_WATER_TANK.drain(flow, IFluidHandler.FluidAction.SIMULATE);
             float yield = CROWNSConfigs.SERVER.kinetics.compressorIsentropicYield.getF();
@@ -93,7 +93,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
                 //depend on speed ?
 
                 float pressureDelta = getPressureDelta(speed);
-                SpecificRealGazState outputState = FullTableBased.isentropicCompression(inputState, (inputState.pressure() + pressureDelta) / inputState.pressure());
+                SpecificRealGasState outputState = FullTableBased.isentropicCompression(inputState, (inputState.pressure() + pressureDelta) / inputState.pressure());
                 power = (int) ((outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount() * 20f / Constants.whatSU / yield);
 
                 CompoundTag tag = new CompoundTag();
@@ -148,13 +148,13 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     @Override
     public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
         super.addToGoggleTooltip(tooltip, isPlayerSneaking);
-        SpecificRealGazState inputState = INPUT_WATER_TANK.getState();
+        SpecificRealGasState inputState = INPUT_WATER_TANK.getState();
         CreateLang.builder().add(
                         Component.literal("input : ")
                                 .append(
                                         CROWNSLang.specificRealFluidState(inputState).component()))
                 .forGoggles(tooltip, 1);
-        SpecificRealGazState outputState = OUTPUT_WATER_TANK.getState();
+        SpecificRealGasState outputState = OUTPUT_WATER_TANK.getState();
         CreateLang.builder().add(
                         Component.literal("output : ").append(
                                 CROWNSLang.specificRealFluidState(outputState).component()))

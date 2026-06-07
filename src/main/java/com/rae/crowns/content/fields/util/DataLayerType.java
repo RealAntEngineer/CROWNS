@@ -8,53 +8,51 @@ import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public final class DataLayerType<T extends AbstractDataLayer> {
-    public static final Map<String, DataLayerType<?>> REGISTRY = new HashMap<>();
-
-    public static final DataLayerType<TemperatureDataLayer> TEMPERATURE = register("temperature", TemperatureDataLayer::new,
-            PhysicsSaveManager::getDefaultTemperature);
-    public static final DataLayerType<TemperatureDataLayer> DEFAULT_TEMPERATURE = register("default_temperature",
-            TemperatureDataLayer::new, PhysicsSaveManager::getDefaultTemperature);
-    public static final DataLayerType<ResilienceDataLayer> RESILIENCE = register("resilence", ResilienceDataLayer::new,
-            (level, pos, blockState) -> PhysicsSaveManager.getDefaultResilience(blockState));
-    public static final DataLayerType<ConductionDataLayer> CONDUCTION = register("conduction", ConductionDataLayer::new,
-            (level, pos, blockState) -> PhysicsSaveManager.getDefaultConduction(blockState));
-
-    public static final DataLayerType<BlockedDataLayer> BLOCKED = register("blocked", BlockedDataLayer::new,
+@NonnullDefault
+public enum DataLayerType {
+    TEMPERATURE("temperature", TemperatureDataLayer::new,
+            PhysicsSaveManager::getDefaultTemperature),
+    DEFAULT_TEMPERATURE("default_temperature",
+            TemperatureDataLayer::new, PhysicsSaveManager::getDefaultTemperature),
+    RESILIENCE("resilence", ResilienceDataLayer::new,
+            (level, pos, blockState) -> PhysicsSaveManager.getDefaultResilience(blockState)),
+    CONDUCTION("conduction", ConductionDataLayer::new,
+            (level, pos, blockState) -> PhysicsSaveManager.getDefaultConduction(blockState)),
+    BLOCKED("blocked", BlockedDataLayer::new,
             ($1, $2, $3) -> 0f);
 
-    public final String id;
-    private final Supplier<T> factory;
+    public static final Map<String, DataLayerType>      REGISTRY = new HashMap<>();
+    static  {
+        for (DataLayerType type : values()){
+            REGISTRY.put(type.id, type);
+        }
+    }
+    public final  String                                        id;
+    private final Supplier<AbstractDataLayer>                                   factory;
     private final Function3<Level, BlockPos, BlockState, Float> initializer;
 
-    private DataLayerType(String id, Supplier<T> factory, Function3<Level, BlockPos, BlockState, Float> initializer) {
+    DataLayerType(String id, Supplier<AbstractDataLayer> factory, Function3<Level, BlockPos, BlockState, Float> initializer) {
         this.id = id;
         this.factory = factory;
         this.initializer = initializer;
-    }
-
-    public static <T extends AbstractDataLayer> @NotNull DataLayerType<T> register(String id, Supplier<T> factory, Function3<Level, BlockPos, BlockState, Float> initializer) {
-        DataLayerType<T> type = new DataLayerType<>(id, factory, initializer);
-        REGISTRY.put(id, type);
-        return type;
     }
 
     public Function3<Level, BlockPos, BlockState, Float> getInitializer() {
         return initializer;
     }
 
-    public T createLayer() {
+    public AbstractDataLayer createLayer() {
         return factory.get();
     }
 
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return "DataLayerType{id='%s'}".formatted(id);
     }
 }

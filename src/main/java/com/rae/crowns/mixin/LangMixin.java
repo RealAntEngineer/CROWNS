@@ -1,7 +1,7 @@
 package com.rae.crowns.mixin;
 
 import com.rae.crowns.CROWNSLang;
-import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.lang.LangBuilder;
 import net.minecraft.nbt.CompoundTag;
@@ -18,7 +18,7 @@ public class LangMixin {
     private static void addWaterStateInfo(@NotNull FluidStack stack, @NotNull CallbackInfoReturnable<LangBuilder> cir) {
         CompoundTag newStateNBT = stack.getChildTag("realGazState");
         if (newStateNBT != null && !newStateNBT.isEmpty()) {
-            SpecificRealGazState newState = new SpecificRealGazState(newStateNBT);
+            SpecificRealGasState newState = new SpecificRealGasState(newStateNBT);
             cir.setReturnValue(cir.getReturnValue().add(CROWNSLang.specificRealFluidState(newState)));
         }
 
