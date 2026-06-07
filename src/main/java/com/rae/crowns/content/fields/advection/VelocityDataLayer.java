@@ -41,13 +41,13 @@ public class VelocityDataLayer extends AbstractDataLayer {
     }
 
     @Override
-    protected float decode(int index) {
+    protected float decode(short index) {
         int stored = data[index];
         return (float) (stored / SCALE);
     }
 
     @Override
-    protected void encode(int index, float value) {
+    protected void encode(short index, float value) {
         short encoded = (short) (value * SCALE);
         data[index] = encoded;
     }

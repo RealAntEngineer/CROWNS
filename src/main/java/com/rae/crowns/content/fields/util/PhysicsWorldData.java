@@ -4,7 +4,6 @@ import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.temperature.ConductionDataLayer;
 import com.rae.crowns.content.fields.temperature.ResilienceDataLayer;
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
-import com.rae.crowns.content.fields.temperature.MatrixTemperatureTicker;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.init.data.PacketInit;
 import it.unimi.dsi.fastutil.longs.*;
@@ -22,43 +21,42 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.rae.crowns.content.fields.util.PosPackingUtil.packSection;
 
-public class PhysicsWorldData extends SavedData {
+@NonnullDefault
+public class PhysicsWorldData extends SavedData {//Only for the server
 
+    //in the future hook into ChunkSection directly : easier for communication and initialization
 
-    public static final  int                                                      DATA_VERSION    = 13;
-    private static final int                                                      DYNAMIC_RANGE   = 1;
+    public static final  int                                                                                DATA_VERSION        = 13;
+    private static final int                                                                                DYNAMIC_RANGE       = 1;
     // Generic unified map: one Long2ObjectMap per DataLayerType
-    private final        Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> layers          = new HashMap<>();//stored
+    private final        EnumMap<DataLayerType, Long2ObjectMap<AbstractDataLayer>>                          layers              = new EnumMap<>(DataLayerType.class);//stored
     // Dynamic and meta state
-    private final        Long2ObjectMap<DataLayerType<?>[]>                       toInitialise    = new Long2ObjectOpenHashMap<>();//stored
-    private final        Queue<BlockPos>                                          changedBlocks   = new ConcurrentLinkedQueue<>();//stored
-    private final        LongSet                                                  changedSections = new LongOpenHashSet();//stored
-    private final        LongSet                                                  dirty           = new LongOpenHashSet();//stored
-    private final        LongSet                                                  loadedSections  = new LongOpenHashSet();//stored
-    private final        Long2IntMap                                              tickedSections  = new Long2IntOpenHashMap();//recomputed
-    //dynamic data gestion
-    private final Long2ObjectMap<IHaveTemperature> dynamicData         = new Long2ObjectOpenHashMap<>();//recomputed
-    private final Long2IntMap                      sectionDynamicCount = new Long2IntOpenHashMap();//recomputed
-    private final LongSet                          nearDynamicSections = new LongOpenHashSet();//recomputed
-    private              int                                                      currentTime     = -1;//recomputed
-
-
+    private final        Long2ObjectMap<DataLayerType[]>                                                    toInitialise        = new Long2ObjectOpenHashMap<>();//stored
+    private final        Queue<BlockPos>                                                                    changedBlocks       = new ConcurrentLinkedQueue<>();//stored
+    private final        LongSet                                                                            changedSections     = new LongOpenHashSet();//stored
+    private final        LongSet                                                                            dirty               = new LongOpenHashSet();//stored
+    private final        LongSet                                                                            loadedSections      = new LongOpenHashSet();//stored
+    private final        Long2IntMap                                                                        tickedSections      = new Long2IntOpenHashMap();//recomputed
+    private final        Long2ObjectMap<IHaveTemperature>                                                   dynamicData         = new Long2ObjectOpenHashMap<>();//recomputed
+    private final        Long2IntMap                                                                        sectionDynamicCount = new Long2IntOpenHashMap();//recomputed
+    private final        LongSet                                                                            nearDynamicSections = new LongOpenHashSet();//recomputed
     //matrix
+    private final        HashMap<AbstractMatrixPhysicsSolver<?>, AbstractMatrixPhysicsSolver.PhysicsMatrix> cachedMatrices      = new HashMap<>();
+    private              int                                                                                currentTime         = -1;//recomputed
 
-    private MatrixTemperatureTicker.ThermalMatrix cachedMatrix;
-
-    public static @NotNull PhysicsWorldData loadData(@NotNull ServerLevel server) {
+    public static PhysicsWorldData loadData(ServerLevel server) {
         return server.getDataStorage()
                 .computeIfAbsent(PhysicsWorldData::load, PhysicsWorldData::new, "thermal_grid");
     }
 
-    public static @NotNull PhysicsWorldData load(@NotNull CompoundTag nbt) {
+    public static PhysicsWorldData load(CompoundTag nbt) {
         PhysicsWorldData data = new PhysicsWorldData();
 
         if (!nbt.contains("DataLayerVersion") ||
@@ -109,7 +107,7 @@ public class PhysicsWorldData extends SavedData {
         registerLayer(DataLayerType.RESILIENCE);
     }
 
-    private static @NotNull Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> deserializeLayers(@NotNull CompoundTag nbt) {
+    private static Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> deserializeLayers(CompoundTag nbt) {
         Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> layers = new HashMap<>();
 
         for (Map.Entry<String, DataLayerType<?>> regEntry : DataLayerType.REGISTRY.entrySet()) {
@@ -135,8 +133,8 @@ public class PhysicsWorldData extends SavedData {
         return layers;
     }
 
-    private static @NotNull Long2ObjectMap<DataLayerType<?>[]> deserializeInit(
-            @NotNull CompoundTag nbt) {
+    private static Long2ObjectMap<DataLayerType<?>[]> deserializeInit(
+            CompoundTag nbt) {
         Long2ObjectMap<DataLayerType<?>[]> toInit = new Long2ObjectOpenHashMap<>();
 
         for (String key : nbt.getAllKeys()) {
@@ -164,7 +162,7 @@ public class PhysicsWorldData extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
+    public CompoundTag save(CompoundTag tag) {
         CompoundTag nbt = new CompoundTag();
         nbt.putLong("DataLayerVersion", DATA_VERSION);
         nbt.put("layers", serializeLayers(layers));
@@ -176,7 +174,7 @@ public class PhysicsWorldData extends SavedData {
         return nbt;
     }
 
-    private static @NotNull CompoundTag serializeLayers(@NotNull Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> layers) {
+    private static CompoundTag serializeLayers(Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> layers) {
         CompoundTag nbt = new CompoundTag();
 
         for (Map.Entry<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> entry : layers.entrySet()) {
@@ -197,7 +195,7 @@ public class PhysicsWorldData extends SavedData {
         return nbt;
     }
 
-    private static @NotNull CompoundTag serializeInit(@NotNull Long2ObjectMap<DataLayerType<?>[]> toInit) {
+    private static CompoundTag serializeInit(Long2ObjectMap<DataLayerType<?>[]> toInit) {
         CompoundTag nbt = new CompoundTag();
 
         for (Long2ObjectMap.Entry<DataLayerType<?>[]> entry : toInit.long2ObjectEntrySet()) {
@@ -210,6 +208,10 @@ public class PhysicsWorldData extends SavedData {
 
         return nbt;
     }
+
+    // ------------------------------
+    //  GENERIC ACCESSORS
+    // ------------------------------
 
     @SuppressWarnings("unchecked")
     public <T extends AbstractDataLayer> void putLayer(long section, DataLayerType<?> type, T dataLayer) {
@@ -232,14 +234,26 @@ public class PhysicsWorldData extends SavedData {
         return (T) map.get(section);
     }
 
-    public @NotNull LongSet getNearDynamic() {
+    // ------------------------------
+    //  INITIALIZATION / PUT
+    // ------------------------------
+
+    public LongSet getNearDynamic() {
         return nearDynamicSections; // You can safely expose this if you're not modifying it
     }
-    public @NotNull LongSet getLoadedSections() {
+
+    // ------------------------------
+    //  SECTION INITIALIZATION
+    // ---------------
+
+    public LongSet getLoadedSections() {
         return loadedSections;
     }
 
-    public void initialise(@NotNull ServerLevel level) {
+    // ------------------------------
+    //  SECTION INITIALIZATION
+    // ------------------------------
+    public void initialise(ServerLevel level) {
         long startTime = System.nanoTime(); // More accurate timing
         int  processed = 0;
 
@@ -315,7 +329,7 @@ public class PhysicsWorldData extends SavedData {
         dirty.remove(sectionPos);
     }
 
-    public void updateChangedBlocks(@NotNull ServerLevel level) {
+    public void updateChangedBlocks(ServerLevel level) {
         float              initialTimeMS = System.currentTimeMillis();
         DataLayerType<?>[] types         = {DataLayerType.DEFAULT_TEMPERATURE, DataLayerType.CONDUCTION, DataLayerType.RESILIENCE};
 
@@ -336,7 +350,7 @@ public class PhysicsWorldData extends SavedData {
         }
     }
 
-    public void set(@NotNull BlockPos pos, @NotNull DataLayerType<?> @NotNull [] types, float @NotNull ... values) {
+    public void set(BlockPos pos, DataLayerType<?>[] types, float... values) {
         if (types.length != values.length) {
             throw new IllegalArgumentException("Types and values arrays must have the same length");
         }
@@ -368,7 +382,7 @@ public class PhysicsWorldData extends SavedData {
     }
 
     //IHaveTemperature management
-    public void putDynamic(@NotNull BlockPos pos, IHaveTemperature dynamic) {
+    public void putDynamic(BlockPos pos, IHaveTemperature dynamic) {
         //System.out.println("setting dynamic data at "+ pos);
         dynamicData.put(pos.asLong(), dynamic);
         DataLayerType<?>[] layerTypes = {
@@ -420,7 +434,7 @@ public class PhysicsWorldData extends SavedData {
     }
 
     // --- HELPER FOR DYNAMIC RANGE CHECK ---
-    private static boolean isInDynamicRange(@NotNull Vec3i pos, int sx, int sy, int sz) {
+    private static boolean isInDynamicRange(Vec3i pos, int sx, int sy, int sz) {
         //block pos
         final int px = pos.getX();
         final int py = pos.getY();
@@ -450,7 +464,7 @@ public class PhysicsWorldData extends SavedData {
         setDirty(section);
     }
 
-    public void removeDynamic(@NotNull BlockPos pos) {
+    public void removeDynamic(BlockPos pos) {
         dynamicData.remove(pos.asLong());
 
         int sx = pos.getX() >> 4;
@@ -479,7 +493,7 @@ public class PhysicsWorldData extends SavedData {
         }
     }
 
-    public @NotNull Long2ObjectMap<IHaveTemperature> getDynamicData() {
+    public Long2ObjectMap<IHaveTemperature> getDynamicData() {
         return dynamicData;
     }
 
@@ -499,13 +513,13 @@ public class PhysicsWorldData extends SavedData {
         this.currentTime = time;
     }
 
-    public void registerChanged(@NotNull BlockPos immutable) {
+    public void registerChanged(BlockPos immutable) {
         if (loadedSections.contains(SectionPos.of(immutable).asLong())) {
             changedBlocks.add(immutable);
         }
     }
 
-    public void syncWithPlayers(@NotNull List<ServerPlayer> players) {
+    public void syncWithPlayers(List<ServerPlayer> players) {
         if (players.isEmpty()) return;
 
         final int batchSize = 10;
@@ -544,7 +558,7 @@ public class PhysicsWorldData extends SavedData {
             }
 
             // Remove sent sections from dirty set
-            batch.forEach(changedSections::remove);
+            batch.forEach((s) ->changedSections.remove((long) s));
         }
     }
 
@@ -591,7 +605,7 @@ public class PhysicsWorldData extends SavedData {
         return !corrupted;
     }
 
-    public @NotNull Map<DataLayerType<?>, List<Long>> remainingInitialise() {
+    public Map<DataLayerType<?>, List<Long>> remainingInitialise() {
         HashMap<DataLayerType<?>, List<Long>> collector = new HashMap<>();
         toInitialise.forEach((sectionPos, dataLayerType) -> {
             for (DataLayerType<?> layerType : dataLayerType) {
@@ -604,16 +618,11 @@ public class PhysicsWorldData extends SavedData {
         return collector;
     }
 
-    public MatrixTemperatureTicker.ThermalMatrix getCachedMatrix() {
-        return cachedMatrix;
+    public AbstractMatrixPhysicsSolver.PhysicsMatrix getCachedMatrix(AbstractMatrixPhysicsSolver<?> solver) {
+        return cachedMatrices.get(solver);
     }
 
-    public void setCachedMatrix(MatrixTemperatureTicker.ThermalMatrix newMatrix) {
-        this.cachedMatrix = newMatrix;
-    }
-
-
-    private static class DynamicDataManagement{
-
+    public void setCachedMatrix(AbstractMatrixPhysicsSolver<?> solver, AbstractMatrixPhysicsSolver.PhysicsMatrix newMatrix) {
+        this.cachedMatrices.put(solver, newMatrix);
     }
 }

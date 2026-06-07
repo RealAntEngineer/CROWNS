@@ -31,7 +31,7 @@ public class BlockedDataLayer extends AbstractDataLayer {
      * Returns 1 if blocked, 0 if open
      */
     @Override
-    protected float decode(int index) {
+    protected float decode(short index) {
         int byteIndex = index >> 3;       // index / 8
         int bitIndex = index & 7;         // index % 8
         boolean blocked = (data[byteIndex] & (1 << bitIndex)) != 0;
@@ -42,7 +42,7 @@ public class BlockedDataLayer extends AbstractDataLayer {
      * Sets blocked if value >= 0.5
      */
     @Override
-    protected void encode(int index, float value) {
+    protected void encode(short index, float value) {
         int byteIndex = index >> 3;
         int bitIndex = index & 7;
         if (value >= 0.5f) {
@@ -52,14 +52,14 @@ public class BlockedDataLayer extends AbstractDataLayer {
         }
     }
 
-    public boolean isBlocked(int x, int y, int z) {
+    public boolean isBlocked(short x, short y, short z) {
         int index = index(x, y, z);
         int byteIndex = index >> 3;
         int bitIndex = index & 7;
         return (data[byteIndex] & (1 << bitIndex)) != 0;
     }
 
-    public void setBlocked(int x, int y, int z, boolean blocked) {
+    public void setBlocked(short x, short y, short z, boolean blocked) {
         int index = index(x, y, z);
         int byteIndex = index >> 3;
         int bitIndex = index & 7;
