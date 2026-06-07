@@ -1,4 +1,4 @@
-package com.rae.crowns.content.fields.util;
+package com.rae.crowns.content.fields.util.client;
 
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import net.minecraft.core.BlockPos;
@@ -67,7 +67,7 @@ public class LocalPhysicData {
         int localY = pos.getY() & 15;
         int localZ = pos.getZ() & 15;
 
-        return layer.get(localX, localY, localZ);
+        return layer.get((short) localX, (short) localY, (short) localZ);
     }
 
     /*public static Vec3 getV(@NotNull Vec3i pos) {
