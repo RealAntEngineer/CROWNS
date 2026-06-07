@@ -1,5 +1,5 @@
 # Developers
-RealAntEngineers, purpl3xity
+RealAntEngineers, purpl3xity, rgjava
 
 # Translators
 9m113konkurs, RealAntEngineers

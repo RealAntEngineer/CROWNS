@@ -53,6 +53,7 @@ public class CreativeModeTabsInit {
                                 output.accept(BlockInit.REACTOR_CASING);
                                 output.accept(BlockInit.REACTOR_VESSEL);
                                 output.accept(ItemInit.DOSIMETER);
+                                output.accept(BlockInit.NEUTRON_DETECTOR);
                             })
                             .build());
 

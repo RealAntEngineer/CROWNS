@@ -62,7 +62,8 @@ public class TagsInit extends AllTags {
         ABSORBER(CustomNameSpace.MOD, "nuclear/absorber"),
         REFACTORY_BLOCK(CustomNameSpace.MOD, "nuclear/refactory"),
         UNDESTRUCTABLE(CustomNameSpace.MOD, "nuclear/undestructable"),
-        SHIELDING(CustomNameSpace.MOD, "nuclear/shielding");
+        SHIELDING(CustomNameSpace.MOD, "nuclear/shielding"),
+        NEUTRONDETECTOR(CustomNameSpace.MOD, "nuclear/detectors");
 
         public final TagKey<Block> tag;
         public final boolean alwaysDatagen;

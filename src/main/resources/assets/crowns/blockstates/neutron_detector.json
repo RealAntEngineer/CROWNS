@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "crowns:block/detectors/neutron_detector",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "crowns:block/detectors/neutron_detector",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north": {
+      "model": "crowns:block/detectors/neutron_detector",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "crowns:block/detectors/neutron_detector",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up": {
+      "model": "crowns:block/detectors/neutron_detector"
+    },
+    "facing=west": {
+      "model": "crowns:block/detectors/neutron_detector",
+      "x": 90,
+      "y": 270
+    }
+  }
+}
