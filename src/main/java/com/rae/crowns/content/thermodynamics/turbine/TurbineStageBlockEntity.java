@@ -79,7 +79,6 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
         return true;
     }
 
-    @SuppressWarnings("RedundantMethodOverride")
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
 

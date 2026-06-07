@@ -2,14 +2,15 @@ package com.rae.crowns.content;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@NonnullDefault
 public class RayTraceUtil {
 
-    public static @NotNull List<BlockPos> getSphereSurface(@NotNull BlockPos center, int radius, boolean empty) {
+    public static List<BlockPos> getSphereSurface(BlockPos center, int radius, boolean empty) {
         List<BlockPos> blocks = new ArrayList<>();
 
         int bx = center.getX();
@@ -29,8 +30,7 @@ public class RayTraceUtil {
         return blocks;
     }
 
-
-    public static @NotNull List<Vec3> getSphereSurface(@NotNull Vec3 center, float radius) {
+    public static List<Vec3> getSphereSurface(Vec3 center, float radius) {
         List<Vec3> blocks = new ArrayList<>();
 
         double bx = center.x();

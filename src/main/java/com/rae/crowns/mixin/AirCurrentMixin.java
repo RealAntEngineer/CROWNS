@@ -56,10 +56,10 @@ public class AirCurrentMixin {
 
         BlockPos             fanPos       = source.getAirCurrentPos(); // fan block itself
         SectionPos           startSection = SectionPos.of(fanPos);
-        TemperatureDataLayer sTempLayer   = data.getLayer(DataLayerType.TEMPERATURE, startSection.asLong());
+        TemperatureDataLayer sTempLayer   = (TemperatureDataLayer) data.getLayer(startSection.asLong(),DataLayerType.TEMPERATURE);
         if (sTempLayer == null) return;
 
-        double streamTemp = sTempLayer.get(fanPos.getX() & 15, fanPos.getY() & 15, fanPos.getZ() & 15);
+        double streamTemp = sTempLayer.get((short) (fanPos.getX() & 15), (short) (fanPos.getY() & 15), (short) (fanPos.getZ() & 15));
 
         // --- Move along airflow ---
         for (int i = 0; i < Math.ceil(maxDistance); i++) {
@@ -68,15 +68,15 @@ public class AirCurrentMixin {
             if (!world.isLoaded(pos)) break;
 
             SectionPos           section   = SectionPos.of(pos);
-            TemperatureDataLayer tempLayer = data.getLayer(DataLayerType.TEMPERATURE, section.asLong());
-            ConductionDataLayer  condLayer = data.getLayer(DataLayerType.CONDUCTION, section.asLong());
+            TemperatureDataLayer tempLayer = (TemperatureDataLayer) data.getLayer(startSection.asLong(), DataLayerType.TEMPERATURE);
+            ConductionDataLayer  condLayer = (ConductionDataLayer) data.getLayer(startSection.asLong(), DataLayerType.CONDUCTION);
             if (tempLayer == null || condLayer == null) continue;
 
             int    rx       = pos.getX() & 15;
             int    ry       = pos.getY() & 15;
             int    rz       = pos.getZ() & 15;
-            double tempHere = tempLayer.get(rx, ry, rz);
-            double condHere = condLayer.get(rx, ry, rz);
+            double tempHere = tempLayer.get((short) rx, (short) ry, (short) rz);
+            double condHere = condLayer.get((short) rx, (short) ry, (short) rz);
 
             // --- Conduction with orthogonal neighbors ---
             double totalFlux = 0;
@@ -86,19 +86,19 @@ public class AirCurrentMixin {
                 if (!world.isLoaded(neighbor)) continue;
 
                 SectionPos           nSection   = SectionPos.of(neighbor);
-                TemperatureDataLayer nTempLayer = data.getLayer(DataLayerType.TEMPERATURE, nSection.asLong());
-                ConductionDataLayer  nCondLayer = data.getLayer(DataLayerType.CONDUCTION, nSection.asLong());
+                TemperatureDataLayer nTempLayer = (TemperatureDataLayer) data.getLayer(startSection.asLong(), DataLayerType.TEMPERATURE);
+                ConductionDataLayer  nCondLayer = (ConductionDataLayer) data.getLayer(startSection.asLong(), DataLayerType.CONDUCTION);
                 if (nTempLayer == null || nCondLayer == null) continue;
 
                 int    nrx          = neighbor.getX() & 15;
                 int    nry          = neighbor.getY() & 15;
                 int    nrz          = neighbor.getZ() & 15;
-                double tempNeighbor = nTempLayer.get(nrx, nry, nrz);
-                double condNeighbor = nCondLayer.get(nrx, nry, nrz);
+                double tempNeighbor = nTempLayer.get((short) nrx, (short) nry, (short) nrz);
+                double condNeighbor = nCondLayer.get((short) nrx, (short) nry, (short) nrz);
 
                 double delta = tempNeighbor - tempHere;
                 totalFlux += delta * condNeighbor;
-                nTempLayer.set(nrx, nry, nrz, (float) (tempNeighbor - delta * condNeighbor / 20 / capacity));
+                nTempLayer.set((short) nrx, (short) nry, (short) nrz, (float) (tempNeighbor - delta * condNeighbor / 20 / capacity));
             }
 
             // --- Convection (move along the current) ---
@@ -108,9 +108,9 @@ public class AirCurrentMixin {
             streamTemp += totalFlux / 20 / capacity;
 
             if (world.getBlockState(pos).isAir()) {
-                tempLayer.set(rx, ry, rz, (float) streamTemp);
+                tempLayer.set((short) rx, (short) ry, (short) rz, (float) streamTemp);
             } else {
-                tempLayer.set(rx, ry, rz, (float) (tempHere - (tempHere - streamTemp) / 20 / capacity));
+                tempLayer.set((short) rx, (short) ry, (short) rz, (float) (tempHere - (tempHere - streamTemp) / 20 / capacity));
             }
         }
     }

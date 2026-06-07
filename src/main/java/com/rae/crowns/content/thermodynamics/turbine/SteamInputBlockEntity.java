@@ -2,13 +2,12 @@ package com.rae.crowns.content.thermodynamics.turbine;
 
 import com.rae.crowns.CROWNSLang;
 import com.rae.crowns.content.thermodynamics.StateFluidTank;
-import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -24,12 +23,12 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
+@NonnullDefault
 public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
     private static final int                         SYNC_RATE = 8;
@@ -51,7 +50,7 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
         }
     }) {
         @Override
-        public boolean isFluidValid(@NotNull FluidStack stack) {
+        public boolean isFluidValid(FluidStack stack) {
             return stack.getFluid().is(FluidTags.WATER);
         }
     };
@@ -108,14 +107,14 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
     }
 
     @Override
-    public void write(@NotNull CompoundTag compound, boolean clientPacket) {
+    public void write(CompoundTag compound, boolean clientPacket) {
         super.write(compound, clientPacket);
         compound.put("water_tank", WATER_TANK.writeToNBT(new CompoundTag()));
         compound.putFloat("flow", flow);
     }
 
     @Override
-    protected void read(@NotNull CompoundTag compound, boolean clientPacket) {
+    protected void read(CompoundTag compound, boolean clientPacket) {
         if (compound.contains("water_tank"))
             WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
         flow = compound.getFloat("flow");
@@ -139,7 +138,7 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
     }
 
     @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.FLUID_HANDLER) {
             Direction localDir = this.getBlockState().getValue(DirectionalBlock.FACING);
             if (side == localDir.getOpposite()) {
@@ -150,8 +149,8 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
     }
 
     @Override
-    public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
-        SpecificRealGazState newState = getState();
+    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+        SpecificRealGasState newState = getState();
         CROWNSLang.specificRealFluidState(newState)
                 .forGoggles(tooltip, 1);
         CreateLang.builder().add(
@@ -161,7 +160,7 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
         return true;
     }
 
-    public SpecificRealGazState getState() {
+    public SpecificRealGasState getState() {
         return WATER_TANK.getState();
     }
 

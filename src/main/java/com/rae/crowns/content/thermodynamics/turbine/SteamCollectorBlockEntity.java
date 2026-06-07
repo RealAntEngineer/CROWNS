@@ -4,7 +4,6 @@ import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -18,12 +17,12 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
+@NonnullDefault
 public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
     private static final int                         SYNC_RATE  = 8;
@@ -40,7 +39,7 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
         }
     }) {
         @Override
-        public boolean isFluidValid(@NotNull FluidStack stack) {
+        public boolean isFluidValid(FluidStack stack) {
             return stack.getFluid().is(FluidTags.WATER);
         }
     };
@@ -70,13 +69,13 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
     }
 
     @Override
-    public void write(@NotNull CompoundTag compound, boolean clientPacket) {
+    public void write(CompoundTag compound, boolean clientPacket) {
         super.write(compound, clientPacket);
         compound.put("water_tank", WATER_TANK.writeToNBT(new CompoundTag()));
     }
 
     @Override
-    protected void read(@NotNull CompoundTag compound, boolean clientPacket) {
+    protected void read(CompoundTag compound, boolean clientPacket) {
         if (compound.contains("water_tank"))
             WATER_TANK.readFromNBT((CompoundTag) compound.get("water_tank"));
         super.read(compound, clientPacket);
@@ -94,7 +93,7 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
     }
 
     @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.FLUID_HANDLER) {
             Direction localDir = this.getBlockState().getValue(DirectionalBlock.FACING);
             if (side == localDir.getOpposite()) {
