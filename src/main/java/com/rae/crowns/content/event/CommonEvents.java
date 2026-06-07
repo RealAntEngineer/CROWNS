@@ -19,9 +19,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+@NonnullDefault
 @Mod.EventBusSubscriber()
 public class CommonEvents {
 
@@ -31,12 +33,12 @@ public class CommonEvents {
     }
 
     @SubscribeEvent
-    public static void registerCommands(@NotNull RegisterCommandsEvent event) {
+    public static void registerCommands(RegisterCommandsEvent event) {
         CommandsInit.register(event.getDispatcher());
     }
 
     @SubscribeEvent
-    public static void onEntityTick(LivingEvent.@NotNull LivingTickEvent event) {
+    public static void onEntityTick(LivingEvent.LivingTickEvent event) {
         LivingEntity entity = event.getEntity();
         if (entity.level() instanceof ServerLevel level && CROWNSConfigs.SERVER.conduction.heatDamage.get()) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) entity.level());
@@ -65,7 +67,7 @@ public class CommonEvents {
         }
     }
 
-    private static float getTemperature(@Nullable TemperatureDataLayer layer, @NotNull Vec3i pos) {
+    private static float getTemperature(@Nullable TemperatureDataLayer layer, Vec3i pos) {
 
         if (layer == null) return 300;
 
