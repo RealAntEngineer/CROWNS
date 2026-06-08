@@ -110,7 +110,6 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
         return true;
     }
 
-
     public StateFluidTank getTank() {
         return WATER_TANK;
     }

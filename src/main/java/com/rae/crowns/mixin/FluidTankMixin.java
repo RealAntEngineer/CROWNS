@@ -2,7 +2,7 @@ package com.rae.crowns.mixin;
 
 
 import com.rae.formicapi.content.thermal_utilities.FullTableBased;
-import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.FluidTags;
 import net.minecraftforge.fluids.FluidStack;
@@ -30,8 +30,8 @@ public abstract class FluidTankMixin {
             boolean              oldStateHasState           = oldStateNBT != null && !oldStateNBT.isEmpty();
             boolean              newStateHasState           = newStateNBT != null && !newStateNBT.isEmpty();
 
-            SpecificRealGazState oldState = oldStateHasState ? new SpecificRealGazState(oldStateNBT) : FullTableBased.DEFAULT_STATE;
-            SpecificRealGazState newState = newStateHasState ? new SpecificRealGazState(newStateNBT) : FullTableBased.DEFAULT_STATE;
+            SpecificRealGasState oldState = oldStateHasState ? new SpecificRealGasState(oldStateNBT) : SpecificRealGasState.DEFAULT_STATE;
+            SpecificRealGasState newState = newStateHasState ? new SpecificRealGasState(newStateNBT) : SpecificRealGasState.DEFAULT_STATE;
 
             if (newStateHasState || oldStateHasState) {
 

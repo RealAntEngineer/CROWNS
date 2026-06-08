@@ -3,8 +3,9 @@ package com.rae.crowns.config;
 
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlockEntity;
 import net.createmod.catnip.config.ConfigBase;
-import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
+@NonnullDefault
 public class CROWNSNuclear extends ConfigBase {
 
     public final ConfigBase.ConfigBool  explosion                = b(true, "explosion", Comments.explosion);
@@ -19,16 +20,16 @@ public class CROWNSNuclear extends ConfigBase {
     }
 
     @Override
-    public @NotNull String getName() {
+    public String getName() {
         return "nuclear_v2";
     }
 
     private static class Comments {
-        static @NotNull String explosion                = "activate explosion";
-        static @NotNull String radiationRange           = "the maximum distance for radiation influence on fission, the bigger the range," +
+        static String explosion      = "activate explosion";
+        static String radiationRange = "the maximum distance for radiation influence on fission, the bigger the range," +
                 "the better big reactor will perform. Huge performance impact don't make it higher than 10";
-        static @NotNull String neutronFluxMultiplicator = " decrease it to make reactor less reactive, control how much neutron each fission gives out (neutronFluxMultiplicator * 2.5)";
-        static @NotNull String negativeThermalCoef      = "increase it to decrease the temperature, make neutron less likely to impact" +
+        static          String neutronFluxMultiplicator = " decrease it to make reactor less reactive, control how much neutron each fission gives out (neutronFluxMultiplicator * 2.5)";
+        static          String negativeThermalCoef      = "increase it to decrease the temperature, make neutron less likely to impact" +
                 " when temperature is higher ((temperature - 200) * negativeThermalCoef)";
 
     }

@@ -8,7 +8,7 @@ import com.rae.crowns.content.thermodynamics.StateFluidTank;
 import com.rae.crowns.init.misc.BlockInit;
 import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.content.thermal_utilities.FullTableBased;
-import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.fluids.pipes.StraightPipeBlockEntity;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static com.rae.formicapi.content.thermal_utilities.FullTableBased.DEFAULT_STATE;
+import static com.rae.formicapi.content.thermal_utilities.SpecificRealGasState.DEFAULT_STATE;
 
 
 public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveTemperature {
@@ -47,7 +47,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     private final        StateFluidTank              WATER_TANK  = new StateFluidTank(1000, (f) -> {
     }) {
         @Override
-        public boolean isFluidValid(@NotNull FluidStack stack) {
+        public boolean isFluidValid(FluidStack stack) {
             return stack.getFluid().is(FluidTags.WATER);
         }
     };
@@ -107,7 +107,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
                     float power = getInternalConductivity() * (this.getTemperature() - WATER_TANK.getState().temperature()) * dt / iteration;
                     WATER_TANK.heat(power);
                     PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) level);
-                    if (data != null && data.ticked(SectionPos.of(getBlockPos()).asLong())) {
+                    if (data != null && data.ticked(SectionPos.of(getBlockPos()).asLong(), (int) level.getGameTime())) {
                         this.addTemperature(-power / this.getThermalCapacity());
                     }
                 }
@@ -167,7 +167,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
         if (Float.isNaN(temperature)) {
             temperature = 300;
         }
-        temperature += dT;
+        temperature = Math.max(temperature + dT, 0);
     }
 
     @Override
@@ -260,7 +260,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
             PhysicsWorldData data = PhysicsSaveManager.get(level);
             boolean canCoolBlock =
-                    data != null && data.ticked(SectionPos.of(exchanger.getBlockPos()).asLong());
+                    data != null && data.ticked(SectionPos.of(exchanger.getBlockPos()).asLong(), (int) level.getGameTime());
 
             for (int i = 0; i < iteration; i++) {
                 // ENERGY, not temperature
@@ -286,7 +286,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             if (tag == null || !tag.contains("realGazState"))
                 return DEFAULT_STATE.temperature();
 
-            return new SpecificRealGazState(tag.getCompound("realGazState")).temperature();
+            return new SpecificRealGasState(tag.getCompound("realGazState")).temperature();
         }
 
         private static void heatFluidStack(FluidStack stack, float amount) {
@@ -296,12 +296,12 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             CompoundTag tag = stack.getOrCreateTag();
 
             CompoundTag oldStateNBT = tag.getCompound("realGazState");
-            SpecificRealGazState oldState =
+            SpecificRealGasState oldState =
                     oldStateNBT.isEmpty()
                             ? DEFAULT_STATE
-                            : new SpecificRealGazState(oldStateNBT);
+                            : new SpecificRealGasState(oldStateNBT);
 
-            SpecificRealGazState newState =
+            SpecificRealGasState newState =
                     FullTableBased.isobaricTransfer(oldState, amount / stack.getAmount());
 
             tag.put("realGazState", newState.serialize());
