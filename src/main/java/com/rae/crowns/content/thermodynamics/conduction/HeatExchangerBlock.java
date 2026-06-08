@@ -21,13 +21,15 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
 //todo replace by a straight pipe block -> see the seethrough pipe
+@NonnullDefault
 public class HeatExchangerBlock extends WrenchableDirectionalBlock implements ProperWaterloggedBlock, IBE<HeatExchangerBlockEntity> {
     public static final BooleanProperty IN  = BooleanProperty.create("in");
     public static final BooleanProperty OUT = BooleanProperty.create("out");
 
-    public HeatExchangerBlock(@NotNull Properties properties) {
+    public HeatExchangerBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState()
                 .setValue(FACING, Direction.NORTH)
@@ -37,13 +39,13 @@ public class HeatExchangerBlock extends WrenchableDirectionalBlock implements Pr
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder.add(WATERLOGGED, IN, OUT));
 
     }
 
     @Override
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockState state         = withWater(this.defaultBlockState().setValue(FACING, context.getClickedFace()), context);
         BlockState clickedState  = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace(), -1));
         BlockState oppositeState = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace(), 1));
@@ -71,8 +73,8 @@ public class HeatExchangerBlock extends WrenchableDirectionalBlock implements Pr
     }
 
     @Override
-    public @NotNull BlockState updateShape(@NotNull BlockState pState, @NotNull Direction pDirection, @NotNull BlockState pNeighborState,
-                                           @NotNull LevelAccessor pLevel, @NotNull BlockPos pCurrentPos, @NotNull BlockPos pNeighborPos) {
+    public BlockState updateShape(BlockState pState, Direction pDirection, BlockState pNeighborState,
+                                  LevelAccessor pLevel, BlockPos pCurrentPos, BlockPos pNeighborPos) {
         updateWater(pLevel, pState, pCurrentPos);
         if (pNeighborState.is(this.asBlock())) {
             boolean changed = false;
@@ -121,21 +123,21 @@ public class HeatExchangerBlock extends WrenchableDirectionalBlock implements Pr
     }
 
     @Override
-    public @NotNull FluidState getFluidState(@NotNull BlockState pState) {
+    public FluidState getFluidState(BlockState pState) {
         return fluidState(pState);
     }
 
-    public @NotNull VoxelShape getShape(@NotNull BlockState pState, @NotNull BlockGetter pLevel, @NotNull BlockPos pPos, @NotNull CollisionContext pContext) {
+    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         return AllShapes.EIGHT_VOXEL_POLE.get(pState.getValue(FACING).getAxis());
     }
 
     @Override
-    public @NotNull Class<HeatExchangerBlockEntity> getBlockEntityClass() {
+    public Class<HeatExchangerBlockEntity> getBlockEntityClass() {
         return HeatExchangerBlockEntity.class;
     }
 
     @Override
-    public @NotNull BlockEntityType<? extends HeatExchangerBlockEntity> getBlockEntityType() {
+    public BlockEntityType<? extends HeatExchangerBlockEntity> getBlockEntityType() {
         return BlockEntityInit.HEAT_EXCHANGER.get();
     }
 }

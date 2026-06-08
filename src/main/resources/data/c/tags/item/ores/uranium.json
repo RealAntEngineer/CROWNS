@@ -1,5 +1,6 @@
 {"replace": false,
   "values": [
-    "crowns:raw_uranium"
+    "crowns:uranium_ore",
+    "crowns:deepslate_uranium_ore"
   ]
 }
