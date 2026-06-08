@@ -128,6 +128,14 @@ public class CompressorBlockEntity extends KineticBlockEntity {
 
     }
 
+    public void writeSafe(CompoundTag tag, HolderLookup.Provider registries) {
+        super.writeSafe(tag, registries);
+        tag.putFloat("power", power);
+        tag.put("input_water_tank", INPUT_WATER_TANK.writeToNBT(registries, new CompoundTag()));
+        tag.put("output_water_tank", OUTPUT_WATER_TANK.writeToNBT(registries, new CompoundTag()));
+    }
+
+
     @Override
     protected void read(@NotNull CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         power = tag.getFloat("power");
