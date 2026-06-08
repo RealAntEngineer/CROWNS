@@ -9,6 +9,7 @@
   "block.crowns.turbine_stage": "Turbine Stage",
   "block.crowns.turbine_stage_structure": "Turbine Stage Structure",
   "block.crowns.compressor": "Compressor",
+  "block.crowns.solid_corium": "Solid Corium Block",
 
   "item.crowns.uranium_ingot": "Natural Uranium Ingot",
   "item.crowns.natural_uranium_nugget": "Natural Uranium Nugget",
@@ -83,6 +84,8 @@
   "crowns.units.radiation_flux.symbol.gray_per_seconds": "Gray/s",
   "crowns.units.radiation_flux.symbol.rad_per_seconds": "Rad/s",
   "crowns.units.radiation_flux.symbol.sievert_per_seconds": "Sv/s",
+
+  "crowns.subtitle.turbine_sound" : "Turbine Humming",
 
   "nucleus.crowns.u235": "Uranium 235",
   "nucleus.crowns.u238": "Uranium 238",
