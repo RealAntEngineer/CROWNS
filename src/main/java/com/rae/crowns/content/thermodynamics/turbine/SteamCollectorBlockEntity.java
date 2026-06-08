@@ -5,7 +5,6 @@ import com.rae.crowns.init.misc.BlockEntityInit;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -18,10 +17,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
+@NonnullDefault
 public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
     private static final int            SYNC_RATE  = 8;
@@ -42,9 +42,6 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
         }
     };
 
-    //public SteamCurrent steamCurrent;
-    //protected int currentUpdateCooldown;
-    //protected boolean updateSteamFlow;
     public SteamCollectorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         //steamCurrent = null;
@@ -112,7 +109,6 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
 
         return true;
     }
-
 
     public StateFluidTank getTank() {
         return WATER_TANK;

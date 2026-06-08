@@ -89,18 +89,17 @@ public class CompressorBlockEntity extends KineticBlockEntity {
             }
             SpecificRealGasState inputState = INPUT_WATER_TANK.getState();
             int                  flow       = (int) Math.abs(speed);
-            FluidStack           water      = INPUT_WATER_TANK.drain(flow, IFluidHandler.FluidAction.SIMULATE);
+            int realFlow = INPUT_WATER_TANK.getFluidAmount() > flow ? flow : INPUT_WATER_TANK.getFluidAmount() - 1;
             float                yield      = CROWNSConfigs.SERVER.kinetics.compressorIsentropicYield.getF();
-
-            if (!water.isEmpty()) {
-
+            if (realFlow > 0) {
+                FluidStack           water      = INPUT_WATER_TANK.drain(realFlow, IFluidHandler.FluidAction.SIMULATE);
                 float                pressureDelta = getPressureDelta(speed);
                 SpecificRealGasState outputState   = FullTableBased.isentropicCompression(inputState, (inputState.pressure() + pressureDelta) / inputState.pressure());
                 //only consume power if it has more energy afterward
                 power = Math.max((int) ((outputState.specificEnthalpy() - inputState.specificEnthalpy()) * water.getAmount() * 20f / Constants.whatSU / yield), 0) ;
 
                 water.set(DataComponentsInit.REAL_GAS_STATE, outputState);
-                INPUT_WATER_TANK.drain(Math.min((int) Math.abs(speed), OUTPUT_WATER_TANK.fill(water, IFluidHandler.FluidAction.EXECUTE)), IFluidHandler.FluidAction.EXECUTE);
+                INPUT_WATER_TANK.drain(Math.min(realFlow, OUTPUT_WATER_TANK.fill(water, IFluidHandler.FluidAction.EXECUTE)), IFluidHandler.FluidAction.EXECUTE);
                 if (hasNetwork() && speed != 0) {
 
                     KineticNetwork network = getOrCreateNetwork();
@@ -155,12 +154,16 @@ public class CompressorBlockEntity extends KineticBlockEntity {
         SpecificRealGasState inputState = INPUT_WATER_TANK.getState();
         CreateLang.builder().add(
                         Component.literal("input : ").append(
-                                CROWNSLang.specificRealFluidState(inputState).component()))
+                                CROWNSLang.specificRealFluidState(inputState).component())
+                                //.append(String.valueOf(INPUT_WATER_TANK.getFluidAmount()))
+                )
                 .forGoggles(tooltip, 1);
         SpecificRealGasState outputState = OUTPUT_WATER_TANK.getState();
         CreateLang.builder().add(
                         Component.literal("output : ").append(
-                                CROWNSLang.specificRealFluidState(outputState).component()))
+                                CROWNSLang.specificRealFluidState(outputState).component())
+                                //.append(String.valueOf(OUTPUT_WATER_TANK.getFluidAmount()))
+                )
                 .forGoggles(tooltip, 1);
         return true;
     }
