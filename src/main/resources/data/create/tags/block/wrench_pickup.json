@@ -3,6 +3,7 @@
   "values": [
     "crowns:fuel_assembly",
     "crowns:heat_exchanger",
+    "crowns:turbine_stage",
     "crowns:steam_input",
     "crowns:steam_collector",
     "crowns:compressor"

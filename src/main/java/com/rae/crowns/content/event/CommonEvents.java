@@ -45,7 +45,7 @@ public class CommonEvents {
     public static void onEntityTick(@NotNull EntityTickEvent.Pre event) {
         Entity entity = event.getEntity();
         //inflict temperature damage
-        if (entity.level() instanceof ServerLevel level && entity instanceof LivingEntity && CROWNSConfigs.SERVER.conduction.heatDamage.get()) {
+        if (entity.level() instanceof ServerLevel level && entity instanceof LivingEntity && CROWNSConfigs.SERVER.thermal.heatDamage.get()) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) entity.level());
             if (data == null) return;
             AtomicReference<Float>   cumlTemp      = new AtomicReference<>(0f);

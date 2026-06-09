@@ -9,7 +9,6 @@ import com.rae.crowns.content.nuclear.IAmRadioactiveSource;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import com.rae.crowns.init.misc.FluidInit;
 import com.rae.formicapi.FormicApiLang;
-import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -320,7 +319,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public float getThermalConductivity() {
-        return CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
+        return CROWNSConfigs.SERVER.thermal.assemblyBlock.getF();
     }
 
     @Override

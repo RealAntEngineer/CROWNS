@@ -27,7 +27,7 @@ public class SteamCollectorBlockEntity extends SmartBlockEntity implements IHave
     private static final int            SYNC_RATE  = 8;
     protected            int            syncCooldown;
     protected            boolean        queuedSync;
-    private final        StateFluidTank WATER_TANK = new StateFluidTank(1000, (f) -> {
+    private final        StateFluidTank WATER_TANK = new StateFluidTank(SteamInputBlockEntity.MAX_FLOW * 16, (f) -> {
         if (!hasLevel()) {
             return;
         }

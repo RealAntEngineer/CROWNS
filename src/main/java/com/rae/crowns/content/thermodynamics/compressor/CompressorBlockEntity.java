@@ -152,18 +152,12 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
         super.addToGoggleTooltip(tooltip, isPlayerSneaking);
         SpecificRealGasState inputState = INPUT_WATER_TANK.getState();
-        CreateLang.builder().add(
-                        Component.literal("input : ").append(
-                                CROWNSLang.specificRealFluidState(inputState).component())
-                                //.append(String.valueOf(INPUT_WATER_TANK.getFluidAmount()))
-                )
+        CROWNSLang.translate("compressor.input").add(
+                        CROWNSLang.specificRealFluidState(inputState).component())
                 .forGoggles(tooltip, 1);
         SpecificRealGasState outputState = OUTPUT_WATER_TANK.getState();
-        CreateLang.builder().add(
-                        Component.literal("output : ").append(
-                                CROWNSLang.specificRealFluidState(outputState).component())
-                                //.append(String.valueOf(OUTPUT_WATER_TANK.getFluidAmount()))
-                )
+        CROWNSLang.translate("compressor.output").add(
+                        CROWNSLang.specificRealFluidState(outputState).component())
                 .forGoggles(tooltip, 1);
         return true;
     }

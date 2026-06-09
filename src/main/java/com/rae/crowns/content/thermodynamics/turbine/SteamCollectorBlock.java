@@ -8,11 +8,12 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
+@NonnullDefault
 public class SteamCollectorBlock extends WrenchableDirectionalBlock implements IBE<SteamCollectorBlockEntity> {
 
-    public SteamCollectorBlock(@NotNull Properties pProperties) {
+    public SteamCollectorBlock(Properties pProperties) {
         super(pProperties);
     }
 
@@ -22,17 +23,17 @@ public class SteamCollectorBlock extends WrenchableDirectionalBlock implements I
     }
 
     @Override
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(FACING, context.getClickedFace());
     }
 
     @Override
-    public @NotNull Class<SteamCollectorBlockEntity> getBlockEntityClass() {
+    public Class<SteamCollectorBlockEntity> getBlockEntityClass() {
         return SteamCollectorBlockEntity.class;
     }
 
     @Override
-    public @NotNull BlockEntityType<? extends SteamCollectorBlockEntity> getBlockEntityType() {
+    public BlockEntityType<? extends SteamCollectorBlockEntity> getBlockEntityType() {
         return BlockEntityInit.STEAM_COLLECTOR.get();
     }
 }
