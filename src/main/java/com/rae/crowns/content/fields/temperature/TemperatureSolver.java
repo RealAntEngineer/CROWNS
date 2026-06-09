@@ -34,6 +34,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
     private static final int CONDUCTION = 2;
     private static final int RESILIENCE = 3;
 
+    double EPSILON = 1e-2f;
     double gamma = (double) DT / CAPACITY;          // diffusion time-scale
     double beta  = 1000.0 * DT / CAPACITY;          // resilience time-scale
 
@@ -91,6 +92,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
         }
     }
 
+    //TODO this is fishy (the explanation was done by claudeAI but I'm not convinced)
     /**
      * Recomputes {@code β·res·T_default} for every voxel each tick.
      *
@@ -132,8 +134,56 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             TemperatureDataLayer layer = (TemperatureDataLayer) data.getLayer(packedSection, DataLayerType.TEMPERATURE);
             if (layer == null) continue;
 
-            for (short localIdx = 0; localIdx < 4096; localIdx++)
-                        layer.setDirect(localIdx, (float) matrix.T_next[start + localIdx]);
+            boolean anyChanged = false;
+
+            boolean touchMinX = false;
+            boolean touchMaxX = false;
+            boolean touchMinY = false;
+            boolean touchMaxY = false;
+            boolean touchMinZ = false;
+            boolean touchMaxZ = false;
+
+            for (short localIdx = 0; localIdx < 4096; localIdx++) {
+                int idx = start + localIdx;
+
+                if (Math.abs(matrix.T_next[idx] - matrix.T_current[idx]) > EPSILON) {
+                    anyChanged = true;
+
+                    if (IS_BOUNDARY[localIdx]) {
+                        int x = localIdx & 15;
+                        int z = (localIdx >> 4) & 15;
+                        int y = (localIdx >> 8) & 15;
+
+                        if (x == 0) touchMinX = true;
+                        if (x == 15) touchMaxX = true;
+                        if (y == 0) touchMinY = true;
+                        if (y == 15) touchMaxY = true;
+                        if (z == 0) touchMinZ = true;
+                        if (z == 15) touchMaxZ = true;
+                    }
+                }
+
+                layer.setDirect(localIdx, (float) matrix.T_next[idx]);
+            }
+
+            if (anyChanged) {
+                data.setNeedTicking(packedSection);
+
+                int sx = SectionPos.x(packedSection);
+                int sy = SectionPos.y(packedSection);
+                int sz = SectionPos.z(packedSection);
+
+                if (touchMinX) data.setNeedTicking(SectionPos.asLong(sx - 1, sy, sz));
+                if (touchMaxX) data.setNeedTicking(SectionPos.asLong(sx + 1, sy, sz));
+
+                if (touchMinY) data.setNeedTicking(SectionPos.asLong(sx, sy - 1, sz));
+                if (touchMaxY) data.setNeedTicking(SectionPos.asLong(sx, sy + 1, sz));
+
+                if (touchMinZ) data.setNeedTicking(SectionPos.asLong(sx, sy, sz - 1));
+                if (touchMaxZ) data.setNeedTicking(SectionPos.asLong(sx, sy, sz + 1));
+            } else {
+                data.setNoTicking(packedSection);
+            }
         }
 
         // Dynamic sources receive the delta the solver computed for their voxel,
@@ -145,6 +195,8 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             long     packedSection = SectionPos.asLong(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4);
             int      start         = matrix.sectionToIndex().get(packedSection);
             if (start < 0) return;
+
+            data.setNeedTicking(packedSection);
 
             int idx    = start + index3DTo1D(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
             float dT   = (float) (matrix.T_next[idx] - matrix.T_current[idx]);
@@ -192,7 +244,9 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
 
         // Degenerate case — no data: identity row so the voxel just keeps its value
         if (condLayer == null || resLayer == null || defaultLayer == null) {
-            assemblyMatrix.set(globalIdx, globalIdx, 1.0);
+            values[0] = 1.0;
+            cols[0]   = globalIdx;
+            assemblyMatrix.setRow(globalIdx, values, cols, 1);
             return;
         }
         short localIdx = index3DTo1D(x, y, z);
@@ -224,7 +278,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             double k_eff = (selfCond <= 0 || neighborCond <= 0) ? 0.0
                     : 2.0 * selfCond * neighborCond / (selfCond + neighborCond);
 
-            double coeff = (1.0 - res) * gamma * k_eff;
+            double coeff = gamma * k_eff;//(1.0 - res) * gamma * k_eff; if we remove the res on diffusion it's symmetrical
 
             if (neighbors.isInMatrix(nidx)) {
                 // Interior
@@ -248,7 +302,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
         values[count] = diag;
         cols[count] = globalIdx;
         count++;
-        assemblyMatrix.setRow(globalIdx, Arrays.copyOf(values, count), Arrays.copyOf(cols, count));
+        assemblyMatrix.setRow(globalIdx, values, cols, count);
     }
 
     // -------------------------------------------------------------------------

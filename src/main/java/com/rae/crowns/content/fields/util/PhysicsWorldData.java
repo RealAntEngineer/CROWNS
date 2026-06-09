@@ -21,6 +21,7 @@ import org.lwjgl.system.NonnullDefault;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Stream;
 
 @NonnullDefault
 public class PhysicsWorldData extends SavedData {//Only for the server
@@ -30,7 +31,6 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     public static final  int                                                       DATA_VERSION        = 13;
     private static final int                                                       DYNAMIC_RANGE       = 1;
     // Generic unified map: one Long2ObjectMap per DataLayerType
-    //TODO use an enum map instead (will require creating a key Data layer type and a map to get it, instead of the Registry for exemple ?)
     private final        EnumMap<DataLayerType, Long2ObjectMap<AbstractDataLayer>> layers              = new EnumMap<>(DataLayerType.class);//stored
     // Dynamic and meta state
     private final        Long2ObjectMap<DataLayerType[]>                           toInitialise        = new Long2ObjectOpenHashMap<>();//stored
@@ -270,12 +270,17 @@ public class PhysicsWorldData extends SavedData {//Only for the server
                 //iterator.remove();
                 continue;
             }
+            if (level.isOutsideBuildHeight(base)){
+                iterator.remove();
+                //toInitialise.remove(sectionLong);
+                continue;
+            }
             if (!nearDynamicSections.contains(sectionLong)) {
                 iterator.remove();
                 continue;
             }
 
-            // ✅ Remove from set once we are processing it
+            //Remove from set once we are processing it
             //toInitialise.remove(sectionLong);
             iterator.remove();//it seems that this doesn't remove it from the toInitialise longMap
 
@@ -296,6 +301,8 @@ public class PhysicsWorldData extends SavedData {//Only for the server
                     float      value      = type.getInitializer().apply(level, mutablePos, blockState);
                     layer.setDirect(i, value);
 
+                    if (dynamicContains(mutablePos.asLong())) canBeDirty = true;//if there is a dynamic block it's forced to be dirty
+
                     // Only track temperature changes for dirty check
                     if (type == DataLayerType.TEMPERATURE) {
                         if (lastTemp != -1 && lastTemp != value) canBeDirty = true;
@@ -309,15 +316,17 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             loadedSections.add(sectionLong);
 
             // Mark section clean if possible
-            if (!canBeDirty && !nearDynamicSections.contains(sectionLong)) {
-                setClean(sectionLong);
+            if (canBeDirty) {
+                setNeedTicking(sectionLong);
+            } else {
+                setNoTicking(sectionLong);
             }
 
             processed++;
         }
     }
 
-    public void setClean(long sectionPos) {
+    public void setNoTicking(long sectionPos) {
         dirty.remove(sectionPos);
     }
 
@@ -329,13 +338,13 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             BlockPos   pos   = changedBlocks.poll();
             BlockState state = level.getBlockState(pos);
 
-            set(pos, types, PhysicsSaveManager.getDefaultTemperature(level, pos, state),
-                    PhysicsSaveManager.getDefaultConduction(state), PhysicsSaveManager.getDefaultResilience(state));
+            set(pos, types, types[0].getInitializer().apply(level, pos, state),
+                    types[1].getInitializer().apply(level, pos, state), types[2].getInitializer().apply(level, pos, state));
 
             // --- Update solid mask using PassThroughTester ---
             //updateBlockedFaces(level, pos, state);
 
-            setDirty(SectionPos.of(pos).asLong());
+            setNeedTicking(SectionPos.of(pos).asLong());
             if (System.currentTimeMillis() - initialTimeMS > 20) {
                 break;
             }
@@ -364,11 +373,12 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             if (layer != null) {
                 layer.set((short) lx, (short) ly, (short) lz, values[i]);
             }
+            setNeedTicking(packedSection);
         }
     }
 
     //to avoid ticking stable sections.
-    public void setDirty(long sectionPos) {
+    public void setNeedTicking(long sectionPos) {
         dirty.add(sectionPos);
         //changedSections.add(sectionPos);
     }
@@ -435,7 +445,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         }
 
         loadedSections.remove(section);
-        setDirty(section);
+        setNeedTicking(section);
     }
 
     public void removeDynamic(BlockPos pos) {
@@ -470,7 +480,8 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         cachedMatrices.clear();
         dirty.clear();
 
-        for (long section : loadedSections) {
+        //we need an
+        for (long section : loadedSections.stream().toList()) {
             scheduleInitialisation(section,
                     DataLayerType.TEMPERATURE,
                     DataLayerType.DEFAULT_TEMPERATURE,
@@ -494,7 +505,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
 
     //Dirty sections are section that need to be ticked, not sections that need to be rebuilt
-    public boolean isDirty(long sectionPos) {
+    public boolean needTicking(long sectionPos) {
         return dirty.contains(sectionPos);
     }
 

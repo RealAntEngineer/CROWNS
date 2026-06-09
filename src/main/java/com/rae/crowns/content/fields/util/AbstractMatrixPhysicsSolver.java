@@ -39,6 +39,17 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
             {0, 1, 0}, {0, -1, 0},
             {0, 0, 1}, {0, 0, -1}
     };
+    protected static final boolean[] IS_BOUNDARY = new boolean[4096];
+
+    static {
+        for (int y = 0; y < 16; y++)
+            for (int z = 0; z < 16; z++)
+                for (int x = 0; x < 16; x++)
+                    if (x == 0 || x == 15 ||
+                            y == 0 || y == 15 ||
+                            z == 0 || z == 15)
+                        IS_BOUNDARY[index3DTo1D(x, y, z)] = true;
+    }
 
     float dt;
     // -------------------------------------------------------------------------
@@ -159,7 +170,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         if (physicsMatrix == null || physicsMatrix.size() == 0) return;
 
         extractFieldValues(physicsMatrix, data);
-        rebuildSourceVector(physicsMatrix, data);  // <-- every tick, not just on dirty
+        //rebuildSourceVector(physicsMatrix, data);  // <-- every tick, not just on dirty
 
         double[] solution = LeastSquare2.solve(
                 physicsMatrix.assemblyMatrix(),
@@ -212,12 +223,12 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         if (added.isEmpty() && removed.isEmpty()) {
             // Same set of sections — patch only dirty ones
             //TODO this is wrong, dirty sections are not section to rebuild but section that need to be ticked
-            for (long section : tickingSections) {
-                if (data.isDirty(section)) {
+            /*for (long section : tickingSections) {
+                if (data.needTicking(section)) {
                     buildSectionRows(section, cached, data);
                     data.setClean(section);
                 }
-            }
+            }*/
             return cached;
         }
 
@@ -272,9 +283,28 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         }
         matrix.grow(addedSections.size() * 16 * 16 * 16);
 
-        // Populate new rows
+        // Build rows for the new sections
         for (long section : addedSections) {
             buildSectionRows(section, matrix, data);
+        }
+
+        // Rebuild face neighbors that bordered the new sections —
+        // they previously treated these as boundary conditions (baking T into sourceVector)
+        // but now they have an interior neighbor and need off-diagonal entries instead
+        for (long newSection : addedSections) {
+            SectionPos pos = SectionPos.of(newSection);
+            for (byte[] off : NEIGHBOR_OFFSETS) {
+                long neighborSection = SectionPos.asLong(
+                        pos.getX() + off[0],
+                        pos.getY() + off[1],
+                        pos.getZ() + off[2]
+                );
+                // Only rebuild if it was already in the matrix before this extension
+                if (matrix.sectionToIndex().get(neighborSection) >= 0
+                        && !addedSections.contains(neighborSection)) {
+                    buildSectionRows(neighborSection, matrix, data);
+                }
+            }
         }
     }
 
@@ -326,22 +356,19 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         Long2ObjectMap<List<BlockPos>> bySection = new Long2ObjectOpenHashMap<>();
 
         for (BlockPos pos : positions) {
-            for (int dx = -1; dx <= 1; dx++) {
-                for (int dy = -1; dy <= 1; dy++) {
-                    for (int dz = -1; dz <= 1; dz++) {
-                        BlockPos affected = pos.offset(dx, dy, dz);
+            for (byte[] offset : NEIGHBOR_OFFSETS) {
+                byte dx = offset[0], dy = offset[1], dz = offset[2];
+                BlockPos affected = pos.offset(dx, dy, dz);
 
-                        long section = SectionPos.asLong(
-                                affected.getX() >> 4,
-                                affected.getY() >> 4,
-                                affected.getZ() >> 4
-                        );
+                long section = SectionPos.asLong(
+                        affected.getX() >> 4,
+                        affected.getY() >> 4,
+                        affected.getZ() >> 4
+                );
 
-                        bySection
-                                .computeIfAbsent(section, k -> new ArrayList<>())
-                                .add(affected);
-                    }
-                }
+                bySection
+                        .computeIfAbsent(section, k -> new ArrayList<>())
+                        .add(affected);
             }
         }
 
@@ -423,7 +450,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
          *   <li>{@code cgTemp} — intermediate A·p,     length = size</li>
          * </ul>
          *
-         * Pass these to {@link LeastSquare#solve} via the overload that accepts
+         * Pass these to {@link LeastSquare2#solve} via the overload that accepts
          * pre-allocated working buffers.
          */
         double[] cgR;
@@ -483,7 +510,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
             for (int r = 0; r < size; r++) {
                 double[] rowValues = assemblyMatrix.getRowValues(r);
                 int[] rowCols = assemblyMatrix.getRowCols(r);
-                newAsm.setRow(r, rowValues, rowCols);
+                newAsm.setRow(r, rowValues, rowCols, 7);
             }
 
             double[] newSrc = Arrays.copyOf(sourceVector, newSize);

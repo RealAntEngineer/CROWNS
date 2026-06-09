@@ -154,29 +154,28 @@ public class PaddedCSRMatrix implements MutableMatrix {
      *
      * @param row       row index to modify
      * @param newValues new non-zero values for the row
-     * @param cols      column indices corresponding to each value
+     * @param newCols      column indices corresponding to each value
      * @throws IllegalArgumentException if array sizes do not match {@code nnzPerRow}
      */
-    public void setRow(int row, double[] newValues, int[] cols) {
+    public void setRow(int row, double[] newValues, int[] newCols, int count) {
 
-        if (newValues.length > nnzPerRow || cols.length != newValues.length) {
+        if (newValues.length > nnzPerRow || newCols.length != newValues.length) {
             throw new IllegalArgumentException(
                     "Expected arrays of size " + nnzPerRow +
                             " but got values=" + newValues.length +
-                            " cols=" + cols.length
+                            " cols=" + newCols.length
             );
         }
 
         int base = row * nnzPerRow;
-
-        for (int i = 0; i < nnzPerRow; i++) {
-            if (i < newValues.length) {
-                colIndex[base + i] = cols[i];
-                values[base + i] = newValues[i];
-            }
-            else {
-                values[base + i] = 0;
-            }
+        for (int i = 0; i < count; i++) {
+            colIndex[base + i] = newCols[i];
+            values  [base + i] = newValues[i];
+        }
+        // zero out trailing slots — both value AND colIndex set to safe default (diagonal)
+        for (int i = count; i < nnzPerRow; i++) {
+            colIndex[base + i] = row; // points to diagonal — safe for both multiply paths
+            values  [base + i] = 0.0;
         }
     }
 

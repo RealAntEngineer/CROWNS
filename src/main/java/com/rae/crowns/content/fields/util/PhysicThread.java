@@ -100,7 +100,7 @@ public class PhysicThread extends Thread {
         for (long packed : nearDynamicSections) {
             if (loadedSections.contains(packed)) {
                 //verify data
-                if (data.checkValidity(packed)) {//&& data.isDirty(packed)) {
+                if (data.checkValidity(packed) && data.needTicking(packed)) {//) {
                     toTick.add(packed);
                     data.addToTicked(packed);
                 }
