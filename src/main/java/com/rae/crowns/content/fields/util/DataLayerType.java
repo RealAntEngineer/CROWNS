@@ -7,6 +7,7 @@ import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,9 +19,9 @@ public enum DataLayerType {
     DEFAULT_TEMPERATURE("default_temperature",
             TemperatureDataLayer::new, PhysicsSaveManager::getDefaultTemperature),
     RESILIENCE("resilence", ResilienceDataLayer::new,
-            (level, pos, blockState) -> PhysicsSaveManager.getDefaultResilience(blockState)),
+            (section, pos, blockState) -> PhysicsSaveManager.getDefaultResilience(blockState)),
     CONDUCTION("conduction", ConductionDataLayer::new,
-            (level, pos, blockState) -> PhysicsSaveManager.getDefaultConduction(blockState));
+            (section, pos, blockState) -> PhysicsSaveManager.getDefaultConduction(blockState));
 
     public static final Map<String, DataLayerType> REGISTRY = new HashMap<>();
     static  {
@@ -29,16 +30,16 @@ public enum DataLayerType {
         }
     }
     public final  String                                        id;
-    private final Supplier<AbstractDataLayer>                                   factory;
-    private final Function3<Level, BlockPos, BlockState, Float> initializer;
+    private final Supplier<AbstractDataLayer>                               factory;
+    private final Function3<LevelChunkSection, BlockPos, BlockState, Float> initializer;
 
-    DataLayerType(String id, Supplier<AbstractDataLayer> factory, Function3<Level, BlockPos, BlockState, Float> initializer) {
+    DataLayerType(String id, Supplier<AbstractDataLayer> factory, Function3<LevelChunkSection, BlockPos, BlockState, Float> initializer) {
         this.id = id;
         this.factory = factory;
         this.initializer = initializer;
     }
 
-    public Function3<Level, BlockPos, BlockState, Float> getInitializer() {
+    public Function3<LevelChunkSection, BlockPos, BlockState, Float> getInitializer() {
         return initializer;
     }
 

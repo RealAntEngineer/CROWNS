@@ -14,6 +14,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
@@ -255,7 +257,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
         while (iterator.hasNext() && processed < 10000) {
             if ((System.nanoTime() - startTime) > 20_000_000L) { // 20 ms
-                CROWNS.LOGGER.warn("Exiting initialisation for this tick with {} more Sections to go", toInitialise.size());
+                CROWNS.LOGGER.warn("Exiting initialisation for this tick with {} more Sections to go, it took {}ms", toInitialise.size(), (System.nanoTime() - startTime)/1_000_000);
                 break;
             }
 
@@ -289,16 +291,17 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
             // Abstracted layer initialization
             for (DataLayerType type : layersToInit) {
-                AbstractDataLayer layer = type.createLayer();
-
+                AbstractDataLayer layer   = type.createLayer();
+                LevelChunk        chunk   = level.getChunk(sectionPos.x(), sectionPos.z());
+                LevelChunkSection section = chunk.getSection(chunk.getSectionIndex(sectionPos.y()));
                 for (short i = 0; i < 4096; i++) {
                     int dx = i & 15;
                     int dy = (i >> 8) & 15;
                     int dz = (i >> 4) & 15;
 
                     mutablePos.set(base.getX() + dx, base.getY() + dy, base.getZ() + dz);
-                    BlockState blockState = level.getBlockState(mutablePos);
-                    float      value      = type.getInitializer().apply(level, mutablePos, blockState);
+                    BlockState blockState = section.getBlockState(dx, dy, dz);
+                    float      value      = type.getInitializer().apply(section, mutablePos, blockState);
                     layer.setDirect(i, value);
 
                     if (dynamicContains(mutablePos.asLong())) canBeDirty = true;//if there is a dynamic block it's forced to be dirty
@@ -331,22 +334,78 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     }
 
     public void updateChangedBlocks(ServerLevel level) {
-        float           initialTimeMS = System.currentTimeMillis();
-        DataLayerType[] types         = {DataLayerType.DEFAULT_TEMPERATURE, DataLayerType.CONDUCTION, DataLayerType.RESILIENCE};
+        long startTime = System.nanoTime();
 
-        for (int i = 0; i < 10000 && !changedBlocks.isEmpty(); i++) {
-            BlockPos   pos   = changedBlocks.poll();
-            BlockState state = level.getBlockState(pos);
+        DataLayerType[] types = {
+                DataLayerType.DEFAULT_TEMPERATURE,
+                DataLayerType.CONDUCTION,
+                DataLayerType.RESILIENCE
+        };
 
-            set(pos, types, types[0].getInitializer().apply(level, pos, state),
-                    types[1].getInitializer().apply(level, pos, state), types[2].getInitializer().apply(level, pos, state));
+        // Group changed blocks by section
+        Long2ObjectMap<List<BlockPos>> bySection = new Long2ObjectOpenHashMap<>();
 
-            // --- Update solid mask using PassThroughTester ---
-            //updateBlockedFaces(level, pos, state);
+        int processed = 0;
 
-            setNeedTicking(SectionPos.of(pos).asLong());
-            if (System.currentTimeMillis() - initialTimeMS > 20) {
-                break;
+        while (processed < 10_000 && !changedBlocks.isEmpty()) {
+            if (System.nanoTime() - startTime > 20_000_000L) {
+                return;
+            }
+
+            BlockPos pos = changedBlocks.poll();
+            if (pos == null) break;
+
+            long section = SectionPos.asLong(
+                    pos.getX() >> 4,
+                    pos.getY() >> 4,
+                    pos.getZ() >> 4
+            );
+
+            bySection
+                    .computeIfAbsent(section, k -> new ArrayList<>())
+                    .add(pos);
+
+            processed++;
+        }
+
+        // Process one section at a time
+        for (Long2ObjectMap.Entry<List<BlockPos>> entry : bySection.long2ObjectEntrySet()) {
+
+            if (System.nanoTime() - startTime > 20_000_000L) {
+                return;
+            }
+
+            SectionPos sectionPos = SectionPos.of(entry.getLongKey());
+            LevelChunk chunk = level.getChunk(sectionPos.x(), sectionPos.z());
+            int sectionIndex = chunk.getSectionIndex(sectionPos.y());
+
+            if (sectionIndex < 0 || sectionIndex >= chunk.getSectionsCount()) {
+                continue;
+            }
+
+            LevelChunkSection section = chunk.getSection(sectionIndex);
+
+            for (BlockPos pos : entry.getValue()) {
+
+                if (System.nanoTime() - startTime > 20_000_000L) {
+                    return;
+                }
+
+                int x = pos.getX() & 15;
+                int y = pos.getY() & 15;
+                int z = pos.getZ() & 15;
+
+                BlockState state = section.getBlockState(x, y, z);
+
+                set(
+                        pos,
+                        types,
+                        types[0].getInitializer().apply(section, pos, state),
+                        types[1].getInitializer().apply(section, pos, state),
+                        types[2].getInitializer().apply(section, pos, state)
+                );
+
+                setNeedTicking(entry.getLongKey());
             }
         }
     }

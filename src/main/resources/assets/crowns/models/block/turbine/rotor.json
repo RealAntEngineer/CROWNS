@@ -1,11 +1,13 @@
 {
-	"parent": "crowns:block/turbine/turbine",
-	"loader": "neoforge:obj",
-	"flip_v": true,
-	"textures" : {
-		"casing":"crowns:block/turbine/casing",
-		"core":"crowns:block/turbine/core",
-		"blade":"crowns:block/turbine/blade"
-	},
-	"model": "crowns:models/block/turbine/rotor.obj"
+  "parent": "crowns:block/turbine/turbine",
+  "loader": "neoforge:obj",
+  "render_type": "neoforge:cutout",
+  "ambientocclusion": false,
+  "flip_v": true,
+  "textures": {
+    "casing": "crowns:block/turbine/casing",
+    "core": "crowns:block/turbine/core",
+    "blade": "crowns:block/turbine/blade"
+  },
+  "model": "crowns:models/block/turbine/rotor.obj"
 }

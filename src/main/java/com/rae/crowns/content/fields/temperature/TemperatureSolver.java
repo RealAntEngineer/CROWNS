@@ -34,7 +34,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
     private static final int CONDUCTION = 2;
     private static final int RESILIENCE = 3;
 
-    double EPSILON = 1e-2f;
+    double EPSILON = 1e-1f;
     double gamma = (double) DT / CAPACITY;          // diffusion time-scale
     double beta  = 1e5 * DT / CAPACITY;          // resilience time-scale
 

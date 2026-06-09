@@ -69,7 +69,8 @@ public class TurbineStageBlock extends MBKineticController implements IBE<Turbin
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (stack.is(ItemInit.TURBINE_CASING.asItem()) && !state.getValue(CASING)){
             level.setBlock(pos, state.setValue(CASING, true), 3);
-            player.setItemInHand(hand, ItemStack.EMPTY);
+            stack.shrink(1);
+            //player.setItemInHand(hand, );
             return ItemInteractionResult.SUCCESS;
         }
         if (stack.isEmpty() && state.getValue(CASING)){
