@@ -561,7 +561,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     }
 
     public boolean ticked(long sectionPos, int tick) {
-        return tickedSections.getOrDefault(sectionPos, -1) < tick + 1;//small acceptable delay
+        return tickedSections.getOrDefault(sectionPos, -1) >= tick - 1; // ticked this tick or the previous one
     }
 
     public void addToTicked(long sectionPos) {

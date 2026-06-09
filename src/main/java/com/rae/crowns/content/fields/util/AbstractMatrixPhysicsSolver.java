@@ -156,7 +156,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
     // -------------------------------------------------------------------------
 
     protected float getSolverTolerance() {
-        return 1e-3f;
+        return 1e-5f;
     }
 
     /**
@@ -172,7 +172,18 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         extractFieldValues(physicsMatrix, data);
         //rebuildSourceVector(physicsMatrix, data);  // <-- every tick, not just on dirty
 
-        double[] solution = LeastSquare2.solve(
+        double[] solution = ConjugateGradient2.solve(
+                physicsMatrix.assemblyMatrix(),
+                physicsMatrix.getInitX(),          // warm start from previous tick, solution written in-place
+                buildRhs(physicsMatrix),
+                getSolverMaxIterations(),
+                getSolverTolerance() * physicsMatrix.size(),
+                physicsMatrix.cgR,
+                physicsMatrix.cgP,
+                physicsMatrix.cgAp
+        );
+
+                /*LeastSquare2.solve(
                 physicsMatrix.assemblyMatrix(),
                 buildRhs(physicsMatrix),
                 getSolverMaxIterations(),
@@ -183,7 +194,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
                 physicsMatrix.cgAtb,
                 physicsMatrix.cgAp,
                 physicsMatrix.cgTemp
-                );
+                );*/
 
         physicsMatrix.setSolution(solution);
         writeBackFieldValues(physicsMatrix, data);

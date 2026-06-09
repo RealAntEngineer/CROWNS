@@ -36,7 +36,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
 
     double EPSILON = 1e-2f;
     double gamma = (double) DT / CAPACITY;          // diffusion time-scale
-    double beta  = 1000.0 * DT / CAPACITY;          // resilience time-scale
+    double beta  = 1e5 * DT / CAPACITY;          // resilience time-scale
 
     // -------------------------------------------------------------------------
     // Configuration
@@ -247,6 +247,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             values[0] = 1.0;
             cols[0]   = globalIdx;
             assemblyMatrix.setRow(globalIdx, values, cols, 1);
+            sourceVector[globalIdx] = 0;
             return;
         }
         short localIdx = index3DTo1D(x, y, z);
@@ -297,6 +298,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
                 } else {
                     sourceVector[globalIdx] += coeff * 300;//300K is default
                 }
+                diag += coeff;
             }
         }
         values[count] = diag;
