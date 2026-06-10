@@ -49,9 +49,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.rae.crowns.content.nuclear.NuclearExplosion.nuclearExplosion;
-import static org.joml.Math.clamp;
-
 public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemperature, IHaveGoggleInformation {
     private static final Random r = new Random();
     private static final Logger log = LoggerFactory.getLogger(AssemblyBlockEntity.class);
@@ -160,10 +157,15 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
             Nucleus nucleus = e.getKey();
             Float mol = e.getValue();
 
-            float volume = (1 * (1 + CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF() * (temperature - 300))); // How much the thingamajig "expands"
+            float volume = 1f; //(1 * (1 + CROWNSConfigs.SERVER.nuclear.negativeThermalCoef.getF() * (temperature - 300))); // How much the thingamajig "expands"
+            // Changed to doppler broadening
 
-            Nucleus.NuclearTransformationResult fast_result = nucleus.fission(receivingFastFlux, mol, volume, 0.25f, true); // Fast spectrum
-            Nucleus.NuclearTransformationResult thermal_result = nucleus.fission(receivingSlowFlux, mol, volume, 0.25f, false); // Thermal spectrum
+            double factor = Math.min(Math.sqrt(temperature) / 500, 1);
+            float effectiveSlowFlux = (float) (1 - factor) * receivingSlowFlux;
+            float effectiveFastFlux = (float) (receivingFastFlux + factor * receivingSlowFlux);
+
+            Nucleus.NuclearTransformationResult fast_result = nucleus.fission(effectiveFastFlux, mol, volume, 0.25f, true); // Fast spectrum
+            Nucleus.NuclearTransformationResult thermal_result = nucleus.fission(effectiveSlowFlux, mol, volume, 0.25f, false); // Thermal spectrum
             Nucleus.NuclearTransformationResult decay_result = nucleus.decay(1f, mol);
 
             outgoingFlux += fast_result.neutron_yielded() + thermal_result.neutron_yielded() + decay_result.neutron_yielded();
