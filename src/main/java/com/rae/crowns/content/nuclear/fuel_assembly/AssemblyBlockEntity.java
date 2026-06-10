@@ -341,6 +341,8 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
         tooltip.add(Component.literal("Outgoing flux:").withStyle(ChatFormatting.AQUA)
                 .append(Component.literal(String.format(" : %.5f/s", outgoingFlux * 20)).withStyle(ChatFormatting.AQUA)));
+        tooltip.add(Component.literal("Doppler broadening:").withStyle(ChatFormatting.DARK_RED)
+                .append(Component.literal(String.format(" : %.3f%%", Math.min(Math.sqrt(temperature) / 500, 1))).withStyle(ChatFormatting.DARK_RED)));
         tooltip.add(Component.literal(""));
 
         tooltip.add(Component.literal("Composition:").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)));
