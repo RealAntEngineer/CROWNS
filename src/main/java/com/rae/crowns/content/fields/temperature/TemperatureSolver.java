@@ -9,7 +9,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 
 /**
@@ -24,6 +27,7 @@ import java.util.*;
  * <p>Only implements field I/O, dynamic data updates, and the per-voxel
  * coefficient formula. All matrix management is handled by the base class.
  */
+@NonnullDefault
 public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<TemperatureSolver.ThermalMatrix> {
 
     public static float DT       = 1 / 20f;
@@ -65,7 +69,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
     }
 
     @Override
-    protected ThermalMatrix getCachedMatrix(PhysicsWorldData data) {
+    protected @Nullable ThermalMatrix getCachedMatrix(PhysicsWorldData data) {
         return (ThermalMatrix) data.getCachedMatrix(this);
     }
 
@@ -89,39 +93,6 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
 
             for (short localIdx = 0; localIdx < 4096; localIdx++)
                         matrix.T_current[start + localIdx] = layer.getDirect(localIdx);
-        }
-    }
-
-    //TODO this is fishy (the explanation was done by claudeAI but I'm not convinced)
-    /**
-     * Recomputes {@code β·res·T_default} for every voxel each tick.
-     *
-     * <p>This must run every tick even when the matrix rows are not rebuilt,
-     * because the source is combined with {@code T_current} in {@link #buildRhs}
-     * and {@code T_current} changes every tick. Skipping this would add a stale
-     * large source on top of an already-updated field, causing runaway on voxels
-     * with high {@code res} and high {@code T_default}.
-     */
-    @Override
-    protected void rebuildSourceVector(ThermalMatrix matrix, PhysicsWorldData data) {
-        double[] src = matrix.sourceVector();
-        Arrays.fill(src, 0.0);
-
-        for (long packedSection : matrix.sections()) {
-            int sectionStartIdx = matrix.sectionToIndex().get(packedSection);
-            if (sectionStartIdx < 0) continue;
-
-            AbstractDataLayer  resLayer     = data.getLayer(packedSection, DataLayerType.RESILIENCE);
-            AbstractDataLayer defaultLayer = data.getLayer(packedSection, DataLayerType.DEFAULT_TEMPERATURE);
-            if (resLayer == null || defaultLayer == null) continue;
-
-
-            for (short localIndex = 0; localIndex < 4096; localIndex++) {
-                int   idx         = sectionStartIdx + localIndex;
-                float res         = resLayer.getDirect(localIndex);
-                float defaultTemp = defaultLayer.getDirect(localIndex);
-                src[idx] = res * beta * defaultTemp;
-            }
         }
     }
 
@@ -312,7 +283,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
     // -------------------------------------------------------------------------
 
     @Override
-    protected void updateDynamicData(@NotNull PhysicsWorldData data) {
+    protected void updateDynamicData(PhysicsWorldData data) {
         List<BlockPos> toStamp = new ArrayList<>();
 
         data.getDynamicData().forEach((key, source) -> {
@@ -342,7 +313,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             resLayer.setDirect(localIdx, 0f);
             condLayer.setDirect(localIdx, source.getThermalConductivity());
 
-            //data.setDirty(packedSection);
+            data.setNeedTicking(packedSection);
             toStamp.add(pos);
         });
 
@@ -383,6 +354,18 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
         @Override
         public double[] getInitX() {
             return T_next;
+        }
+
+        @Override
+        protected void copyFieldArrays(int srcStart, int dstStart, int count) {
+            System.arraycopy(T_current, srcStart, T_current, dstStart, count);
+            System.arraycopy(T_next,    srcStart, T_next,    dstStart, count);
+        }
+
+        @Override
+        protected void onShrink(int newSize) {
+            T_current = Arrays.copyOf(T_current, newSize);
+            T_next    = Arrays.copyOf(T_next,    newSize);
         }
     }
 }

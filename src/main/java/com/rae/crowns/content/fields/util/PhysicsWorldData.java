@@ -268,15 +268,17 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             BlockPos   base       = sectionPos.origin();
 
             // Skip section if not loaded or not near dynamic blocks, but don't remove it from set
-            if (!level.isLoaded(base)) {
-                //iterator.remove();
-                continue;
-            }
             if (level.isOutsideBuildHeight(base)){
                 iterator.remove();
                 //toInitialise.remove(sectionLong);
                 continue;
             }
+
+            if (!level.isLoaded(base)) {
+                //iterator.remove();
+                continue;
+            }
+
             if (!nearDynamicSections.contains(sectionLong)) {
                 iterator.remove();
                 continue;
@@ -293,7 +295,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             for (DataLayerType type : layersToInit) {
                 AbstractDataLayer layer   = type.createLayer();
                 LevelChunk        chunk   = level.getChunk(sectionPos.x(), sectionPos.z());
-                LevelChunkSection section = chunk.getSection(chunk.getSectionIndex(sectionPos.y()));
+                LevelChunkSection section = chunk.getSection(chunk.getSectionIndexFromSectionY(sectionPos.y()));
                 for (short i = 0; i < 4096; i++) {
                     int dx = i & 15;
                     int dy = (i >> 8) & 15;
@@ -377,7 +379,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
             SectionPos sectionPos = SectionPos.of(entry.getLongKey());
             LevelChunk chunk = level.getChunk(sectionPos.x(), sectionPos.z());
-            int sectionIndex = chunk.getSectionIndex(sectionPos.y());
+            int sectionIndex = chunk.getSectionIndexFromSectionY(sectionPos.y());
 
             if (sectionIndex < 0 || sectionIndex >= chunk.getSectionsCount()) {
                 continue;

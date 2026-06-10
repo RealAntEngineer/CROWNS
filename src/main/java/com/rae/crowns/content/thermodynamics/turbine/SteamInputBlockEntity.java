@@ -45,14 +45,6 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
     public static final  int          MAX_FLOW  = 256;
     private static final int          SYNC_RATE = 8;
     private final StateFluidTank WATER_TANK = new StateFluidTank(MAX_FLOW * 2, (f) -> {
-        /*if (!hasLevel()) {
-            return;
-        }
-        assert level != null;
-        if (!level.isClientSide) {
-            flow = f.getAmount() + 1;
-            sendData();
-        }*/
     }) {
         @Override
         public boolean isFluidValid(FluidStack stack) {
