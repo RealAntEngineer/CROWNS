@@ -20,17 +20,17 @@ import java.nio.ByteBuffer;
  * temperature = (stored - Integer.MIN_VALUE) / SCALE
  */
 public class TemperatureDataLayer extends AbstractDataLayer {
-    public static final double SCALE = 10f; // 1 decimal places
-    public static final double MIN_TEMPERATURE = 0.0d;
-    public static final double MAX_TEMPERATURE =
+    public static final double  SCALE           = 10f; // 1 decimal places
+    public static final double  MIN_TEMPERATURE = 0.0d;
+    public static final double  MAX_TEMPERATURE =
             (Short.MAX_VALUE - (long) Short.MIN_VALUE) / SCALE; // ≈ 42949.67295
-    private final float[] data = new float[SIZE];
+    private final       float[] values          = new float[SIZE];
     //private final int[] defaultData = new int[SIZE];
 
     @Override
     public @NotNull TemperatureDataLayer fromBytes(byte @NotNull [] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        for (int i = 0; i < SIZE; i++) data[i] = (float) ((buffer.getShort() - Short.MIN_VALUE) / SCALE);
+        for (int i = 0; i < SIZE; i++) values[i] = (float) ((buffer.getShort() - Short.MIN_VALUE) / SCALE);
         //for (int i = 0; i < SIZE; i++) defaultData[i] = buffer.getInt();
         return this;
     }
@@ -38,27 +38,27 @@ public class TemperatureDataLayer extends AbstractDataLayer {
     @Override
     public byte[] toBytes() {
         ByteBuffer buffer = ByteBuffer.allocate(SIZE * 2);// * 2);
-        for (float value : data) buffer.putShort((short) ((value * SCALE) + Short.MIN_VALUE));
+        for (float value : values) buffer.putShort((short) ((value * SCALE) + Short.MIN_VALUE));
         //for (int val : defaultData) buffer.putInt(val);
         return buffer.array();
     }
 
     @Override
-    public float get(int x, int y, int z) {
-        return data[index(x, y, z)];
+    public float getDirect(short idx) {
+        return values[idx];
     }
 
     @Override
-    protected float decode(int index) {
+    protected float decode(short index) {
         return 0;
     }
 
     @Override
-    public void set(int x, int y, int z, float value) {
-        data[index(x, y, z)] = value;
+    public void setDirect(short idx, float value) {
+        values[idx] = value;
     }
 
     @Override
-    protected void encode(int index, float value) {
+    protected void encode(short index, float value) {
     }
 }

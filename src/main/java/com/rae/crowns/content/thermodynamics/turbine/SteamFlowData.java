@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 public class SteamFlowData extends SavedData {
-    //static Codec<Map<ResourceLocation,List<SteamCurrent>>> CODEC = Codec.unboundedMap(ResourceLocation.CODEC,Codec.list(SteamCurrent.CODEC));
     static final Codec<List<ResourceLocation>> KEYS_CODEC = Codec.list(ResourceLocation.CODEC);
     Map<ResourceLocation, List<SteamCurrent>> steamCurrents = new HashMap<>();
 
@@ -26,7 +25,7 @@ public class SteamFlowData extends SavedData {
     }
 
     public static @NotNull SteamFlowData load(@NotNull CompoundTag nbt) {
-        SteamFlowData savedData = new SteamFlowData();
+        SteamFlowData          savedData     = new SteamFlowData();
         List<ResourceLocation> dimensionKeys = KEYS_CODEC.parse(NbtOps.INSTANCE, nbt.get("dimensions")).result().orElse(List.of());
 
         for (ResourceLocation key : dimensionKeys) {
@@ -37,8 +36,7 @@ public class SteamFlowData extends SavedData {
                 savedData.steamCurrents.get(key).add(SteamCurrent.fromNBT((CompoundTag) dimensionTag));
             });
         }
-        /*savedData.steamCurrents = new HashMap<>(CODEC.parse(NbtOps.INSTANCE, nbt.get("currents"))
-                .result().orElse(new HashMap<>()));*/
+
         return savedData;
     }
 

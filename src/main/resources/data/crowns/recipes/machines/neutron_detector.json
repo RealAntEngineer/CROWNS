@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " C ",
+    "PUP",
+    " C "
+  ],
+  "key": {
+    "P": {
+      "item": "create:iron_sheet"
+    },
+    "C": {
+      "item": "create:copper_nugget"
+    },
+    "U": {
+      "item": "crowns:enriched_uranium_ingot"
+    }
+  },
+  "result": {
+    "item": "crowns:neutron_detector",
+    "count": 1
+  }
+}

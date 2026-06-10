@@ -38,4 +38,3 @@ public class UpdateSteamFlowPacket extends SimplePacketBase {
         return true;
     }
 }
-

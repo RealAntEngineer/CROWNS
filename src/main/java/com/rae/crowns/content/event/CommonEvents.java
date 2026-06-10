@@ -44,7 +44,7 @@ public class CommonEvents {
             AtomicReference<Integer> numberOfTemps = new AtomicReference<>(0);
             BlockPos.betweenClosedStream(entity.getBoundingBox()).forEach(blockPos -> {
                 SectionPos sectionPos = SectionPos.of(blockPos);
-                cumlTemp.set(cumlTemp.get() + getTemperature(data.getLayer(sectionPos.asLong(), DataLayerType.TEMPERATURE), blockPos));
+                cumlTemp.set(cumlTemp.get() + getTemperature((TemperatureDataLayer) data.getLayer(sectionPos.asLong(), DataLayerType.TEMPERATURE), blockPos));
                 numberOfTemps.set(numberOfTemps.get() + 1);
             });
 
@@ -73,6 +73,6 @@ public class CommonEvents {
         int localY = pos.getY() & 15;
         int localZ = pos.getZ() & 15;
 
-        return layer.get(localX, localY, localZ);
+        return layer.get((short) localX, (short) localY, (short) localZ);
     }
 }

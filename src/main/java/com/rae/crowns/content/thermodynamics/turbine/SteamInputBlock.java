@@ -9,21 +9,22 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
+@NonnullDefault
 public class SteamInputBlock extends WrenchableDirectionalBlock implements IBE<SteamInputBlockEntity> {
 
-    public SteamInputBlock(@NotNull Properties pProperties) {
+    public SteamInputBlock(Properties pProperties) {
         super(pProperties);
     }
 
     @Override
-    public @NotNull Class<SteamInputBlockEntity> getBlockEntityClass() {
+    public Class<SteamInputBlockEntity> getBlockEntityClass() {
         return SteamInputBlockEntity.class;
     }
 
     @Override
-    public @NotNull BlockEntityType<? extends SteamInputBlockEntity> getBlockEntityType() {
+    public BlockEntityType<? extends SteamInputBlockEntity> getBlockEntityType() {
         return BlockEntityInit.STEAM_INPUT.get();
     }
 
@@ -33,12 +34,12 @@ public class SteamInputBlock extends WrenchableDirectionalBlock implements IBE<S
     }
 
     @Override
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(FACING, context.getClickedFace());
     }
 
     @Override
-    public void onBlockStateChange(@NotNull LevelReader level, @NotNull BlockPos pos, BlockState oldState, BlockState newState) {
+    public void onBlockStateChange(LevelReader level, BlockPos pos, BlockState oldState, BlockState newState) {
         super.onBlockStateChange(level, pos, oldState, newState);
         if (level.getBlockEntity(pos) instanceof SteamInputBlockEntity be) {
             be.updateSteamFlow = true;

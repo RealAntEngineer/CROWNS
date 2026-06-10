@@ -5,7 +5,7 @@ import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.nuclear.Nucleus;
 import com.rae.formicapi.FormicApiLang;
 import com.rae.formicapi.content.thermal_utilities.FullTableBased;
-import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import net.createmod.catnip.lang.Lang;
 import net.createmod.catnip.lang.LangBuilder;
 import net.createmod.catnip.lang.LangNumberFormat;
@@ -30,7 +30,7 @@ public class CROWNSLang extends Lang {
     }
 
 
-    public static LangBuilder specificRealFluidState(SpecificRealGazState state) {
+    public static LangBuilder specificRealFluidState(SpecificRealGasState state) {
         CROWNSCfgClient.FluidVisualMode mode = CROWNSConfigs.CLIENT.fluidStateVisualMode.get();
 
         return switch (mode) {

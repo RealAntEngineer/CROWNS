@@ -5,9 +5,7 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
 public class ResilienceDataLayer extends AbstractDataLayer {
-    public static final int SIZE = 16 * 16 * 16;
-    private final byte[] data = new byte[SIZE];
-
+    private final       byte[] data = new byte[SIZE];
     @Override
     public @NotNull ResilienceDataLayer fromBytes(byte @NotNull [] bytes) {
         System.arraycopy(bytes, 0, data, 0, Math.min(bytes.length, SIZE));
@@ -20,12 +18,12 @@ public class ResilienceDataLayer extends AbstractDataLayer {
     }
 
     @Override
-    protected float decode(int index) {
+    protected float decode(short index) {
         return (data[index] + 128) / 255f;
     }
 
     @Override
-    protected void encode(int index, float value) {
+    protected void encode(short index, float value) {
         int scaled = Math.round(Mth.clamp(value, 0f, 1f) * 255f);
         data[index] = (byte) (scaled - 128);
     }

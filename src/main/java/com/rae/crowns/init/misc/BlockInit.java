@@ -11,6 +11,7 @@ import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
 import com.rae.crowns.content.thermodynamics.turbine.SteamCollectorBlock;
 import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlock;
 import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
+import com.rae.crowns.content.nuclear.detectors.NeutronDetector;
 import com.rae.formicapi.content.multiblock.MBItem;
 import com.rae.formicapi.content.multiblock.MBStructureBlock;
 import com.simibubi.create.foundation.data.SharedProperties;
@@ -157,6 +158,13 @@ public class BlockInit {
             .item()
             .build()
             .register();
+    public static final BlockEntry<NeutronDetector> NEUTRON_DETECTOR = REGISTRATE
+            .block("neutron_detector", NeutronDetector::new)
+            .initialProperties(SharedProperties::softMetal)
+            .item()
+            .build()
+            .register();
+
 
 
     private static @NotNull ToIntFunction<BlockState> litBlockEmission(int lightLevel) {

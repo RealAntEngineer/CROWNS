@@ -1,7 +1,7 @@
 package com.rae.crowns.content.thermodynamics;
 
 import com.rae.formicapi.content.thermal_utilities.FullTableBased;
-import com.rae.formicapi.content.thermal_utilities.SpecificRealGazState;
+import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fluids.FluidStack;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-import static com.rae.formicapi.content.thermal_utilities.FullTableBased.DEFAULT_STATE;
+import static com.rae.formicapi.content.thermal_utilities.SpecificRealGasState.DEFAULT_STATE;
 
 
 public class StateFluidTank extends SmartFluidTank {
@@ -22,13 +22,13 @@ public class StateFluidTank extends SmartFluidTank {
 
             CompoundTag tag = new CompoundTag();
             CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
-            SpecificRealGazState oldState;
+            SpecificRealGasState oldState;
             if (oldStateNBT != null) {
-                oldState = new SpecificRealGazState(oldStateNBT);
+                oldState = new SpecificRealGasState(oldStateNBT);
             } else {
                 oldState = DEFAULT_STATE;
             }
-            SpecificRealGazState state = FullTableBased.isobaricTransfer(oldState, amount / getFluidAmount());
+            SpecificRealGasState state = FullTableBased.isobaricTransfer(oldState, amount / getFluidAmount());
             tag.put("realGazState", state.serialize());
             fluid.setTag(tag);
         }
@@ -39,23 +39,23 @@ public class StateFluidTank extends SmartFluidTank {
 
             CompoundTag tag = new CompoundTag();
             CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
-            SpecificRealGazState oldState;
+            SpecificRealGasState oldState;
             if (oldStateNBT != null) {
-                oldState = new SpecificRealGazState(oldStateNBT);
+                oldState = new SpecificRealGasState(oldStateNBT);
             } else {
                 oldState = DEFAULT_STATE;
             }
-            SpecificRealGazState state = FullTableBased.isentropicCompression(oldState, ratio);
+            SpecificRealGasState state = FullTableBased.isentropicCompression(oldState, ratio);
             tag.put("realGazState", state.serialize());
             fluid.setTag(tag);
         }
     }
 
-    public @NotNull SpecificRealGazState getState() {
+    public @NotNull SpecificRealGasState getState() {
         CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
-        SpecificRealGazState oldState;
+        SpecificRealGasState oldState;
         if (oldStateNBT != null) {
-            oldState = new SpecificRealGazState(oldStateNBT);
+            oldState = new SpecificRealGasState(oldStateNBT);
         } else {
             oldState = DEFAULT_STATE;
         }
