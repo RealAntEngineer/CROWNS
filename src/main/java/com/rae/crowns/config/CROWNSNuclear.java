@@ -28,9 +28,9 @@ public class CROWNSNuclear extends ConfigBase {
         static String explosion      = "activate explosion";
         static String radiationRange = "the maximum distance for radiation influence on fission, the bigger the range," +
                 "the better big reactor will perform. Huge performance impact don't make it higher than 10";
-        static          String neutronFluxMultiplicator = " decrease it to make reactor less reactive, control how much neutron each fission gives out (neutronFluxMultiplicator * 2.5)";
-        static          String negativeThermalCoef      = "increase it to decrease the temperature, make neutron less likely to impact" +
+        static String neutronFluxMultiplicator = " decrease it to make reactor less reactive, control how much neutron " +
+                "each fission gives out (neutronFluxMultiplicator * 2.5)";
+        static String negativeThermalCoef      = "increase it to decrease the temperature, make neutron less likely to impact" +
                 " when temperature is higher ((temperature - 200) * negativeThermalCoef)";
-
     }
 }

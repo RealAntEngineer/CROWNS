@@ -126,6 +126,14 @@ public class CompressorBlockEntity extends KineticBlockEntity {
 
     }
 
+    @Override
+    public void writeSafe(CompoundTag tag) {
+        super.writeSafe(tag);
+        tag.putFloat("power", power);
+        tag.put("input_water_tank", INPUT_WATER_TANK.writeToNBT(new CompoundTag()));
+        tag.put("output_water_tank", OUTPUT_WATER_TANK.writeToNBT(new CompoundTag()));
+    }
+
     //nope -> we're gonna do that an other way : speed will fix flow and pressure is fixed
     // it's directional
 
@@ -148,15 +156,12 @@ public class CompressorBlockEntity extends KineticBlockEntity {
     public boolean addToGoggleTooltip(@NotNull List<Component> tooltip, boolean isPlayerSneaking) {
         super.addToGoggleTooltip(tooltip, isPlayerSneaking);
         SpecificRealGasState inputState = INPUT_WATER_TANK.getState();
-        CreateLang.builder().add(
-                        Component.literal("input : ")
-                                .append(
-                                        CROWNSLang.specificRealFluidState(inputState).component()))
+        CROWNSLang.translate("compressor.input").add(
+                                        CROWNSLang.specificRealFluidState(inputState).component())
                 .forGoggles(tooltip, 1);
         SpecificRealGasState outputState = OUTPUT_WATER_TANK.getState();
-        CreateLang.builder().add(
-                        Component.literal("output : ").append(
-                                CROWNSLang.specificRealFluidState(outputState).component()))
+        CROWNSLang.translate("compressor.output").add(
+                                CROWNSLang.specificRealFluidState(outputState).component())
                 .forGoggles(tooltip, 1);
         return true;
     }
@@ -186,5 +191,4 @@ public class CompressorBlockEntity extends KineticBlockEntity {
         if (level == null) return 0;
         return speed == 0 ? 0 : Math.abs(power / speed);// ? it's weird to do that but...
     }
-
 }

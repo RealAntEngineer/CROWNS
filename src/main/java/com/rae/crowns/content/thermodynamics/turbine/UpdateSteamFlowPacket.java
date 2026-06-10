@@ -6,23 +6,25 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.NonnullDefault;
 
+@NonnullDefault
 public class UpdateSteamFlowPacket extends SimplePacketBase {
 
     private final @Nullable CompoundTag tag;
 
     // Construct from server data
-    public UpdateSteamFlowPacket(@NotNull SteamFlowData savedData) {
+    public UpdateSteamFlowPacket(SteamFlowData savedData) {
         this.tag = savedData.save(new CompoundTag());
     }
 
     // Construct from network buffer
-    public UpdateSteamFlowPacket(@NotNull FriendlyByteBuf buffer) {
+    public UpdateSteamFlowPacket(FriendlyByteBuf buffer) {
         this.tag = buffer.readNbt();
     }
 
     @Override
-    public void write(@NotNull FriendlyByteBuf buffer) {
+    public void write(FriendlyByteBuf buffer) {
         buffer.writeNbt(tag);
     }
 

@@ -1,0 +1,21 @@
+{
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": false,
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "pattern": [
+    "CCCCC",
+    "C   C",
+    "C   C",
+    "C   C",
+    "CCCCC"
+  ],
+
+  "result": {
+    "id": "crowns:turbine_casing",
+    "count": 1
+  }
+}

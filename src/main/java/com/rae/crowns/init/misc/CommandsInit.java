@@ -180,4 +180,3 @@ public class CommandsInit {
         context.getSource().sendSystemMessage(Component.literal(msg));
     }
 }
-

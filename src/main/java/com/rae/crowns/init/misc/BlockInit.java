@@ -32,6 +32,7 @@ public class BlockInit {
     public static final BlockEntry<HeatExchangerBlock> HEAT_EXCHANGER = REGISTRATE
             .block("heat_exchanger", HeatExchangerBlock::new)
             .initialProperties(SharedProperties::softMetal)
+            .transform(displaySource(DisplaySourceInit.TEMPERATURE))
             .properties(BlockBehaviour.Properties::noOcclusion)
             .item()
             .build()
@@ -49,7 +50,6 @@ public class BlockInit {
                     "steam_collector", SteamCollectorBlock::new)
             .initialProperties(SharedProperties::softMetal)
             .properties(BlockBehaviour.Properties::noOcclusion)
-            .transform(displaySource(DisplaySourceInit.TEMPERATURE))
             .item()
             .build()
             .register();

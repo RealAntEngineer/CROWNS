@@ -9,6 +9,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -16,8 +17,8 @@ import java.util.function.Supplier;
 
 // An example config class. This is not required, but it's a good idea to have one to keep your config organized.
 // Demonstrates how to use Forge's config APIs
+@NonnullDefault
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-
 public class CROWNSConfigs {
     private static final Map<ModConfig.Type, ConfigBase> CONFIGS = new EnumMap<>(ModConfig.Type.class);
 
@@ -33,7 +34,7 @@ public class CROWNSConfigs {
         return CONFIGS.get(type);
     }
 
-    public static void registerConfigs(@NotNull ModLoadingContext context) {
+    public static void registerConfigs(ModLoadingContext context) {
         CLIENT = register(CROWNSCfgClient::new, ModConfig.Type.CLIENT);
         COMMON = register(CROWNSCfgCommon::new, ModConfig.Type.COMMON);
         SERVER = register(CROWNSCfgServer::new, ModConfig.Type.SERVER);
@@ -44,7 +45,7 @@ public class CROWNSConfigs {
         //BlockStressValues.registerProvider(context.getActiveNamespace(), SERVER.kinetics.stressValues);
     }
 
-    private static <T extends ConfigBase> @NotNull T register(@NotNull Supplier<T> factory, ModConfig.Type side) {
+    private static <T extends ConfigBase> T register(Supplier<T> factory, ModConfig.Type side) {
         Pair<T, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure((builder) -> {
             T config = factory.get();
             config.registerAll(builder);
@@ -57,7 +58,7 @@ public class CROWNSConfigs {
     }
 
     @SubscribeEvent
-    public static void onLoad(ModConfigEvent.@NotNull Loading event) {
+    public static void onLoad(ModConfigEvent.Loading event) {
         for (ConfigBase config : CONFIGS.values())
             if (config.specification == event.getConfig()
                     .getSpec())
@@ -65,7 +66,7 @@ public class CROWNSConfigs {
     }
 
     @SubscribeEvent
-    public static void onReload(ModConfigEvent.@NotNull Reloading event) {
+    public static void onReload(ModConfigEvent.Reloading event) {
         for (ConfigBase config : CONFIGS.values())
             if (config.specification == event.getConfig()
                     .getSpec())

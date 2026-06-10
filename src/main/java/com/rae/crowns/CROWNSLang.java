@@ -48,7 +48,7 @@ public class CROWNSLang extends Lang {
             case PS -> builder().add(Component.literal(" ")).add(
                     FormicApiLang.formatPressure(state.pressure()).component()
                             .append(" | S = ")
-                            .append(FormicApiLang.numberWithSymbol(FullTableBased.getS(state.specificEnthalpy(), state.pressure())).text("J/Kg/K").component()));
+                            .append(FormicApiLang.numberWithSymbol(state.specificEntropy()).text("J/Kg/K").component()));
             case PHTSX -> builder().add(Component.literal(" ")).add(
                     FormicApiLang.formatPressure(state.pressure()).component()
                             .append(" | H = ")
@@ -56,7 +56,7 @@ public class CROWNSLang extends Lang {
                             .append(" | ")
                             .append(FormicApiLang.formatTemperature(state.temperature()).component())
                             .append(" | S = ")
-                            .append(FormicApiLang.numberWithSymbol(FullTableBased.getS(state.specificEnthalpy(), state.pressure())).text("J/Kg/K").component())
+                            .append(FormicApiLang.numberWithSymbol(state.specificEntropy()).text("J/Kg/K").component())
                             .append(" | ")
                             .append(
                                     Component.literal("x = " + LangNumberFormat.format(state.vaporQuality() * 100) + "%")));

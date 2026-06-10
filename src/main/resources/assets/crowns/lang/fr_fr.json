@@ -1,6 +1,6 @@
 {
   "block.crowns.heat_exchanger": "Échangeur de chaleur",
-  "block.crowns.steam_input": "Entrée de vapeur",
+  "block.crowns.steam_input": "Injecteur de vapeur",
   "block.crowns.steam_collector": "Collecteur de vapeur",
 
   "block.crowns.fuel_assembly": "Assemblage de combustible",
@@ -28,6 +28,12 @@
   "fluid.crowns.uranium_hexafluoride": "Hexafluorure d’uranium",
 
   "itemGroup.crowns.nuclear": "CROWNS",
+
+  "crowns.steam_input.flow_goal" : "Débit cible",
+  "crowns.steam_input.real_flow" : "Débit = %d/%d mS/tick",
+
+  "crowns.compressor.input": "Entrée = ",
+  "crowns.compressor.output": "Sortie = ",
 
   "crowns.ponder.nuclear_basics.header": "Réacteurs nucléaires",
   "crowns.ponder.nuclear_basics.text_1": "Le combustible nucléaire produit naturellement des neutrons rapides",
@@ -69,20 +75,6 @@
   "crowns.display_source.radiation_source": "Source de radiation",
   "crowns.display_source.temperature": "Température",
   "crowns.display_source.full_stack": "Température de la pile de combustible",
-
-  "crowns.units.pressure.symbol.pascals": "Pa",
-  "crowns.units.pressure.symbol.bar": "bar",
-  "crowns.units.pressure.symbol.atmospheres": "atm",
-  "crowns.units.pressure.symbol.psi": "psi",
-  "crowns.units.temperature.symbol.kelvin": "K",
-  "crowns.units.temperature.symbol.celsius": "°C",
-  "crowns.units.temperature.symbol.fahrenheit": "°F",
-
-  "crowns.units.radiation_flux.symbol.mega_becquerels": "MBq",
-  "crowns.units.radiation_flux.symbol.curies": "Ci",
-  "crowns.units.radiation_flux.symbol.gray_per_seconds": "Gray/s",
-  "crowns.units.radiation_flux.symbol.rad_per_seconds": "Rad/s",
-  "crowns.units.radiation_flux.symbol.sievert_per_seconds": "Sv/s",
 
   "nucleus.crowns.u235": "Uranium 235",
   "nucleus.crowns.u238": "Uranium 238",

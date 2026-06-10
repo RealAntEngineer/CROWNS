@@ -6,13 +6,13 @@ import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.function.Consumer;
 
 import static com.rae.formicapi.content.thermal_utilities.SpecificRealGasState.DEFAULT_STATE;
 
-
+@NonnullDefault
 public class StateFluidTank extends SmartFluidTank {
     public StateFluidTank(int capacity, Consumer<FluidStack> updateCallback) {
         super(capacity, updateCallback);
@@ -52,7 +52,7 @@ public class StateFluidTank extends SmartFluidTank {
         }
     }
 
-    public @NotNull SpecificRealGasState getState() {
+    public SpecificRealGasState getState() {
         CompoundTag          oldStateNBT = fluid.getChildTag("realGazState");
         SpecificRealGasState oldState;
         if (oldStateNBT != null) {
@@ -64,12 +64,12 @@ public class StateFluidTank extends SmartFluidTank {
     }
 
     @Override
-    public @NotNull FluidStack drain(FluidStack resource, FluidAction action) {
+    public FluidStack drain(FluidStack resource, FluidAction action) {
         return super.drain(resource, action);
     }
 
     @Override
-    public @NotNull FluidStack drain(int maxDrain, FluidAction action) {
+    public FluidStack drain(int maxDrain, FluidAction action) {
         FluidStack stack = super.drain(maxDrain, action);
         return stack;
     }

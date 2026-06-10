@@ -216,9 +216,8 @@ public class ThermodynamicsScene {
         if (unit instanceof Enum<?> enumUnit) {
             String unitName = unit.getClass().getSimpleName();
             return FormicApiLang.translate("units." + unitName.toLowerCase() + ".symbol." + enumUnit.name().toLowerCase()).component();
-        } else {
-            return Component.empty();
         }
+        return Component.empty();
     }
 
 }

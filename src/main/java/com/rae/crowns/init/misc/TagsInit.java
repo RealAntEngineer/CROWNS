@@ -19,10 +19,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.NonnullDefault;
 
-@SuppressWarnings("ALL")
+@NonnullDefault
 public class TagsInit extends AllTags {
 
     public static void init() {
@@ -68,15 +68,15 @@ public class TagsInit extends AllTags {
             this(CustomNameSpace.MOD);
         }
 
-        CustomBlockTags(@NotNull CustomNameSpace namespace) {
+        CustomBlockTags(CustomNameSpace namespace) {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomBlockTags(@NotNull CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
+        CustomBlockTags(CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
             this(namespace, null, optional, alwaysDatagen);
         }
 
-        CustomBlockTags(@NotNull CustomNameSpace namespace, @Nullable String path, boolean optional, boolean alwaysDatagen) {
+        CustomBlockTags(CustomNameSpace namespace, @Nullable String path, boolean optional, boolean alwaysDatagen) {
             ResourceLocation id = new ResourceLocation(namespace.id, path == null ? Lang.asId(name()) : path);
             if (optional) {
                 tag = optionalTag(ForgeRegistries.BLOCKS, id);
@@ -86,7 +86,7 @@ public class TagsInit extends AllTags {
             this.alwaysDatagen = alwaysDatagen;
         }
 
-        CustomBlockTags(@NotNull CustomNameSpace namespace, String path) {
+        CustomBlockTags(CustomNameSpace namespace, String path) {
             this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
@@ -98,12 +98,12 @@ public class TagsInit extends AllTags {
         }
 
         @SuppressWarnings("deprecation")
-        public boolean matches(@NotNull Block block) {
+        public boolean matches(Block block) {
             return block.builtInRegistryHolder()
                     .is(tag);
         }
 
-        public boolean matches(@NotNull BlockState state) {
+        public boolean matches(BlockState state) {
             return state.is(tag);
         }
 
@@ -119,15 +119,15 @@ public class TagsInit extends AllTags {
             this(CustomNameSpace.MOD);
         }
 
-        CustomItemTags(@NotNull CustomNameSpace namespace) {
+        CustomItemTags(CustomNameSpace namespace) {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomItemTags(@NotNull CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
+        CustomItemTags(CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
             this(namespace, null, optional, alwaysDatagen);
         }
 
-        CustomItemTags(@NotNull CustomNameSpace namespace, @Nullable String path, boolean optional, boolean alwaysDatagen) {
+        CustomItemTags(CustomNameSpace namespace, @Nullable String path, boolean optional, boolean alwaysDatagen) {
             ResourceLocation id = new ResourceLocation(namespace.id, path == null ? Lang.asId(name()) : path);
             if (optional) {
                 tag = optionalTag(ForgeRegistries.ITEMS, id);
@@ -141,7 +141,7 @@ public class TagsInit extends AllTags {
             this(CustomNameSpace.MOD, path);
         }
 
-        CustomItemTags(@NotNull CustomNameSpace namespace, String path) {
+        CustomItemTags(CustomNameSpace namespace, String path) {
             this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
@@ -149,12 +149,12 @@ public class TagsInit extends AllTags {
         }
 
         @SuppressWarnings("deprecation")
-        public boolean matches(@NotNull Item item) {
+        public boolean matches(Item item) {
             return item.builtInRegistryHolder()
                     .is(tag);
         }
 
-        public boolean matches(@NotNull ItemStack stack) {
+        public boolean matches(ItemStack stack) {
             return stack.is(tag);
         }
 
@@ -170,15 +170,15 @@ public class TagsInit extends AllTags {
             this(CustomNameSpace.MOD);
         }
 
-        CustomEntityTag(@NotNull CustomNameSpace namespace) {
+        CustomEntityTag(CustomNameSpace namespace) {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomEntityTag(@NotNull CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
+        CustomEntityTag(CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
             this(namespace, null, optional, alwaysDatagen);
         }
 
-        CustomEntityTag(@NotNull CustomNameSpace namespace, @Nullable String path, boolean optional, boolean alwaysDatagen) {
+        CustomEntityTag(CustomNameSpace namespace, @Nullable String path, boolean optional, boolean alwaysDatagen) {
             ResourceLocation id = new ResourceLocation(namespace.id, path == null ? Lang.asId(name()) : path);
             if (optional) {
                 tag = optionalTag(ForgeRegistries.ENTITY_TYPES, id);
@@ -188,14 +188,14 @@ public class TagsInit extends AllTags {
             this.alwaysDatagen = alwaysDatagen;
         }
 
-        CustomEntityTag(@NotNull CustomNameSpace namespace, String path) {
+        CustomEntityTag(CustomNameSpace namespace, String path) {
             this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
         private static void init() {
         }
 
-        public boolean matches(@NotNull Entity entity) {
+        public boolean matches(Entity entity) {
             return entity.getType()
                     .is(tag);
         }
@@ -212,15 +212,15 @@ public class TagsInit extends AllTags {
             this(CustomNameSpace.MOD);
         }
 
-        CustomFluidTags(@NotNull CustomNameSpace namespace) {
+        CustomFluidTags(CustomNameSpace namespace) {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        CustomFluidTags(@NotNull CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
+        CustomFluidTags(CustomNameSpace namespace, boolean optional, boolean alwaysDatagen) {
             this(namespace, null, optional, alwaysDatagen);
         }
 
-        CustomFluidTags(@NotNull CustomNameSpace namespace, @Nullable String path, boolean optional, boolean alwaysDatagen) {
+        CustomFluidTags(CustomNameSpace namespace, @Nullable String path, boolean optional, boolean alwaysDatagen) {
             ResourceLocation id = new ResourceLocation(namespace.id, path == null ? Lang.asId(name()) : path);
             if (optional) {
                 tag = optionalTag(ForgeRegistries.FLUIDS, id);
@@ -230,7 +230,7 @@ public class TagsInit extends AllTags {
             this.alwaysDatagen = alwaysDatagen;
         }
 
-        CustomFluidTags(@NotNull CustomNameSpace namespace, String path) {
+        CustomFluidTags(CustomNameSpace namespace, String path) {
             this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
@@ -238,11 +238,11 @@ public class TagsInit extends AllTags {
         }
 
         @SuppressWarnings("deprecation")
-        public boolean matches(@NotNull Fluid fluid) {
+        public boolean matches(Fluid fluid) {
             return fluid.is(tag);
         }
 
-        public boolean matches(@NotNull FluidState state) {
+        public boolean matches(FluidState state) {
             return state.is(tag);
         }
 
