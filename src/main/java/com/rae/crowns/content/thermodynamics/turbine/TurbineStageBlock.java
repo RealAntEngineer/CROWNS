@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -30,7 +29,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.lwjgl.system.NonnullDefault;
 
-import java.util.List;
 import java.util.Objects;
 
 @NonnullDefault
@@ -40,14 +38,31 @@ public class TurbineStageBlock extends MBKineticController implements IBE<Turbin
 
     public TurbineStageBlock(Properties pProperties, MBStructureBlock structure) {
         super(pProperties, structure);
-        this.registerDefaultState(this.defaultBlockState().setValue(CASING, true));
-
+        this.registerDefaultState(this.defaultBlockState()
+                .setValue(CASING, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(CASING);
         super.createBlockStateDefinition(builder);
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (stack.is(ItemInit.TURBINE_CASING.asItem()) && !state.getValue(CASING)) {
+            level.setBlock(pos, state.setValue(CASING, true), 3);
+            if (!player.isCreative())
+                stack.shrink(1);
+            return ItemInteractionResult.SUCCESS;
+        }
+        if (stack.isEmpty() && state.getValue(CASING)) {
+            level.setBlock(pos, state.setValue(CASING, false), 3);
+            if (!player.isCreative())
+                player.getInventory().setPickedItem(ItemInit.TURBINE_CASING.asStack(1));
+            return ItemInteractionResult.SUCCESS;
+        }
+        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
     @Override
@@ -63,22 +78,6 @@ public class TurbineStageBlock extends MBKineticController implements IBE<Turbin
     @Override
     public boolean propagatesSkylightDown(BlockState pState, BlockGetter pReader, BlockPos pPos) {
         return true;
-    }
-
-    @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (stack.is(ItemInit.TURBINE_CASING.asItem()) && !state.getValue(CASING)){
-            level.setBlock(pos, state.setValue(CASING, true), 3);
-            stack.shrink(1);
-            //player.setItemInHand(hand, );
-            return ItemInteractionResult.SUCCESS;
-        }
-        if (stack.isEmpty() && state.getValue(CASING)){
-            level.setBlock(pos, state.setValue(CASING, false), 3);
-            player.getInventory().setPickedItem(ItemInit.TURBINE_CASING.asStack(1));
-            return ItemInteractionResult.SUCCESS;
-        }
-        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
     @Override
