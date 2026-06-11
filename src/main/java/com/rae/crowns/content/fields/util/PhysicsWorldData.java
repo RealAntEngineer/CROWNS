@@ -256,7 +256,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
         while (iterator.hasNext() && processed < 10000) {
             if ((System.nanoTime() - startTime) > 20_000_000L) { // 20 ms
-                CROWNS.LOGGER.warn("Exiting initialisation for this tick with {} more Sections to go", toInitialise.size());
+                CROWNS.LOGGER.warn("Exiting initialisation for this tick with {} more Sections to go, it took {}ms", toInitialise.size(), (System.nanoTime() - startTime)/1_000_000);
                 break;
             }
 
