@@ -40,10 +40,7 @@ public class CROWNS {
     public static final FloatMapDataLoader<Fluid> FLUID_TEMPERATURES = new FloatMapDataLoader<>(MODID, "fluids/temperatures", Registries.FLUID);
     public static final FloatMapDataLoader<Fluid> FLUID_CONDUCTION   = new FloatMapDataLoader<>(MODID, "fluids/conduction", Registries.FLUID);
     public static final FloatMapDataLoader<Fluid> FLUID_RESILIENCE   = new FloatMapDataLoader<>(MODID, "fluids/resilience", Registries.FLUID);
-
-
     public static final FloatMapDataLoader<Biome> BIOME_TEMPERATURES = new FloatMapDataLoader<>(MODID, "biomes/temperatures", Registries.BIOME);
-
 
     public CROWNS(IEventBus modEventBus, ModContainer modContainer) {
         IEventBus         forgeEventBus     = NeoForge.EVENT_BUS;
@@ -91,5 +88,4 @@ public class CROWNS {
     public static ResourceLocation resource(String name) {
         return ResourceLocation.fromNamespaceAndPath(MODID, name);
     }
-
 }
