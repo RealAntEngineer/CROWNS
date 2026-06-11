@@ -27,6 +27,6 @@ side="BOTH"
 [[dependencies.crowns]]
 modId="formicapi"
 mandatory=true
-versionRange="[1.6.6,)"
+versionRange="[2.3.3,)"
 ordering="NONE"
 side="BOTH"
