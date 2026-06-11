@@ -14,6 +14,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -29,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PhysicsSaveManager {
     private static final Map<ResourceKey<Level>, PhysicsWorldData> worldDataMap = new ConcurrentHashMap<>();
     private static final    Map<ResourceKey<Level>, LongSet> worldLoadedSections = new ConcurrentHashMap<>();
-    private static MinecraftServer                  serverInstance;
+    private static @Nullable MinecraftServer                  serverInstance;
     //they are here to count the sections that are loaded or not.
 
     @SubscribeEvent
@@ -48,7 +50,7 @@ public class PhysicsSaveManager {
     }
 
 
-    //doesn't give use newly generated chunks ?
+    //doesn't give us newly generated chunks ?
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
@@ -81,21 +83,20 @@ public class PhysicsSaveManager {
     /**
      * lock safe version.
      *
-     * @param level      the level, doesn't make sens for non server level
+     * @param section      the section, doesn't make sens for non server level
      * @param pos        position
      * @param blockState block state at said position
      * @return the default temperature at the position.
      */
-    public static float getDefaultTemperature(Level level, Vec3i pos, BlockState blockState) {
+    public static float getDefaultTemperature(LevelChunkSection section, Vec3i pos, BlockState blockState) {
         FluidState fluid = blockState.getFluidState();
         // Convert to quart coordinates (biome resolution)
-        int qx = QuartPos.fromBlock(pos.getX());
-        int qy = QuartPos.fromBlock(pos.getY());
-        int qz = QuartPos.fromBlock(pos.getZ());
+        int qx = QuartPos.fromBlock(pos.getX() & 15);
+        int qy = QuartPos.fromBlock(pos.getY() & 15);
+        int qz = QuartPos.fromBlock(pos.getZ() & 15);
 
         // Get the biome directly from the noise source
-        Holder<Biome> biome = level.getBiomeManager()
-                .getNoiseBiomeAtQuart(qx, qy, qz);
+        Holder<Biome> biome = section.getNoiseBiome(qx, qy, qz);
         float defaultT = CROWNS.BIOME_TEMPERATURES.getValue(biome.value(), 300f);
         //TODO : A mix bwn the 2 ?
         //Priority: Fluid > Block >  Biome
@@ -137,6 +138,8 @@ public class PhysicsSaveManager {
 
     public static void serverStarted(MinecraftServer server) {
         serverInstance = server;
+        worldDataMap.clear();
+        //worldLoadedSections.clear();
         for (ServerLevel level : server.getAllLevels()) {
             worldDataMap.put(level.dimension(), PhysicsWorldData.loadData(level));
         }

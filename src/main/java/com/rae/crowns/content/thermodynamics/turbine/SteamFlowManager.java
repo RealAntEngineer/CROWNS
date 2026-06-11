@@ -57,7 +57,7 @@ public class SteamFlowManager {
         storage.steamCurrents.get(world.dimension().location())
                 .forEach(steamCurrent -> steamCurrent.tick(world));
 
-        if (after > 500){
+        if (after > 500) {
             CROWNS.LOGGER.warn("WARNING there is too much steam current on the server side to safely sync to client :  {}", after);
         } else {
             if (world instanceof ServerLevel serverLevel) {
@@ -69,6 +69,16 @@ public class SteamFlowManager {
         }
 
 
+    }
+
+    public static int getSFAmount() {
+        if (storage == null) {
+            return 0;
+        }
+        return storage.steamCurrents.values()
+                .stream()
+                .mapToInt(List::size)
+                .sum();
     }
 
     public static @NotNull List<SteamCurrent> getCurrentsInBounds(ServerLevel level, @NotNull AABB bound) {
@@ -83,7 +93,6 @@ public class SteamFlowManager {
         });
         return collector;
     }
-
 
     public static void serverStarted(@Nullable MinecraftServer server) {
         if (server == null)
@@ -115,15 +124,5 @@ public class SteamFlowManager {
         CROWNS.LOGGER.info("Cleared {} steam currents across {} all dimensions",
                 total, storage.steamCurrents.size());
         storage.steamCurrents.clear();
-    }
-
-    public static int getSFAmount() {
-        if (storage == null) {
-            return 0;
-        }
-        return storage.steamCurrents.values()
-                .stream()
-                .mapToInt(List::size)
-                .sum();
     }
 }

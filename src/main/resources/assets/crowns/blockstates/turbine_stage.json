@@ -58,6 +58,14 @@
         "model": "crowns:block/turbine/casing",
         "y": 270
       }
+    },
+    {
+      "when": {
+        "casing": "false"
+      },
+      "apply": {
+        "model": "crowns:block/turbine/none"
+      }
     }
   ]
 }

@@ -1,6 +1,8 @@
 {
   "parent": "crowns:block/turbine/turbine",
   "loader": "neoforge:obj",
+  "render_type": "neoforge:cutout",
+  "ambientocclusion": false,
   "flip_v": true,
   "textures" : {
     "casing":"crowns:block/turbine/casing",

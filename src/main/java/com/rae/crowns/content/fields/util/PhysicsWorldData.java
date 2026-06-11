@@ -1,15 +1,12 @@
 package com.rae.crowns.content.fields.util;
 
 import com.rae.crowns.CROWNS;
-import com.rae.crowns.content.fields.temperature.ConductionDataLayer;
-import com.rae.crowns.content.fields.temperature.ResilienceDataLayer;
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import com.rae.crowns.content.thermodynamics.IHaveTemperature;
 import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.SectionPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -17,6 +14,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
@@ -25,33 +24,28 @@ import org.lwjgl.system.NonnullDefault;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import static com.rae.crowns.content.fields.util.PosPackingUtil.packSection;
-
 @NonnullDefault
 public class PhysicsWorldData extends SavedData {//Only for the server
 
     //in the future hook into ChunkSection directly : easier for communication and initialization
 
-    public static final  int                                                      DATA_VERSION        = 13;
-    private static final int                                                      DYNAMIC_RANGE       = 1;
+    public static final  int                                                       DATA_VERSION        = 13;
+    private static final int                                                       DYNAMIC_RANGE       = 1;
     // Generic unified map: one Long2ObjectMap per DataLayerType
-    private final        Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> layers              = new HashMap<>();//stored
+    private final        EnumMap<DataLayerType, Long2ObjectMap<AbstractDataLayer>> layers              = new EnumMap<>(DataLayerType.class);//stored
     // Dynamic and meta state
-    private final        Long2ObjectMap<DataLayerType<?>[]>                       toInitialise        = new Long2ObjectOpenHashMap<>();//stored
-    private final        Queue<BlockPos>                                          changedBlocks       = new ConcurrentLinkedQueue<>();//stored
-    private final        LongSet                                                  changedSections     = new LongOpenHashSet();//stored
-    private final        LongSet                                                  dirty               = new LongOpenHashSet();//stored
-    private final        LongSet                                                  loadedSections      = new LongOpenHashSet();//stored
-    private final        Long2IntMap                                              tickedSections      = new Long2IntOpenHashMap();//recomputed
-    private final        Long2ObjectMap<IHaveTemperature>                         dynamicData         = new Long2ObjectOpenHashMap<>();//recomputed
-    private final        Long2IntMap                                              sectionDynamicCount = new Long2IntOpenHashMap();//recomputed
-    private final        LongSet                                                  nearDynamicSections = new LongOpenHashSet();//recomputed
-    private              int                                                      currentTime         = -1;//recomputed
-
-
+    private final        Long2ObjectMap<DataLayerType[]>                           toInitialise        = new Long2ObjectOpenHashMap<>();//stored
+    private final        Queue<BlockPos>                                           changedBlocks       = new ConcurrentLinkedQueue<>();//stored
+    private final        LongSet changedSections = new LongOpenHashSet();//stored
+    private final        LongSet needTicking     = new LongOpenHashSet();//stored
+    private final        LongSet loadedSections  = new LongOpenHashSet();//stored
+    private final        Long2IntMap                                               tickedSections      = new Long2IntOpenHashMap();//recomputed
+    private final        Long2ObjectMap<IHaveTemperature>                          dynamicData         = new Long2ObjectOpenHashMap<>();//recomputed
+    private final        Long2IntMap                                               sectionDynamicCount = new Long2IntOpenHashMap();//recomputed
+    private final        LongSet                                                   nearDynamicSections = new LongOpenHashSet();//recomputed
     //matrix
-
     private final HashMap<AbstractMatrixPhysicsSolver<?>, AbstractMatrixPhysicsSolver.PhysicsMatrix> cachedMatrices = new HashMap<>();
+    private              int                                                       currentTime         = -1;//recomputed
 
     public static PhysicsWorldData loadData(ServerLevel server) {
         return server.getDataStorage()
@@ -95,7 +89,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         }
 
         if (nbt.contains("dirty", Tag.TAG_LONG_ARRAY)) {
-            data.dirty.addAll(LongArrayList.wrap(
+            data.needTicking.addAll(LongArrayList.wrap(
                     nbt.getLongArray("dirty")
             ));
         }
@@ -109,20 +103,18 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return data;
     }
 
-    private <T extends AbstractDataLayer> void registerLayer(DataLayerType<T> type) {
+    private <T extends AbstractDataLayer> void registerLayer(DataLayerType type) {
         layers.put(type, new Long2ObjectOpenHashMap<>());
     }
 
-    private static Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> deserializeLayers(CompoundTag nbt) {
-        Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> layers = new HashMap<>();
+    private static EnumMap<DataLayerType, Long2ObjectMap<AbstractDataLayer>> deserializeLayers(CompoundTag nbt) {
+        EnumMap<DataLayerType, Long2ObjectMap<AbstractDataLayer>> layers = new EnumMap<>(DataLayerType.class);
 
-        for (Map.Entry<String, DataLayerType<?>> regEntry : DataLayerType.REGISTRY.entrySet()) {
-            String           id   = regEntry.getKey();
-            DataLayerType<?> type = regEntry.getValue();
+        for (DataLayerType type : DataLayerType.values()) {
 
-            if (!nbt.contains(id, Tag.TAG_COMPOUND)) continue;
+            if (!nbt.contains(type.id, Tag.TAG_COMPOUND)) continue;
 
-            CompoundTag                       layerTag = nbt.getCompound(id);
+            CompoundTag                       layerTag = nbt.getCompound(type.id);
             Long2ObjectMap<AbstractDataLayer> map      = new Long2ObjectOpenHashMap<>();
 
             for (String keyLong : layerTag.getAllKeys()) {
@@ -139,19 +131,19 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return layers;
     }
 
-    private static Long2ObjectMap<DataLayerType<?>[]> deserializeInit(
+    private static Long2ObjectMap<DataLayerType[]> deserializeInit(
             CompoundTag nbt) {
-        Long2ObjectMap<DataLayerType<?>[]> toInit = new Long2ObjectOpenHashMap<>();
+        Long2ObjectMap<DataLayerType[]> toInit = new Long2ObjectOpenHashMap<>();
 
         for (String key : nbt.getAllKeys()) {
             long    sectionPos = Long.parseLong(key);
             ListTag list       = nbt.getList(key, Tag.TAG_STRING);
 
-            List<DataLayerType<?>> types = new ArrayList<>();
+            List<DataLayerType> types = new ArrayList<>();
 
             for (int i = 0; i < list.size(); i++) {
-                String           id   = list.getString(i);
-                DataLayerType<?> type = DataLayerType.REGISTRY.get(id);
+                String        id   = list.getString(i);
+                DataLayerType type = DataLayerType.REGISTRY.get(id);
                 if (type != null) {
                     types.add(type);
                 }
@@ -171,17 +163,17 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         nbt.putLongArray("changedBlocks", changedBlocks.stream().mapToLong(BlockPos::asLong).toArray());
         nbt.put("toInitialise", serializeInit(toInitialise));
         nbt.putLongArray("changedSections", changedSections.toLongArray());
-        nbt.putLongArray("dirty", dirty.toLongArray());
+        nbt.putLongArray("dirty", needTicking.toLongArray());
         nbt.putLongArray("loadedSections", loadedSections.toLongArray());
         return nbt;
     }
 
     //
-    private static CompoundTag serializeLayers(Map<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> layers) {
+    private static CompoundTag serializeLayers(Map<DataLayerType, Long2ObjectMap<AbstractDataLayer>> layers) {
         CompoundTag nbt = new CompoundTag();
 
-        for (Map.Entry<DataLayerType<?>, Long2ObjectMap<AbstractDataLayer>> entry : layers.entrySet()) {
-            DataLayerType<?>                  layerType = entry.getKey();
+        for (Map.Entry<DataLayerType, Long2ObjectMap<AbstractDataLayer>> entry : layers.entrySet()) {
+            DataLayerType                     layerType = entry.getKey();
             Long2ObjectMap<AbstractDataLayer> map       = entry.getValue();
 
             CompoundTag acc = new CompoundTag();
@@ -198,12 +190,12 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return nbt;
     }
 
-    private static CompoundTag serializeInit(Long2ObjectMap<DataLayerType<?>[]> toInit) {
+    private static CompoundTag serializeInit(Long2ObjectMap<DataLayerType[]> toInit) {
         CompoundTag nbt = new CompoundTag();
 
-        for (Long2ObjectMap.Entry<DataLayerType<?>[]> entry : toInit.long2ObjectEntrySet()) {
+        for (Long2ObjectMap.Entry<DataLayerType[]> entry : toInit.long2ObjectEntrySet()) {
             ListTag list = new ListTag();
-            for (DataLayerType<?> layerType : entry.getValue()) {
+            for (DataLayerType layerType : entry.getValue()) {
                 list.add(StringTag.valueOf(layerType.id));
             }
             nbt.put(String.valueOf(entry.getLongKey()), list);
@@ -216,13 +208,12 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     //  GENERIC ACCESSORS
     // ------------------------------
 
-    @SuppressWarnings("unchecked")
-    public <T extends AbstractDataLayer> void putLayer(long section, DataLayerType<?> type, T dataLayer) {
-        ((Long2ObjectMap<T>) layers.get(type)).put(section, dataLayer);
+    public void putLayer(long section, DataLayerType type, AbstractDataLayer dataLayer) {
+        layers.get(type).put(section, dataLayer);
         loadedSections.add(section);
     }
 
-    public AbstractDataLayer[] getLayers(long section, DataLayerType<?>... types) {
+    public AbstractDataLayer[] getLayers(long section, DataLayerType... types) {
         AbstractDataLayer[] result = new AbstractDataLayer[types.length];
         for (int i = 0; i < types.length; i++) {
             result[i] = getLayer(section, types[i]);
@@ -230,11 +221,10 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return result;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends AbstractDataLayer> @Nullable T getLayer(long section, DataLayerType<T> type) {
+    public @Nullable AbstractDataLayer getLayer(long section, DataLayerType type) {
         Long2ObjectMap<AbstractDataLayer> map = layers.get(type);
         if (map == null) return null;
-        return (T) map.get(section);
+        return map.get(section);
     }
 
     // ------------------------------
@@ -266,27 +256,34 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
         while (iterator.hasNext() && processed < 10000) {
             if ((System.nanoTime() - startTime) > 20_000_000L) { // 20 ms
-                CROWNS.LOGGER.warn("Exiting initialisation for this tick with {} more Sections to go", toInitialise.size());
+                CROWNS.LOGGER.warn("Exiting initialisation for this tick with {} more Sections to go, it took {}ms", toInitialise.size(), (System.nanoTime() - startTime)/1_000_000);
                 break;
             }
 
-            long               sectionLong  = iterator.nextLong();
-            DataLayerType<?>[] layersToInit = toInitialise.get(sectionLong);
+            long            sectionLong  = iterator.nextLong();
+            DataLayerType[] layersToInit = toInitialise.get(sectionLong);
 
             SectionPos sectionPos = SectionPos.of(sectionLong);
             BlockPos   base       = sectionPos.origin();
 
             // Skip section if not loaded or not near dynamic blocks, but don't remove it from set
+            if (level.isOutsideBuildHeight(base)){
+                iterator.remove();
+                //toInitialise.remove(sectionLong);
+                continue;
+            }
+
             if (!level.isLoaded(base)) {
                 //iterator.remove();
                 continue;
             }
+
             if (!nearDynamicSections.contains(sectionLong)) {
                 iterator.remove();
                 continue;
             }
 
-            // ✅ Remove from set once we are processing it
+            //Remove from set once we are processing it
             //toInitialise.remove(sectionLong);
             iterator.remove();//it seems that this doesn't remove it from the toInitialise longMap
 
@@ -294,18 +291,21 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             float   lastTemp   = -1;
 
             // Abstracted layer initialization
-            for (DataLayerType<?> type : layersToInit) {
-                AbstractDataLayer layer = type.createLayer();
-
-                for (int i = 0; i < 4096; i++) {
+            for (DataLayerType type : layersToInit) {
+                AbstractDataLayer layer   = type.createLayer();
+                LevelChunk        chunk   = level.getChunk(sectionPos.x(), sectionPos.z());
+                LevelChunkSection section = chunk.getSection(chunk.getSectionIndexFromSectionY(sectionPos.y()));
+                for (short i = 0; i < 4096; i++) {
                     int dx = i & 15;
-                    int dy = (i >> 4) & 15;
-                    int dz = (i >> 8) & 15;
+                    int dy = (i >> 8) & 15;
+                    int dz = (i >> 4) & 15;
 
                     mutablePos.set(base.getX() + dx, base.getY() + dy, base.getZ() + dz);
-                    BlockState blockState = level.getBlockState(mutablePos);
-                    float      value      = type.getInitializer().apply(level, mutablePos, blockState);
-                    layer.set(dx, dy, dz, value);
+                    BlockState blockState = section.getBlockState(dx, dy, dz);
+                    float      value      = type.getInitializer().apply(section, mutablePos, blockState);
+                    layer.setDirect(i, value);
+
+                    if (dynamicContains(mutablePos.asLong())) canBeDirty = true;//if there is a dynamic block it's forced to be dirty
 
                     // Only track temperature changes for dirty check
                     if (type == DataLayerType.TEMPERATURE) {
@@ -320,49 +320,90 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             loadedSections.add(sectionLong);
 
             // Mark section clean if possible
-            if (!canBeDirty && !nearDynamicSections.contains(sectionLong)) {
-                setClean(sectionLong);
+            if (canBeDirty) {
+                setNeedTicking(sectionLong);
+            } else {
+                setNoTicking(sectionLong);
             }
 
             processed++;
         }
     }
 
-    public void setClean(long sectionPos) {
-        dirty.remove(sectionPos);
+    public void setNoTicking(long sectionPos) {
+        needTicking.remove(sectionPos);
     }
 
-    public void updateChangedBlocks(ServerLevel level) {
-        float              initialTimeMS = System.currentTimeMillis();
-        DataLayerType<?>[] types         = {DataLayerType.DEFAULT_TEMPERATURE, DataLayerType.CONDUCTION, DataLayerType.RESILIENCE};
+    public <T extends AbstractMatrixPhysicsSolver.PhysicsMatrix> void  updateChangedBlocks(ServerLevel level, AbstractMatrixPhysicsSolver<T> solver) {
+        long startTime = System.nanoTime();
 
-        for (int i = 0; i < 10000 && !changedBlocks.isEmpty(); i++) {
-            BlockPos   pos   = changedBlocks.poll();
-            BlockState state = level.getBlockState(pos);
+        DataLayerType[] types = {
+                DataLayerType.DEFAULT_TEMPERATURE,
+                DataLayerType.CONDUCTION,
+                DataLayerType.RESILIENCE
+        };
 
-            set(pos, types, PhysicsSaveManager.getDefaultTemperature(level, pos, state),
-                    PhysicsSaveManager.getDefaultConduction(state), PhysicsSaveManager.getDefaultResilience(state));
+        // Group changed blocks by section
+        Long2ObjectMap<Set<BlockPos>> bySection = new Long2ObjectOpenHashMap<>();
 
-            // --- Update solid mask using PassThroughTester ---
-            //updateBlockedFaces(level, pos, state);
+        int processed = 0;
 
-            setDirty(SectionPos.of(pos).asLong());
-            if (System.currentTimeMillis() - initialTimeMS > 20) {
+        while (processed < 10_000 && !changedBlocks.isEmpty()) {
+            if (System.nanoTime() - startTime > 20_000_000L) {
                 break;
             }
+
+            BlockPos pos = changedBlocks.poll();
+            if (pos == null) break;
+
+            long section = SectionPos.asLong(
+                    pos.getX() >> 4,
+                    pos.getY() >> 4,
+                    pos.getZ() >> 4
+            );
+
+            bySection
+                    .computeIfAbsent(section, k -> new HashSet<>())
+                    .add(pos);
+
+            processed++;
+        }
+
+        // Process one section at a time
+        for (Long2ObjectMap.Entry<Set<BlockPos>> entry : bySection.long2ObjectEntrySet()) {
+
+            SectionPos sectionPos = SectionPos.of(entry.getLongKey());
+            LevelChunk chunk = level.getChunk(sectionPos.x(), sectionPos.z());
+            int sectionIndex = chunk.getSectionIndexFromSectionY(sectionPos.y());
+
+            if (sectionIndex < 0 || sectionIndex >= chunk.getSectionsCount()) {
+                continue;
+            }
+
+            LevelChunkSection section = chunk.getSection(sectionIndex);
+
+            for (BlockPos pos : entry.getValue()) {
+
+                int x = pos.getX() & 15;
+                int y = pos.getY() & 15;
+                int z = pos.getZ() & 15;
+
+                BlockState state = section.getBlockState(x, y, z);
+
+                set(section, pos, state, types);
+            }
+            solver.stampVoxels(entry.getValue(), this);
+
         }
     }
 
-    public void set(BlockPos pos, DataLayerType<?>[] types, float... values) {
-        if (types.length != values.length) {
-            throw new IllegalArgumentException("Types and values arrays must have the same length");
-        }
+    public void set(LevelChunkSection section, BlockPos pos, BlockState state, DataLayerType[] types) {
 
         // --- Compute packed section coordinates ---
         int  sx            = pos.getX() >> 4;
         int  sy            = pos.getY() >> 4;
         int  sz            = pos.getZ() >> 4;
-        long packedSection = packSection(sx, sy, sz);
+        long packedSection = SectionPos.asLong(sx, sy, sz);
 
         // --- Local coordinates inside the section ---
         int lx = pos.getX() & 15;
@@ -370,25 +411,26 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         int lz = pos.getZ() & 15;
 
         // --- Set values dynamically ---
-        for (int i = 0; i < types.length; i++) {
-            AbstractDataLayer layer = getLayer(packedSection, types[i]);
+        for (DataLayerType type : types) {
+            AbstractDataLayer layer = getLayer(packedSection, type);
             if (layer != null) {
-                layer.set(lx, ly, lz, values[i]);
+                layer.set((short) lx, (short) ly, (short) lz, type.getInitializer().apply(section, pos, state));
             }
+            setNeedTicking(packedSection);
         }
     }
 
     //to avoid ticking stable sections.
-    public void setDirty(long sectionPos) {
-        dirty.add(sectionPos);
-        changedSections.add(sectionPos);
+    public void setNeedTicking(long sectionPos) {
+        needTicking.add(sectionPos);
+        //changedSections.add(sectionPos);
     }
 
     //IHaveTemperature management
     public void putDynamic(BlockPos pos, IHaveTemperature dynamic) {
         //System.out.println("setting dynamic data at "+ pos);
         dynamicData.put(pos.asLong(), dynamic);
-        DataLayerType<?>[] layerTypes = {
+        DataLayerType[] layerTypes = {
                 DataLayerType.TEMPERATURE,
                 DataLayerType.DEFAULT_TEMPERATURE,
                 DataLayerType.CONDUCTION,
@@ -404,67 +446,49 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             for (int dy = -DYNAMIC_RANGE; dy <= DYNAMIC_RANGE; dy++) {
                 int nsy = sy + dy;
                 for (int dz = -DYNAMIC_RANGE; dz <= DYNAMIC_RANGE; dz++) {
-                    int nsz = sz + dz;
+                    int  nsz    = sz + dz;
+                    long packed = SectionPos.asLong(nsx, nsy, nsz);
+                    nearDynamicSections.add(packed);
+                    sectionDynamicCount.put(packed, sectionDynamicCount.getOrDefault(packed, 0) + 1);
+                    if (loadedSections.contains(packed)) {
+                        List<DataLayerType> missingLayers = new ArrayList<>();
 
-                    if (isInDynamicRange(pos, nsx, nsy, nsz)) {
-                        long packed = packSection(nsx, nsy, nsz);
-                        nearDynamicSections.add(packed);
-                        sectionDynamicCount.put(packed, sectionDynamicCount.getOrDefault(packed, 0) + 1);
-                        if (loadedSections.contains(packed)) {
-                            List<DataLayerType<?>> missingLayers = new ArrayList<>();
-
-                            for (DataLayerType<?> type : layerTypes) {
-                                if (!layers.get(type).containsKey(packed)) {
-                                    missingLayers.add(type);
-                                }
+                        for (DataLayerType type : layerTypes) {
+                            if (!layers.get(type).containsKey(packed)) {
+                                missingLayers.add(type);
                             }
+                        }
 
-                            if (!missingLayers.isEmpty()) {
-                                // Schedule only missing layers
-                                scheduleInitialisation(packed, missingLayers.toArray(new DataLayerType<?>[0]));
-                                //System.out.printf("resting the section for %s\n", missingLayers);
-
-                            }
-                        } else if (!toInitialise.containsKey(packed)) {
-                            scheduleInitialisation(packed, layerTypes);
-                            //System.out.print("resting the section\n");
+                        if (!missingLayers.isEmpty()) {
+                            // Schedule only missing layers
+                            scheduleInitialisation(packed, missingLayers.toArray(new DataLayerType[0]));
+                            //System.out.printf("resting the section for %s\n", missingLayers);
 
                         }
+                    } else if (!toInitialise.containsKey(packed)) {
+                        scheduleInitialisation(packed, layerTypes);
+                        //System.out.print("resting the section\n");
                     }
                 }
             }
         }
     }
 
-    // --- HELPER FOR DYNAMIC RANGE CHECK ---
-    private static boolean isInDynamicRange(Vec3i pos, int sx, int sy, int sz) {
-        //block pos
-        final int px = pos.getX();
-        final int py = pos.getY();
-        final int pz = pos.getZ();
-
-        //section pos
-        int dx = (sx << 4) + 8 - px;
-        int dy = (sy << 4) + 8 - py;
-        int dz = (sz << 4) + 8 - pz;
-        return dx * dx + dy * dy + dz * dz < DYNAMIC_RANGE * DYNAMIC_RANGE * 16 * 16;
-    }
-
-    public void scheduleInitialisation(long section, DataLayerType<?>... layers) {
+    public void scheduleInitialisation(long section, DataLayerType... layers) {
         // Already scheduled? Just merge missing layers
         if (toInitialise.containsKey(section)) {
-            DataLayerType<?>[] existing = toInitialise.get(section);
+            DataLayerType[] existing = toInitialise.get(section);
 
             // Merge existing layers with new ones, avoiding duplicates
-            Set<DataLayerType<?>> merged = new LinkedHashSet<>(Arrays.asList(existing));
+            Set<DataLayerType> merged = new LinkedHashSet<>(Arrays.asList(existing));
             merged.addAll(Arrays.asList(layers));
-            toInitialise.put(section, merged.toArray(new DataLayerType<?>[0]));
+            toInitialise.put(section, merged.toArray(new DataLayerType[0]));
         } else {
             toInitialise.put(section, layers);
         }
 
         loadedSections.remove(section);
-        setDirty(section);
+        setNeedTicking(section);
     }
 
     public void removeDynamic(BlockPos pos) {
@@ -481,18 +505,32 @@ public class PhysicsWorldData extends SavedData {//Only for the server
                 for (int dz = -DYNAMIC_RANGE; dz <= DYNAMIC_RANGE; dz++) {
                     int nsz = sz + dz;
 
-                    if (isInDynamicRange(pos, nsx, nsy, nsz)) {
-                        long packed = packSection(nsx, nsy, nsz);
-                        int  count  = sectionDynamicCount.getOrDefault(packed, 0) - 1;
-                        if (count <= 0) {
-                            sectionDynamicCount.remove(packed);
-                            nearDynamicSections.remove(packed);
-                        } else {
-                            sectionDynamicCount.put(packed, count);
-                        }
+                    long packed = SectionPos.asLong(nsx, nsy, nsz);
+                    int  count  = sectionDynamicCount.getOrDefault(packed, 0) - 1;
+                    if (count <= 0) {
+                        sectionDynamicCount.remove(packed);
+                        nearDynamicSections.remove(packed);
+                    } else {
+                        sectionDynamicCount.put(packed, count);
                     }
                 }
             }
+        }
+    }
+
+    public void reinitializeAll() {
+        layers.values().forEach(Long2ObjectMap::clear);
+        cachedMatrices.clear();
+        needTicking.clear();
+
+        //we need an
+        for (long section : loadedSections.stream().toList()) {
+            scheduleInitialisation(section,
+                    DataLayerType.TEMPERATURE,
+                    DataLayerType.DEFAULT_TEMPERATURE,
+                    DataLayerType.CONDUCTION,
+                    DataLayerType.RESILIENCE
+            );
         }
     }
 
@@ -508,8 +546,10 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return dynamicData.get(pos);
     }
 
-    public boolean isDirty(long sectionPos) {
-        return dirty.contains(sectionPos);
+
+    //Dirty sections are section that need to be ticked, not sections that need to be rebuilt
+    public boolean needTicking(long sectionPos) {
+        return needTicking.contains(sectionPos);
     }
 
     public void setCurrentTime(int time) {
@@ -559,16 +599,17 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             }
 
             // Remove sent sections from dirty set
-            batch.forEach((s) ->changedSections.remove((long) s));
+            batch.forEach((s) -> changedSections.remove((long) s));
         }
     }
 
     public boolean ticked(long sectionPos, int tick) {
-        return tickedSections.getOrDefault(sectionPos, -1) < tick + 1;//small acceptable delay
+        return tickedSections.getOrDefault(sectionPos, -1) >= tick - 1; // ticked this tick or the previous one
     }
 
     public void addToTicked(long sectionPos) {
         tickedSections.put(sectionPos, currentTime);
+        changedSections.add(sectionPos);
     }
 
     public void resetTicked() {
@@ -576,10 +617,10 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     }
 
     public boolean checkValidity(long sectionPos) {
-        TemperatureDataLayer temperatureData        = getLayer(sectionPos, DataLayerType.TEMPERATURE);
-        TemperatureDataLayer defaultTemperatureData = getLayer(sectionPos, DataLayerType.DEFAULT_TEMPERATURE);
-        ConductionDataLayer  conductionData         = getLayer(sectionPos, DataLayerType.CONDUCTION);
-        ResilienceDataLayer  resilienceData         = getLayer(sectionPos, DataLayerType.RESILIENCE);
+        AbstractDataLayer temperatureData        = getLayer(sectionPos, DataLayerType.TEMPERATURE);
+        AbstractDataLayer defaultTemperatureData = getLayer(sectionPos, DataLayerType.DEFAULT_TEMPERATURE);
+        AbstractDataLayer conductionData         = getLayer(sectionPos, DataLayerType.CONDUCTION);
+        AbstractDataLayer resilienceData         = getLayer(sectionPos, DataLayerType.RESILIENCE);
 
         boolean corrupted = false;
 
@@ -606,10 +647,10 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return !corrupted;
     }
 
-    public Map<DataLayerType<?>, List<Long>> remainingInitialise() {
-        HashMap<DataLayerType<?>, List<Long>> collector = new HashMap<>();
+    public Map<DataLayerType, List<Long>> remainingInitialise() {
+        HashMap<DataLayerType, List<Long>> collector = new HashMap<>();
         toInitialise.forEach((sectionPos, dataLayerType) -> {
-            for (DataLayerType<?> layerType : dataLayerType) {
+            for (DataLayerType layerType : dataLayerType) {
                 List<Long> list = collector.getOrDefault(layerType, new ArrayList<>());
                 list.add(sectionPos);
                 collector.put(layerType, list);
@@ -619,8 +660,9 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return collector;
     }
 
-    public AbstractMatrixPhysicsSolver.PhysicsMatrix getCachedMatrix(AbstractMatrixPhysicsSolver<?> solver) {
-        return cachedMatrices.get(solver);
+    @SuppressWarnings("unchecked")
+    public @Nullable <T extends AbstractMatrixPhysicsSolver.PhysicsMatrix> T getCachedMatrix(AbstractMatrixPhysicsSolver<T> solver) {
+        return (T) cachedMatrices.get(solver);
     }
 
     public void setCachedMatrix(AbstractMatrixPhysicsSolver<?> solver, AbstractMatrixPhysicsSolver.PhysicsMatrix newMatrix) {

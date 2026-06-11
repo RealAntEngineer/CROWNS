@@ -45,14 +45,14 @@ public class CommonEvents {
     public static void onEntityTick(@NotNull EntityTickEvent.Pre event) {
         Entity entity = event.getEntity();
         //inflict temperature damage
-        if (entity.level() instanceof ServerLevel level && entity instanceof LivingEntity && CROWNSConfigs.SERVER.conduction.heatDamage.get()) {
+        if (entity.level() instanceof ServerLevel level && entity instanceof LivingEntity && CROWNSConfigs.SERVER.thermal.heatDamage.get()) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) entity.level());
             if (data == null) return;
             AtomicReference<Float>   cumlTemp      = new AtomicReference<>(0f);
             AtomicReference<Integer> numberOfTemps = new AtomicReference<>(0);
             BlockPos.betweenClosedStream(entity.getBoundingBox()).forEach(blockPos -> {
                 SectionPos sectionPos = SectionPos.of(blockPos);
-                cumlTemp.set(cumlTemp.get() + getTemperature(data.getLayer(sectionPos.asLong(), DataLayerType.TEMPERATURE), blockPos));
+                cumlTemp.set(cumlTemp.get() + getTemperature((TemperatureDataLayer) data.getLayer(sectionPos.asLong(), DataLayerType.TEMPERATURE), blockPos));
                 numberOfTemps.set(numberOfTemps.get() + 1);
             });
 
@@ -81,7 +81,7 @@ public class CommonEvents {
         int localY = pos.getY() & 15;
         int localZ = pos.getZ() & 15;
 
-        return layer.get(localX, localY, localZ);
+        return layer.get((short) localX, (short) localY, (short) localZ);
     }
 
     @EventBusSubscriber

@@ -10,7 +10,9 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.lwjgl.system.NonnullDefault;
 
+@NonnullDefault
 public class CompressorBlock extends DirectionalKineticBlock implements IBE<CompressorBlockEntity>, ICogWheel {
     public CompressorBlock(Properties pProperties) {
         super(pProperties);
@@ -28,7 +30,7 @@ public class CompressorBlock extends DirectionalKineticBlock implements IBE<Comp
 
     @Override
     public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
-        return face.getAxis() == state.getValue(FACING).getAxis();
+        return false;
     }
 
     @Override

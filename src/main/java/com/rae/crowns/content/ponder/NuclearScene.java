@@ -32,10 +32,8 @@ public class NuclearScene {
         scene.world().showSection(sceneBuildingUtil.select().position(centerFuel), Direction.UP);
         scene.world().showSection(sceneBuildingUtil.select().position(exteriorFuel), Direction.UP);
         scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(centerFuel), 3 * 20)
-
                 .text("nuclear fuel naturally produce fast neutrons");
         scene.idleSeconds(4);
-
         scene.overlay().showOutlineWithText(sceneBuildingUtil.select().position(exteriorFuel), 3 * 20)
                 .text("fast neutrons are unlikely to cause an other fuel block to undergo fission");
         scene.idleSeconds(4);
