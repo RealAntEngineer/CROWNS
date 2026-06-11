@@ -5,6 +5,7 @@ import net.createmod.catnip.config.ConfigBase;
 import org.lwjgl.system.NonnullDefault;
 
 @NonnullDefault
+@SuppressWarnings("unused")
 public class CROWNSKinetics extends ConfigBase {
 
     public final ConfigBase.ConfigGroup turbineValues           = group(0, "turbineValues", Comments.turbineStage);

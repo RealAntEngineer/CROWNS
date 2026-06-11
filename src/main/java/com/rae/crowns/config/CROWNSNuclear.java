@@ -2,10 +2,9 @@ package com.rae.crowns.config;
 
 
 import com.rae.crowns.Constants;
-import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlockEntity;
 import net.createmod.catnip.config.ConfigBase;
-import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("unused")
 public class CROWNSNuclear extends ConfigBase {
 
     public final ConfigBase.ConfigBool explosion = b(true, "explosion", Comments.explosion);

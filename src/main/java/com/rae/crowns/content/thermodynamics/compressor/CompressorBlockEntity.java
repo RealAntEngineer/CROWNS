@@ -9,7 +9,6 @@ import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import com.simibubi.create.content.kinetics.KineticNetwork;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-import com.simibubi.create.foundation.utility.CreateLang;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -28,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class CompressorBlockEntity extends KineticBlockEntity {
     //really heavy -> to optimize and run less by second
     private static final int                         SYNC_RATE         = 8;

@@ -8,10 +8,8 @@ import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.NonnullDefault;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -70,7 +68,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
 
     @Override
     protected @Nullable ThermalMatrix getCachedMatrix(PhysicsWorldData data) {
-        return (ThermalMatrix) data.getCachedMatrix(this);
+        return data.getCachedMatrix(this);
     }
 
     @Override

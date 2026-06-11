@@ -5,6 +5,7 @@ import net.createmod.catnip.config.ConfigBase;
 import org.lwjgl.system.NonnullDefault;
 
 @NonnullDefault
+@SuppressWarnings("unused")
 public class CROWNSThermal extends ConfigBase {
     public final ConfigBase.ConfigGroup conductionValues        = group(0, "conductionValues", Comments.conductionValues);
     public final ConfigFloat            heatExchangerExternal   = f(50000, 0, 100000, "heatExchangerExternal", Comments.heatExchangerExternal);

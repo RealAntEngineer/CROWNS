@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @NonnullDefault
-class SoundScape {
+@SuppressWarnings("unused")
+public class SoundScape {
     private final float                           pitch;
     private final CrownsSoundScapes.AmbienceGroup group;
     private final CrownsSoundScapes.PitchGroup    pitchGroup;
@@ -94,5 +95,4 @@ class SoundScape {
             return meanPos;
         return meanPos.scale(1f / amount);
     }
-
 }

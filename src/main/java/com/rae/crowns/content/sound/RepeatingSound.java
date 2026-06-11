@@ -31,9 +31,8 @@ public class RepeatingSound {
         ClientLevel world   = Minecraft.getInstance().level;
         Vec3        meanPos = scape.getMeanPos();
 
+        assert world != null;
         world.playLocalSound(meanPos.x, meanPos.y, meanPos.z, event, SoundSource.AMBIENT,
                 scape.getVolume() * relativeVolume, sharedPitch, true);
     }
-
 }
-

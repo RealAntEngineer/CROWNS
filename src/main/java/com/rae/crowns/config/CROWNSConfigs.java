@@ -9,6 +9,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
 
 import java.util.EnumMap;
@@ -22,10 +23,9 @@ import java.util.function.Supplier;
 public class CROWNSConfigs {
     private static final Map<ModConfig.Type, ConfigBase> CONFIGS = new EnumMap<>(ModConfig.Type.class);
 
-    public static CROWNSCfgServer SERVER;
-    public static CROWNSCfgCommon COMMON;
-
-    public static CROWNSCfgClient CLIENT;
+    public static @Nullable CROWNSCfgServer SERVER;
+    public static @Nullable CROWNSCfgCommon COMMON;
+    public static @Nullable CROWNSCfgClient CLIENT;
 
     public CROWNSConfigs() {
     }

@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
 
 @NonnullDefault
-@SuppressWarnings({"deprecation", "removal"})
+@SuppressWarnings({"deprecation", "unused"})
 public class TagsInit extends AllTags {
 
     public static void init() {

@@ -4,7 +4,6 @@ import com.rae.crowns.config.CROWNSCfgClient;
 import com.rae.crowns.config.CROWNSConfigs;
 import com.rae.crowns.content.nuclear.Nucleus;
 import com.rae.formicapi.FormicApiLang;
-import com.rae.formicapi.content.thermal_utilities.FullTableBased;
 import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import net.createmod.catnip.lang.Lang;
 import net.createmod.catnip.lang.LangBuilder;
@@ -13,10 +12,8 @@ import net.minecraft.network.chat.Component;
 import org.lwjgl.system.NonnullDefault;
 
 @NonnullDefault
+@SuppressWarnings("unused")
 public class CROWNSLang extends Lang {
-    //blatant copy of CreateLang
-
-
     public static LangBuilder translate(String langKey, Object... args) {
         return builder().translate(langKey, args);
     }
@@ -28,7 +25,6 @@ public class CROWNSLang extends Lang {
     public static LangBuilder text(String text) {
         return builder().text(text);
     }
-
 
     public static LangBuilder specificRealFluidState(SpecificRealGasState state) {
         CROWNSCfgClient.FluidVisualMode mode = CROWNSConfigs.CLIENT.fluidStateVisualMode.get();
