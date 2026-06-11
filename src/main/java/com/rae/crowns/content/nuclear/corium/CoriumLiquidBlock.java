@@ -9,10 +9,12 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.FluidState;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.Supplier;
+
 
 public class CoriumLiquidBlock extends LiquidBlock {
 
-    public CoriumLiquidBlock(java.util.function.@NotNull Supplier<? extends FlowingFluid> fluid, BlockBehaviour.@NotNull Properties properties) {
+    public CoriumLiquidBlock(@NotNull Supplier<? extends FlowingFluid> fluid, @NotNull BlockBehaviour.Properties properties) {
         super(fluid, properties);
 
         this.registerDefaultState(this.stateDefinition.any().setValue(LEVEL, 0).setValue(CoriumFluid.POWER, 15));

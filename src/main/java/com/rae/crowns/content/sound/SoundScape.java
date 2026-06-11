@@ -9,18 +9,19 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@NonnullDefault
 class SoundScape {
-    private final float pitch;
+    private final float                           pitch;
     private final CrownsSoundScapes.AmbienceGroup group;
-    private final CrownsSoundScapes.@NotNull PitchGroup pitchGroup;
+    private final CrownsSoundScapes.PitchGroup    pitchGroup;
     List<ContinuousSound> continuous;
-    List<RepeatingSound> repeating;
+    List<RepeatingSound>  repeating;
     private @Nullable Vec3 meanPos;
 
     public SoundScape(float pitch, CrownsSoundScapes.AmbienceGroup group) {
@@ -31,20 +32,20 @@ class SoundScape {
         repeating = new ArrayList<>();
     }
 
-    public @NotNull SoundScape continuous(@NotNull SoundEvent sound, float relativeVolume, float relativePitch) {
+    public SoundScape continuous(SoundEvent sound, float relativeVolume, float relativePitch) {
         return add(new ContinuousSound(sound, this, pitch * relativePitch, relativeVolume));
     }
 
-    public @NotNull SoundScape add(ContinuousSound continuousSound) {
+    public SoundScape add(ContinuousSound continuousSound) {
         continuous.add(continuousSound);
         return this;
     }
 
-    public @NotNull SoundScape repeating(SoundEvent sound, float relativeVolume, float relativePitch, int delay) {
+    public SoundScape repeating(SoundEvent sound, float relativeVolume, float relativePitch, int delay) {
         return add(new RepeatingSound(sound, this, pitch * relativePitch, relativeVolume, delay));
     }
 
-    public @NotNull SoundScape add(RepeatingSound repeatingSound) {
+    public SoundScape add(RepeatingSound repeatingSound) {
         repeating.add(repeatingSound);
         return this;
     }
@@ -65,16 +66,16 @@ class SoundScape {
     }
 
     public float getVolume() {
-        Entity renderViewEntity = Minecraft.getInstance().cameraEntity;
-        float distanceMultiplier = 0;
+        Entity renderViewEntity   = Minecraft.getInstance().cameraEntity;
+        float  distanceMultiplier = 0;
         if (renderViewEntity != null) {
             double distanceTo = renderViewEntity.position()
                     .distanceTo(getMeanPos());
             distanceMultiplier = (float) Mth.lerp(distanceTo / CrownsSoundScapes.MAX_AMBIENT_SOURCE_DISTANCE, 2, 0);
         }
-        int soundCount = CrownsSoundScapes.getSoundCount(group, pitchGroup);
-        float max = AllConfigs.client().ambientVolumeCap.getF();
-        float argMax = (float) CrownsSoundScapes.SOUND_VOLUME_ARG_MAX;
+        int   soundCount = CrownsSoundScapes.getSoundCount(group, pitchGroup);
+        float max        = AllConfigs.client().ambientVolumeCap.getF();
+        float argMax     = (float) CrownsSoundScapes.SOUND_VOLUME_ARG_MAX;
         return Mth.clamp(soundCount / (argMax * 10f), 0.025f, max) * distanceMultiplier;
     }
 

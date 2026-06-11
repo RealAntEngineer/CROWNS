@@ -1,5 +1,6 @@
 package com.rae.crowns.mixin;
 
+
 import com.rae.formicapi.content.thermal_utilities.FullTableBased;
 import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import net.minecraft.nbt.CompoundTag;
@@ -23,23 +24,16 @@ public abstract class FluidTankMixin {
     @Inject(method = "fill", at = @At(value = "HEAD"), remap = false)
     public void mergeStateNBT(@NotNull FluidStack resource, IFluidHandler.FluidAction action, CallbackInfoReturnable<Integer> cir) {
         if (!fluid.isEmpty() && fluid.isFluidEqual(resource) && fluid.getFluid().is(FluidTags.WATER)) {
-            CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
-            SpecificRealGasState oldState;
-            if (oldStateNBT != null && !oldStateNBT.isEmpty()) {
-                oldState = new SpecificRealGasState(oldStateNBT);
-            } else {
-                oldState = SpecificRealGasState.DEFAULT_STATE;
-            }
+            CompoundTag          oldStateNBT = fluid.getChildTag("realGazState");
+            CompoundTag          newStateNBT = resource.getChildTag("realGazState");
 
-            CompoundTag newStateNBT = resource.getChildTag("realGazState");
-            SpecificRealGasState newState;
-            if (newStateNBT != null && !newStateNBT.isEmpty()) {
-                newState = new SpecificRealGasState(newStateNBT);
-            } else {
-                newState = SpecificRealGasState.DEFAULT_STATE;
-            }
-            //too much duplication it's unreadable.
-            if (newStateNBT != null && !newStateNBT.isEmpty() || oldStateNBT != null && !oldStateNBT.isEmpty()) {
+            boolean              oldStateHasState           = oldStateNBT != null && !oldStateNBT.isEmpty();
+            boolean              newStateHasState           = newStateNBT != null && !newStateNBT.isEmpty();
+
+            SpecificRealGasState oldState = oldStateHasState ? new SpecificRealGasState(oldStateNBT) : SpecificRealGasState.DEFAULT_STATE;
+            SpecificRealGasState newState = newStateHasState ? new SpecificRealGasState(newStateNBT) : SpecificRealGasState.DEFAULT_STATE;
+
+            if (newStateHasState || oldStateHasState) {
 
                 CompoundTag mergedTag = fluid.getOrCreateTag();
 

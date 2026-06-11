@@ -4,6 +4,18 @@
     "minecraft:bedrock",
     "minecraft:obsidian",
     "minecraft:magma_block",
-    "crowns:solid_corium"
+    "crowns:solid_corium",
+    "minecraft:jigsaw",
+    "minecraft:barrier",
+    "minecraft:light",
+    "create:creative_motor",
+    "create:creative_fluid_tank",
+    "create:creative_crate",
+    "minecraft:end_portal_frame",
+    "minecraft:command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:chain_command_block",
+    "minecraft:structure_block",
+    "minecraft:structure_void"
   ]
 }

@@ -90,7 +90,7 @@ public class PhysicThread extends Thread {
         if (data == null) return;
         data.setCurrentTime((int) serverLevel.getGameTime());
         data.initialise(serverLevel);
-        data.updateChangedBlocks(serverLevel);
+        data.updateChangedBlocks(serverLevel, tempSolver);
         //this is too long... do the gathering of section to tick every few iteration (10 ticks ?)
         LongSet loadedSections      = data.getLoadedSections(); // LongSet view of keys
         LongSet nearDynamicSections = data.getNearDynamic();
@@ -100,7 +100,7 @@ public class PhysicThread extends Thread {
         for (long packed : nearDynamicSections) {
             if (loadedSections.contains(packed)) {
                 //verify data
-                if (data.checkValidity(packed)) {//&& data.isDirty(packed)) {
+                if (data.checkValidity(packed) && data.needTicking(packed)) {//) {
                     toTick.add(packed);
                     data.addToTicked(packed);
                 }

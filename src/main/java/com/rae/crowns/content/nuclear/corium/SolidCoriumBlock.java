@@ -46,16 +46,16 @@ public class SolidCoriumBlock extends Block {
     }
 
     private static void spawnParticles(@NotNull Level level, @NotNull BlockPos pos) {
-        double d0 = 0.5625D;
+        double       d0           = 0.5625D;
         RandomSource randomsource = level.random;
 
         for (Direction direction : Direction.values()) {
             BlockPos blockpos = pos.relative(direction);
             if (!level.getBlockState(blockpos).isSolidRender(level, blockpos)) {
                 Direction.Axis direction$axis = direction.getAxis();
-                double d1 = direction$axis == Direction.Axis.X ? 0.5D + d0 * (double) direction.getStepX() : (double) randomsource.nextFloat();
-                double d2 = direction$axis == Direction.Axis.Y ? 0.5D + d0 * (double) direction.getStepY() : (double) randomsource.nextFloat();
-                double d3 = direction$axis == Direction.Axis.Z ? 0.5D + d0 * (double) direction.getStepZ() : (double) randomsource.nextFloat();
+                double         d1             = direction$axis == Direction.Axis.X ? 0.5D + d0 * (double) direction.getStepX() : (double) randomsource.nextFloat();
+                double         d2             = direction$axis == Direction.Axis.Y ? 0.5D + d0 * (double) direction.getStepY() : (double) randomsource.nextFloat();
+                double         d3             = direction$axis == Direction.Axis.Z ? 0.5D + d0 * (double) direction.getStepZ() : (double) randomsource.nextFloat();
                 level.addParticle(new DustColorTransitionOptions(Vec3.fromRGB24(0xec8f28).toVector3f(), Vec3.fromRGB24(0x0cd628).toVector3f(), 1.0F), (double) pos.getX() + d1, (double) pos.getY() + d2, (double) pos.getZ() + d3, 0.0D, 0.0D, 0.0D);
             }
         }

@@ -5,7 +5,7 @@ import com.rae.formicapi.fondation.math.operators.MutableMatrix;
 import java.util.Arrays;
 
 /**
- * Mutable CSR matrix with a FIXED sparsity structure.
+ * Mutable CSR matrix with a fixed sparsity structure.
  *
  * <p>This implementation assumes:
  * <ul>
@@ -65,6 +65,36 @@ public class PaddedCSRMatrix implements MutableMatrix {
 
         this.values = new double[rows * nnzPerRow];
         this.colIndex = new int[rows * nnzPerRow];
+    }
+
+    private PaddedCSRMatrix(int rows, int cols, int nnzPerRow, double[] values, int[] colIndex) {
+        this.rows = rows;
+        this.cols = cols;
+        this.nnzPerRow = nnzPerRow;
+        this.values = values;
+        this.colIndex = colIndex;
+    }
+
+    /**
+     * Returns a new {@link PaddedCSRMatrix} with {@code newRows} rows, sharing no
+     * storage with this instance.
+     *
+     * <p>If {@code newRows < rows}: trailing rows are dropped — two {@link Arrays#copyOf}
+     * calls, no per-row work.
+     * <br>
+     * If {@code newRows > rows}: new rows are zero-initialized (values) and their column
+     * indices default to 0 — caller must populate them via {@link #setRow} before solving.
+     *
+     * @param newRows target row (and column) count
+     * @return a resized copy
+     */
+    public PaddedCSRMatrix resize(int newRows) {
+        int len = newRows * nnzPerRow;
+        return new PaddedCSRMatrix(
+                newRows, newRows, nnzPerRow,
+                Arrays.copyOf(values, len),
+                Arrays.copyOf(colIndex, len)
+        );
     }
 
     /**
@@ -154,29 +184,28 @@ public class PaddedCSRMatrix implements MutableMatrix {
      *
      * @param row       row index to modify
      * @param newValues new non-zero values for the row
-     * @param cols      column indices corresponding to each value
+     * @param newCols   column indices corresponding to each value
      * @throws IllegalArgumentException if array sizes do not match {@code nnzPerRow}
      */
-    public void setRow(int row, double[] newValues, int[] cols) {
+    public void setRow(int row, double[] newValues, int[] newCols, int count) {
 
-        if (newValues.length > nnzPerRow || cols.length != newValues.length) {
+        if (newValues.length > nnzPerRow || newCols.length != newValues.length) {
             throw new IllegalArgumentException(
                     "Expected arrays of size " + nnzPerRow +
                             " but got values=" + newValues.length +
-                            " cols=" + cols.length
+                            " cols=" + newCols.length
             );
         }
 
         int base = row * nnzPerRow;
-
-        for (int i = 0; i < nnzPerRow; i++) {
-            if (i < newValues.length) {
-                colIndex[base + i] = cols[i];
-                values[base + i] = newValues[i];
-            }
-            else {
-                values[base + i] = 0;
-            }
+        for (int i = 0; i < count; i++) {
+            colIndex[base + i] = newCols[i];
+            values[base + i] = newValues[i];
+        }
+        // zero out trailing slots — both value AND colIndex set to safe default (diagonal)
+        for (int i = count; i < nnzPerRow; i++) {
+            colIndex[base + i] = row; // points to diagonal — safe for both multiply paths
+            values[base + i] = 0.0;
         }
     }
 

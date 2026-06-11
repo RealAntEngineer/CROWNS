@@ -1,13 +1,13 @@
 package com.rae.crowns.content.fields.util;
 
 import com.mojang.datafixers.util.Function3;
-import com.rae.crowns.content.fields.advection.BlockedDataLayer;
 import com.rae.crowns.content.fields.temperature.ConductionDataLayer;
 import com.rae.crowns.content.fields.temperature.ResilienceDataLayer;
 import com.rae.crowns.content.fields.temperature.TemperatureDataLayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import org.lwjgl.system.NonnullDefault;
 
 import java.util.HashMap;
@@ -21,29 +21,27 @@ public enum DataLayerType {
     DEFAULT_TEMPERATURE("default_temperature",
             TemperatureDataLayer::new, PhysicsSaveManager::getDefaultTemperature),
     RESILIENCE("resilence", ResilienceDataLayer::new,
-            (level, pos, blockState) -> PhysicsSaveManager.getDefaultResilience(blockState)),
+            (section, pos, blockState) -> PhysicsSaveManager.getDefaultResilience(blockState)),
     CONDUCTION("conduction", ConductionDataLayer::new,
-            (level, pos, blockState) -> PhysicsSaveManager.getDefaultConduction(blockState)),
-    BLOCKED("blocked", BlockedDataLayer::new,
-            ($1, $2, $3) -> 0f);
+            (section, pos, blockState) -> PhysicsSaveManager.getDefaultConduction(blockState));
 
-    public static final Map<String, DataLayerType>      REGISTRY = new HashMap<>();
+    public static final Map<String, DataLayerType> REGISTRY = new HashMap<>();
     static  {
         for (DataLayerType type : values()){
             REGISTRY.put(type.id, type);
         }
     }
     public final  String                                        id;
-    private final Supplier<AbstractDataLayer>                                   factory;
-    private final Function3<Level, BlockPos, BlockState, Float> initializer;
+    private final Supplier<AbstractDataLayer>                               factory;
+    private final Function3<LevelChunkSection, BlockPos, BlockState, Float> initializer;
 
-    DataLayerType(String id, Supplier<AbstractDataLayer> factory, Function3<Level, BlockPos, BlockState, Float> initializer) {
+    DataLayerType(String id, Supplier<AbstractDataLayer> factory, Function3<LevelChunkSection, BlockPos, BlockState, Float> initializer) {
         this.id = id;
         this.factory = factory;
         this.initializer = initializer;
     }
 
-    public Function3<Level, BlockPos, BlockState, Float> getInitializer() {
+    public Function3<LevelChunkSection, BlockPos, BlockState, Float> getInitializer() {
         return initializer;
     }
 

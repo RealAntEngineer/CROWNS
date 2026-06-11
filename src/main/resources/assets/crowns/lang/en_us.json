@@ -28,6 +28,7 @@
   "item.crowns.fuel_rod": "Fuel Rod",
 
   "item.crowns.raw_uranium": "Raw Uranium",
+  "item.crowns.turbine_casing": "Turbine Casing",
   "item.crowns.dosimeter": "Dosimeter",
 
   "fluid.crowns.corium": "Corium",
@@ -37,6 +38,12 @@
 
   "effect.crowns.bone_marrow_suppression": "§4Bone Marrow Suppression",
   "effect.crowns.radiodermatitis": "Damaged Skin",
+
+  "crowns.steam_input.flow_goal" : "Flow goal",
+  "crowns.steam_input.real_flow" : "Flow = %d/%d mB/tick",
+
+  "crowns.compressor.input": "Input = ",
+  "crowns.compressor.output": "Output = ",
 
   "crowns.ponder.nuclear_basics.header": "Nuclear Reactors",
   "crowns.ponder.nuclear_basics.text_1": "Nuclear Fuel naturally produces fast neutrons",
@@ -79,19 +86,8 @@
   "crowns.display_source.radiation_source": "Radiation Source",
   "crowns.display_source.temperature": "Temperature",
   "crowns.display_source.full_stack": "Fuel Assembly Stack Temperature",
-  "crowns.units.pressure.symbol.pascals": "Pa",
-  "crowns.units.pressure.symbol.bar": "bar",
-  "crowns.units.pressure.symbol.atmospheres" : "atm",
-  "crowns.units.pressure.symbol.psi": "psi",
-  "crowns.units.temperature.symbol.kelvin": "K",
-  "crowns.units.temperature.symbol.celsius": "°C",
-  "crowns.units.temperature.symbol.fahrenheit": "°F",
 
-  "crowns.units.radiation_flux.symbol.mega_becquerels": "MBq",
-  "crowns.units.radiation_flux.symbol.curies": "Ci",
-  "crowns.units.radiation_flux.symbol.gray_per_seconds": "Gray/s",
-  "crowns.units.radiation_flux.symbol.rad_per_seconds": "Rad/s",
-  "crowns.units.radiation_flux.symbol.sievert_per_seconds": "Sv/s",
+  "crowns.subtitle.turbine_sound" : "Turbine Humming",
 
   "crowns.nucleus.2": "Helium-%d",
   "crowns.nucleus.4": "Beryllium-%d",

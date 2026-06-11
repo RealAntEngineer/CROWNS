@@ -257,9 +257,10 @@ public class SteamCurrent {
             }
 
             // transfer to collector if present
-            if (collectorPos != null) {
-                transferToCollector(level);
-            }
+            //if (collectorPos != null) {
+                //transferToCollector(level); not anymore, it's handled by the steam input directly now.
+                // TODO in the future handle both the input and output here that way it's cleaner
+            //}
 
         } else {
             // CLIENT SIDE: only rendering
@@ -495,6 +496,11 @@ public class SteamCurrent {
 
     private void setBoundingBox(AABB aabb) {
         boundingBox = aabb;
+    }
+
+    public @Nullable SteamCollectorBlockEntity getCollector(Level level) {
+        if (collectorPos == null) return null;
+        return (SteamCollectorBlockEntity) level.getChunkAt(collectorPos).getBlockEntity(collectorPos);
     }
 
     public record SPR(int stage, float power) {

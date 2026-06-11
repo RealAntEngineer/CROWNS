@@ -34,6 +34,7 @@ public class CreativeModeTabsInit {
                                 output.accept(BlockInit.STEAM_INPUT);
                                 output.accept(BlockInit.STEAM_COLLECTOR);
                                 output.accept(BlockInit.TURBINE_STAGE);
+                                output.accept(ItemInit.TURBINE_CASING);
                                 output.accept(BlockInit.COMPRESSOR);
                                 output.acceptAll(makeFuelAssembly().apply(BlockInit.FUEL_ASSEMBLY.asItem()));
                                 output.accept(FluidInit.CORIUM.get().getBucket());

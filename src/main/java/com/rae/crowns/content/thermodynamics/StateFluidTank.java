@@ -1,17 +1,18 @@
 package com.rae.crowns.content.thermodynamics;
 
+
 import com.rae.formicapi.content.thermal_utilities.FullTableBased;
 import com.rae.formicapi.content.thermal_utilities.SpecificRealGasState;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.function.Consumer;
 
 import static com.rae.formicapi.content.thermal_utilities.SpecificRealGasState.DEFAULT_STATE;
 
-
+@NonnullDefault
 public class StateFluidTank extends SmartFluidTank {
     public StateFluidTank(int capacity, Consumer<FluidStack> updateCallback) {
         super(capacity, updateCallback);
@@ -20,8 +21,8 @@ public class StateFluidTank extends SmartFluidTank {
     public void heat(float amount) {
         if (fluid.getAmount() > 0) {
 
-            CompoundTag tag = new CompoundTag();
-            CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
+            CompoundTag          tag         = new CompoundTag();
+            CompoundTag          oldStateNBT = fluid.getChildTag("realGazState");
             SpecificRealGasState oldState;
             if (oldStateNBT != null) {
                 oldState = new SpecificRealGasState(oldStateNBT);
@@ -37,8 +38,8 @@ public class StateFluidTank extends SmartFluidTank {
     public void compress(float ratio) {
         if (fluid.getAmount() > 0) {
 
-            CompoundTag tag = new CompoundTag();
-            CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
+            CompoundTag          tag         = new CompoundTag();
+            CompoundTag          oldStateNBT = fluid.getChildTag("realGazState");
             SpecificRealGasState oldState;
             if (oldStateNBT != null) {
                 oldState = new SpecificRealGasState(oldStateNBT);
@@ -51,8 +52,8 @@ public class StateFluidTank extends SmartFluidTank {
         }
     }
 
-    public @NotNull SpecificRealGasState getState() {
-        CompoundTag oldStateNBT = fluid.getChildTag("realGazState");
+    public SpecificRealGasState getState() {
+        CompoundTag          oldStateNBT = fluid.getChildTag("realGazState");
         SpecificRealGasState oldState;
         if (oldStateNBT != null) {
             oldState = new SpecificRealGasState(oldStateNBT);
@@ -63,12 +64,12 @@ public class StateFluidTank extends SmartFluidTank {
     }
 
     @Override
-    public @NotNull FluidStack drain(FluidStack resource, FluidAction action) {
+    public FluidStack drain(FluidStack resource, FluidAction action) {
         return super.drain(resource, action);
     }
 
     @Override
-    public @NotNull FluidStack drain(int maxDrain, FluidAction action) {
+    public FluidStack drain(int maxDrain, FluidAction action) {
         FluidStack stack = super.drain(maxDrain, action);
         return stack;
     }

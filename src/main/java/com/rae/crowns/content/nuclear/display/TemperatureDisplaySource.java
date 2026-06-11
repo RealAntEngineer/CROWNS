@@ -24,9 +24,6 @@ public class TemperatureDisplaySource extends DisplaySource {
         List<MutableComponent> list = provideEntries(context, stats.maxRows() * (isBook ? ENTRIES_PER_PAGE : 1))
                 .toList();
 
-        /*if (isBook)
-            list = condensePages(list);*/
-
         return list;
     }
 

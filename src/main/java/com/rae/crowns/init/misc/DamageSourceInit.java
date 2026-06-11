@@ -10,10 +10,11 @@ import net.minecraft.world.damagesource.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
 import javax.annotation.Nullable;
 
+@NonnullDefault
 public class DamageSourceInit {
     public static final ResourceKey<DamageType>
             HIGH_TEMPERATURE = key("high_temperature");
@@ -24,33 +25,33 @@ public class DamageSourceInit {
     public static final ResourceKey<DamageType>
             RADIATION = key("radiation");
 
-    private static @NotNull ResourceKey<DamageType> key(@NotNull String name) {
+    private static ResourceKey<DamageType> key(String name) {
         return ResourceKey.create(Registries.DAMAGE_TYPE, CROWNS.resource(name));
     }
 
-    public static @NotNull DamageSource over_heat(@NotNull Level level) {
+    public static DamageSource over_heat(Level level) {
         return source(DamageSourceInit.HIGH_TEMPERATURE, level);
     }
 
-    private static @NotNull DamageSource source(@NotNull ResourceKey<DamageType> key, @NotNull LevelReader level) {
+    private static DamageSource source(ResourceKey<DamageType> key, LevelReader level) {
         Registry<DamageType> registry = level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE);
         return new DamageSource(registry.getHolderOrThrow(key));
     }
 
-    public static @NotNull DamageSource freezing(@NotNull Level level) {
+    public static DamageSource freezing(Level level) {
         return source(DamageSourceInit.LOW_TEMPERATURE, level);
     }
 
-    public static @NotNull DamageSource radiation(@NotNull Level level) {
+    public static DamageSource radiation(Level level) {
         return source(DamageSourceInit.RADIATION, level);
     }
 
-    private static @NotNull DamageSource source(@NotNull ResourceKey<DamageType> key, @NotNull LevelReader level, @Nullable Entity entity) {
+    private static DamageSource source(ResourceKey<DamageType> key, LevelReader level, @Nullable Entity entity) {
         Registry<DamageType> registry = level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE);
         return new DamageSource(registry.getHolderOrThrow(key), entity);
     }
 
-    private static @NotNull DamageSource source(@NotNull ResourceKey<DamageType> key, @NotNull LevelReader level, @Nullable Entity causingEntity, @Nullable Entity directEntity) {
+    private static DamageSource source(ResourceKey<DamageType> key, LevelReader level, @Nullable Entity causingEntity, @Nullable Entity directEntity) {
         Registry<DamageType> registry = level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE);
         return new DamageSource(registry.getHolderOrThrow(key), causingEntity, directEntity);
     }

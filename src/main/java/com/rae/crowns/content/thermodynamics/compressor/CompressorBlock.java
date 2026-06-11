@@ -10,10 +10,11 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
+@NonnullDefault
 public class CompressorBlock extends DirectionalKineticBlock implements IBE<CompressorBlockEntity>, ICogWheel {
-    public CompressorBlock(@NotNull Properties pProperties) {
+    public CompressorBlock(Properties pProperties) {
         super(pProperties);
     }
 
@@ -33,7 +34,7 @@ public class CompressorBlock extends DirectionalKineticBlock implements IBE<Comp
     }
 
     @Override
-    public Direction.@NotNull Axis getRotationAxis(@NotNull BlockState state) {
+    public Direction.Axis getRotationAxis(BlockState state) {
         return state.getValue(FACING).getAxis();
     }
 
@@ -43,12 +44,12 @@ public class CompressorBlock extends DirectionalKineticBlock implements IBE<Comp
     }
 
     @Override
-    public @NotNull Class<CompressorBlockEntity> getBlockEntityClass() {
+    public Class<CompressorBlockEntity> getBlockEntityClass() {
         return CompressorBlockEntity.class;
     }
 
     @Override
-    public @NotNull BlockEntityType<? extends CompressorBlockEntity> getBlockEntityType() {
+    public BlockEntityType<? extends CompressorBlockEntity> getBlockEntityType() {
         return BlockEntityInit.COMPRESSOR.get();
     }
 }

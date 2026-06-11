@@ -36,6 +36,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.ForgeEventFactory;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -43,29 +44,30 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+@NonnullDefault
 public class NuclearExplosion extends Explosion {
-    private static final ExplosionDamageCalculator EXPLOSION_DAMAGE_CALCULATOR = new ExplosionDamageCalculator();
-    private static final int MAX_DROPS_PER_COMBINED_STACK = 16;
-    private final boolean fire;
-    private final @NotNull Explosion.BlockInteraction blockInteraction;
-    private final @NotNull RandomSource random;
-    private final @NotNull Level level;
-    private final double x;
-    private final double y;
-    private final double z;
-    private final  @Nullable Entity source;
-    private final float radius;
-    private final @NotNull DamageSource damageSource;
+    private static final   ExplosionDamageCalculator           EXPLOSION_DAMAGE_CALCULATOR  = new ExplosionDamageCalculator();
+    private static final   int                                 MAX_DROPS_PER_COMBINED_STACK = 16;
+    private final          boolean                             fire;
+    private final Explosion.BlockInteraction blockInteraction;
+    private final RandomSource               random;
+    private final Level                      level;
+    private final          double       x;
+    private final          double                              y;
+    private final          double                              z;
+    private final @Nullable Entity                         source;
+    private final float                     radius;
+    private final DamageSource              damageSource;
     private final ExplosionDamageCalculator damageCalculator;
-    private final @NotNull ObjectArrayList<BlockPos> toBlow;
-    private final @NotNull Map<Player, Vec3> hitPlayers;
+    private final ObjectArrayList<BlockPos> toBlow;
+    private final Map<Player, Vec3>         hitPlayers;
 
-    public NuclearExplosion(@NotNull Level level, @Nullable Entity source, double x, double y, double z, float radius, List<BlockPos> toBlow, Explosion.@NotNull BlockInteraction blockInteraction) {
+    public NuclearExplosion(Level level, @Nullable Entity source, double x, double y, double z, float radius, List<BlockPos> toBlow, Explosion.@NotNull BlockInteraction blockInteraction) {
         this(level, source, getDefaultDamageSource(level, source), null, x, y, z, radius, false, blockInteraction);
         this.toBlow.addAll(toBlow);
     }
 
-    public NuclearExplosion(@NotNull Level level, @Nullable Entity source, @Nullable DamageSource damageSource, @Nullable ExplosionDamageCalculator damageCalculator, double x, double y, double z, float radius, boolean fire, Explosion.@NotNull BlockInteraction blockInteraction) {
+    public NuclearExplosion(Level level, @Nullable Entity source, @Nullable DamageSource damageSource, @Nullable ExplosionDamageCalculator damageCalculator, double x, double y, double z, float radius, boolean fire, Explosion.@NotNull BlockInteraction blockInteraction) {
         super(level, source, damageSource, damageCalculator, x, y, z, radius, fire, blockInteraction);
         this.random = RandomSource.create();
         this.toBlow = new ObjectArrayList<>();
@@ -82,7 +84,7 @@ public class NuclearExplosion extends Explosion {
         this.damageCalculator = damageCalculator == null ? this.makeDamageCalculator(source) : damageCalculator;
     }
 
-    public static @NotNull DamageSource getDefaultDamageSource(@NotNull Level level, @Nullable Entity source) {
+    public static DamageSource getDefaultDamageSource(Level level, @Nullable Entity source) {
         return level.damageSources().explosion(source, getIndirectSourceEntityInternal(source));
     }
 
@@ -117,16 +119,16 @@ public class NuclearExplosion extends Explosion {
         }
     }
 
-    public NuclearExplosion(@NotNull Level level, @Nullable Entity source, double x, double y, double z, float radius, boolean fire, Explosion.@NotNull BlockInteraction blockInteraction, List<BlockPos> positions) {
+    public NuclearExplosion(Level level, @Nullable Entity source, double x, double y, double z, float radius, boolean fire, Explosion.@NotNull BlockInteraction blockInteraction, List<BlockPos> positions) {
         this(level, source, x, y, z, radius, fire, blockInteraction);
         this.toBlow.addAll(positions);
     }
 
-    public NuclearExplosion(@NotNull Level level, @Nullable Entity source, double x, double y, double z, float radius, boolean fire, Explosion.@NotNull BlockInteraction blockInteraction) {
+    public NuclearExplosion(Level level, @Nullable Entity source, double x, double y, double z, float radius, boolean fire, Explosion.@NotNull BlockInteraction blockInteraction) {
         this(level, source, getDefaultDamageSource(level, source), null, x, y, z, radius, fire, blockInteraction);
     }
 
-    public static void nuclearExplosion(@NotNull Level level, @NotNull BlockPos pos, float power) {
+    public static void nuclearExplosion(Level level, BlockPos pos, float power) {
         level.explode(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, power, Level.ExplosionInteraction.BLOCK);
 
         NuclearExplosion explosion = new NuclearExplosion(level, null, null,
@@ -140,15 +142,15 @@ public class NuclearExplosion extends Explosion {
 
     public void explode() {
         this.level.gameEvent(this.source, GameEvent.EXPLODE, new Vec3(this.x, this.y, this.z));
-        List<Vec3> surface = RayTraceUtil.getSphereSurface(this.center(), this.radius());//just the exterior
-        Set<BlockPos> set = Sets.newHashSet();
+        List<Vec3>    surface = RayTraceUtil.getSphereSurface(this.center(), this.radius());//just the exterior
+        Set<BlockPos> set     = Sets.newHashSet();
 
         for (Vec3 pos : surface) {//pos : maximal position on the direction (absolute)
 
             float f = this.radius * (0.2F);//+ this.level.random.nextFloat() * 0.3F);//explosion strengh on the direction
 
             for (int i = 0; i < radius; i++) {
-                BlockPos blockpos = BlockPos.containing(center().add(pos.subtract(center()).scale(i / radius)));//linear interpolation
+                BlockPos   blockpos   = BlockPos.containing(center().add(pos.subtract(center()).scale(i / radius)));//linear interpolation
                 BlockState blockstate = this.level.getBlockState(blockpos);
                 FluidState fluidstate = this.level.getFluidState(blockpos);
                 if (!this.level.isInWorldBounds(blockpos)) {
@@ -171,13 +173,13 @@ public class NuclearExplosion extends Explosion {
         }
 
         this.toBlow.addAll(set);
-        float f2 = this.radius * 2.0F;
-        int k1 = Mth.floor(this.x - (double) f2 - (double) 1.0F);
-        int l1 = Mth.floor(this.x + (double) f2 + (double) 1.0F);
-        int i2 = Mth.floor(this.y - (double) f2 - (double) 1.0F);
-        int i1 = Mth.floor(this.y + (double) f2 + (double) 1.0F);
-        int j2 = Mth.floor(this.z - (double) f2 - (double) 1.0F);
-        int j1 = Mth.floor(this.z + (double) f2 + (double) 1.0F);
+        float        f2   = this.radius * 2.0F;
+        int          k1   = Mth.floor(this.x - (double) f2 - (double) 1.0F);
+        int          l1   = Mth.floor(this.x + (double) f2 + (double) 1.0F);
+        int          i2   = Mth.floor(this.y - (double) f2 - (double) 1.0F);
+        int          i1   = Mth.floor(this.y + (double) f2 + (double) 1.0F);
+        int          j2   = Mth.floor(this.z - (double) f2 - (double) 1.0F);
+        int          j1   = Mth.floor(this.z + (double) f2 + (double) 1.0F);
         List<Entity> list = this.level.getEntities(this.source, new AABB(k1, i2, j2, l1, i1, j1));
         ForgeEventFactory.onExplosionDetonate(this.level, this, list, f2);
         Vec3 vec3 = new Vec3(this.x, this.y, this.z);
@@ -186,9 +188,9 @@ public class NuclearExplosion extends Explosion {
             if (!entity.ignoreExplosion()) {
                 double d12 = Math.sqrt(entity.distanceToSqr(vec3)) / (double) f2;
                 if (d12 <= 1.0D) {
-                    double d5 = entity.getX() - this.x;
-                    double d7 = (entity instanceof PrimedTnt ? entity.getY() : entity.getEyeY()) - this.y;
-                    double d9 = entity.getZ() - this.z;
+                    double d5  = entity.getX() - this.x;
+                    double d7  = (entity instanceof PrimedTnt ? entity.getY() : entity.getEyeY()) - this.y;
+                    double d9  = entity.getZ() - this.z;
                     double d13 = Math.sqrt(d5 * d5 + d7 * d7 + d9 * d9);
                     if (d13 != 0.0D) {
                         d5 /= d13;
@@ -221,7 +223,7 @@ public class NuclearExplosion extends Explosion {
 
     }
 
-    public @NotNull Vec3 center() {
+    public Vec3 center() {
         return new Vec3(this.x, this.y, this.z);
     }
 
@@ -229,13 +231,13 @@ public class NuclearExplosion extends Explosion {
         return this.radius;
     }
 
-    public static float getSeenPercent(@NotNull Vec3 explosionVector, @NotNull Entity entity) {
-        AABB aabb = entity.getBoundingBox();
-        double d0 = (double) 1.0F / ((aabb.maxX - aabb.minX) * (double) 2.0F + (double) 1.0F);
-        double d1 = (double) 1.0F / ((aabb.maxY - aabb.minY) * (double) 2.0F + (double) 1.0F);
-        double d2 = (double) 1.0F / ((aabb.maxZ - aabb.minZ) * (double) 2.0F + (double) 1.0F);
-        double d3 = ((double) 1.0F - Math.floor((double) 1.0F / d0) * d0) / (double) 2.0F;
-        double d4 = ((double) 1.0F - Math.floor((double) 1.0F / d2) * d2) / (double) 2.0F;
+    public static float getSeenPercent(Vec3 explosionVector, Entity entity) {
+        AABB   aabb = entity.getBoundingBox();
+        double d0   = (double) 1.0F / ((aabb.maxX - aabb.minX) * (double) 2.0F + (double) 1.0F);
+        double d1   = (double) 1.0F / ((aabb.maxY - aabb.minY) * (double) 2.0F + (double) 1.0F);
+        double d2   = (double) 1.0F / ((aabb.maxZ - aabb.minZ) * (double) 2.0F + (double) 1.0F);
+        double d3   = ((double) 1.0F - Math.floor((double) 1.0F / d0) * d0) / (double) 2.0F;
+        double d4   = ((double) 1.0F - Math.floor((double) 1.0F / d2) * d2) / (double) 2.0F;
         if (!(d0 < (double) 0.0F) && !(d1 < (double) 0.0F) && !(d2 < (double) 0.0F)) {
             int i = 0;
             int j = 0;
@@ -243,10 +245,10 @@ public class NuclearExplosion extends Explosion {
             for (double d5 = 0.0F; d5 <= (double) 1.0F; d5 += d0) {
                 for (double d6 = 0.0F; d6 <= (double) 1.0F; d6 += d1) {
                     for (double d7 = 0.0F; d7 <= (double) 1.0F; d7 += d2) {
-                        double d8 = Mth.lerp(d5, aabb.minX, aabb.maxX);
-                        double d9 = Mth.lerp(d6, aabb.minY, aabb.maxY);
-                        double d10 = Mth.lerp(d7, aabb.minZ, aabb.maxZ);
-                        Vec3 vec3 = new Vec3(d8 + d3, d9, d10 + d4);
+                        double d8   = Mth.lerp(d5, aabb.minX, aabb.maxX);
+                        double d9   = Mth.lerp(d6, aabb.minY, aabb.maxY);
+                        double d10  = Mth.lerp(d7, aabb.minZ, aabb.maxZ);
+                        Vec3   vec3 = new Vec3(d8 + d3, d9, d10 + d4);
                         if (entity.level().clip(new ClipContext(vec3, explosionVector, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getType() == HitResult.Type.MISS) {
                             ++i;
                         }
@@ -262,12 +264,12 @@ public class NuclearExplosion extends Explosion {
         }
     }
 
-    private static void addBlockDrops(@NotNull ObjectArrayList<Pair<ItemStack, BlockPos>> p_46068_, @NotNull ItemStack p_46069_, BlockPos p_46070_) {
+    private static void addBlockDrops(ObjectArrayList<Pair<ItemStack, BlockPos>> p_46068_, ItemStack p_46069_, BlockPos p_46070_) {
         int i = p_46068_.size();
 
         for (int j = 0; j < i; ++j) {
-            Pair<ItemStack, BlockPos> pair = p_46068_.get(j);
-            ItemStack itemstack = pair.getFirst();
+            Pair<ItemStack, BlockPos> pair      = p_46068_.get(j);
+            ItemStack                 itemstack = pair.getFirst();
             if (ItemEntity.areMergable(itemstack, p_46069_)) {
                 ItemStack itemstack1 = ItemEntity.merge(itemstack, p_46069_, 16);
                 p_46068_.set(j, Pair.of(itemstack1, pair.getSecond()));
@@ -296,19 +298,19 @@ public class NuclearExplosion extends Explosion {
 
         if (flag) {
             ObjectArrayList<Pair<ItemStack, BlockPos>> objectarraylist = new ObjectArrayList<>();
-            boolean flag1 = this.getIndirectSourceEntity() instanceof Player;
+            boolean                                    flag1           = this.getIndirectSourceEntity() instanceof Player;
             Util.shuffle(this.toBlow, this.level.random);
 
             for (BlockPos blockpos : this.toBlow) {
                 BlockState blockstate = this.level.getBlockState(blockpos);
-                Block block = blockstate.getBlock();
+                Block      block      = blockstate.getBlock();
                 if (!blockstate.isAir()) {
                     BlockPos blockpos1 = blockpos.immutable();
                     this.level.getProfiler().push("explosion_blocks");
                     if (blockstate.canDropFromExplosion(this.level, blockpos, this)) {
                         Level $$9 = this.level;
                         if ($$9 instanceof ServerLevel serverlevel) {
-                            BlockEntity blockentity = blockstate.hasBlockEntity() ? this.level.getBlockEntity(blockpos) : null;
+                            BlockEntity        blockentity        = blockstate.hasBlockEntity() ? this.level.getBlockEntity(blockpos) : null;
                             LootParams.Builder lootparams$builder = (new LootParams.Builder(serverlevel)).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(blockpos)).withParameter(LootContextParams.TOOL, ItemStack.EMPTY).withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockentity).withOptionalParameter(LootContextParams.THIS_ENTITY, this.source);
                             if (this.blockInteraction == Explosion.BlockInteraction.DESTROY_WITH_DECAY) {
                                 lootparams$builder.withParameter(LootContextParams.EXPLOSION_RADIUS, this.radius);
@@ -345,7 +347,7 @@ public class NuclearExplosion extends Explosion {
         return this.blockInteraction != Explosion.BlockInteraction.KEEP;
     }
 
-    public @NotNull Map<Player, Vec3> getHitPlayers() {
+    public Map<Player, Vec3> getHitPlayers() {
         return this.hitPlayers;
     }
 
@@ -363,14 +365,14 @@ public class NuclearExplosion extends Explosion {
         this.toBlow.clear();
     }
 
-    public @NotNull List<BlockPos> getToBlow() {
+    public List<BlockPos> getToBlow() {
         return this.toBlow;
     }
 
-    private static void addOrAppendStack(@NotNull List<Pair<ItemStack, BlockPos>> drops, @NotNull ItemStack stack, BlockPos pos) {
+    private static void addOrAppendStack(List<Pair<ItemStack, BlockPos>> drops, ItemStack stack, BlockPos pos) {
         for (int i = 0; i < drops.size(); ++i) {
-            Pair<ItemStack, BlockPos> pair = drops.get(i);
-            ItemStack itemstack = pair.getFirst();
+            Pair<ItemStack, BlockPos> pair      = drops.get(i);
+            ItemStack                 itemstack = pair.getFirst();
             if (ItemEntity.areMergable(itemstack, stack)) {
                 drops.set(i, Pair.of(ItemEntity.merge(itemstack, stack, 16), pair.getSecond()));
                 if (stack.isEmpty()) {

@@ -16,7 +16,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 
 public class FluidInit {
-    public static final FluidEntry<CoriumFluid.Flowing> CORIUM =
+    public static final FluidEntry<CoriumFluid.Flowing>       CORIUM               =
             CROWNS.REGISTRATE.fluid("corium", CROWNS.resource("fluid/corium_still"), CROWNS.resource("fluid/corium_flowing"),
                             CoriumFluidType::new,
                             CoriumFluid.Flowing::new)

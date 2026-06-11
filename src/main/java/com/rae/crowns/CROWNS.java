@@ -25,8 +25,10 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 import org.slf4j.Logger;
 
+@NonnullDefault
 @SuppressWarnings("ALL")
 @Mod(CROWNS.MODID)//CreatingRotationOperatedWithNuclearScience
 public class CROWNS {
@@ -78,7 +80,7 @@ public class CROWNS {
 
     }
 
-    public static void onAddReloadListeners(@NotNull AddReloadListenerEvent event) {
+    public static void onAddReloadListeners(AddReloadListenerEvent event) {
         event.addListener(CROWNS.BLOCK_TEMPERATURES);
         event.addListener(CROWNS.BLOCK_RESILIENCE);
         event.addListener(CROWNS.BLOCK_CONDUCTION);
@@ -91,7 +93,7 @@ public class CROWNS {
 
     }
 
-    public static @NotNull ResourceLocation resource(@NotNull String name) {
+    public static ResourceLocation resource(String name) {
         return new ResourceLocation(MODID, name);
     }
 }

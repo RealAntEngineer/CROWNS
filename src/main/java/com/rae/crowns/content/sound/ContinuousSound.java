@@ -8,9 +8,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class ContinuousSound extends AbstractTickableSoundInstance {
 
-    private final float sharedPitch;
+    private final float      sharedPitch;
     private final SoundScape scape;
-    private final float relativeVolume;
+    private final float      relativeVolume;
 
     protected ContinuousSound(@NotNull SoundEvent event, SoundScape scape, float sharedPitch, float relativeVolume) {
         super(event, SoundSource.AMBIENT, SoundInstance.createUnseededRandom());

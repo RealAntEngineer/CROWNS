@@ -27,8 +27,8 @@ public class HeatExchangerRenderer extends SafeBlockEntityRenderer<HeatExchanger
         //super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
         BlockState state = be.getBlockState();
 
-        Direction direction = state.getValue(HeatExchangerBlock.FACING);
-        VertexConsumer vb = buffer.getBuffer(RenderType.cutoutMipped());
+        Direction      direction = state.getValue(HeatExchangerBlock.FACING);
+        VertexConsumer vb        = buffer.getBuffer(RenderType.cutoutMipped());
 
         if (state.getValue(HeatExchangerBlock.OUT)) {
             ms.pushPose();

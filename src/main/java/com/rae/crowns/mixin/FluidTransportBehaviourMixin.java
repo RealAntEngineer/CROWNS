@@ -44,9 +44,9 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true, remap = false)
     public void replaceTick(@NotNull CallbackInfo ci) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         super.tick();
-        Level world = getWorld();
-        BlockPos pos = getPos();
-        boolean onServer = !world.isClientSide || blockEntity.isVirtual();
+        Level    world    = getWorld();
+        BlockPos pos      = getPos();
+        boolean  onServer = !world.isClientSide || blockEntity.isVirtual();
 
         if (interfaces == null)
             return;
@@ -54,13 +54,6 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
 
         // Do not provide a lone pipe connection with its own flow input
         PipeConnection singleSource = null;
-
-//		if (onClient) {
-//			connections.forEach(connection -> {
-//				connection.visualizeFlow(pos);
-//				connection.visualizePressure(pos);
-//			});
-//		}
 
         if (phase == FluidTransportBehaviour.UpdatePhase.WAIT_FOR_PUMPS) {
             phase = FluidTransportBehaviour.UpdatePhase.FLIP_FLOWS;
