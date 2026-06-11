@@ -369,7 +369,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             processed++;
         }
 
-        T matrix = (T) this.getCachedMatrix(solver);
+        //T matrix = (T) this.getCachedMatrix(solver);
 
         // Process one section at a time
         for (Long2ObjectMap.Entry<Set<BlockPos>> entry : bySection.long2ObjectEntrySet()) {
@@ -394,9 +394,9 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
                 set(section, pos, state, types);
             }
-            if (matrix!=null)
-                solver.buildSectionRows(sectionPos.asLong(), matrix, this);
-            //solver.stampVoxels(entry.getValue(), this);
+            /*if (matrix!=null)
+                solver.buildSectionRows(sectionPos.asLong(), matrix, this);*/
+            solver.stampVoxels(entry.getValue(), this);
         }
     }
 

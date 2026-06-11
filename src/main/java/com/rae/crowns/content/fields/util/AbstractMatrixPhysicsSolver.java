@@ -434,18 +434,23 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
         Long2ObjectMap<List<BlockPos>> bySection = new Long2ObjectOpenHashMap<>();
 
         for (BlockPos pos : positions) {
+            // the block itself
+            long section = SectionPos.asLong(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4);
+            bySection.computeIfAbsent(section, k -> new ArrayList<>()).add(pos);
+
+            // its 6 face neighbors
             for (byte[] offset : NEIGHBOR_OFFSETS) {
                 byte     dx       = offset[0], dy = offset[1], dz = offset[2];
                 BlockPos affected = pos.offset(dx, dy, dz);
 
-                long section = SectionPos.asLong(
+                long neighborSection  = SectionPos.asLong(
                         affected.getX() >> 4,
                         affected.getY() >> 4,
                         affected.getZ() >> 4
                 );
 
                 bySection
-                        .computeIfAbsent(section, k -> new ArrayList<>())
+                        .computeIfAbsent(neighborSection, k -> new ArrayList<>())
                         .add(affected);
             }
         }
