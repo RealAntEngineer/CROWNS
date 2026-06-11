@@ -32,13 +32,13 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     public static final  int                                                                                DATA_VERSION        = 13;
     private static final int                                                                                DYNAMIC_RANGE       = 1;
     // Generic unified map: one Long2ObjectMap per DataLayerType
-    private final        EnumMap<DataLayerType, Long2ObjectMap<AbstractDataLayer>>                          layers              = new EnumMap<>(DataLayerType.class);//stored
+    private final      EnumMap<DataLayerType, Long2ObjectMap<AbstractDataLayer>>                            layers              = new EnumMap<>(DataLayerType.class);//stored
     // Dynamic and meta state
     private final        Long2ObjectMap<DataLayerType[]>                                                    toInitialise        = new Long2ObjectOpenHashMap<>();//stored
     private final        Queue<BlockPos>                                                                    changedBlocks       = new ConcurrentLinkedQueue<>();//stored
-    private final        LongSet                                                                            changedSections     = new LongOpenHashSet();//stored
-    private final        LongSet                                                                            dirty               = new LongOpenHashSet();//stored
-    private final        LongSet                                                                            loadedSections      = new LongOpenHashSet();//stored
+    private final        LongSet changedSections = new LongOpenHashSet();//stored
+    private final        LongSet needTicking     = new LongOpenHashSet();//stored
+    private final        LongSet loadedSections  = new LongOpenHashSet();//stored
     private final        Long2IntMap                                                                        tickedSections      = new Long2IntOpenHashMap();//recomputed
     private final        Long2ObjectMap<IHaveTemperature>                                                   dynamicData         = new Long2ObjectOpenHashMap<>();//recomputed
     private final        Long2IntMap                                                                        sectionDynamicCount = new Long2IntOpenHashMap();//recomputed
@@ -89,7 +89,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         }
 
         if (nbt.contains("dirty", Tag.TAG_LONG_ARRAY)) {
-            data.dirty.addAll(LongArrayList.wrap(
+            data.needTicking.addAll(LongArrayList.wrap(
                     nbt.getLongArray("dirty")
             ));
         }
@@ -163,7 +163,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         nbt.putLongArray("changedBlocks", changedBlocks.stream().mapToLong(BlockPos::asLong).toArray());
         nbt.put("toInitialise", serializeInit(toInitialise));
         nbt.putLongArray("changedSections", changedSections.toLongArray());
-        nbt.putLongArray("dirty", dirty.toLongArray());
+        nbt.putLongArray("dirty", needTicking.toLongArray());
         nbt.putLongArray("loadedSections", loadedSections.toLongArray());
         return nbt;
     }
@@ -331,10 +331,10 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     }
 
     public void setNoTicking(long sectionPos) {
-        dirty.remove(sectionPos);
+        needTicking.remove(sectionPos);
     }
 
-    public void updateChangedBlocks(ServerLevel level) {
+    public <T extends AbstractMatrixPhysicsSolver.PhysicsMatrix> void  updateChangedBlocks(ServerLevel level, AbstractMatrixPhysicsSolver<T> solver) {
         long startTime = System.nanoTime();
 
         DataLayerType[] types = {
@@ -344,13 +344,13 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         };
 
         // Group changed blocks by section
-        Long2ObjectMap<List<BlockPos>> bySection = new Long2ObjectOpenHashMap<>();
+        Long2ObjectMap<Set<BlockPos>> bySection = new Long2ObjectOpenHashMap<>();
 
         int processed = 0;
 
         while (processed < 10_000 && !changedBlocks.isEmpty()) {
             if (System.nanoTime() - startTime > 20_000_000L) {
-                return;
+                break;
             }
 
             BlockPos pos = changedBlocks.poll();
@@ -363,18 +363,16 @@ public class PhysicsWorldData extends SavedData {//Only for the server
             );
 
             bySection
-                    .computeIfAbsent(section, k -> new ArrayList<>())
+                    .computeIfAbsent(section, k -> new HashSet<>())
                     .add(pos);
 
             processed++;
         }
 
-        // Process one section at a time
-        for (Long2ObjectMap.Entry<List<BlockPos>> entry : bySection.long2ObjectEntrySet()) {
+        T matrix = (T) this.getCachedMatrix(solver);
 
-            if (System.nanoTime() - startTime > 20_000_000L) {
-                return;
-            }
+        // Process one section at a time
+        for (Long2ObjectMap.Entry<Set<BlockPos>> entry : bySection.long2ObjectEntrySet()) {
 
             SectionPos sectionPos = SectionPos.of(entry.getLongKey());
             LevelChunk chunk = level.getChunk(sectionPos.x(), sectionPos.z());
@@ -388,33 +386,21 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
             for (BlockPos pos : entry.getValue()) {
 
-                if (System.nanoTime() - startTime > 20_000_000L) {
-                    return;
-                }
-
                 int x = pos.getX() & 15;
                 int y = pos.getY() & 15;
                 int z = pos.getZ() & 15;
 
                 BlockState state = section.getBlockState(x, y, z);
 
-                set(
-                        pos,
-                        types,
-                        types[0].getInitializer().apply(section, pos, state),
-                        types[1].getInitializer().apply(section, pos, state),
-                        types[2].getInitializer().apply(section, pos, state)
-                );
-
-                setNeedTicking(entry.getLongKey());
+                set(section, pos, state, types);
             }
+            if (matrix!=null)
+                solver.buildSectionRows(sectionPos.asLong(), matrix, this);
+            //solver.stampVoxels(entry.getValue(), this);
         }
     }
 
-    public void set(BlockPos pos, DataLayerType[] types, float... values) {
-        if (types.length != values.length) {
-            throw new IllegalArgumentException("Types and values arrays must have the same length");
-        }
+    public void set(LevelChunkSection section, BlockPos pos, BlockState state, DataLayerType[] types) {
 
         // --- Compute packed section coordinates ---
         int  sx            = pos.getX() >> 4;
@@ -428,10 +414,10 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         int lz = pos.getZ() & 15;
 
         // --- Set values dynamically ---
-        for (int i = 0; i < types.length; i++) {
-            AbstractDataLayer layer = getLayer(packedSection, types[i]);
+        for (DataLayerType type : types) {
+            AbstractDataLayer layer = getLayer(packedSection, type);
             if (layer != null) {
-                layer.set((short) lx, (short) ly, (short) lz, values[i]);
+                layer.set((short) lx, (short) ly, (short) lz, type.getInitializer().apply(section, pos, state));
             }
             setNeedTicking(packedSection);
         }
@@ -439,7 +425,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
     //to avoid ticking stable sections.
     public void setNeedTicking(long sectionPos) {
-        dirty.add(sectionPos);
+        needTicking.add(sectionPos);
         //changedSections.add(sectionPos);
     }
 
@@ -538,7 +524,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
     public void reinitializeAll() {
         layers.values().forEach(Long2ObjectMap::clear);
         cachedMatrices.clear();
-        dirty.clear();
+        needTicking.clear();
 
         //we need an
         for (long section : loadedSections.stream().toList()) {
@@ -566,7 +552,7 @@ public class PhysicsWorldData extends SavedData {//Only for the server
 
     //Dirty sections are section that need to be ticked, not sections that need to be rebuilt
     public boolean needTicking(long sectionPos) {
-        return dirty.contains(sectionPos);
+        return needTicking.contains(sectionPos);
     }
 
     public void setCurrentTime(int time) {
@@ -679,8 +665,9 @@ public class PhysicsWorldData extends SavedData {//Only for the server
         return collector;
     }
 
-    public @Nullable AbstractMatrixPhysicsSolver.PhysicsMatrix getCachedMatrix(AbstractMatrixPhysicsSolver<?> solver) {
-        return cachedMatrices.get(solver);
+    @SuppressWarnings("unchecked")
+    public @Nullable <T extends AbstractMatrixPhysicsSolver.PhysicsMatrix> T getCachedMatrix(AbstractMatrixPhysicsSolver<T> solver) {
+        return (T) cachedMatrices.get(solver);
     }
 
     public void setCachedMatrix(AbstractMatrixPhysicsSolver<?> solver, AbstractMatrixPhysicsSolver.PhysicsMatrix newMatrix) {

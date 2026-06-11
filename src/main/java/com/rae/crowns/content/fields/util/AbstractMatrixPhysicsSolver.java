@@ -11,6 +11,7 @@ import org.lwjgl.system.NonnullDefault;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -424,7 +425,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
     /**
      * Directly rebuild the affected rows
      */
-    protected void stampVoxels(List<BlockPos> positions, PhysicsWorldData data) {
+    protected void stampVoxels(Collection<BlockPos> positions, PhysicsWorldData data) {
         M matrix = getCachedMatrix(data);
         if (matrix == null) {
             return;
