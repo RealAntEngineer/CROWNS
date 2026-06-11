@@ -3,6 +3,7 @@ package com.rae.crowns.config;
 
 import com.rae.crowns.Constants;
 import net.createmod.catnip.config.ConfigBase;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public class CROWNSNuclear extends ConfigBase {
@@ -27,7 +28,7 @@ public class CROWNSNuclear extends ConfigBase {
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return "nuclear_v2";
     }
 

@@ -179,6 +179,7 @@ public class CompressorBlockEntity extends KineticBlockEntity {
 
     public static float getPressureDelta(float speed) {
         int   flow          = (int) Math.abs(speed);
+        assert CROWNSConfigs.SERVER != null;
         float speedRef      = CROWNSConfigs.SERVER.kinetics.compressorSpeedRef.getF();
         float flowRef       = CROWNSConfigs.SERVER.kinetics.compressorFlowRef.getF();
         float pRef          = CROWNSConfigs.SERVER.kinetics.compressorPressureRef.getF();

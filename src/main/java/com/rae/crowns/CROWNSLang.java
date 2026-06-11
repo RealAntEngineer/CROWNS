@@ -27,6 +27,7 @@ public class CROWNSLang extends Lang {
     }
 
     public static LangBuilder specificRealFluidState(SpecificRealGasState state) {
+        assert CROWNSConfigs.CLIENT != null;
         CROWNSCfgClient.FluidVisualMode mode = CROWNSConfigs.CLIENT.fluidStateVisualMode.get();
 
         return switch (mode) {
