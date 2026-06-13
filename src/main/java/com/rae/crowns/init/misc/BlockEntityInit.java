@@ -1,6 +1,7 @@
 package com.rae.crowns.init.misc;
 
-import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlockEntity;
+import com.rae.crowns.content.nuclear.fuel_feeder.FuelFeederBlockEntity;
+import com.rae.crowns.content.nuclear.fuel_rod.FuelRodBlockEntity;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlockEntity;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorRenderer;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlockEntity;
@@ -17,10 +18,14 @@ import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import static com.rae.crowns.CROWNS.REGISTRATE;
 
 @SuppressWarnings("ALL")
-public class BlockEntityInit {
-    public static final BlockEntityEntry<AssemblyBlockEntity> FUEL_ASSEMBLY = REGISTRATE
-            .blockEntity("fuel_assembly", AssemblyBlockEntity::new)
-            .validBlock(BlockInit.FUEL_ASSEMBLY)
+    public static final BlockEntityEntry<FuelRodBlockEntity> FUEL_ROD = REGISTRATE
+            .blockEntity("fuel_rod", FuelRodBlockEntity::new)
+            .validBlock(BlockInit.FUEL_ROD)
+            .register();
+
+    public static final BlockEntityEntry<FuelFeederBlockEntity> FUEL_FEEDER = REGISTRATE
+            .blockEntity("fuel_feeder", FuelFeederBlockEntity::new)
+            .validBlock(BlockInit.FUEL_FEEDER)
             .register();
 
     public static final BlockEntityEntry<TurbineStageBlockEntity> TURBINE_STAGE = REGISTRATE
