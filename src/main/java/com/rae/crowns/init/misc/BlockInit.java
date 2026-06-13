@@ -82,26 +82,28 @@ public class BlockInit {
                     .build()
                     .register();
 
-    public static final BlockEntry<AssemblyBlock> FUEL_ASSEMBLY = REGISTRATE
-            .block("fuel_assembly", AssemblyBlock::new)
+    public static final BlockEntry<FuelRodBlock> FUEL_ROD = REGISTRATE
+            .block("fuel_rod", FuelRodBlock::new)
             .initialProperties(SharedProperties::softMetal)
-            .properties(p -> p.lightLevel((s) -> {
-                switch (s.getValue(AssemblyBlock.ACTIVITY)) {
-                    case NONE -> {
-                        return 0;
-                    }
-                    case LOW -> {
-                        return 8;
-                    }
-                    case HIGH -> {
-                        return 15;
-                    }
+            .properties(p -> p.noOcclusion().lightLevel((s) -> {
+                switch (s.getValue(FuelRodBlock.ACTIVITY)) {
+                    case NONE -> { return 0; }
+                    case LOW -> { return 8; }
+                    case HIGH -> { return 15; }
                 }
                 return 0;
             }))
             .transform(displaySource(DisplaySourceInit.ACTIVITY))
             .transform(displaySource(DisplaySourceInit.TEMPERATURE))
             .transform(displaySource(DisplaySourceInit.FULL_STACK))
+            .item()
+            .build()
+            .register();
+    
+    public static final BlockEntry<FuelFeederBlock> FUEL_FEEDER = REGISTRATE
+            .block("fuel_feeder", FuelFeederBlock::new)
+            .initialProperties(SharedProperties::softMetal)
+            .properties(BlockBehaviour.Properties::noOcclusion)
             .item()
             .build()
             .register();
