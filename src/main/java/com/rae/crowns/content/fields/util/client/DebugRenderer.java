@@ -9,14 +9,12 @@ import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.SectionPos;
-import net.minecraft.network.chat.Style;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.AABB;
@@ -25,13 +23,14 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@NonnullDefault
 @EventBusSubscriber(value = Dist.CLIENT)
 public class DebugRenderer {
 
@@ -42,7 +41,7 @@ public class DebugRenderer {
     private static @Nullable BlockPos                   lastPlayerPos         = null;
 
     @SubscribeEvent
-    public static void onRenderWorld(@NotNull RenderLevelStageEvent event) {
+    public static void onRenderWorld(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
 
         Minecraft mc = Minecraft.getInstance();
@@ -67,7 +66,7 @@ public class DebugRenderer {
 
     }
 
-    private static void pruneCacheIfPlayerMoved(@NotNull BlockPos playerPos) {
+    private static void pruneCacheIfPlayerMoved(BlockPos playerPos) {
         if (lastPlayerPos == null) {
             lastPlayerPos = playerPos;
             return;
@@ -79,7 +78,7 @@ public class DebugRenderer {
         }
     }
 
-    private static void renderTickingSectionsAABB(@NotNull PoseStack poseStack, @NotNull Vec3 cameraPos, float pt) {
+    private static void renderTickingSectionsAABB(PoseStack poseStack, Vec3 cameraPos, float pt) {
         SuperRenderTypeBuffer buffer = DefaultSuperRenderTypeBuffer.getInstance();
 
 
@@ -101,7 +100,7 @@ public class DebugRenderer {
         buffer.draw();
     }
 
-    private static void renderTemperatureText(@NotNull Level level, @NotNull Font font, @NotNull PoseStack poseStack, @NotNull BlockPos playerPos) {
+    private static void renderTemperatureText(Level level, Font font, PoseStack poseStack, BlockPos playerPos) {
         float     threshold = CROWNSConfigs.CLIENT.visualisationThreshold.getF();
         Minecraft mc        = Minecraft.getInstance();
         Vec3      cam       = mc.gameRenderer.getMainCamera().getPosition();
@@ -137,13 +136,6 @@ public class DebugRenderer {
                 }
             }
         }
-
-        if (buffer instanceof MultiBufferSource.BufferSource) {
-            /*BakedGlyph texturedGlyph = font.getFontSet(Style.DEFAULT_FONT)
-                    .whiteGlyph();*/
-            //buffer.endBatch(texturedGlyph.renderType(Font.DisplayMode.NORMAL));
-            //buffer.endBatch();
-        }
     }
 
     private static int temperatureToColor(float temperature) {
@@ -154,8 +146,8 @@ public class DebugRenderer {
         return (0xFF << 24) | (r << 16) | (g << 8) | b; // ← added alpha
     }
 
-    private static void renderFloatingText(@NotNull PoseStack poseStack, @NotNull Font font,float width, @NotNull String text,
-                                           @NotNull Vec3 worldPos, int color, @NotNull Vec3 cam, @NotNull Minecraft mc,
+    private static void renderFloatingText(PoseStack poseStack, Font font, float width, String text,
+                                           Vec3 worldPos, int color, Vec3 cam, Minecraft mc,
                                            MultiBufferSource.BufferSource buffer) {
         double dx = worldPos.x - cam.x;
         double dy = worldPos.y - cam.y;

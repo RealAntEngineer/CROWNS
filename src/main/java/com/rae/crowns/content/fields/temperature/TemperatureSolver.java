@@ -4,14 +4,13 @@ import com.rae.crowns.content.fields.util.AbstractDataLayer;
 import com.rae.crowns.content.fields.util.AbstractMatrixPhysicsSolver;
 import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
+import com.rae.formicapi.fondation.math.operators.PaddedCSRMatrix;
 import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.NonnullDefault;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 

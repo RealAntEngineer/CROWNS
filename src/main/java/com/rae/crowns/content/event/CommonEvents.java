@@ -23,11 +23,12 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+@NonnullDefault
 @EventBusSubscriber
 public class CommonEvents {
 
@@ -37,12 +38,12 @@ public class CommonEvents {
     }
 
     @SubscribeEvent
-    public static void registerCommands(@NotNull RegisterCommandsEvent event) {
+    public static void registerCommands(RegisterCommandsEvent event) {
         CommandsInit.register(event.getDispatcher());
     }
 
     @SubscribeEvent
-    public static void onEntityTick(@NotNull EntityTickEvent.Pre event) {
+    public static void onEntityTick(EntityTickEvent.Pre event) {
         Entity entity = event.getEntity();
         //inflict temperature damage
         if (entity.level() instanceof ServerLevel level && entity instanceof LivingEntity && CROWNSConfigs.SERVER.thermal.heatDamage.get()) {
@@ -72,7 +73,7 @@ public class CommonEvents {
         }
     }
 
-    private static float getTemperature(@Nullable TemperatureDataLayer layer, @NotNull Vec3i pos) {
+    private static float getTemperature(@Nullable TemperatureDataLayer layer, Vec3i pos) {
 
         if (layer == null) return 300;
 

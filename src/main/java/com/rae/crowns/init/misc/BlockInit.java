@@ -61,7 +61,7 @@ public class BlockInit {
     public static final BlockEntry<MBStructureBlock> TURBINE_STAGE_STRUCTURE =
             REGISTRATE.block("turbine_stage_structure", MBStructureBlock::new)
                     .initialProperties(SharedProperties::softMetal)
-                    .properties(BlockBehaviour.Properties::noOcclusion)
+                    .properties(p -> p.noOcclusion().isViewBlocking( ($1, $2, $3) -> false))
                     .item()
                     .build()
                     .register();
@@ -69,7 +69,7 @@ public class BlockInit {
     public static final BlockEntry<TurbineStageBlock> TURBINE_STAGE =
             REGISTRATE.block("turbine_stage", (p) -> new TurbineStageBlock(p, TURBINE_STAGE_STRUCTURE.get()))
                     .initialProperties(SharedProperties::softMetal)
-                    .properties(BlockBehaviour.Properties::noOcclusion)
+                    .properties(p -> p.noOcclusion().isViewBlocking( ($1, $2, $3) -> false))
                     .item(MBItem::new)
                     .build()
                     .register();

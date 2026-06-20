@@ -50,14 +50,23 @@ public class TurbineStageBlock extends MBKineticController implements IBE<Turbin
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        //TODO reduce repetition
         if (stack.is(ItemInit.TURBINE_CASING.asItem()) && !state.getValue(CASING)) {
-            level.setBlock(pos, state.setValue(CASING, true), 3);
-            if (!player.isCreative())
-                stack.shrink(1);
-            return ItemInteractionResult.SUCCESS;
+            BlockState newState = state.setValue(CASING, true);
+            if (hasSpace(level, newState, pos, true)) {
+                level.setBlock(pos, newState, 3);
+                repairStructure(level, newState, pos, state.getValue(FACING));
+
+                if (!player.isCreative())
+                    stack.shrink(1);
+                return ItemInteractionResult.SUCCESS;
+            }
         }
         if (stack.isEmpty() && state.getValue(CASING)) {
-            level.setBlock(pos, state.setValue(CASING, false), 3);
+            BlockState newState = state.setValue(CASING, false);
+            //it shrinks so no need to check for the shape.
+            level.setBlock(pos, newState, 3);
+            repairStructure(level, newState, pos, state.getValue(FACING));
             if (!player.isCreative())
                 player.getInventory().setPickedItem(ItemInit.TURBINE_CASING.asStack(1));
             return ItemInteractionResult.SUCCESS;
@@ -71,28 +80,25 @@ public class TurbineStageBlock extends MBKineticController implements IBE<Turbin
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return Shapes.join(getGlobalShape(state, level, pos, context), Shapes.block(), BooleanOp.AND);
-    }
-
-    @Override
     public boolean propagatesSkylightDown(BlockState pState, BlockGetter pReader, BlockPos pPos) {
         return true;
     }
 
     @Override
     public VoxelShape getGlobalShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
-        return state.hasProperty(CASING) && state.getValue(CASING) ? ShapesInit.TURBINE.get(state.getValue(FACING)) : Shapes.block();
+        return state.hasProperty(CASING) && state.getValue(CASING) ?
+                ShapesInit.TURBINE.get(state.getValue(FACING)) :
+                Shapes.join(ShapesInit.TURBINE.get(state.getValue(FACING)), Shapes.block(), BooleanOp.AND);
     }
 
     @Override
-    public Vec3i getDefaultOffset() {
-        return new Vec3i(0, 1, 1);
+    public Vec3i getDefaultOffset(BlockState state) {
+        return state.hasProperty(CASING) && state.getValue(CASING) ? new Vec3i(0, 1, 1) : new Vec3i(0, 0, 0);
     }
 
     @Override
-    public Vec3i getDefaultSize() {
-        return new Vec3i(1, 3, 3);
+    public Vec3i getDefaultSize(BlockState state) {
+        return state.hasProperty(CASING) && state.getValue(CASING) ? new Vec3i(1, 3, 3) : new Vec3i(1, 1, 1);
     }
 
     @Override

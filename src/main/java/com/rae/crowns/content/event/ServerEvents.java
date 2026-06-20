@@ -21,9 +21,6 @@ import org.jetbrains.annotations.NotNull;
 
 @EventBusSubscriber(modid = CROWNS.MODID)
 public class ServerEvents {
-    //todo wrong place to put this
-    //public static HashMap<AssemblyBlockEntity, BlockPos> assemblies = new HashMap<>();
-
 
     @SubscribeEvent
     public static void onPlayerJoin(@NotNull PlayerEvent.PlayerLoggedInEvent event) {

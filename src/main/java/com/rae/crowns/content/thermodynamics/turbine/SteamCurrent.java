@@ -471,8 +471,12 @@ public class SteamCurrent {
                     break;
                 } else {
                     BlockPos    controller       = MBStructureBlock.getMaster(world, currentPos);
+                    if (controller == null) continue;
                     BlockEntity controllerEntity = world.getChunkAt(controller).getBlockEntity(controller);
-                    if (controllerEntity instanceof TurbineStageBlockEntity) {
+                    BlockState controllerState = world.getBlockState(controller);
+                    if (controllerEntity instanceof TurbineStageBlockEntity
+                            && controllerState.hasProperty(DirectionalBlock.FACING)
+                            && controllerState.is(BlockInit.TURBINE_STAGE)) {
                         Direction controllerFacing = world.getBlockState(controller).getValue(DirectionalBlock.FACING);
                         if (facing.getAxis() == controllerFacing.getAxis()) {
                             foundStages.add(controller);
