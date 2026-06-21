@@ -1,6 +1,5 @@
 package com.rae.crowns.content.event;
 
-import com.rae.crowns.CROWNS;
 import com.rae.crowns.content.fields.util.PhysicThread;
 import com.rae.crowns.content.nuclear.IAmFissileMaterial;
 import com.rae.crowns.content.sound.CrownsSoundScapes;
@@ -16,19 +15,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.NonnullDefault;
 
 import java.util.List;
 
 @NonnullDefault
-@EventBusSubscriber(modid = CROWNS.MODID)
+@EventBusSubscriber(Dist.CLIENT)
 public class ClientEvents {
 
     @SubscribeEvent
