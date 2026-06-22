@@ -4,6 +4,7 @@ import com.rae.crowns.content.fields.util.AbstractDataLayer;
 import com.rae.crowns.content.fields.util.AbstractMatrixPhysicsSolver;
 import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
+import com.rae.formicapi.fondation.math.operators.PaddedCSRMatrix;
 import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
