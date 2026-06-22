@@ -7,10 +7,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
-import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.Map;
 
+@NonnullDefault
 public class UpdateSectionsPacket extends SimplePacketBase {
     private final Map<SectionPos, TemperatureDataLayer> temperatureMap;
 
@@ -20,7 +21,7 @@ public class UpdateSectionsPacket extends SimplePacketBase {
 
     }
 
-    public UpdateSectionsPacket(@NotNull FriendlyByteBuf buffer) {
+    public UpdateSectionsPacket(FriendlyByteBuf buffer) {
         // decode
         this.temperatureMap = buffer.readMap(
                 buf -> SectionPos.of(buf.readLong()),                // key reader
@@ -29,7 +30,7 @@ public class UpdateSectionsPacket extends SimplePacketBase {
     }
 
     @Override
-    public void write(@NotNull FriendlyByteBuf buffer) {
+    public void write(FriendlyByteBuf buffer) {
         buffer.writeMap(
                 temperatureMap,
                 (buf, pos) -> buf.writeLong(pos.asLong()),           // key writer
@@ -38,7 +39,7 @@ public class UpdateSectionsPacket extends SimplePacketBase {
     }
 
     @Override
-    public boolean handle(NetworkEvent.@NotNull Context context) {
+    public boolean handle(NetworkEvent.Context context) {
         context.enqueueWork(() -> {
             if (context.getDirection().getReceptionSide().isClient()) {
                 Minecraft mc = Minecraft.getInstance();

@@ -1,5 +1,6 @@
-# Made in Blockbench 4.12.4
-newmtl blade
-map_Kd #blade
-newmtl core
+# Made in Blockbench 4.12.6
+newmtl m_e2a00482-9177-2adc-1760-7d112da4187b
 map_Kd #core
+newmtl m_64554d13-de1f-a5db-eee1-69d4575050f6
+map_Kd #blade
+newmtl #none

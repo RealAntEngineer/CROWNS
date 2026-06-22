@@ -17,7 +17,6 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
 
@@ -40,7 +39,7 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onEntityTick(LivingEvent.LivingTickEvent event) {
         LivingEntity entity = event.getEntity();
-        if (entity.level() instanceof ServerLevel level && CROWNSConfigs.SERVER.conduction.heatDamage.get()) {
+        if (entity.level() instanceof ServerLevel level && CROWNSConfigs.SERVER.thermal.heatDamage.get()) {
             PhysicsWorldData data = PhysicsSaveManager.get((ServerLevel) entity.level());
             if (data == null) return;
             AtomicReference<Float>   cumlTemp      = new AtomicReference<>(0f);

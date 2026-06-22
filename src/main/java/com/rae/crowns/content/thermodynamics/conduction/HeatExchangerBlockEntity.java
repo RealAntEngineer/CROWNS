@@ -100,7 +100,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             //if not loaded we keep the same temperature.
             //internal conduction
             float  dt = 1 / 20f;
-            double k  = getInternalConductivity() / getThermalCapacity() * CROWNSConfigs.SERVER.conduction.heatExchangerIterations.get();
+            double k  = getInternalConductivity() / getThermalCapacity() * CROWNSConfigs.SERVER.thermal.heatExchangerIterations.get();
             if (!WATER_TANK.isEmpty()) {//we don't heat it if empty
                 int iteration = Math.max(1, (int) k * 1000 / WATER_TANK.getFluidAmount());
                 for (int i = 0; i < iteration; i++) {
@@ -141,7 +141,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
     }
 
     public float getInternalConductivity() {
-        return CROWNSConfigs.SERVER.conduction.heatExchangerInternal.getF();
+        return CROWNSConfigs.SERVER.thermal.heatExchangerInternal.getF();
     }
 
     @Override
@@ -151,7 +151,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
     @Override
     public float getThermalConductivity() {
-        return CROWNSConfigs.SERVER.conduction.heatExchangerExternal.getF();
+        return CROWNSConfigs.SERVER.thermal.heatExchangerExternal.getF();
     }
 
     @Override
@@ -253,7 +253,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
             double k = exchanger.getInternalConductivity()
                     / exchanger.getThermalCapacity()
-                    * CROWNSConfigs.SERVER.conduction.heatExchangerIterations.get();
+                    * CROWNSConfigs.SERVER.thermal.heatExchangerIterations.get();
 
             int fluidAmount = heated.getAmount();
             int iteration   = Math.max(1, (int) (k * 1000 / fluidAmount));

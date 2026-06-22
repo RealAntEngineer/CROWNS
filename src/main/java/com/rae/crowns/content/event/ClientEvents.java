@@ -1,5 +1,6 @@
 package com.rae.crowns.content.event;
 
+import com.rae.crowns.content.fields.util.PhysicThread;
 import com.rae.crowns.content.nuclear.IAmFissileMaterial;
 import com.rae.crowns.content.sound.CrownsSoundScapes;
 import com.rae.crowns.content.thermodynamics.turbine.SteamFlowManager;
@@ -17,25 +18,37 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.List;
 
+@NonnullDefault
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class ClientEvents {
 
     @SubscribeEvent
-    public static void onTick(TickEvent.@NotNull ClientTickEvent event) {
+    public static void onTick(TickEvent.ClientTickEvent event) {
         if (!isGameActive())
             return;
 
         Level world = Minecraft.getInstance().level;
-        assert world != null;
-        if (event.phase == TickEvent.Phase.START) {
+        if (world == null) return;
+        if (event.phase != TickEvent.Phase.END) {
             return;
         }
 
         CrownsSoundScapes.tick();
         SteamFlowManager.tick(world);
+
+        PhysicThread thread = PhysicThread.getInstance();
+
+        if (thread == null) return;
+
+        boolean isPaused = Minecraft.getInstance().isPaused();
+        if (isPaused != thread.isPaused()) {
+            if (isPaused) thread.pause();
+            else thread.unpause();
+        }
     }
 
     protected static boolean isGameActive() {
@@ -43,7 +56,7 @@ public class ClientEvents {
     }
 
     @SubscribeEvent
-    public static void addToItemTooltip(@NotNull ItemTooltipEvent event) {
+    public static void addToItemTooltip(ItemTooltipEvent event) {
         if (event.getEntity() == null)
             return;
 
@@ -63,5 +76,4 @@ public class ClientEvents {
         }
 
     }
-
 }

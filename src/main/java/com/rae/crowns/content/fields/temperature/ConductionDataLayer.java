@@ -38,6 +38,7 @@ public class ConductionDataLayer extends AbstractDataLayer {
     public float getDirect(short idx) {
         return values[idx];
     }
+
     @Override
     public void setDirect(short idx, float value) {
         encode(idx, value);

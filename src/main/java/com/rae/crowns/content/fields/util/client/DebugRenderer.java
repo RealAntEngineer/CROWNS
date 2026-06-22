@@ -21,12 +21,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@NonnullDefault
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class DebugRenderer {
 
@@ -37,7 +38,7 @@ public class DebugRenderer {
     private static @Nullable BlockPos                   lastPlayerPos         = null;
 
     @SubscribeEvent
-    public static void onRenderWorld(@NotNull RenderLevelStageEvent event) {
+    public static void onRenderWorld(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
 
         Minecraft mc = Minecraft.getInstance();
@@ -62,7 +63,7 @@ public class DebugRenderer {
 
     }
 
-    private static void pruneCacheIfPlayerMoved(@NotNull BlockPos playerPos) {
+    private static void pruneCacheIfPlayerMoved(BlockPos playerPos) {
         if (lastPlayerPos == null) {
             lastPlayerPos = playerPos;
             return;
@@ -74,7 +75,7 @@ public class DebugRenderer {
         }
     }
 
-    private static void renderTickingSectionsAABB(@NotNull PoseStack poseStack, @NotNull Vec3 cameraPos, float pt) {
+    private static void renderTickingSectionsAABB(PoseStack poseStack, Vec3 cameraPos, float pt) {
         SuperRenderTypeBuffer buffer = DefaultSuperRenderTypeBuffer.getInstance();
 
 
@@ -96,7 +97,7 @@ public class DebugRenderer {
         buffer.draw();
     }
 
-    private static void renderTemperatureText(@NotNull Level level, @NotNull Font font, @NotNull PoseStack poseStack, @NotNull BlockPos playerPos) {
+    private static void renderTemperatureText(Level level, Font font, PoseStack poseStack, BlockPos playerPos) {
         float     threshold = CROWNSConfigs.CLIENT.visualisationThreshold.getF();
         Minecraft mc        = Minecraft.getInstance();
         Vec3      cam       = mc.gameRenderer.getMainCamera().getPosition();
@@ -139,7 +140,7 @@ public class DebugRenderer {
         return (r << 16) | (g << 8) | b;
     }
 
-    private static void renderFloatingText(@NotNull PoseStack poseStack, @NotNull Font font, @NotNull String text, @NotNull Vec3 worldPos, int color, @NotNull Vec3 cam, @NotNull Minecraft mc) {
+    private static void renderFloatingText(PoseStack poseStack, Font font, String text, Vec3 worldPos, int color, Vec3 cam, Minecraft mc) {
         double dx = worldPos.x - cam.x;
         double dy = worldPos.y - cam.y;
         double dz = worldPos.z - cam.z;

@@ -304,7 +304,7 @@ public class AssemblyBlockEntity extends SmartBlockEntity implements IHaveTemper
 
     @Override
     public float getThermalConductivity() {
-        return CROWNSConfigs.SERVER.conduction.assemblyBlock.getF();
+        return CROWNSConfigs.SERVER.thermal.assemblyBlock.getF();
     }
 
     @Override
