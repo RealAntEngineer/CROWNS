@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "crowns:block/gold_rod",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "crowns:block/gold_rod"
+    },
+    "axis=z": {
+      "model": "crowns:block/gold_rod",
+      "x": 90
+    }
+  }
+}

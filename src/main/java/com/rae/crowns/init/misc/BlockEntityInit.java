@@ -1,6 +1,9 @@
 package com.rae.crowns.init.misc;
 
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlockEntity;
+import com.rae.crowns.content.nuclear.rod.GraphiteSleeveBlockEntity;
+import com.rae.crowns.content.nuclear.rod.RodBlockEntity;
+import com.rae.crowns.content.nuclear.rod.RodDriverBlockEntity;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlockEntity;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorRenderer;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlockEntity;
@@ -16,8 +19,25 @@ import com.tterrag.registrate.util.entry.BlockEntityEntry;
 
 import static com.rae.crowns.CROWNS.REGISTRATE;
 
-@SuppressWarnings("ALL")
+@SuppressWarnings("unused")
 public class BlockEntityInit {
+
+    public static final BlockEntityEntry<RodBlockEntity> REACTOR_ROD = REGISTRATE.blockEntity(
+            "reactor_rod", RodBlockEntity::new)
+            .validBlocks(BlockInit.GRAPHITE_ROD, BlockInit.BORON_ROD)
+            .register();
+
+    public static final BlockEntityEntry<RodDriverBlockEntity> REACTOR_ROD_DRIVER = REGISTRATE.blockEntity(
+            "reactor_rod_driver", RodDriverBlockEntity::new)
+            .validBlock(BlockInit.ROD_DRIVER)
+            .register();
+
+    public static final BlockEntityEntry<GraphiteSleeveBlockEntity> GRAPHITE_SLEEVE = REGISTRATE.blockEntity(
+                    "graphite_sleeve", GraphiteSleeveBlockEntity::new)
+            .validBlock(BlockInit.GRAPHITE_SLEEVE)
+            .register();
+
+
     public static final BlockEntityEntry<AssemblyBlockEntity> FUEL_ASSEMBLY = REGISTRATE
             .blockEntity("fuel_assembly", AssemblyBlockEntity::new)
             .validBlock(BlockInit.FUEL_ASSEMBLY)
@@ -55,5 +75,4 @@ public class BlockEntityInit {
 
     public static void register() {
     }
-
 }

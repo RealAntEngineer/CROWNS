@@ -1,0 +1,70 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Model generated using MrCrayfish's Model Creator (http://mrcrayfish.com/modelcreator/)",
+	"parent": "block/block",
+	"textures": {
+		"1": "create:block/piston_bottom",
+		"2": "create:block/gearbox",
+		"4": "create:block/andesite_casing"
+	},
+	"elements": [
+		{
+			"name": "Bottom",
+			"from": [0, 0, 0],
+			"to": [16, 2, 16],
+			"faces": {
+				"north": {"uv": [0, 14, 16, 16], "texture": "#4"},
+				"east": {"uv": [0, 14, 16, 16], "texture": "#4"},
+				"south": {"uv": [0, 14, 16, 16], "texture": "#4"},
+				"west": {"uv": [0, 14, 16, 16], "texture": "#4"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#4"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#1"}
+			}
+		},
+		{
+			"name": "Inner",
+			"from": [2, 2, 0.95],
+			"to": [14, 14, 15.05],
+			"faces": {
+				"north": {"uv": [2, 2, 14, 14], "texture": "#2"},
+				"south": {"uv": [2, 2, 14, 14], "texture": "#2"}
+			}
+		},
+		{
+			"name": "Side",
+			"from": [0, 2, 0],
+			"to": [2, 14, 16],
+			"faces": {
+				"north": {"uv": [14, 2, 16, 14], "texture": "#4"},
+				"east": {"uv": [0, 2, 16, 14], "texture": "#4"},
+				"south": {"uv": [0, 2, 2, 14], "texture": "#4"},
+				"west": {"uv": [0, 2, 16, 14], "texture": "#4"}
+			}
+		},
+		{
+			"name": "Side2",
+			"from": [14, 2, 0],
+			"to": [16, 14, 16],
+			"faces": {
+				"north": {"uv": [0, 2, 2, 14], "texture": "#4"},
+				"east": {"uv": [0, 2, 16, 14], "texture": "#4"},
+				"south": {"uv": [14, 2, 16, 14], "texture": "#4"},
+				"west": {"uv": [0, 2, 16, 14], "texture": "#4"}
+			}
+		},
+		{
+			"name": "Bottom",
+			"from": [0, 14, 0],
+			"to": [16, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 16, 0]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 2], "texture": "#4"},
+				"east": {"uv": [0, 0, 16, 2], "texture": "#4"},
+				"south": {"uv": [0, 0, 16, 2], "texture": "#4"},
+				"west": {"uv": [0, 0, 16, 2], "texture": "#4"},
+				"up": {"uv": [0, 16, 16, 0], "texture": "#1"},
+				"down": {"uv": [0, 16, 16, 0], "texture": "#4"}
+			}
+		}
+	]
+}

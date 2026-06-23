@@ -8,12 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 import java.util.Arrays;
 
 public class PhysicThread extends Thread {
-
-    // ── Stats ────────────────────────────────────────────────────────────────
-
     private static   PhysicThread      INSTANCE;
-
-    // ── PhysicThread ─────────────────────────────────────────────────────────
     /**
      * Capacity: at 20 TPS that's 1 200 ticks/minute — give a comfortable margin.
      * Adjust if your TPS is much higher.
@@ -24,10 +19,33 @@ public class PhysicThread extends Thread {
     private volatile boolean           running    = true;
     private          int               tickCounter;
 
+    private volatile boolean paused        = false;
+    private volatile boolean resetTickClock = false;
+    private final    Object  pauseLock      = new Object();
+
     public PhysicThread(double ticksPerSecond) {
         this.intervalNs = (long) (1_000_000_000D / ticksPerSecond);
         setName("Physics-Thread");
         setDaemon(true);
+    }
+
+    public void pause() {
+        synchronized (pauseLock) {
+            paused = true;
+        }
+    }
+
+    public void unpause() {
+        synchronized (pauseLock) {
+            if (!paused) return;
+            paused = false;
+            resetTickClock = true; // avoid a catch-up burst after a long pause
+            pauseLock.notifyAll();
+        }
+    }
+
+    public boolean isPaused() {
+        return paused;
     }
 
     public static void launchPhysicThread(double tps) {
@@ -45,15 +63,31 @@ public class PhysicThread extends Thread {
     }
 
     @Override
+    @SuppressWarnings("BusyWait")
     public void run() {
         long nextTickTime = System.nanoTime();
         tempSolver.setTimeStep(TemperatureSolver.DT);
 
         while (running) {
+            synchronized (pauseLock) {
+                while (paused && running) {
+                    try {
+                        pauseLock.wait();
+                    } catch (InterruptedException ignored) {
+                        if (!running) return;
+                    }
+                }
+                if (resetTickClock) {
+                    nextTickTime = System.nanoTime();
+                    resetTickClock = false;
+                }
+            }
+
             long now = System.nanoTime();
 
-            // If we're behind, catch up as fast as possible
-            while (now >= nextTickTime) {
+            // If we're behind, catch up as fast as possible — but bail out
+            // immediately if a pause comes in mid-burst.
+            while (now >= nextTickTime && !paused) {
                 long tickStart = System.nanoTime();
 
                 for (ServerLevel serverLevel : PhysicsSaveManager.getServers()) {
@@ -67,11 +101,6 @@ public class PhysicThread extends Thread {
                 tempSolver.setTimeStep((float) (tickDuration / 1_000_000_000D));
 
                 now = System.nanoTime();
-            }
-
-            // Log stats every 20 ticks instead of per-tick println
-            if (tickCounter % 20 == 0) {
-                //System.out.println(stats.summary());
             }
 
             long sleepTime = nextTickTime - now;
@@ -211,7 +240,5 @@ public class PhysicThread extends Thread {
             double toMs = 1e-6;
             return new double[]{mean * toMs, min * toMs, max * toMs, median * toMs, stddev * toMs};
         }
-
-
     }
 }

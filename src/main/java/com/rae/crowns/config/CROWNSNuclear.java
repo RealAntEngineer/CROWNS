@@ -8,7 +8,7 @@ import org.lwjgl.system.NonnullDefault;
 @NonnullDefault
 public class CROWNSNuclear extends ConfigBase {
 
-    public final ConfigBase.ConfigBool  explosion                = b(true, "explosion", Comments.explosion);
+    public final ConfigBase.ConfigBool  explosion                = b(false, "explosion", Comments.explosion);
     public final ConfigBase.ConfigFloat radiationRange           = f(4, 0, "radiationRange", Comments.radiationRange);
     public final ConfigBase.ConfigFloat neutronFluxMultiplicator = f(0.8f, 0, "neutronFluxMultiplicator", Comments.neutronFluxMultiplicator);
     public final ConfigBase.ConfigFloat negativeThermalCoef      = f(0.0075f, 0, "negativeThermalCoef", Comments.negativeThermalCoef);

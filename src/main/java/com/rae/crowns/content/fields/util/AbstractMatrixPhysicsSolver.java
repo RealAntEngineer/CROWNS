@@ -1,7 +1,9 @@
 package com.rae.crowns.content.fields.util;
 
-import com.rae.crowns.content.fields.temperature.PaddedCSRMatrix;
 import com.rae.formicapi.fondation.math.operators.HashSparseMatrix;
+import com.rae.formicapi.fondation.math.operators.PaddedCSRMatrix;
+import com.rae.formicapi.fondation.math.solvers.ConjugateGradient;
+import com.rae.formicapi.fondation.math.solvers.LeastSquare;
 import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -23,7 +25,7 @@ import java.util.List;
  * <p>Assembly uses {@link PaddedCSRMatrix} — a flat-array sparse matrix with a fixed
  * slot count per row and no HashMap. Rows are overwritten in-place on dirty updates via
  * {@link #buildSectionRows} and individual voxel updates via {@link #stampVoxels}.
- * The matrix is passed directly to {@link ConjugateGradient2} each tick — no CSR
+ * The matrix is passed directly to {@link ConjugateGradient} each tick — no CSR
  * compilation step needed.
  *
  * <p>Section lifecycle:
@@ -127,7 +129,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
 
         extractFieldValues(physicsMatrix, data);
 
-        double[] solution = ConjugateGradient2.solve(
+        double[] solution = ConjugateGradient.solve(
                 physicsMatrix.assemblyMatrix(),
                 physicsMatrix.getInitX(),          // warm start from previous tick, solution written in-place
                 buildRhs(physicsMatrix),
@@ -568,7 +570,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
          *   <li>{@code cgTemp} — intermediate A·p,     length = size</li>
          * </ul>
          * <p>
-         * Pass these to {@link ConjugateGradient2#solve} via the overload that accepts
+         * Pass these to {@link LeastSquare#solve} via the overload that accepts
          * pre-allocated working buffers.
          */
         double[] cgR;

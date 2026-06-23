@@ -2,6 +2,9 @@ package com.rae.crowns.init.misc;
 
 import com.rae.crowns.content.nuclear.corium.SolidCoriumBlock;
 import com.rae.crowns.content.nuclear.fuel_assembly.AssemblyBlock;
+import com.rae.crowns.content.nuclear.rod.GraphiteSleeveBlock;
+import com.rae.crowns.content.nuclear.rod.RodBlock;
+import com.rae.crowns.content.nuclear.rod.RodDriverBlock;
 import com.rae.crowns.content.nuclear.uranium.UraniumOreBlock;
 import com.rae.crowns.content.thermodynamics.compressor.CompressorBlock;
 import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
@@ -10,6 +13,8 @@ import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlock;
 import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
 import com.rae.formicapi.content.multiblock.MBItem;
 import com.rae.formicapi.content.multiblock.MBStructureBlock;
+import com.simibubi.create.Create;
+import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import net.minecraft.world.level.block.Blocks;
@@ -22,16 +27,45 @@ import java.util.function.ToIntFunction;
 
 import static com.rae.crowns.CROWNS.REGISTRATE;
 import static com.simibubi.create.api.behaviour.display.DisplaySource.displaySource;
+import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
+import static com.simibubi.create.foundation.data.TagGen.axeOrPickaxe;
 
-@SuppressWarnings("ALL")
+@SuppressWarnings("unused")
 public class BlockInit {
 
-    //to do list -> uranium ore (enrichment ?) + plutonium (created from 235) + depletion of fuel
-    // control bar
-    // thermal exchanger pipe ( entry, exit and middle : fluid tanks on both side entry and exit -> flow rate ? pressure loss ?)
+    public static final BlockEntry<RodBlock> BORON_ROD = REGISTRATE.block(
+            "boron_rod", p -> new RodBlock(p, 0.5f, 0.0f, 0.0f))
+            .initialProperties(SharedProperties::softMetal)
+            .properties(p -> p.noOcclusion().dynamicShape())
+            .item()
+            .build()
+            .register();
 
-    // turbine contraption ? -> turbine blade model + entry and exit ports
-    // compressor ?
+    public static final BlockEntry<RodBlock> GRAPHITE_ROD = REGISTRATE.block(
+                    "graphite_rod", p -> new RodBlock(p, 0.1f, 0.8f, 0.0f))
+            .initialProperties(SharedProperties::softMetal)
+            .properties(p -> p.noOcclusion().dynamicShape())
+            .item()
+            .build()
+            .register();
+
+    public static final BlockEntry<RodDriverBlock> ROD_DRIVER = REGISTRATE.block(
+            "rod_driver", RodDriverBlock::new)
+            .initialProperties(SharedProperties::softMetal)
+            .transform(axeOrPickaxe())
+            .blockstate(BlockStateGen.directionalAxisBlockProvider())
+            .item()
+            .model((c, p) ->
+                    p.withExistingParent(c.getName(), c.getName()))
+            .build()
+            .register();
+
+    public static final BlockEntry<GraphiteSleeveBlock> GRAPHITE_SLEEVE = REGISTRATE.block(
+            "graphite_sleeve", GraphiteSleeveBlock::new)
+            .initialProperties(SharedProperties::wooden)
+            .item()
+            .build()
+            .register();
 
     public static final BlockEntry<HeatExchangerBlock> HEAT_EXCHANGER = REGISTRATE
             .block("heat_exchanger", HeatExchangerBlock::new)
@@ -61,7 +95,7 @@ public class BlockInit {
     public static final BlockEntry<MBStructureBlock> TURBINE_STAGE_STRUCTURE =
             REGISTRATE.block("turbine_stage_structure", MBStructureBlock::new)
                     .initialProperties(SharedProperties::softMetal)
-                    .properties(BlockBehaviour.Properties::noOcclusion)
+                    .properties(p -> p.noOcclusion().isViewBlocking( ($1, $2, $3) -> false))
                     .item()
                     .build()
                     .register();
@@ -69,7 +103,7 @@ public class BlockInit {
     public static final BlockEntry<TurbineStageBlock> TURBINE_STAGE =
             REGISTRATE.block("turbine_stage", (p) -> new TurbineStageBlock(p, TURBINE_STAGE_STRUCTURE.get()))
                     .initialProperties(SharedProperties::softMetal)
-                    .properties(BlockBehaviour.Properties::noOcclusion)
+                    .properties(p -> p.noOcclusion().isViewBlocking( ($1, $2, $3) -> false))
                     .item(MBItem::new)
                     .build()
                     .register();
@@ -137,5 +171,4 @@ public class BlockInit {
 
     public static void register() {
     }
-
 }
