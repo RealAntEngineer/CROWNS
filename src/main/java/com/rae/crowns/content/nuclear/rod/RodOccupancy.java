@@ -72,21 +72,21 @@ public class RodOccupancy {
     public float getAbsorption() {
         float sum = 0;
         for (Entry entry : entries)
-            sum += entry.block.getAbsorption() * entry.amount;
+            sum += entry.block.getMaterialAbsorption() * entry.amount;
         return sum;
     }
 
     public float getModeration() {
         float sum = 0;
         for (Entry entry : entries)
-            sum += entry.block.getModeration() * entry.amount;
+            sum += entry.block.getMaterialModeration() * entry.amount;
         return sum;
     }
 
     public float getReflection() {
         float sum = 0;
         for (Entry entry : entries)
-            sum += entry.block.getReflection() * entry.amount;
+            sum += entry.block.getMaterialReflection() * entry.amount;
         return sum;
     }
 

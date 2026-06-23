@@ -83,21 +83,21 @@ public class RodBlock extends RotatedPillarBlock implements ProperWaterloggedBlo
     /**
      * @return the fraction of incoming radiation this rod absorbs, per meter of rod.
      */
-    public float getAbsorption() {
+    public float getMaterialAbsorption() {
         return absorption;
     }
 
     /**
      * @return the fraction of incoming radiation this rod moderates, per meter of rod.
      */
-    public float getModeration() {
+    public float getMaterialModeration() {
         return moderation;
     }
 
     /**
      * @return the fraction of incoming radiation this rod reflects, per meter of rod.
      */
-    public float getReflection() {
+    public float getMaterialReflection() {
         return reflection;
     }
 }

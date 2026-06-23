@@ -1,6 +1,7 @@
 package com.rae.crowns.content.nuclear.rod;
 
 import net.minecraft.core.Direction;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Interfaces for block able to hold a rod through them, the block entity will be responsible for storing what the rod is,
@@ -9,33 +10,11 @@ import net.minecraft.core.Direction;
 public interface IRodContainerBlockEntity {
 
     /**
-     * insert a new rod into the block at the specified offset
-     * @param facing : The face from which it's inserted
-     * @param offset : The position relative to us, it's trying to reach
-     * @return true if it managed to insert the rod, false if it failed (collided)
-     */
-    default boolean canInsertRod(Direction facing, float offset) {
-        //TODO maybe it's better if the offset reference is in the block from which we insert
-        if (getBlockContained() == null) return true;
-        Direction.AxisDirection direction = facing.getAxisDirection();
-        Direction.Axis axis = facing.getAxis();
-        if (axis != getAxis()) return false;
-
-        return direction == Direction.AxisDirection.NEGATIVE ? (getOffset() - 1) > offset : (getOffset() + 1) < offset;
-
-    }
-
-    Direction.Axis getAxis();
-
-    boolean tryInsertRod(RodBlock block, Direction.Axis axis, float newOffset);
-
-    void setRod(RodBlock rod);
-
-    void setOffset(float offset);
-    /**
      * @return The Rod contained, null if none
      */
-    RodBlock getBlockContained();
+    @Nullable RodBlock getBlockContained();
+
+    Direction.Axis getAxis();
 
     /**
      *
@@ -43,7 +22,46 @@ public interface IRodContainerBlockEntity {
      */
     float getOffset();
 
+    void setOffset(float offset);
+
+    /**
+     *
+     * @param rod The rod inserted
+     * @param facing The face from which it's inserted
+     * @param newOffset The offset relative to us
+     * @return The result
+     */
+    default InsertionResult tryInsertRod(RodBlock rod, Direction facing, float newOffset) {
+        if (getBlockContained() == null) {
+            boolean shouldRemoveBlock = newOffset < 0.5 && newOffset > -0.5;
+            if (shouldRemoveBlock) setRod(rod);
+            return new InsertionResult(shouldRemoveBlock, newOffset);
+        }
+
+        Direction.AxisDirection direction = facing.getAxisDirection();
+        Direction.Axis          axis      = facing.getAxis();
+        if (axis != getAxis())
+            return new InsertionResult(false, direction == Direction.AxisDirection.NEGATIVE ? -1 : 1);
+
+        //First clamp to the maximum
+        float clampedOffset;
+        if (direction == Direction.AxisDirection.NEGATIVE){
+            clampedOffset = Math.min(getOffset() - 1, newOffset);
+        } else {
+            clampedOffset = Math.max(getOffset() + 1, newOffset);
+        }
+
+        if (clampedOffset < 0.5 && clampedOffset > -0.5) {
+            return new InsertionResult(true, clampedOffset);
+        } else {
+            return new InsertionResult(false, clampedOffset);
+        }
+    }
+
+    void setRod(RodBlock rod);
+
     float getInterpolatedOffset(float partialTicks);
+
     /**
      *
      * @return the percentage of incoming radiation moderated
@@ -58,7 +76,12 @@ public interface IRodContainerBlockEntity {
 
     /**
      * unused, for future radiation computation.
+     *
      * @return the percentage of incoming radiation reflected
      */
     float getReflection();
+
+    record InsertionResult(boolean removeBlock, float offset) {
+
+    }
 }
