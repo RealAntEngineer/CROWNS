@@ -5,7 +5,7 @@
     "item": "create:crushed_raw_uranium"
   },
   "result": {
-    "id":"crowns:uranium_ingot",
+    "id":"crowns:natural_uranium_ingot",
     "count": 1
   }
 }

@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "crowns:uranium_ingot"
+      "item": "crowns:natural_uranium_ingot"
     }
   ],
   "result": {
