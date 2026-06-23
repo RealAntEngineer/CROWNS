@@ -12,9 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.List;
 
 public class RodBlockEntity extends SmartBlockEntity {
-    //TODO hold a float offset
-
-    public  float offset;//]-1, 1[
+    public  float offset;//]-0.5, 0.5[
     private float speed;
     private float clientOffsetDiff;
 
@@ -35,6 +33,9 @@ public class RodBlockEntity extends SmartBlockEntity {
 
         if (level.isClientSide)
             clientOffsetDiff *= .75f;
+
+        offset += getMovementSpeed();
+        sendData();//this will spam a bit. maybe it can be done once every few ticks ?
     }
 
     @Override
@@ -57,7 +58,6 @@ public class RodBlockEntity extends SmartBlockEntity {
         }
     }
 
-
     public float getInterpolatedOffset(float partialTicks) {
         return offset + (partialTicks - .5f) * getMovementSpeed();
     }
@@ -68,6 +68,7 @@ public class RodBlockEntity extends SmartBlockEntity {
 
     public void setOffset(float offset){
         this.offset = offset;
+        sendData();
     }
 
     public float getMovementSpeed() {

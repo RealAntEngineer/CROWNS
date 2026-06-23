@@ -9,10 +9,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class GraphiteSleeveBlockEntity extends SmartBlockEntity implements IHollowBlockEntity {
+public class GraphiteSleeveBlockEntity extends SmartBlockEntity implements IRodContainerBlockEntity {
     // Graphite itself is a decent neutron moderator and a poor absorber/reflector - this is the
     // sleeve's own contribution, on top of whatever rod(s) currently occupy it.
     // TODO placeholder values, tune for balance.

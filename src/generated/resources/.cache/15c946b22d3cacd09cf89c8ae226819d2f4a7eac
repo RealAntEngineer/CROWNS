@@ -1,10 +1,10 @@
-// 1.21.1	2026-06-23T16:41:48.1294203	Registrate Provider for crowns [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
-4776176e1c1a18cf72eb2bd4634b48fc4b3d23be assets/crowns/blockstates/boron_rod.json
+// 1.21.1	2026-06-23T19:30:30.6899082	Registrate Provider for crowns [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+f4228d23a166d81a8d67c0b0afb39c06bf0c56bb assets/crowns/blockstates/boron_rod.json
 312109498421c1ba7bc250e6402326b14100b139 assets/crowns/blockstates/compressor.json
 888afd0555be0d1a0aa9069ad89b7c02a42ef871 assets/crowns/blockstates/corium.json
 b9366358c43b2a61fcc9eeb119effaa30fc241e7 assets/crowns/blockstates/deepslate_uranium_ore.json
-fd5015b476ab15992180d93f505ce387ed920801 assets/crowns/blockstates/fuel_assembly.json
-8ccf9b10fc6e1b1766e412ddb0cc8ceadd11cbd4 assets/crowns/blockstates/graphite_rod.json
+54a09b6df31caeb6d8705ecd5689941afefcf6f3 assets/crowns/blockstates/fuel_assembly.json
+7b694c666a6b0bb20f8c685b7f2cc11d16476841 assets/crowns/blockstates/graphite_rod.json
 79e9b783d56fa141cc4a6f6b5961e5905fded904 assets/crowns/blockstates/graphite_sleeve.json
 b10aca7eeaf6e7a94d528ed899103bd2c16f5f26 assets/crowns/blockstates/heat_exchanger.json
 0cdc369e81330e0771afc467d21fdce759bf405e assets/crowns/blockstates/rod_driver.json
@@ -22,7 +22,7 @@ a286af95f058fd4faa84e1c9a9aaec0f50a0a05f assets/crowns/lang/en_us.json
 42c4f5de18f6d12fb175c6976bf20f310e4c73fe assets/crowns/models/block/solid_corium.json
 611d452b18d257c09a4d1ab488b04719e9ebe354 assets/crowns/models/block/uranium_hexafluoride.json
 fabd2bd6f8ec18e77e98e4c73078cc3b1e446529 assets/crowns/models/block/uranium_ore.json
-77ed7fdb6c40ec7020d35290f94d9ce5ca2a1eb9 assets/crowns/models/item/boron_rod.json
+6fcc189ac0ae8d932ef1e3ac40fc8e9994e876d0 assets/crowns/models/item/boron_rod.json
 bf173847ee18873e0bbce57d628973046e0f6fbe assets/crowns/models/item/compressor.json
 ab98f92526ce5ed761f57da9f3a91c75d5bf0a3f assets/crowns/models/item/deepslate_uranium_ore.json
 0818da1139d64c0c556aacc28179059c2189c0a4 assets/crowns/models/item/depleted_uranium_ingot.json
@@ -31,7 +31,7 @@ ba04e5645d647e319ce47307fc0cb438c16a257a assets/crowns/models/item/enriched_uran
 dcc58e5e7f835c3d324c76e652743b7d6b2f4691 assets/crowns/models/item/enriched_uranium_nugget.json
 60d350ec6d671458aa1cc883901261082f500261 assets/crowns/models/item/fuel_assembly.json
 f8315b8ccf50d6f471602054c030ab695f6d7c6a assets/crowns/models/item/fuel_rod.json
-139060b7dabc33612f31e541dea2dfc1821e670b assets/crowns/models/item/graphite_rod.json
+0cc0eb58d1c74efdaafbef32e9012dcf39346503 assets/crowns/models/item/graphite_rod.json
 b38fde832f45c8ad9f75fd895ade90b016fb5a78 assets/crowns/models/item/graphite_sleeve.json
 7d406939f4304cf8652c392ff896c997f841ca30 assets/crowns/models/item/heat_exchanger.json
 fedb1e208688e79fe7f9a44a51e5c3d172d7f8c6 assets/crowns/models/item/natural_uranium_ingot.json

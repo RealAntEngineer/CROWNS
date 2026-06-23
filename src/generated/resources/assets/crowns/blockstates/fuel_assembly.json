@@ -1,17 +1,17 @@
 {
   "variants": {
     "activity=high,axis=x,temperature=cold": {
-      "model": "crowns:block/fuel_assembly/high_horizontal",
+      "model": "crowns:block/fuel_assembly/high",
       "x": 90,
       "y": 90
     },
     "activity=high,axis=x,temperature=hot": {
-      "model": "crowns:block/fuel_assembly/high_horizontal",
+      "model": "crowns:block/fuel_assembly/high",
       "x": 90,
       "y": 90
     },
     "activity=high,axis=x,temperature=warm": {
-      "model": "crowns:block/fuel_assembly/high_horizontal",
+      "model": "crowns:block/fuel_assembly/high",
       "x": 90,
       "y": 90
     },
@@ -25,29 +25,32 @@
       "model": "crowns:block/fuel_assembly/high"
     },
     "activity=high,axis=z,temperature=cold": {
-      "model": "crowns:block/fuel_assembly/high_horizontal",
-      "x": 90
+      "model": "crowns:block/fuel_assembly/high",
+      "x": 90,
+      "y": 180
     },
     "activity=high,axis=z,temperature=hot": {
-      "model": "crowns:block/fuel_assembly/high_horizontal",
-      "x": 90
+      "model": "crowns:block/fuel_assembly/high",
+      "x": 90,
+      "y": 180
     },
     "activity=high,axis=z,temperature=warm": {
-      "model": "crowns:block/fuel_assembly/high_horizontal",
-      "x": 90
+      "model": "crowns:block/fuel_assembly/high",
+      "x": 90,
+      "y": 180
     },
     "activity=low,axis=x,temperature=cold": {
-      "model": "crowns:block/fuel_assembly/low_horizontal",
+      "model": "crowns:block/fuel_assembly/low",
       "x": 90,
       "y": 90
     },
     "activity=low,axis=x,temperature=hot": {
-      "model": "crowns:block/fuel_assembly/low_horizontal",
+      "model": "crowns:block/fuel_assembly/low",
       "x": 90,
       "y": 90
     },
     "activity=low,axis=x,temperature=warm": {
-      "model": "crowns:block/fuel_assembly/low_horizontal",
+      "model": "crowns:block/fuel_assembly/low",
       "x": 90,
       "y": 90
     },
@@ -61,29 +64,32 @@
       "model": "crowns:block/fuel_assembly/low"
     },
     "activity=low,axis=z,temperature=cold": {
-      "model": "crowns:block/fuel_assembly/low_horizontal",
-      "x": 90
+      "model": "crowns:block/fuel_assembly/low",
+      "x": 90,
+      "y": 180
     },
     "activity=low,axis=z,temperature=hot": {
-      "model": "crowns:block/fuel_assembly/low_horizontal",
-      "x": 90
+      "model": "crowns:block/fuel_assembly/low",
+      "x": 90,
+      "y": 180
     },
     "activity=low,axis=z,temperature=warm": {
-      "model": "crowns:block/fuel_assembly/low_horizontal",
-      "x": 90
+      "model": "crowns:block/fuel_assembly/low",
+      "x": 90,
+      "y": 180
     },
     "activity=none,axis=x,temperature=cold": {
-      "model": "crowns:block/fuel_assembly/none_horizontal",
+      "model": "crowns:block/fuel_assembly/none",
       "x": 90,
       "y": 90
     },
     "activity=none,axis=x,temperature=hot": {
-      "model": "crowns:block/fuel_assembly/none_horizontal",
+      "model": "crowns:block/fuel_assembly/none",
       "x": 90,
       "y": 90
     },
     "activity=none,axis=x,temperature=warm": {
-      "model": "crowns:block/fuel_assembly/none_horizontal",
+      "model": "crowns:block/fuel_assembly/none",
       "x": 90,
       "y": 90
     },
@@ -97,16 +103,19 @@
       "model": "crowns:block/fuel_assembly/none"
     },
     "activity=none,axis=z,temperature=cold": {
-      "model": "crowns:block/fuel_assembly/none_horizontal",
-      "x": 90
+      "model": "crowns:block/fuel_assembly/none",
+      "x": 90,
+      "y": 180
     },
     "activity=none,axis=z,temperature=hot": {
-      "model": "crowns:block/fuel_assembly/none_horizontal",
-      "x": 90
+      "model": "crowns:block/fuel_assembly/none",
+      "x": 90,
+      "y": 180
     },
     "activity=none,axis=z,temperature=warm": {
-      "model": "crowns:block/fuel_assembly/none_horizontal",
-      "x": 90
+      "model": "crowns:block/fuel_assembly/none",
+      "x": 90,
+      "y": 180
     }
   }
 }

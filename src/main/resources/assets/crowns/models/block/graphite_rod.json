@@ -1,7 +1,0 @@
-{
-	"parent": "crowns:block/rod6x6",
-	"textures": {
-		"texture": "crowns:block/graphite_rod",
-		"particle": "crowns:block/graphite_rod"
-	}
-}

@@ -12,21 +12,19 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
-
-import java.util.ArrayList;
 
 
 //TODO this was partly vibe coded, check the actual validity of the code : especialy the pulling + the ticking
 
 @NonnullDefault
-public class RodDriverBlockEntity extends KineticBlockEntity implements IHollowBlockEntity {
+public class RodDriverBlockEntity extends KineticBlockEntity implements IRodContainerBlockEntity {
 
     // --- The rod this driver pushes/pulls through the channel ahead of it ---
     // tipPosition describes the last *fully committed* cell ahead of the driver (in `facing`):
@@ -40,7 +38,7 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IHollowB
     // driver - purely informational, recomputed lazily by
     // syncColumn() each pull(), not used to drive movement
 
-    public    float   offset; // fill of the cell beyond tipPosition, in [0, 1)
+    public    float   offset; // position of the rod [-0.5, -0.5]
     public    boolean running;
 
     protected double sequencedOffsetLimit;
@@ -73,12 +71,17 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IHollowB
 
         assert level != null;
 
+        if (facing == null) {
+            facing = getBlockState().getValue(DirectionalBlock.FACING);
+        }
+
         if (level.isClientSide) {
             clientOffsetDiff *= .75f;
             return;
         }
 
-        if (!running || facing == null || rodType == null)
+
+        if (!running)
             return;
 
         float movementSpeed = getMovementSpeed();
@@ -102,7 +105,7 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IHollowB
 
     /**
      * Pushes (positive) or pulls (negative) the rod by the given amount, in meters/blocks.
-     * Extending can go through air, liquids, and any {@link IHollowBlockEntity}; it stops the
+     * Extending can go through air, liquids, and any {@link IRodContainerBlockEntity}; it stops the
      * moment it hits anything else (collision). Retracting always succeeds, since it's only ever
      * un-doing ground this driver already covered.
      */
@@ -131,11 +134,11 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IHollowB
                 break; // collision: can't push into a solid, non-hollow obstruction
 
             float room = extending ? 1f - offset : offset;
-            float step = Math.min(remaining, room);
-            IHollowBlockEntity hollow = getHollow(leadingPos);
+            float                    step   = Math.min(remaining, room);
+            IRodContainerBlockEntity hollow = getHollow(leadingPos);
 
             if (hollow != null) {
-                float applied = hollow.insertRod(rodType, facing.getOpposite(), extending ? step : -step);
+                float applied = hollow.canInsertRod(facing.getOpposite(), extending ? step : -step);
                 step = Math.abs(applied);
                 if (extending && step <= 0)
                     break; // the neighbour has no room left for this rod right now
@@ -162,9 +165,9 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IHollowB
      */
     private void shiftBack() {
         assert facing != null && rodType != null && tipPosition != null;
-        IHollowBlockEntity hollow = getHollow(tipPosition);
+        IRodContainerBlockEntity hollow = getHollow(tipPosition);
         if (hollow != null)
-            hollow.insertRod(rodType, facing.getOpposite(), -1f);
+            hollow.canInsertRod(facing.getOpposite(), -1f);
         else
             removeRod(tipPosition);
 
@@ -228,10 +231,10 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IHollowB
                 && state.getValue(RotatedPillarBlock.AXIS) == facing.getAxis();
     }
 
-    private @Nullable IHollowBlockEntity getHollow(BlockPos pos) {
+    private @Nullable IRodContainerBlockEntity getHollow(BlockPos pos) {
         assert level != null;
         BlockEntity be = level.getBlockEntity(pos);
-        return be instanceof IHollowBlockEntity hollow ? hollow : null;
+        return be instanceof IRodContainerBlockEntity hollow ? hollow : null;
     }
 
     private boolean canEnter(BlockPos pos) {

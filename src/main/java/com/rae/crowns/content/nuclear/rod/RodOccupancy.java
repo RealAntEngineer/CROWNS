@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Shared bookkeeping for any {@link IHollowBlockEntity}: tracks how many meters of which
+ * Shared bookkeeping for any {@link IRodContainerBlockEntity}: tracks how many meters of which
  * {@link RodBlock} type(s) currently pass through the owning block.
  * <p>
  * A hollow block is 1 meter long, so the combined occupancy across all entries never exceeds

@@ -1,15 +1,15 @@
 {
   "variants": {
     "axis=x": {
-      "model": "crowns:block/graphite_rod",
+      "model": "crowns:block/rods/graphite_rod_block",
       "x": 90,
       "y": 90
     },
     "axis=y": {
-      "model": "crowns:block/graphite_rod"
+      "model": "crowns:block/rods/graphite_rod_block"
     },
     "axis=z": {
-      "model": "crowns:block/graphite_rod",
+      "model": "crowns:block/rods/graphite_rod_block",
       "x": 90,
       "y": 180
     }

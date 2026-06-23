@@ -9,5 +9,6 @@
     "core": "crowns:block/turbine/core",
     "blade": "crowns:block/turbine/blade"
   },
-  "model": "crowns:models/block/turbine_stage/rotor.obj"
+  "model": "crowns:models/block/turbine_stage/rotor.obj",
+  "gui_light": "front"
 }

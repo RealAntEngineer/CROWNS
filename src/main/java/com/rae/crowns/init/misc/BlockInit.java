@@ -11,12 +11,16 @@ import com.rae.crowns.content.thermodynamics.conduction.HeatExchangerBlock;
 import com.rae.crowns.content.thermodynamics.turbine.SteamCollectorBlock;
 import com.rae.crowns.content.thermodynamics.turbine.SteamInputBlock;
 import com.rae.crowns.content.thermodynamics.turbine.TurbineStageBlock;
+import com.rae.crowns.init.client.PartialModelInit;
 import com.rae.formicapi.content.multiblock.MBItem;
 import com.rae.formicapi.content.multiblock.MBStructureBlock;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.SharedProperties;
+import com.tterrag.registrate.providers.DataGenContext;
+import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
+import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -36,20 +40,36 @@ import static com.simibubi.create.foundation.data.TagGen.axeOrPickaxe;
 public class BlockInit {
 
     public static final BlockEntry<RodBlock> BORON_ROD = REGISTRATE.block(
-            "boron_rod", p -> new RodBlock(p, 0.5f, 0.0f, 0.0f))
+            "boron_rod", p -> new RodBlock(p, PartialModelInit.BORON_ROD,0.5f, 0.0f, 0.0f))
             .initialProperties(SharedProperties::softMetal)
-            .blockstate(BlockStateGen.axisBlockProvider(false))
+            //.blockstate(BlockStateGen.axisBlockProvider(false))
+            .blockstate(
+                    (c, p) -> BlockStateGen.axisBlock(
+                            c, p, state ->
+                                    p.models().getExistingFile(p.modLoc("block/rods/boron_rod_block"))
+                    )
+            )
             .properties(p -> p.noOcclusion().dynamicShape())
             .item()
+            .model((c, p) ->
+                    p.withExistingParent(c.getName(), p.modLoc("block/rods/boron_rod")))
             .build()
             .register();
 
     public static final BlockEntry<RodBlock> GRAPHITE_ROD = REGISTRATE.block(
-                    "graphite_rod", p -> new RodBlock(p, 0.1f, 0.8f, 0.0f))
+                    "graphite_rod", p -> new RodBlock(p, PartialModelInit.GRAPHITE_ROD,0.1f, 0.8f, 0.0f))
             .initialProperties(SharedProperties::softMetal)
-            .blockstate(BlockStateGen.axisBlockProvider(false))
+            //.blockstate(BlockStateGen.axisBlockProvider(false))
+            .blockstate(
+                    (c, p) -> BlockStateGen.axisBlock(
+                            c, p, state ->
+                                    p.models().getExistingFile(p.modLoc("block/rods/graphite_rod_block"))
+                    )
+            )
             .properties(p -> p.noOcclusion().dynamicShape())
             .item()
+            .model((c, p) ->
+                    p.withExistingParent(c.getName(), p.modLoc("block/rods/graphite_rod")))
             .build()
             .register();
 
@@ -140,7 +160,14 @@ public class BlockInit {
     public static final BlockEntry<AssemblyBlock> FUEL_ASSEMBLY = REGISTRATE
             .block("fuel_assembly", AssemblyBlock::new)
             .initialProperties(SharedProperties::softMetal)
-            .blockstate((c, p) -> p.getVariantBuilder(c.getEntry())
+            .blockstate(
+                    (c, p) -> BlockStateGen.axisBlock(
+                            c, p, state ->
+                                    p.models().getExistingFile(p.modLoc("block/fuel_assembly/" +
+                                            state.getValue(AssemblyBlock.ACTIVITY).getSerializedName()))
+                    )
+            )
+            /*.blockstate((c, p) -> p.getVariantBuilder(c.getEntry())
                     .forAllStates(state -> {
                         Direction.Axis axis = state.getValue(BlockStateProperties.AXIS);
                         String activity = state.getValue(AssemblyBlock.ACTIVITY).getSerializedName();
@@ -156,7 +183,7 @@ public class BlockInit {
                                 .rotationX(90)
                                 .rotationY(axis == Direction.Axis.X ? 90 : 0)
                                 .build();
-                    }))
+                    }))*/
             .properties(p -> p.lightLevel((s) -> {
                 switch (s.getValue(AssemblyBlock.ACTIVITY)) {
                     case NONE -> {return 0;}
