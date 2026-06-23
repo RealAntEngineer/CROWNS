@@ -1,0 +1,212 @@
+{
+  "variants": {
+    "facing=down,in=false,out=false,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 180
+    },
+    "facing=down,in=false,out=false,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 180
+    },
+    "facing=down,in=false,out=true,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 180
+    },
+    "facing=down,in=false,out=true,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 180
+    },
+    "facing=down,in=true,out=false,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 180
+    },
+    "facing=down,in=true,out=false,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 180
+    },
+    "facing=down,in=true,out=true,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 180
+    },
+    "facing=down,in=true,out=true,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 180
+    },
+    "facing=east,in=false,out=false,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,in=false,out=false,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,in=false,out=true,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,in=false,out=true,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,in=true,out=false,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,in=true,out=false,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,in=true,out=true,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,in=true,out=true,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north,in=false,out=false,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90
+    },
+    "facing=north,in=false,out=false,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90
+    },
+    "facing=north,in=false,out=true,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90
+    },
+    "facing=north,in=false,out=true,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90
+    },
+    "facing=north,in=true,out=false,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90
+    },
+    "facing=north,in=true,out=false,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90
+    },
+    "facing=north,in=true,out=true,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90
+    },
+    "facing=north,in=true,out=true,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90
+    },
+    "facing=south,in=false,out=false,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,in=false,out=false,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,in=false,out=true,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,in=false,out=true,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,in=true,out=false,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,in=true,out=false,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,in=true,out=true,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,in=true,out=true,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up,in=false,out=false,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger"
+    },
+    "facing=up,in=false,out=false,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger"
+    },
+    "facing=up,in=false,out=true,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger"
+    },
+    "facing=up,in=false,out=true,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger"
+    },
+    "facing=up,in=true,out=false,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger"
+    },
+    "facing=up,in=true,out=false,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger"
+    },
+    "facing=up,in=true,out=true,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger"
+    },
+    "facing=up,in=true,out=true,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger"
+    },
+    "facing=west,in=false,out=false,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,in=false,out=false,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,in=false,out=true,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,in=false,out=true,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,in=true,out=false,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,in=true,out=false,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,in=true,out=true,waterlogged=false": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,in=true,out=true,waterlogged=true": {
+      "model": "crowns:block/heat_exchanger",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

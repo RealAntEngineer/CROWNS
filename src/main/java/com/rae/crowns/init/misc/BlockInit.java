@@ -17,10 +17,12 @@ import com.simibubi.create.Create;
 import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntry;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.ToIntFunction;
@@ -36,6 +38,7 @@ public class BlockInit {
     public static final BlockEntry<RodBlock> BORON_ROD = REGISTRATE.block(
             "boron_rod", p -> new RodBlock(p, 0.5f, 0.0f, 0.0f))
             .initialProperties(SharedProperties::softMetal)
+            .blockstate(BlockStateGen.axisBlockProvider(false))
             .properties(p -> p.noOcclusion().dynamicShape())
             .item()
             .build()
@@ -44,6 +47,7 @@ public class BlockInit {
     public static final BlockEntry<RodBlock> GRAPHITE_ROD = REGISTRATE.block(
                     "graphite_rod", p -> new RodBlock(p, 0.1f, 0.8f, 0.0f))
             .initialProperties(SharedProperties::softMetal)
+            .blockstate(BlockStateGen.axisBlockProvider(false))
             .properties(p -> p.noOcclusion().dynamicShape())
             .item()
             .build()
@@ -56,13 +60,14 @@ public class BlockInit {
             .blockstate(BlockStateGen.directionalAxisBlockProvider())
             .item()
             .model((c, p) ->
-                    p.withExistingParent(c.getName(), c.getName()))
+                    p.withExistingParent(c.getName(), p.modLoc("block/rod_driver/horizontal")))
             .build()
             .register();
 
     public static final BlockEntry<GraphiteSleeveBlock> GRAPHITE_SLEEVE = REGISTRATE.block(
             "graphite_sleeve", GraphiteSleeveBlock::new)
             .initialProperties(SharedProperties::wooden)
+            .blockstate(BlockStateGen.axisBlockProvider(false))
             .item()
             .build()
             .register();
@@ -70,6 +75,7 @@ public class BlockInit {
     public static final BlockEntry<HeatExchangerBlock> HEAT_EXCHANGER = REGISTRATE
             .block("heat_exchanger", HeatExchangerBlock::new)
             .initialProperties(SharedProperties::softMetal)
+            .blockstate(BlockStateGen.directionalBlockProvider(false))
             .transform(displaySource(DisplaySourceInit.TEMPERATURE))
             .properties(BlockBehaviour.Properties::noOcclusion)
             .item()
@@ -79,6 +85,7 @@ public class BlockInit {
     public static final BlockEntry<SteamInputBlock> STEAM_INPUT = REGISTRATE.block(
                     "steam_input", SteamInputBlock::new)
             .initialProperties(SharedProperties::softMetal)
+            .blockstate(BlockStateGen.directionalBlockProvider(false))
             .properties(BlockBehaviour.Properties::noOcclusion)
             .item()
             .build()
@@ -87,6 +94,7 @@ public class BlockInit {
     public static final BlockEntry<SteamCollectorBlock> STEAM_COLLECTOR = REGISTRATE.block(
                     "steam_collector", SteamCollectorBlock::new)
             .initialProperties(SharedProperties::softMetal)
+            .blockstate(BlockStateGen.directionalBlockProvider(false))
             .properties(BlockBehaviour.Properties::noOcclusion)
             .item()
             .build()
@@ -95,41 +103,65 @@ public class BlockInit {
     public static final BlockEntry<MBStructureBlock> TURBINE_STAGE_STRUCTURE =
             REGISTRATE.block("turbine_stage_structure", MBStructureBlock::new)
                     .initialProperties(SharedProperties::softMetal)
+                    .blockstate((ctx, prov) ->
+                            prov.getVariantBuilder(ctx.getEntry())
+                                    .forAllStates(
+                                            s ->
+                            ConfiguredModel.builder()
+                            .modelFile(prov.models()
+                                    .getExistingFile(prov.modLoc("block/turbine_stage/structure")))
+                            .build()
+                    ))
                     .properties(p -> p.noOcclusion().isViewBlocking( ($1, $2, $3) -> false))
                     .item()
+                    .model((c, p) ->
+                            p.withExistingParent(c.getName(), p.modLoc("block/turbine_stage/structure")))
                     .build()
                     .register();
 
     public static final BlockEntry<TurbineStageBlock> TURBINE_STAGE =
             REGISTRATE.block("turbine_stage", (p) -> new TurbineStageBlock(p, TURBINE_STAGE_STRUCTURE.get()))
                     .initialProperties(SharedProperties::softMetal)
+                    .blockstate(BlockStateGen.directionalBlockProvider(true))
                     .properties(p -> p.noOcclusion().isViewBlocking( ($1, $2, $3) -> false))
                     .item(MBItem::new)
-                    .build()
+                    .transform(customItemModel())
                     .register();
 
     public static final BlockEntry<CompressorBlock> COMPRESSOR =
             REGISTRATE.block("compressor", CompressorBlock::new)
                     .initialProperties(SharedProperties::softMetal)
+                    .blockstate(BlockStateGen.directionalBlockProvider(true))
                     .properties(BlockBehaviour.Properties::noOcclusion)
                     .item()
-                    .build()
+                    .transform(customItemModel())
                     .register();
 
     public static final BlockEntry<AssemblyBlock> FUEL_ASSEMBLY = REGISTRATE
             .block("fuel_assembly", AssemblyBlock::new)
             .initialProperties(SharedProperties::softMetal)
+            .blockstate((c, p) -> p.getVariantBuilder(c.getEntry())
+                    .forAllStates(state -> {
+                        Direction.Axis axis = state.getValue(BlockStateProperties.AXIS);
+                        String activity = state.getValue(AssemblyBlock.ACTIVITY).getSerializedName();
+
+                        if (axis == Direction.Axis.Y) {
+                            return ConfiguredModel.builder()
+                                    .modelFile(p.models().getExistingFile(p.modLoc("block/fuel_assembly/" + activity)))
+                                    .build();
+                        }
+
+                        return ConfiguredModel.builder()
+                                .modelFile(p.models().getExistingFile(p.modLoc("block/fuel_assembly/" + activity + "_horizontal")))
+                                .rotationX(90)
+                                .rotationY(axis == Direction.Axis.X ? 90 : 0)
+                                .build();
+                    }))
             .properties(p -> p.lightLevel((s) -> {
                 switch (s.getValue(AssemblyBlock.ACTIVITY)) {
-                    case NONE -> {
-                        return 0;
-                    }
-                    case LOW -> {
-                        return 8;
-                    }
-                    case HIGH -> {
-                        return 15;
-                    }
+                    case NONE -> {return 0;}
+                    case LOW -> {return 8;}
+                    case HIGH -> {return 15;}
                 }
                 return 0;
             }))
@@ -137,6 +169,8 @@ public class BlockInit {
             .transform(displaySource(DisplaySourceInit.TEMPERATURE))
             .transform(displaySource(DisplaySourceInit.FULL_STACK))
             .item()
+            .model((c, p) ->
+                    p.withExistingParent(c.getName(), p.modLoc("block/fuel_assembly/none")))
             .build()
             .register();
 
@@ -163,7 +197,6 @@ public class BlockInit {
             .item()
             .build()
             .register();
-
 
     private static @NotNull ToIntFunction<BlockState> litBlockEmission(int lightLevel) {
         return (blockState) -> blockState.getValue(BlockStateProperties.LIT) ? lightLevel : 0;

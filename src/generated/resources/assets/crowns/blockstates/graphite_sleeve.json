@@ -1,0 +1,17 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "crowns:block/graphite_sleeve",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "crowns:block/graphite_sleeve"
+    },
+    "axis=z": {
+      "model": "crowns:block/graphite_sleeve",
+      "x": 90,
+      "y": 180
+    }
+  }
+}

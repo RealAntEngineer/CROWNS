@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures":{
-    "layer0":"crowns:item/enriched_uranium_ingot"
-  }
-}

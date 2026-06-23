@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "axis_along_first=false,facing=down": {
+      "model": "crowns:block/rod_driver/horizontal",
+      "x": 270,
+      "y": 90
+    },
+    "axis_along_first=false,facing=east": {
+      "model": "crowns:block/rod_driver/horizontal",
+      "y": 270
+    },
+    "axis_along_first=false,facing=north": {
+      "model": "crowns:block/rod_driver/vertical",
+      "y": 180
+    },
+    "axis_along_first=false,facing=south": {
+      "model": "crowns:block/rod_driver/vertical"
+    },
+    "axis_along_first=false,facing=up": {
+      "model": "crowns:block/rod_driver/horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis_along_first=false,facing=west": {
+      "model": "crowns:block/rod_driver/horizontal",
+      "y": 90
+    },
+    "axis_along_first=true,facing=down": {
+      "model": "crowns:block/rod_driver/horizontal",
+      "x": 270
+    },
+    "axis_along_first=true,facing=east": {
+      "model": "crowns:block/rod_driver/vertical",
+      "y": 270
+    },
+    "axis_along_first=true,facing=north": {
+      "model": "crowns:block/rod_driver/horizontal",
+      "y": 180
+    },
+    "axis_along_first=true,facing=south": {
+      "model": "crowns:block/rod_driver/horizontal"
+    },
+    "axis_along_first=true,facing=up": {
+      "model": "crowns:block/rod_driver/horizontal",
+      "x": 90
+    },
+    "axis_along_first=true,facing=west": {
+      "model": "crowns:block/rod_driver/vertical",
+      "y": 90
+    }
+  }
+}

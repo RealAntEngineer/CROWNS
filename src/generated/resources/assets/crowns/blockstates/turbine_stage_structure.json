@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "crowns:block/turbine_stage/structure"
+    },
+    "facing=east": {
+      "model": "crowns:block/turbine_stage/structure"
+    },
+    "facing=north": {
+      "model": "crowns:block/turbine_stage/structure"
+    },
+    "facing=south": {
+      "model": "crowns:block/turbine_stage/structure"
+    },
+    "facing=up": {
+      "model": "crowns:block/turbine_stage/structure"
+    },
+    "facing=west": {
+      "model": "crowns:block/turbine_stage/structure"
+    }
+  }
+}

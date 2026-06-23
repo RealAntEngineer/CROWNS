@@ -6,6 +6,7 @@ import com.rae.crowns.content.nuclear.corium.CoriumFluidType;
 import com.rae.crowns.content.nuclear.corium.CoriumLiquidBlock;
 import com.tterrag.registrate.util.entry.FluidEntry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.BaseFlowingFluid;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -26,8 +27,12 @@ public class FluidInit {
                     .block(CoriumLiquidBlock::new)
                     .build()
                     .bucket()
+                    .model((c, p) ->
+                            p.getExistingFile(CROWNS.resource("corium_bucket")
+                            ))
                     .build()
                     .register();
+
     public static final  FluidEntry<BaseFlowingFluid.Flowing> URANIUM_HEXAFLUORIDE =
             CROWNS.REGISTRATE.fluid("uranium_hexafluoride", CROWNS.resource("fluid/uranium_hexafluoride_still"), CROWNS.resource("fluid/uranium_hexafluoride_flowing"))
                     .lang("Uranium_Hexafluoride")
@@ -39,8 +44,12 @@ public class FluidInit {
                             .explosionResistance(100f))
                     .source(BaseFlowingFluid.Source::new) // TODO: remove when Registrate fixes FluidBuilder
                     .bucket()
+                    .model((c, p) ->
+                            p.getExistingFile(CROWNS.resource("uranium_hexafluoride_bucket")
+                    ))
                     .build()
                     .register();
+
     private static final DeferredRegister<Fluid>              FLUID_REGISTER       =
             DeferredRegister.create(Registries.FLUID, CROWNS.MODID);
 

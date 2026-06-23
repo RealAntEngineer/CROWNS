@@ -44,7 +44,7 @@ public class CreativeModeTabsInit {
                                         output.accept(BlockInit.DEEP_URANIUM_ORE);
                                         output.accept(BlockInit.URANIUM_ORE);
                                         output.accept(ItemInit.RAW_URANIUM);
-                                        output.accept(ItemInit.URANIUM_INGOT);
+                                        output.accept(ItemInit.NATURAL_URANIUM_INGOT);
                                         output.accept(ItemInit.NATURAL_URANIUM_NUGGET);
                                         output.accept(ItemInit.DEPLETED_URANIUM_INGOT);
                                         output.accept(ItemInit.DEPLETED_URANIUM_NUGGET);

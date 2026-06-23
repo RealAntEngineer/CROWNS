@@ -24,18 +24,21 @@ import java.util.ArrayList;
 
 
 //TODO this was partly vibe coded, check the actual validity of the code : especialy the pulling + the ticking
+
 @NonnullDefault
 public class RodDriverBlockEntity extends KineticBlockEntity implements IHollowBlockEntity {
 
     // --- The rod this driver pushes/pulls through the channel ahead of it ---
-    // tipPosition / length describe the last *fully committed* cell beyond the driver: either a
-    // physically placed RodBlock (open air/liquid path), or a hollow neighbour we've fully loaded
-    // to 1m. offset is the partial fill ([0,1)) of the cell immediately beyond the tip - the only
-    // place along the rod that can ever be "in between".
+    // tipPosition describes the last *fully committed* cell ahead of the driver (in `facing`):
+    // either a physically placed RodBlock (open air/liquid path), or a hollow neighbour we've
+    // fully loaded to 1m. offset is the partial fill ([0,1)) of the cell immediately beyond the
+    // tip - the only place along the rod that can ever be "in between".
     private @Nullable Direction facing;     // null if nothing is loaded
     private @Nullable RodBlock  rodType;    // which rod this driver is driving, null if none loaded
-    private @Nullable BlockPos  tipPosition;// null if length == 0 (rod hasn't left the driver's mouth yet)
-    private           int       length = 0; // number of fully committed cells beyond the driver
+    private @Nullable BlockPos  tipPosition;// null if the rod hasn't left the driver's mouth yet
+    private           int       length = 0; // total length of the rod, forward AND backward of the
+    // driver - purely informational, recomputed lazily by
+    // syncColumn() each pull(), not used to drive movement
 
     public    float   offset; // fill of the cell beyond tipPosition, in [0, 1)
     public    boolean running;
@@ -146,7 +149,6 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IHollowB
                 if (hollow == null)
                     placeRod(leadingPos);
                 tipPosition = leadingPos;
-                length++;
             }
         }
 
@@ -167,43 +169,55 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IHollowB
             removeRod(tipPosition);
 
         offset = 1f;
-        length--;
-        tipPosition = length > 0 ? tipPosition.relative(facing.getOpposite()) : null;
+        BlockPos previous = tipPosition.relative(facing.getOpposite());
+        tipPosition = previous.equals(worldPosition) ? null : previous;
     }
 
     /**
-     * Pushes the shared offset/speed out to every physically placed RodBlock in the column, so
-     * the whole rigid rod animates as one piece instead of just the segment we last touched.
-     * <p>
-     * First walk forward from the driver to find the tip of the existing stack - stop the moment
-     * we hit something that isn't a same-axis RodBlock (no more rod, or it's a different rod
-     * crossing this one). Then walk back from that tip towards the driver applying the update:
-     * the tip goes first since that's where a collision would have been resolved already by
-     * {@link #pull}, everything behind it just follows rigidly.
+     * Pushes the shared offset/speed out to every physically placed RodBlock in the column, on
+     * both sides of the driver, so the whole rigid rod animates as one piece - including
+     * whatever trails out the back as the front is retracted - instead of just the segment we
+     * last touched. Also refreshes {@link #length} to the rod's total extent (forward + backward).
      */
     private void syncColumn() {
         assert facing != null;
+        float speed = getMovementSpeed();
+        int forward = syncDirection(facing, speed);
+        int backward = syncDirection(facing.getOpposite(), speed);
+        length = forward + backward;
+    }
 
-        BlockPos cursor = worldPosition.relative(facing);
-        BlockPos tip = null;
+    /**
+     * Walks outward from the driver in the given direction through matching RodBlock segments to
+     * find the far end (no more rod, or it's a different rod crossing this one), then walks back
+     * from there towards the driver applying the offset/speed update - the far end goes first
+     * since that's where a collision would have been resolved already by {@link #pull} (only
+     * relevant for the `facing` direction; the backward side is never blocked by anything we push
+     * into), everything behind it just follows rigidly.
+     *
+     * @return how many segments make up the rod in this direction
+     */
+    private int syncDirection(Direction direction, float speed) {
+        BlockPos cursor = worldPosition.relative(direction);
+        BlockPos end = null;
+        int count = 0;
         while (isColumnSegment(cursor)) {
-            tip = cursor;
-            cursor = cursor.relative(facing);
+            end = cursor;
+            count++;
+            cursor = cursor.relative(direction);
         }
 
-        if (tip == null)
-            return; // nothing physically placed yet, nothing to sync
-
-        float speed = getMovementSpeed();
-        Direction backwards = facing.getOpposite();
-        BlockPos pos = tip;
-        while (isColumnSegment(pos)) {
+        Direction backwards = direction.getOpposite();
+        BlockPos pos = end;
+        for (int i = 0; i < count; i++) {
             if (level.getBlockEntity(pos) instanceof RodBlockEntity segment) {
                 segment.setOffset(offset);
                 segment.setSpeed(speed);
             }
             pos = pos.relative(backwards);
         }
+
+        return count;
     }
 
     private boolean isColumnSegment(BlockPos pos) {
@@ -278,7 +292,6 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IHollowB
             ResourceLocation key = BuiltInRegistries.BLOCK.getKey(rodType);
             compound.putString("RodType", key.toString());
         }
-        compound.putInt("Length", length);
         if (tipPosition != null) {
             compound.putInt("TipX", tipPosition.getX());
             compound.putInt("TipY", tipPosition.getY());
@@ -308,7 +321,6 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IHollowB
             rodType = null;
         }
 
-        length = compound.getInt("Length");
         tipPosition = compound.contains("TipX")
                 ? new BlockPos(compound.getInt("TipX"), compound.getInt("TipY"), compound.getInt("TipZ"))
                 : null;
