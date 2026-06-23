@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.lwjgl.system.NonnullDefault;
 
 @NonnullDefault
-public class GraphiteSleeveRenderer extends SafeBlockEntityRenderer<RodBlockEntity> {
+public class GraphiteSleeveRenderer extends SafeBlockEntityRenderer<GraphiteSleeveBlockEntity> {
 
 
     public GraphiteSleeveRenderer(BlockEntityRendererProvider.Context context) {
@@ -21,7 +21,7 @@ public class GraphiteSleeveRenderer extends SafeBlockEntityRenderer<RodBlockEnti
     }
 
     @Override
-    protected void renderSafe(RodBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+    protected void renderSafe(GraphiteSleeveBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
         float offset = be.getInterpolatedOffset(partialTicks);
 
         BlockState state = getRenderedBlockState(be);
@@ -43,7 +43,7 @@ public class GraphiteSleeveRenderer extends SafeBlockEntityRenderer<RodBlockEnti
                 .renderInto(ms, vb);
     }
 
-    protected BlockState getRenderedBlockState(RodBlockEntity be) {
+    protected BlockState getRenderedBlockState(GraphiteSleeveBlockEntity be) {
         return be.getBlockState();
     }
 }

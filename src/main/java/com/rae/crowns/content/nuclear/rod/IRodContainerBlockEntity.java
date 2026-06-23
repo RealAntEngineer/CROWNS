@@ -42,6 +42,8 @@ public interface IRodContainerBlockEntity {
      * @return the position of the rod contained [-0.5, 0.5]
      */
     float getOffset();
+
+    float getInterpolatedOffset(float partialTicks);
     /**
      *
      * @return the percentage of incoming radiation moderated
