@@ -24,26 +24,22 @@ public class GraphiteSleeveRenderer extends SafeBlockEntityRenderer<GraphiteSlee
     protected void renderSafe(GraphiteSleeveBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
         float offset = be.getInterpolatedOffset(partialTicks);
 
-        BlockState state = getRenderedBlockState(be);
-        RenderType type  = RenderType.cutoutMipped();
-        Direction.Axis axis = state.getValue(RodBlock.AXIS);
+        Direction.Axis axis = be.getAxis();
 
         //render the block but offset in the axis by offset
 
         VertexConsumer vb = buffer.getBuffer(RenderType.solid());
+        RodBlock rod = be.getBlockContained();
+        if (rod != null) {
+            SuperByteBuffer rodModel = CachedBuffers.partial(rod.getRodModel(), rod.defaultBlockState());
 
-        SuperByteBuffer rodModel = CachedBuffers.partial(((RodBlock)state.getBlock()).getRodModel(), state);
-
-        rodModel.center()
-                .rotateYDegrees(axis == Direction.Axis.Y ? 0 : 90)
-                .rotateXDegrees(axis == Direction.Axis.X ? 90 : axis == Direction.Axis.Z ? 180 : 0)
-                .translate(0, offset, 0)
-                .uncenter()
-                .light(light)
-                .renderInto(ms, vb);
-    }
-
-    protected BlockState getRenderedBlockState(GraphiteSleeveBlockEntity be) {
-        return be.getBlockState();
+            rodModel.center()
+                    .rotateYDegrees(axis == Direction.Axis.Y ? 0 : 90)
+                    .rotateXDegrees(axis == Direction.Axis.X ? 90 : axis == Direction.Axis.Z ? 180 : 0)
+                    .translate(0, offset, 0)
+                    .uncenter()
+                    .light(light)
+                    .renderInto(ms, vb);
+        }
     }
 }

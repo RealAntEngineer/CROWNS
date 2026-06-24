@@ -137,16 +137,6 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
     }
 
     @Override
-    public Direction.Axis getAxis() {
-        return getBlockState().getValue(GraphiteSleeveBlock.AXIS);
-    }
-
-    @Override
-    public void setRod(RodBlock rod) {
-        rodContained = rod;
-    }
-
-    @Override
     protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         tag.putFloat("Offset", offset);
         tag.putFloat("Speed", speed);
@@ -181,21 +171,62 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
         this.speed = speed;
     }
 
-    public void setOffset(float offset) {
-        if (offset > 0.5)
-
-        this.offset = offset;
-        sendData();
-    }
-
     @Override
     public RodBlock getBlockContained() {
         return rodContained;
     }
 
     @Override
+    public Direction.Axis getAxis() {
+        return getBlockState().getValue(GraphiteSleeveBlock.AXIS);
+    }
+
+    @Override
     public float getOffset() {
         return offset;
+    }
+
+    public void setOffset(float offset) {
+        assert level != null;
+
+        if (rodContained != null) {
+            if (offset > 0.5 || offset < -0.5) {
+                int      relativePos = offset > 0 ? 1 : -1;//position relative to the block we are inserting in
+                BlockPos pos         = getBlockPos().relative(getAxis(), relativePos);
+                Direction facing = Direction.get(offset < 0 ? Direction.AxisDirection.POSITIVE :
+                        Direction.AxisDirection.NEGATIVE, getAxis());
+                if (level.getBlockEntity(pos) instanceof IRodContainerBlockEntity rodContainerBE) {
+                    InsertionResult result = rodContainerBE.tryInsertRod(rodContained, facing
+                            , offset);
+                    if (result.removeBlock()) {
+                        rodContainerBE.setRod(rodContained);
+                        rodContainerBE.setOffset(result.offset() - relativePos);
+                        setRod(null);
+                        this.offset = 0;
+                    } else {
+                        this.offset = result.offset() - relativePos;
+                    }
+
+                } else if (level.getBlockState(pos).isAir()) {
+                    level.setBlock(pos, rodContained.defaultBlockState(), 11);
+                    if (level.getBlockEntity(pos) instanceof IRodContainerBlockEntity rodContainerBE) {
+                        rodContainerBE.setRod(rodContained);
+                        rodContainerBE.setOffset(offset - relativePos);
+                    }
+                    setRod(null);
+                    this.offset = 0;
+                }
+
+            } else {
+                this.offset = offset;
+            }
+            sendData();
+        }
+    }
+
+    @Override
+    public void setRod(RodBlock rod) {
+        rodContained = rod;
     }
 
     public float getInterpolatedOffset(float partialTicks) {

@@ -28,12 +28,12 @@ public interface IRodContainerBlockEntity {
      *
      * @param rod The rod inserted
      * @param facing The face from which it's inserted
-     * @param newOffset The offset relative to us
+     * @param newOffset The offset relative to the Block inserting
      * @return The result
      */
     default InsertionResult tryInsertRod(RodBlock rod, Direction facing, float newOffset) {
         if (getBlockContained() == null) {
-            boolean shouldRemoveBlock = newOffset < 0.5 && newOffset > -0.5;
+            boolean shouldRemoveBlock = newOffset < 0.5 || newOffset > -0.5;
             if (shouldRemoveBlock) setRod(rod);
             return new InsertionResult(shouldRemoveBlock, newOffset);
         }
@@ -41,17 +41,17 @@ public interface IRodContainerBlockEntity {
         Direction.AxisDirection direction = facing.getAxisDirection();
         Direction.Axis          axis      = facing.getAxis();
         if (axis != getAxis())
-            return new InsertionResult(false, direction == Direction.AxisDirection.NEGATIVE ? -1 : 1);
+            return new InsertionResult(false, 0);
 
         //First clamp to the maximum
         float clampedOffset;
         if (direction == Direction.AxisDirection.NEGATIVE){
-            clampedOffset = Math.min(getOffset() - 1, newOffset);
+            clampedOffset = Math.min(getOffset(), newOffset - 1);
         } else {
-            clampedOffset = Math.max(getOffset() + 1, newOffset);
+            clampedOffset = Math.max(getOffset(), newOffset + 1);
         }
 
-        if (clampedOffset < 0.5 && clampedOffset > -0.5) {
+        if (clampedOffset < 0.5 || clampedOffset > -0.5) {
             return new InsertionResult(true, clampedOffset);
         } else {
             return new InsertionResult(false, clampedOffset);

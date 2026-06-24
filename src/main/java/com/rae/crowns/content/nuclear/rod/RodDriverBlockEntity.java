@@ -193,7 +193,7 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
             IRodContainerBlockEntity hollow = getHollow(leadingPos);
 
             if (hollow != null) {
-                float applied = hollow.tryInsertRod(rod, facing.getOpposite(), offset);
+                float applied = hollow.tryInsertRod(null, facing.getOpposite(), offset).offset();
                 step = Math.abs(applied);
                 if (extending && step <= 0)
                     break; // the neighbor has no room left for this rod right now

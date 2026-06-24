@@ -36,6 +36,7 @@ public class BlockEntityInit {
     public static final BlockEntityEntry<GraphiteSleeveBlockEntity> GRAPHITE_SLEEVE = REGISTRATE.blockEntity(
                     "graphite_sleeve", GraphiteSleeveBlockEntity::new)
             .validBlock(BlockInit.GRAPHITE_SLEEVE)
+            .renderer(() -> GraphiteSleeveRenderer::new)
             .register();
 
 
