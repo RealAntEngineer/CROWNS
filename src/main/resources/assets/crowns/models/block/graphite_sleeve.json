@@ -2,10 +2,11 @@
 	"format_version": "1.21.11",
 	"credit": "Made with Blockbench",
     "parent" : "minecraft:block/block",
+    "render_type": "minecraft:cutout_mipped",
 	"textures": {
-		"0": "block/coal_block",
+		"0": "minecraft:block/coal_block",
 		"1": "crowns:block/graphite_sleeve",
-		"particle": "block/coal_block"
+		"particle": "minecraft:block/coal_block"
 	},
 	"elements": [
 		{

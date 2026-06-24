@@ -17,7 +17,7 @@ public class RodBlockEntity extends BaseRodContainer {
     public void tick() {
         super.tick();
         if (getBlockState().getBlock() instanceof RodBlock rodBlock)
-            setRod(rodBlock);
+            rodContained = rodBlock;
     }
 
     @Override

@@ -33,7 +33,7 @@ public interface IRodContainerBlockEntity {
      */
     default InsertionResult tryInsertRod(RodBlock rod, Direction facing, float newOffset) {
         if (getBlockContained() == null) {
-            boolean shouldRemoveBlock = newOffset < 0.5 || newOffset > -0.5;
+            boolean shouldRemoveBlock = newOffset > 0.5 || newOffset < -0.5;
             if (shouldRemoveBlock) setRod(rod);
             return new InsertionResult(shouldRemoveBlock, newOffset);
         }
@@ -46,12 +46,12 @@ public interface IRodContainerBlockEntity {
         //First clamp to the maximum
         float clampedOffset;
         if (direction == Direction.AxisDirection.NEGATIVE){
-            clampedOffset = Math.min(getOffset(), newOffset - 1);
+            clampedOffset = Math.min(getOffset(), newOffset);
         } else {
-            clampedOffset = Math.max(getOffset(), newOffset + 1);
+            clampedOffset = Math.max(getOffset(), newOffset);
         }
 
-        if (clampedOffset < 0.5 || clampedOffset > -0.5) {
+        if (clampedOffset > 0.5 || clampedOffset < -0.5) {
             return new InsertionResult(true, clampedOffset);
         } else {
             return new InsertionResult(false, clampedOffset);

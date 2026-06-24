@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
 import net.createmod.catnip.render.CachedBuffers;
 import net.createmod.catnip.render.SuperByteBuffer;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -33,12 +34,13 @@ public class GraphiteSleeveRenderer extends SafeBlockEntityRenderer<GraphiteSlee
         if (rod != null) {
             SuperByteBuffer rodModel = CachedBuffers.partial(rod.getRodModel(), rod.defaultBlockState());
 
+            assert be.getLevel() != null;
             rodModel.center()
                     .rotateYDegrees(axis == Direction.Axis.Y ? 0 : 90)
                     .rotateXDegrees(axis == Direction.Axis.X ? 90 : axis == Direction.Axis.Z ? 180 : 0)
                     .translate(0, offset, 0)
                     .uncenter()
-                    .light(light)
+                    .light(LevelRenderer.getLightColor(be.getLevel(), be.getBlockPos()))
                     .renderInto(ms, vb);
         }
     }

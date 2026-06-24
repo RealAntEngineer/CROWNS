@@ -24,10 +24,13 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
     protected float    baseReflection;
     private   float    speed;
     private   float    clientOffsetDiff;
-    private   RodBlock rodContained;
+    protected RodBlock rodContained;
     private   float    cachedAbsorption;
     private   float    cachedModeration;
     private   float    cachedReflection;
+    private boolean justInserted;
+    private boolean needsValidityCheck;
+
 
     public BaseRodContainer(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -43,6 +46,7 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
     }
 
+    //int tickCount = 3;
     @Override
     public void tick() {
         super.tick();
@@ -53,8 +57,18 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
             clientOffsetDiff *= .75f;
 
         offset += getMovementSpeed();
+
+        if (!level.isClientSide && (offset > 0.5f || offset < -0.5f))
+            needsValidityCheck = true;
+
+        if (needsValidityCheck)
+            checkValidity();
+
         updateNeutronProperties();
         sendData();//this will spam the network a bit. maybe it can be done once every few ticks ?
+        if (justInserted){
+            justInserted = false;
+        }
     }
 
     public float getMovementSpeed() {
@@ -140,6 +154,7 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
     protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         tag.putFloat("Offset", offset);
         tag.putFloat("Speed", speed);
+        tag.putBoolean("JustInserted", justInserted);
         if (rodContained != null) {
             ResourceLocation key = BuiltInRegistries.BLOCK.getKey(rodContained);
             tag.putString("RodContained", key.toString());
@@ -154,6 +169,7 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
         float offsetBefore = offset;
         offset = tag.getFloat("Offset");
         speed = tag.getFloat("Speed");
+        justInserted = tag.getBoolean("JustInserted");
         if (tag.contains("RodContained")) {
             ResourceLocation key   = ResourceLocation.tryParse(tag.getString("RodContained"));
             Block            block = key == null ? null : BuiltInRegistries.BLOCK.get(key);
@@ -161,10 +177,13 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
         } else {
             rodContained = null;
         }
-        if (clientPacket) {
+        if (clientPacket && !justInserted) {
             clientOffsetDiff = offset - offsetBefore;
             offset = offsetBefore;
+        } else {
+            clientOffsetDiff = 0;
         }
+        justInserted = false;
     }
 
     public void setSpeed(float speed) {
@@ -186,47 +205,63 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
         return offset;
     }
 
-    public void setOffset(float offset) {
+    /**
+     * Resolves at most one hand-off to the neighboring container when this rod's
+     * offset has left [-0.5, 0.5]. Any further cascade
+     * (e.g. a row of touching rods) is picked up by the neighbor on its own next
+     * tick, not synchronously in this call.
+     */
+    private void checkValidity() {
+        needsValidityCheck = false;
         assert level != null;
+        if (level.isClientSide) return; // block placement must stay server-authoritative
+        if (rodContained == null) return;
 
-        if (rodContained != null) {
-            if (offset > 0.5 || offset < -0.5) {
-                int      relativePos = offset > 0 ? 1 : -1;//position relative to the block we are inserting in
-                BlockPos pos         = getBlockPos().relative(getAxis(), relativePos);
-                Direction facing = Direction.get(offset < 0 ? Direction.AxisDirection.POSITIVE :
-                        Direction.AxisDirection.NEGATIVE, getAxis());
-                if (level.getBlockEntity(pos) instanceof IRodContainerBlockEntity rodContainerBE) {
-                    InsertionResult result = rodContainerBE.tryInsertRod(rodContained, facing
-                            , offset);
-                    if (result.removeBlock()) {
-                        rodContainerBE.setRod(rodContained);
-                        rodContainerBE.setOffset(result.offset() - relativePos);
-                        setRod(null);
-                        this.offset = 0;
-                    } else {
-                        this.offset = result.offset() - relativePos;
-                    }
+        int relativePos = offset > 0 ? 1 : -1;
+        BlockPos pos = getBlockPos().relative(getAxis(), relativePos);
+        Direction facing = Direction.get(
+                offset < 0 ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE,
+                getAxis());
 
-                } else if (level.getBlockState(pos).isAir()) {
-                    level.setBlock(pos, rodContained.defaultBlockState(), 11);
-                    if (level.getBlockEntity(pos) instanceof IRodContainerBlockEntity rodContainerBE) {
-                        rodContainerBE.setRod(rodContained);
-                        rodContainerBE.setOffset(offset - relativePos);
-                    }
-                    setRod(null);
-                    this.offset = 0;
-                }
-
+        if (level.getBlockEntity(pos) instanceof IRodContainerBlockEntity neighbour) {
+            InsertionResult result = neighbour.tryInsertRod(rodContained, facing, offset);
+            if (result.removeBlock()) {//collision should be
+                neighbour.setRod(rodContained);
+                neighbour.setOffset(result.offset() - relativePos);
+                setRod(null);
+                this.offset = 0;
             } else {
-                this.offset = offset;
+                this.offset = result.offset();
             }
-            sendData();
+        } else if (level.getBlockState(pos).isAir()) {
+            if (offset <= 0.5f && offset >= -0.5f) return;//if it doesn't need to move don't move it
+            level.setBlock(pos, rodContained.defaultBlockState().setValue(RodBlock.AXIS, getAxis()), 11);
+            if (level.getBlockEntity(pos) instanceof IRodContainerBlockEntity neighbour) {
+                neighbour.setRod(rodContained);
+                neighbour.setOffset(offset - relativePos);
+            }
+            setRod(null);
+            this.offset = 0;
+        } else {
+            // blocked by a solid, non-container block.
+            this.offset = 0;
         }
+
+        sendData();
+    }
+
+    @Override
+    public void setOffset(float offset) {
+        if (offset != this.offset)
+            needsValidityCheck = true;
+        this.offset = offset;
+        sendData();
     }
 
     @Override
     public void setRod(RodBlock rod) {
         rodContained = rod;
+        justInserted = true;
     }
 
     public float getInterpolatedOffset(float partialTicks) {
