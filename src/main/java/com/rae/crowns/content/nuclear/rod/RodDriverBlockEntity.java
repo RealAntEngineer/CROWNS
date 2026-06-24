@@ -11,9 +11,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.DirectionalBlock;
-import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,12 +28,13 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
     public    float  offset;//]-0.5, 0.5[
     protected double sequencedOffsetLimit;
     boolean running;
-    private           float    clientOffsetDiff;
-    private @Nullable RodBlock rodContained;
-    private           float    cachedAbsorption;
-    private           float    cachedModeration;
-    private           float    cachedReflection;
-
+    private           float     clientOffsetDiff;
+    private @Nullable RodBlock  rodContained;
+    private           float     cachedAbsorption;
+    private           float     cachedModeration;
+    private           float     cachedReflection;
+    private           boolean   justInserted;
+    private           boolean   needsValidityCheck;
     private           Direction facing = Direction.NORTH;
     private @Nullable BlockPos  tipPosition;// null if there is no rod near
     private           int       length = 0; // total length of the rod, forward AND backward of the
@@ -56,7 +54,18 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
         }
 
         offset += getMovementSpeed();
+        if (!level.isClientSide && (offset > 0.5f || offset < -0.5f))
+            needsValidityCheck = true;
+
+        if (needsValidityCheck)
+            checkValidity();
+
         updateNeutronProperties();
+        sendData();
+
+        if (justInserted) {
+            justInserted = false;
+        }
 
         if (!level.isClientSide) {
 
@@ -80,6 +89,48 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
             pull(movementSpeed);
             sendData();
         }
+    }
+
+    private void pull(float movementAmount){
+        assert level != null;
+        //find the tip
+        Direction movementDir;
+        if (movementAmount < 0){
+            movementDir = facing.getOpposite();
+        } else {
+            movementDir = facing;
+        }
+
+        int maxIteration = 0;
+        BlockPos.MutableBlockPos tipPosition = getBlockPos().relative(movementDir, -1).mutable();
+        //find tip.
+        while (maxIteration < 100){
+            if (!isColumnSegment(tipPosition.relative(movementDir, 1))){
+                break;
+            }
+            maxIteration++;
+
+        }
+        //it means That we failed to find a rod.
+        if (maxIteration ==0) {
+            return;
+        }
+        maxIteration = 0;
+        while (maxIteration < 100) {
+
+            if (level.getBlockEntity(tipPosition) instanceof IRodContainerBlockEntity rodContainerBE) {
+                //tryInsertRod(rodContainerBE.getRodContained(), movementDir.getOpposite(), offset);
+                rodContainerBE.setOffset(offset);
+            }
+            if (!isColumnSegment(tipPosition.relative(movementDir, 1))){
+                break;
+            }
+
+            maxIteration++;
+        }
+        //get direction -> if it's different drop everything.
+        //tipPosition
+
     }
 
     public float getMovementSpeed() {
@@ -157,177 +208,6 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
         cachedReflection = Math.min(1f, cachedReflection);
     }
 
-    /**
-     * Pushes (positive) or pulls (negative) the rod by the given amount, in meters/blocks.
-     * Extending can go through air, liquids, and any {@link IRodContainerBlockEntity}; it stops the
-     * moment it hits anything else (collision). Retracting always succeeds, since it's only ever
-     * un-doing ground this driver already covered.
-     */
-    private void pull(float meters) {
-        assert level != null;
-        if (meters == 0)
-            return;
-
-        facing = getBlockState().getValue(DirectionalBlock.FACING);
-        boolean extending = meters > 0;
-        float   remaining = Math.abs(meters);
-
-        while (remaining > 0) {
-            // an offset sitting exactly on a cell boundary belongs to whichever side we're
-            // currently moving towards - re-base across it before doing anything else. Extending
-            // never needs this: a commit always resets offset to 0, which is already a valid
-            // starting point for filling the next cell forward.
-            if (!extending && offset <= 0f) {
-                if (tipPosition == null)
-                    break; // fully retracted, nothing left to pull back
-                shiftBack();
-            }
-
-            BlockPos leadingPos = tipPosition == null ? worldPosition.relative(facing) : tipPosition.relative(facing);
-
-            if (extending && offset <= 0 && !canEnter(leadingPos))
-                break; // collision: can't push into a solid, non-hollow obstruction
-
-            float                    room   = extending ? 1f - offset : offset;
-            float                    step   = Math.min(remaining, room);
-            IRodContainerBlockEntity hollow = getHollow(leadingPos);
-
-            if (hollow != null) {
-                float applied = hollow.tryInsertRod(null, facing.getOpposite(), offset).offset();
-                step = Math.abs(applied);
-                if (extending && step <= 0)
-                    break; // the neighbor has no room left for this rod right now
-            }
-
-            offset += extending ? step : -step;
-            remaining -= step;
-
-            if (extending && offset >= 1f) {
-                offset = 0f;
-                if (hollow == null)
-                    placeRod(leadingPos);
-                tipPosition = leadingPos;
-            }
-        }
-
-        syncColumn();
-    }
-
-    @Override
-    public Direction.Axis getAxis() {
-        return facing.getAxis();
-    }
-
-    /**
-     * Re-bases the leading edge backwards by one cell: frees up the cell currently at the tip
-     * (draining it if it's a hollow neighbor, removing the placed RodBlock otherwise) and steps
-     * the tip back towards the driver, leaving a full cell behind to keep draining from.
-     */
-    private void shiftBack() {
-        assert tipPosition != null;
-        IRodContainerBlockEntity hollow = getHollow(tipPosition);
-        if (hollow != null) {
-            //setOffset
-            hollow.setRod(null);
-            hollow.setOffset(0);
-            hollow.tryInsertRod(null, facing.getOpposite(), -1f);
-        }
-        else
-            removeRod(tipPosition);
-
-        offset = 1f;
-        BlockPos previous = tipPosition.relative(facing.getOpposite());
-        tipPosition = previous.equals(worldPosition) ? null : previous;
-    }
-
-    private boolean canEnter(BlockPos pos) {
-        assert level != null;
-        if (getHollow(pos) != null)
-            return true;
-        BlockState state = level.getBlockState(pos);
-        return state.isAir() || !state.getFluidState().isEmpty() || state.canBeReplaced();
-    }
-
-    private @Nullable IRodContainerBlockEntity getHollow(BlockPos pos) {
-        assert level != null;
-        BlockEntity be = level.getBlockEntity(pos);
-        return be instanceof IRodContainerBlockEntity hollow ? hollow : null;
-    }
-
-    private void placeRod(BlockPos pos) {
-        assert level != null && rodContained != null;
-        BlockState rodState = rodContained.defaultBlockState();
-        if (rodState.hasProperty(RotatedPillarBlock.AXIS))
-            rodState = rodState.setValue(RotatedPillarBlock.AXIS, facing.getAxis());
-        level.setBlockAndUpdate(pos, rodState);
-    }
-
-    /**
-     * Pushes the shared offset/speed out to every physically placed RodBlock in the column, on
-     * both sides of the driver, so the whole rigid rod animates as one piece - including
-     * whatever trails out the back as the front is retracted - instead of just the segment we
-     * last touched. Also refreshes {@link #length} to the rod's total extent (forward + backward).
-     */
-    private void syncColumn() {
-        float speed    = getMovementSpeed();
-        int   forward  = syncDirection(facing, speed);
-        int   backward = syncDirection(facing.getOpposite(), speed);
-        length = forward + backward;
-    }
-
-    private void removeRod(BlockPos pos) {
-        assert level != null;
-        if (level.getBlockState(pos).getBlock() instanceof RodBlock)
-            level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-    }
-
-    /**
-     * Walks outward from the driver in the given direction through matching RodBlock segments to
-     * find the far end (no more rod, or it's a different rod crossing this one), then walks back
-     * from there towards the driver applying the offset/speed update - the far end goes first
-     * since that's where a collision would have been resolved already by {@link #pull} (only
-     * relevant for the `facing` direction; the backward side is never blocked by anything we push
-     * into), everything behind it just follows rigidly.
-     *
-     * @return how many segments make up the rod in this direction
-     */
-    private int syncDirection(Direction direction, float speed) {
-        BlockPos cursor = worldPosition.relative(direction);
-        BlockPos end    = null;
-        int      count  = 0;
-        while (isColumnSegment(cursor)) {
-            end = cursor;
-            count++;
-            cursor = cursor.relative(direction);
-        }
-
-        Direction backwards = direction.getOpposite();
-        BlockPos  pos       = end;
-        for (int i = 0; i < count; i++) {
-            if (level.getBlockEntity(pos) instanceof RodBlockEntity segment) {
-                segment.setOffset(offset);
-                segment.setSpeed(speed);
-            }
-            pos = pos.relative(backwards);
-        }
-
-        return count;
-    }
-
-    private boolean isColumnSegment(BlockPos pos) {
-        assert level != null;
-        BlockState state = level.getBlockState(pos);
-        return state.getBlock() instanceof RodBlock
-                && state.hasProperty(RotatedPillarBlock.AXIS)
-                && state.getValue(RotatedPillarBlock.AXIS) == facing.getAxis();
-    }
-
-
-    @Override
-    public void setRod(RodBlock rod) {
-        this.rodContained = rod;
-    }
-
     @Override
     public void onSpeedChanged(float prevSpeed) {
         super.onSpeedChanged(prevSpeed);
@@ -361,6 +241,7 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
         float offsetBefore = offset;
         running = compound.getBoolean("Running");
         offset = compound.getFloat("Offset");
+        justInserted = compound.getBoolean("JustInserted");
         sequencedOffsetLimit =
                 compound.contains("SequencedOffsetLimit") ? compound.getDouble("SequencedOffsetLimit") : -1;
 
@@ -376,10 +257,13 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
                 ? BlockPos.of(compound.getLong("TipPosition"))
                 : null;
 
-        if (clientPacket) {
+        if (clientPacket && !justInserted) {
             clientOffsetDiff = offset - offsetBefore;
             offset = offsetBefore;
+        } else {
+            clientOffsetDiff = 0;
         }
+        justInserted = false;
 
     }
 
@@ -388,19 +272,76 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
         return true;
     }
 
-    @Override
-    public void setOffset(float offset) {
-        this.offset = offset;
+    /**
+     * Resolves at most one hand-off to the neighboring container when this rod's
+     * offset has left [-0.5, 0.5]. Any further cascade
+     * (e.g. a row of touching rods) is picked up by the neighbor on its own next
+     * tick, not synchronously in this call.
+     */
+    private void checkValidity() {
+        assert level != null;
+        if (level.isClientSide) return; // block placement must stay server-authoritative
+        if (rodContained == null) return;
+        float    offset      = getOffset();
+        int      relativePos = offset > 0 ? 1 : -1;
+        BlockPos pos         = getBlockPos().relative(getAxis(), relativePos);
+        Direction facing = Direction.get(
+                offset < 0 ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE,
+                getAxis());
+
+        if (level.getBlockEntity(pos) instanceof IRodContainerBlockEntity neighbour) {
+            InsertionResult result = neighbour.tryInsertRod(rodContained, facing, offset);
+            if (result.removeBlock()) {//collision should be
+                neighbour.setRod(rodContained);
+                neighbour.setOffset(result.offset() - relativePos);
+                setRod(null);
+                this.setOffset(0);
+            } else {
+                this.setOffset(result.offset());
+            }
+        } else if (level.getBlockState(pos).isAir()) {
+            if (offset <= 0.5f && offset >= -0.5f) return;//if it doesn't need to move don't move it
+            level.setBlock(pos, rodContained.defaultBlockState().setValue(RodBlock.AXIS, getAxis()), 11);
+            if (level.getBlockEntity(pos) instanceof IRodContainerBlockEntity neighbour) {
+                neighbour.setRod(rodContained);
+                neighbour.setOffset(offset - relativePos);
+            }
+            setRod(null);
+            this.setOffset(0);
+        } else {
+            // blocked by a solid, non-container block.
+            this.setOffset(0);
+        }
+        needsValidityCheck = false;
+        sendData();
     }
 
     @Override
-    public @Nullable RodBlock getBlockContained() {
+    public @Nullable RodBlock getRodContained() {
         return rodContained;
+    }
+
+    @Override
+    public Direction.Axis getAxis() {
+        return facing.getAxis();
     }
 
     @Override
     public float getOffset() {
         return offset;
+    }
+
+    @Override
+    public void setOffset(float offset) {
+        if (offset != this.offset)
+            needsValidityCheck = true;
+        this.offset = offset;
+        sendData();
+    }
+
+    @Override
+    public void setRod(@Nullable RodBlock rod) {
+        this.rodContained = rod;
     }
 
     public float getInterpolatedOffset(float partialTicks) {
@@ -420,5 +361,13 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
     @Override
     public float getReflection() {
         return cachedReflection;
+    }
+
+    private boolean isColumnSegment(BlockPos pos) {
+        assert level != null;
+        return level.getBlockEntity(pos) instanceof IRodContainerBlockEntity rodContainerBE &&
+                rodContainerBE.getRodContained() != null &&
+                rodContainerBE.getAxis() == facing.getAxis() &&
+                rodContainerBE.getOffset() == this.getOffset();
     }
 }

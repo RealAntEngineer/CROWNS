@@ -191,7 +191,7 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
     }
 
     @Override
-    public RodBlock getBlockContained() {
+    public RodBlock getRodContained() {
         return rodContained;
     }
 
@@ -212,11 +212,10 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
      * tick, not synchronously in this call.
      */
     private void checkValidity() {
-        needsValidityCheck = false;
         assert level != null;
         if (level.isClientSide) return; // block placement must stay server-authoritative
-        if (rodContained == null) return;
-
+        if (getRodContained() == null) return;
+        float offset = getOffset();
         int relativePos = offset > 0 ? 1 : -1;
         BlockPos pos = getBlockPos().relative(getAxis(), relativePos);
         Direction facing = Direction.get(
@@ -229,9 +228,9 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
                 neighbour.setRod(rodContained);
                 neighbour.setOffset(result.offset() - relativePos);
                 setRod(null);
-                this.offset = 0;
+                this.setOffset(0);
             } else {
-                this.offset = result.offset();
+                this.setOffset(result.offset());
             }
         } else if (level.getBlockState(pos).isAir()) {
             if (offset <= 0.5f && offset >= -0.5f) return;//if it doesn't need to move don't move it
@@ -241,12 +240,12 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
                 neighbour.setOffset(offset - relativePos);
             }
             setRod(null);
-            this.offset = 0;
+            this.setOffset(0);
         } else {
             // blocked by a solid, non-container block.
-            this.offset = 0;
+            this.setOffset(0);
         }
-
+        needsValidityCheck = false;
         sendData();
     }
 

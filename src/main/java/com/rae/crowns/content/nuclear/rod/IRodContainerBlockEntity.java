@@ -12,7 +12,7 @@ public interface IRodContainerBlockEntity {
     /**
      * @return The Rod contained, null if none
      */
-    @Nullable RodBlock getBlockContained();
+    @Nullable RodBlock getRodContained();
 
     Direction.Axis getAxis();
 
@@ -32,7 +32,7 @@ public interface IRodContainerBlockEntity {
      * @return The result
      */
     default InsertionResult tryInsertRod(RodBlock rod, Direction facing, float newOffset) {
-        if (getBlockContained() == null) {
+        if (getRodContained() == null) {
             boolean shouldRemoveBlock = newOffset > 0.5 || newOffset < -0.5;
             if (shouldRemoveBlock) setRod(rod);
             return new InsertionResult(shouldRemoveBlock, newOffset);

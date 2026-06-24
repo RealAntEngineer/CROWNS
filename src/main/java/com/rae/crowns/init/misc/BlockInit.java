@@ -87,6 +87,7 @@ public class BlockInit {
     public static final BlockEntry<GraphiteSleeveBlock> GRAPHITE_SLEEVE = REGISTRATE.block(
             "graphite_sleeve", GraphiteSleeveBlock::new)
             .initialProperties(SharedProperties::wooden)
+            .properties(BlockBehaviour.Properties::noOcclusion)
             .blockstate(BlockStateGen.axisBlockProvider(false))
             .item()
             .build()
