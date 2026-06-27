@@ -1,13 +1,17 @@
 package com.rae.crowns.content.nuclear.rod;
 
+import com.rae.formicapi.FormicApiLang;
+import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.utility.ServerSpeedProvider;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -16,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
-public class BaseRodContainer extends SmartBlockEntity implements IRodContainerBlockEntity {
+public class BaseRodContainer extends SmartBlockEntity implements IRodContainerBlockEntity, IHaveGoggleInformation {
 
     public    float    offset;//]-0.5, 0.5[
     protected float    baseModeration;
@@ -61,8 +65,10 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
         if (!level.isClientSide && (offset > 0.5f || offset < -0.5f))
             needsValidityCheck = true;
 
-        if (needsValidityCheck)
-            checkValidity();
+        if (needsValidityCheck) {
+            needsValidityCheck = false;
+            checkValidity(this);
+        }
 
         updateNeutronProperties();
         sendData();//this will spam the network a bit. maybe it can be done once every few ticks ?
@@ -93,25 +99,24 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
             BlockPos neighbourPos = getBlockPos().relative(getAxis(), direction);
             assert level != null;
             BlockEntity be    = level.getBlockEntity(neighbourPos);
-            BlockState  state = level.getBlockState(neighbourPos);
 
-            if (be instanceof RodBlockEntity insertedRod
-                    && state.getBlock() instanceof RodBlock insertedBlock) {
+            if (be instanceof IRodContainerBlockEntity rodContainer
+                    && rodContainer.getRodContained() instanceof RodBlock insertedRod) {
 
                 occupiedInserted = direction < 0
-                        ? Math.max(0f, insertedRod.getOffset())
-                        : Math.max(0f, -insertedRod.getOffset());
+                        ? Math.max(0f, rodContainer.getOffset())
+                        : Math.max(0f, -rodContainer.getOffset());
 
                 occupiedInserted = Math.min(occupiedInserted, 1f);
 
                 insertedModeration =
-                        occupiedInserted * insertedBlock.getMaterialModeration();
+                        occupiedInserted * insertedRod.getMaterialModeration();
 
                 insertedAbsorption =
-                        occupiedInserted * insertedBlock.getMaterialAbsorption();
+                        occupiedInserted * insertedRod.getMaterialAbsorption();
 
                 insertedReflection =
-                        occupiedInserted * insertedBlock.getMaterialReflection();
+                        occupiedInserted * insertedRod.getMaterialReflection();
             }
         }
 
@@ -164,6 +169,17 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
     }
 
     @Override
+    public void writeSafe(CompoundTag tag, HolderLookup.Provider registries) {
+        tag.putFloat("Offset", offset);
+        if (rodContained != null) {
+            ResourceLocation key = BuiltInRegistries.BLOCK.getKey(rodContained);
+            tag.putString("RodContained", key.toString());
+        }
+
+        super.writeSafe(tag, registries);
+    }
+
+    @Override
     protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.read(tag, registries, clientPacket);
         float offsetBefore = offset;
@@ -205,50 +221,6 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
         return offset;
     }
 
-    /**
-     * Resolves at most one hand-off to the neighboring container when this rod's
-     * offset has left [-0.5, 0.5]. Any further cascade
-     * (e.g. a row of touching rods) is picked up by the neighbor on its own next
-     * tick, not synchronously in this call.
-     */
-    private void checkValidity() {
-        assert level != null;
-        if (level.isClientSide) return; // block placement must stay server-authoritative
-        if (getRodContained() == null) return;
-        float offset = getOffset();
-        int relativePos = offset > 0 ? 1 : -1;
-        BlockPos pos = getBlockPos().relative(getAxis(), relativePos);
-        Direction facing = Direction.get(
-                offset < 0 ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE,
-                getAxis());
-
-        if (level.getBlockEntity(pos) instanceof IRodContainerBlockEntity neighbour) {
-            InsertionResult result = neighbour.tryInsertRod(rodContained, facing, offset);
-            if (result.removeBlock()) {//collision should be
-                neighbour.setRod(rodContained);
-                neighbour.setOffset(result.offset() - relativePos);
-                setRod(null);
-                this.setOffset(0);
-            } else {
-                this.setOffset(result.offset());
-            }
-        } else if (level.getBlockState(pos).isAir()) {
-            if (offset <= 0.5f && offset >= -0.5f) return;//if it doesn't need to move don't move it
-            level.setBlock(pos, rodContained.defaultBlockState().setValue(RodBlock.AXIS, getAxis()), 11);
-            if (level.getBlockEntity(pos) instanceof IRodContainerBlockEntity neighbour) {
-                neighbour.setRod(rodContained);
-                neighbour.setOffset(offset - relativePos);
-            }
-            setRod(null);
-            this.setOffset(0);
-        } else {
-            // blocked by a solid, non-container block.
-            this.setOffset(0);
-        }
-        needsValidityCheck = false;
-        sendData();
-    }
-
     @Override
     public void setOffset(float offset) {
         if (offset != this.offset)
@@ -280,5 +252,27 @@ public class BaseRodContainer extends SmartBlockEntity implements IRodContainerB
     @Override
     public float getReflection() {
         return cachedReflection;
+    }
+
+    @Override
+    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+
+        FormicApiLang.builder().text("rod contained : "+ (rodContained == null ? "null":rodContained.getDescriptionId()))
+                .style(ChatFormatting.GRAY)
+                .forGoggles(tooltip, 1);
+
+        FormicApiLang.builder().text("offset : "+ offset)
+                .style(ChatFormatting.GRAY)
+                .forGoggles(tooltip, 1);
+
+        FormicApiLang.builder().text("moderation : "+ getModeration())
+                .style(ChatFormatting.GRAY)
+                .forGoggles(tooltip, 1);
+
+        FormicApiLang.builder().text("absorption : "+ getAbsorption())
+                .style(ChatFormatting.GRAY)
+                .forGoggles(tooltip, 1);
+
+        return true;
     }
 }

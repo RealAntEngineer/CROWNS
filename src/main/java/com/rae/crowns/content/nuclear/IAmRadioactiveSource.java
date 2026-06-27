@@ -1,6 +1,8 @@
 package com.rae.crowns.content.nuclear;
 
 import com.rae.crowns.content.RayTraceUtil;
+import com.rae.crowns.content.nuclear.rod.IRodContainerBlockEntity;
+import com.rae.crowns.content.nuclear.rod.RodBlock;
 import com.rae.crowns.init.misc.TagsInit;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
@@ -13,10 +15,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.List;
 
+@NonnullDefault
 public interface IAmRadioactiveSource {
 
 
@@ -48,7 +52,8 @@ public interface IAmRadioactiveSource {
         return reactivity;
     }
 
-    default int impactEnv(@NotNull BlockPos pos, @NotNull Level level, @NotNull Double range) {
+    @Deprecated
+    default int impactEnv(BlockPos pos, Level level, Double range) {
         float fastNeutrons = getRadioactiveActivity();
         float slowNeutrons = 0f;
         int   rays         = 0;
@@ -77,7 +82,8 @@ public interface IAmRadioactiveSource {
      * @param level : a server level
      * @param range :  the range of impact
      */
-    private static void traceNeutron(@NotNull BlockPos pos, @NotNull Level level, double range, @NotNull Vec3 vec, float fastNeutrons) {
+    @Deprecated
+    private static void traceNeutron(BlockPos pos, Level level, double range, Vec3 vec, float fastNeutrons) {
         //the surface isn't really a constant so a bit wrong
         //TODO make the surface a variable + why 50 ?
         //Couple<Float> radiationFlux = Couple.create((float) (50 * fastNeutrons / (4 * Math.PI * range * range)), 0f);
@@ -135,7 +141,7 @@ public interface IAmRadioactiveSource {
     }
 
     //inline ray tracing for radiation
-    default int moreOptimizedImpactEnv(@NotNull BlockPos pos, @NotNull Level level, @NotNull Double range) {
+    default int moreOptimizedImpactEnv(BlockPos pos, Level level, Double range) {
 
         float fastNeutrons = getRadioactiveActivity();
         int   rays         = 0;
@@ -183,21 +189,14 @@ public interface IAmRadioactiveSource {
                 Block      block = state.getBlock();
 
                 // ---------- fissile BE logic ----------
-                boolean fissileBlock = fissileBlockCache.computeIfAbsent(
+                boolean hasBlockEntity = fissileBlockCache.computeIfAbsent(
                         block,
                         b -> state.hasBlockEntity() // fast prefilter
                 );
 
-                if (fissileBlock) {
-
-                    long key = child.asLong();
-
-                    BlockEntity be = beCache.get(key);
-
-                    if (be == null && !beCache.containsKey(key)) {
-                        be = level.getBlockEntity(child);
-                        beCache.put(key, be);
-                    }
+                BlockEntity be = null;
+                if (hasBlockEntity) {
+                    be = cachedBlockEntity(level, child, beCache);
 
                     if (be instanceof IAmFissileMaterial fissile) {
                         Couple<Float> result =
@@ -206,6 +205,49 @@ public interface IAmRadioactiveSource {
                         thermal = result.getSecond();
                     }
                 }
+
+                // ---------- rod moderation / absorption ----------
+                // Check self first (reuses the lookup above instead of another lookup).
+                // Only fall back to top/bottom if self isn't a rod container: a rod
+                // can hang past the end of its placed column into a cell with no
+                // block entity of its own, so the nearest container holding that rod's
+                // state may actually be one cell above or below.
+                IRodContainerBlockEntity rod        = be instanceof IRodContainerBlockEntity r ? r : null;
+                float                    moderation = 0;
+                float                    absorption = 0;
+                if (rod == null) {
+                    BlockEntity aboveBE = cachedBlockEntity(level, child.above(), beCache);
+                    if (aboveBE instanceof IRodContainerBlockEntity r && r.getRodContained() instanceof RodBlock insertedRod) {
+                        float occupiedInserted = Math.abs(r.getOffset());
+
+                        moderation += occupiedInserted * insertedRod.getMaterialModeration();
+                        absorption += occupiedInserted * insertedRod.getMaterialAbsorption();
+                    }
+                    BlockEntity belowBE = cachedBlockEntity(level, child.below(), beCache);
+                    if (belowBE instanceof IRodContainerBlockEntity r && r.getRodContained() instanceof RodBlock insertedRod) {
+                        float occupiedInserted = Math.abs(r.getOffset());
+
+                        moderation += occupiedInserted * insertedRod.getMaterialModeration();
+                        absorption += occupiedInserted * insertedRod.getMaterialAbsorption();
+                    }
+
+                } else {
+                    moderation = rod.getModeration();
+                    absorption = rod.getAbsorption();
+
+                }
+
+                if (moderation > 0f) {
+                    float slowed = fast * moderation;
+                    fast -= slowed;
+                    thermal += slowed;
+                }
+
+                if (absorption > 0f) {
+                    fast -= fast * absorption;
+                    thermal -= thermal * absorption;
+                }
+
 
                 // ---------- coal ----------
                 if (!state.isAir()) {
@@ -234,5 +276,16 @@ public interface IAmRadioactiveSource {
         }
 
         return rays;
+    }
+
+    private static @Nullable BlockEntity cachedBlockEntity(Level level, BlockPos pos,
+                                                           Long2ObjectOpenHashMap<BlockEntity> cache) {
+        long        key = pos.asLong();
+        BlockEntity be  = cache.get(key);
+        if (be == null && !cache.containsKey(key)) {
+            be = level.getBlockEntity(pos);
+            cache.put(key, be);
+        }
+        return be;
     }
 }

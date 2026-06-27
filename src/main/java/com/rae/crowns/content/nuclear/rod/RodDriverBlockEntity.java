@@ -1,13 +1,17 @@
 package com.rae.crowns.content.nuclear.rod;
 
+import com.rae.formicapi.FormicApiLang;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.content.kinetics.transmission.sequencer.SequencerInstructions;
+import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.utility.ServerSpeedProvider;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
@@ -17,8 +21,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
 
+import java.util.List;
 
-//TODO this was partly vibe coded, check the actual validity of the code : especially the pulling + the ticking
 
 @NonnullDefault
 public class RodDriverBlockEntity extends KineticBlockEntity implements IRodContainerBlockEntity {
@@ -51,21 +55,10 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
 
         if (level.isClientSide) {
             clientOffsetDiff *= .75f;
+            offset += getMovementSpeed();
         }
 
-        offset += getMovementSpeed();
-        if (!level.isClientSide && (offset > 0.5f || offset < -0.5f))
-            needsValidityCheck = true;
-
-        if (needsValidityCheck)
-            checkValidity();
-
-        updateNeutronProperties();
-        sendData();
-
-        if (justInserted) {
-            justInserted = false;
-        }
+        facing = getBlockState().getValue(RodDriverBlock.FACING);
 
         if (!level.isClientSide) {
 
@@ -89,48 +82,22 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
             pull(movementSpeed);
             sendData();
         }
-    }
 
-    private void pull(float movementAmount){
-        assert level != null;
-        //find the tip
-        Direction movementDir;
-        if (movementAmount < 0){
-            movementDir = facing.getOpposite();
-        } else {
-            movementDir = facing;
+
+        if (!level.isClientSide && (offset > 0.5f || offset < -0.5f))
+            needsValidityCheck = true;
+
+        if (needsValidityCheck) {
+            needsValidityCheck = false;
+            checkValidity(this);
         }
 
-        int maxIteration = 0;
-        BlockPos.MutableBlockPos tipPosition = getBlockPos().relative(movementDir, -1).mutable();
-        //find tip.
-        while (maxIteration < 100){
-            if (!isColumnSegment(tipPosition.relative(movementDir, 1))){
-                break;
-            }
-            maxIteration++;
+        updateNeutronProperties();
+        sendData();
 
+        if (justInserted) {
+            justInserted = false;
         }
-        //it means That we failed to find a rod.
-        if (maxIteration ==0) {
-            return;
-        }
-        maxIteration = 0;
-        while (maxIteration < 100) {
-
-            if (level.getBlockEntity(tipPosition) instanceof IRodContainerBlockEntity rodContainerBE) {
-                //tryInsertRod(rodContainerBE.getRodContained(), movementDir.getOpposite(), offset);
-                rodContainerBE.setOffset(offset);
-            }
-            if (!isColumnSegment(tipPosition.relative(movementDir, 1))){
-                break;
-            }
-
-            maxIteration++;
-        }
-        //get direction -> if it's different drop everything.
-        //tipPosition
-
     }
 
     public float getMovementSpeed() {
@@ -141,6 +108,56 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
         if (sequencedOffsetLimit >= 0)
             movementSpeed = (float) Mth.clamp(movementSpeed, -sequencedOffsetLimit, sequencedOffsetLimit);
         return movementSpeed;
+    }
+
+    private void pull(float movementAmount) {
+        assert level != null;
+        float     oldOffset   = offset;
+        Direction movementDir = movementAmount < 0 ? facing.getOpposite() : facing;
+
+        BlockPos.MutableBlockPos tipPosition;
+        Direction                syncDir;
+        syncDir = movementDir.getOpposite();
+        if (rodContained != null) {
+            tipPosition = getBlockPos().mutable();
+
+            int iterations = 0;
+            while (iterations < 100) {
+                BlockPos candidate = tipPosition.relative(movementDir); // does NOT mutate tipPosition
+                if (notColumnSegment(candidate, oldOffset))
+                    break;
+                tipPosition.set(candidate); // only commit once validated
+                iterations++;
+            }
+
+        } else {
+            tipPosition = getBlockPos().relative(movementDir.getOpposite(), 1).mutable();
+
+            if (level.getBlockEntity(tipPosition) instanceof IRodContainerBlockEntity rodContainerBE
+                    && rodContainerBE.getRodContained() != null
+                    && rodContainerBE.getAxis() == facing.getAxis()) {
+                oldOffset = rodContainerBE.getOffset();
+            } else {
+                this.tipPosition = null;
+                return;
+            }
+
+        }
+
+        int iterations = 0;
+        while (iterations < 100) {
+            if (level.getBlockEntity(tipPosition) instanceof IRodContainerBlockEntity rodContainerBE) {
+                rodContainerBE.setOffset(oldOffset + movementAmount);
+                rodContainerBE.checkValidity((SmartBlockEntity) rodContainerBE);
+            }
+
+            if (notColumnSegment(tipPosition.move(syncDir, 1), oldOffset))
+                break;
+
+            iterations++;
+        }
+
+        this.tipPosition = tipPosition;
     }
 
     private void updateNeutronProperties() {
@@ -208,6 +225,14 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
         cachedReflection = Math.min(1f, cachedReflection);
     }
 
+    private boolean notColumnSegment(BlockPos pos, float offset) {
+        assert level != null;
+        return !(level.getBlockEntity(pos) instanceof IRodContainerBlockEntity rodContainerBE) ||
+                rodContainerBE.getRodContained() == null ||
+                rodContainerBE.getAxis() != facing.getAxis() ||
+                !(Math.abs(rodContainerBE.getOffset() - offset) < 0.1f);
+    }
+
     @Override
     public void onSpeedChanged(float prevSpeed) {
         super.onSpeedChanged(prevSpeed);
@@ -218,21 +243,39 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
     }
 
     @Override
-    protected void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-        compound.putBoolean("Running", running);
-        compound.putFloat("Offset", offset);
+    protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+        tag.putBoolean("Running", running);
+        tag.putFloat("Offset", offset);
         if (sequencedOffsetLimit >= 0)
-            compound.putDouble("SequencedOffsetLimit", sequencedOffsetLimit);
+            tag.putDouble("SequencedOffsetLimit", sequencedOffsetLimit);
 
         if (rodContained != null) {
             ResourceLocation key = BuiltInRegistries.BLOCK.getKey(rodContained);
-            compound.putString("RodContained", key.toString());
+            tag.putString("RodContained", key.toString());
         }
         if (tipPosition != null) {
-            compound.putLong("TipPosition", tipPosition.asLong());
+            tag.putLong("TipPosition", tipPosition.asLong());
         }
 
-        super.write(compound, registries, clientPacket);
+        super.write(tag, registries, clientPacket);
+    }
+
+    @Override
+    public void writeSafe(CompoundTag tag, HolderLookup.Provider registries) {
+        tag.putBoolean("Running", running);
+        tag.putFloat("Offset", offset);
+        if (sequencedOffsetLimit >= 0)
+            tag.putDouble("SequencedOffsetLimit", sequencedOffsetLimit);
+
+        if (rodContained != null) {
+            ResourceLocation key = BuiltInRegistries.BLOCK.getKey(rodContained);
+            tag.putString("RodContained", key.toString());
+        }
+        if (tipPosition != null) {
+            tag.putLong("TipPosition", tipPosition.asLong());
+        }
+
+        super.writeSafe(tag, registries);
     }
 
     @Override
@@ -268,52 +311,26 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
     }
 
     @Override
-    protected boolean syncSequenceContext() {
+    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+
+        FormicApiLang.builder().text("rod contained : " + (rodContained == null ? "null" : rodContained.getDescriptionId()))
+                .style(ChatFormatting.GRAY)
+                .forGoggles(tooltip, 1);
+
+        FormicApiLang.builder().text("offset : " + offset)
+                .style(ChatFormatting.GRAY)
+                .forGoggles(tooltip, 1);
+
+        FormicApiLang.builder().text("tip relative position : " + (tipPosition == null ? "no tip" : getBlockPos().subtract(tipPosition)))
+                .style(ChatFormatting.GRAY)
+                .forGoggles(tooltip, 1);
+
         return true;
     }
 
-    /**
-     * Resolves at most one hand-off to the neighboring container when this rod's
-     * offset has left [-0.5, 0.5]. Any further cascade
-     * (e.g. a row of touching rods) is picked up by the neighbor on its own next
-     * tick, not synchronously in this call.
-     */
-    private void checkValidity() {
-        assert level != null;
-        if (level.isClientSide) return; // block placement must stay server-authoritative
-        if (rodContained == null) return;
-        float    offset      = getOffset();
-        int      relativePos = offset > 0 ? 1 : -1;
-        BlockPos pos         = getBlockPos().relative(getAxis(), relativePos);
-        Direction facing = Direction.get(
-                offset < 0 ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE,
-                getAxis());
-
-        if (level.getBlockEntity(pos) instanceof IRodContainerBlockEntity neighbour) {
-            InsertionResult result = neighbour.tryInsertRod(rodContained, facing, offset);
-            if (result.removeBlock()) {//collision should be
-                neighbour.setRod(rodContained);
-                neighbour.setOffset(result.offset() - relativePos);
-                setRod(null);
-                this.setOffset(0);
-            } else {
-                this.setOffset(result.offset());
-            }
-        } else if (level.getBlockState(pos).isAir()) {
-            if (offset <= 0.5f && offset >= -0.5f) return;//if it doesn't need to move don't move it
-            level.setBlock(pos, rodContained.defaultBlockState().setValue(RodBlock.AXIS, getAxis()), 11);
-            if (level.getBlockEntity(pos) instanceof IRodContainerBlockEntity neighbour) {
-                neighbour.setRod(rodContained);
-                neighbour.setOffset(offset - relativePos);
-            }
-            setRod(null);
-            this.setOffset(0);
-        } else {
-            // blocked by a solid, non-container block.
-            this.setOffset(0);
-        }
-        needsValidityCheck = false;
-        sendData();
+    @Override
+    protected boolean syncSequenceContext() {
+        return true;
     }
 
     @Override
@@ -342,10 +359,11 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
     @Override
     public void setRod(@Nullable RodBlock rod) {
         this.rodContained = rod;
+        justInserted = true;
     }
 
     public float getInterpolatedOffset(float partialTicks) {
-        return offset + (partialTicks - .5f) * getMovementSpeed();
+        return offset + (rodContained != null ? (partialTicks - .5f) * getMovementSpeed() : 0);
     }
 
     @Override
@@ -361,13 +379,5 @@ public class RodDriverBlockEntity extends KineticBlockEntity implements IRodCont
     @Override
     public float getReflection() {
         return cachedReflection;
-    }
-
-    private boolean isColumnSegment(BlockPos pos) {
-        assert level != null;
-        return level.getBlockEntity(pos) instanceof IRodContainerBlockEntity rodContainerBE &&
-                rodContainerBE.getRodContained() != null &&
-                rodContainerBE.getAxis() == facing.getAxis() &&
-                rodContainerBE.getOffset() == this.getOffset();
     }
 }

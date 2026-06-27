@@ -28,7 +28,7 @@ public class BlockEntityInit {
 
     public static final BlockEntityEntry<RodDriverBlockEntity> REACTOR_ROD_DRIVER = REGISTRATE.blockEntity(
             "reactor_rod_driver", RodDriverBlockEntity::new)
-            .visual(() -> SingleAxisRotatingVisual::shaft, false)
+            .visual(() -> SingleAxisRotatingVisual::shaft, true)
             .validBlock(BlockInit.ROD_DRIVER)
             .renderer(() -> RodDriverRenderer::new)
             .register();

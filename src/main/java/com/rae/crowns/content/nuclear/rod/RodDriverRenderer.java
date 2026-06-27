@@ -20,6 +20,8 @@ public class RodDriverRenderer extends KineticBlockEntityRenderer<RodDriverBlock
 
     @Override
     protected void renderSafe(RodDriverBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+
+        super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
         float offset = be.getInterpolatedOffset(partialTicks);
 
         Direction.Axis axis = be.getAxis();
@@ -33,11 +35,13 @@ public class RodDriverRenderer extends KineticBlockEntityRenderer<RodDriverBlock
 
             assert be.getLevel() != null;
             rodModel.center()
-                    .rotateXDegrees(axis == Direction.Axis.Y ? 0 : 90)
                     .rotateYDegrees(axis == Direction.Axis.X ? 90 : 0)
+                    .rotateXDegrees(axis == Direction.Axis.Y ? 0 : 90)
                     .translate(0, offset, 0)
                     .uncenter()
-                    .light(LevelRenderer.getLightColor(be.getLevel(), be.getBlockPos()))
+                    .light(Math.max(LevelRenderer.getLightColor(be.getLevel(), be.getBlockPos().relative(
+                            axis, offset < 0 ? -1 : 1
+                    )), light))
                     .renderInto(ms, vb);
         }
     }

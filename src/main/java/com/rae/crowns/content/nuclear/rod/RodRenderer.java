@@ -14,6 +14,7 @@ import net.createmod.catnip.math.AngleHelper;
 import net.createmod.catnip.render.CachedBuffers;
 import net.createmod.catnip.render.SuperByteBuffer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -60,12 +61,15 @@ public class RodRenderer extends SafeBlockEntityRenderer<BaseRodContainer> {
         if (rod != null) {
             SuperByteBuffer rodModel = CachedBuffers.partial(rod.getRodModel(), rod.defaultBlockState());
 
+            assert be.getLevel() != null;
             rodModel.center()
-                    .rotateXDegrees(axis == Direction.Axis.Y ? 0 : 90)
                     .rotateYDegrees(axis == Direction.Axis.X ? 90 : 0)
+                    .rotateXDegrees(axis == Direction.Axis.Y ? 0 : 90)
                     .translate(0, offset, 0)
                     .uncenter()
-                    .light(light)
+                    .light(Math.max(LevelRenderer.getLightColor(be.getLevel(), be.getBlockPos().relative(
+                            axis, offset < 0 ? -1 : 1
+                    )), light))
                     .renderInto(ms, vb);
         }
     }

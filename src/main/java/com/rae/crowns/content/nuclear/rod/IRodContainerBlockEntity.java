@@ -1,6 +1,11 @@
 package com.rae.crowns.content.nuclear.rod;
 
+import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.FluidState;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -10,11 +15,58 @@ import org.jetbrains.annotations.Nullable;
 public interface IRodContainerBlockEntity {
 
     /**
+     * Resolves at most one hand-off to the neighboring container when this rod's
+     * offset has left [-0.5, 0.5]. Any further cascade
+     * (e.g. a row of touching rods) is picked up by the neighbor on its own next
+     * tick, not synchronously in this call.
+     */
+    default void checkValidity(SmartBlockEntity blockEntity) {
+        Level level = blockEntity.getLevel();
+        assert level != null;
+        if (level.isClientSide) return; // block placement must stay server-authoritative
+        if (getRodContained() == null) return;
+        float    offset      = getOffset();
+        int      relativePos = offset > 0 ? 1 : -1;
+        BlockPos pos         = blockEntity.getBlockPos().relative(getAxis(), relativePos);
+        Direction facing = Direction.get(
+                offset < 0 ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE,
+                getAxis());
+
+        if (level.getBlockEntity(pos) instanceof IRodContainerBlockEntity neighbour) {
+            InsertionResult result = neighbour.tryInsertRod(getRodContained(), facing, offset);
+            if (result.removeBlock()) {//collision should be
+                neighbour.setRod(getRodContained());
+                neighbour.setOffset(result.offset() - relativePos);
+                setRod(null);
+                //this.setOffset(0); please don't.
+            } else {
+                this.setOffset(result.offset());
+            }
+        } else if (level.getBlockState(pos).canBeReplaced()) {
+            if (offset <= 0.5f && offset >= -0.5f) return;//if it doesn't need to move don't move it
+            FluidState state       = level.getFluidState(pos);
+            boolean    waterlogged = state.is(FluidTags.WATER);
+            level.setBlock(pos, getRodContained().defaultBlockState()
+                            .trySetValue(RodBlock.AXIS, getAxis())
+                            .trySetValue(RodBlock.WATERLOGGED, waterlogged)
+                    , 11);
+            if (level.getBlockEntity(pos) instanceof IRodContainerBlockEntity neighbour) {
+                neighbour.setRod(getRodContained());
+                neighbour.setOffset(offset - relativePos);
+            }
+            setRod(null);
+            this.setOffset(0);
+        } else {
+            // blocked by a solid, non-container block.
+            this.setOffset(0);
+        }
+        blockEntity.sendData();
+    }
+
+    /**
      * @return The Rod contained, null if none
      */
     @Nullable RodBlock getRodContained();
-
-    Direction.Axis getAxis();
 
     /**
      *
@@ -22,12 +74,12 @@ public interface IRodContainerBlockEntity {
      */
     float getOffset();
 
-    void setOffset(float offset);
+    Direction.Axis getAxis();
 
     /**
      *
-     * @param rod The rod inserted
-     * @param facing The face from which it's inserted
+     * @param rod       The rod inserted
+     * @param facing    The face from which it's inserted
      * @param newOffset The offset relative to the Block inserting
      * @return The result
      */
@@ -45,7 +97,7 @@ public interface IRodContainerBlockEntity {
 
         //First clamp to the maximum
         float clampedOffset;
-        if (direction == Direction.AxisDirection.NEGATIVE){
+        if (direction == Direction.AxisDirection.NEGATIVE) {
             clampedOffset = Math.min(getOffset(), newOffset);
         } else {
             clampedOffset = Math.max(getOffset(), newOffset);
@@ -59,6 +111,8 @@ public interface IRodContainerBlockEntity {
     }
 
     void setRod(RodBlock rod);
+
+    void setOffset(float offset);
 
     float getInterpolatedOffset(float partialTicks);
 
