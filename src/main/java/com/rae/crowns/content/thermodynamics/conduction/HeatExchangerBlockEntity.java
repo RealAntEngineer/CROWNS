@@ -283,10 +283,10 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
         private static float getFluidTemperature(FluidStack stack) {
             CompoundTag tag = stack.getTag();
-            if (tag == null || !tag.contains("realGazState"))
+            if (tag == null || !tag.contains("realGasState"))
                 return DEFAULT_STATE.temperature();
 
-            return new SpecificRealGasState(tag.getCompound("realGazState")).temperature();
+            return new SpecificRealGasState(tag.getCompound("realGasState")).temperature();
         }
 
         private static void heatFluidStack(FluidStack stack, float amount) {
@@ -295,7 +295,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
 
             CompoundTag tag = stack.getOrCreateTag();
 
-            CompoundTag oldStateNBT = tag.getCompound("realGazState");
+            CompoundTag oldStateNBT = tag.getCompound("realGasState");
             SpecificRealGasState oldState =
                     oldStateNBT.isEmpty()
                             ? DEFAULT_STATE
@@ -304,7 +304,7 @@ public class HeatExchangerBlockEntity extends SmartBlockEntity implements IHaveG
             SpecificRealGasState newState =
                     FullTableBased.isobaricTransfer(oldState, amount / stack.getAmount());
 
-            tag.put("realGazState", newState.serialize());
+            tag.put("realGasState", newState.serialize());
         }
 
     }

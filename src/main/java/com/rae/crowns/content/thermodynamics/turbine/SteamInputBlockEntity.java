@@ -115,7 +115,7 @@ public class SteamInputBlockEntity extends SmartBlockEntity implements IHaveGogg
                         if (steamCurrent.getDirection().getOpposite() == steamCollector.getBlockState().getValue(SteamCollectorBlock.FACING)) {
                             FluidStack  water = WATER_TANK.drain((int) flowGoal, IFluidHandler.FluidAction.EXECUTE);
                             CompoundTag nbt   = new CompoundTag();
-                            nbt.put("realGazState", steamCurrent.getOutputFluidState().serialize());
+                            nbt.put("realGasState", steamCurrent.getOutputFluidState().serialize());
                             water.setTag(nbt);
                             float filledFlow = steamCollector.getTank().fill(water,
                                     IFluidHandler.FluidAction.EXECUTE);

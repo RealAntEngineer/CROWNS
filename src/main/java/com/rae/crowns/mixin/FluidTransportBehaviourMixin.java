@@ -103,13 +103,13 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
                     singleSource = null;
                     CompoundTag inFlowTag = fluidInFlow.getTag();
                     SpecificRealGasState inFlowState = SpecificRealGasState.DEFAULT_STATE;
-                    if (inFlowTag != null && inFlowTag.contains("realGazState")) {
-                        inFlowState = new SpecificRealGasState((CompoundTag) inFlowTag.get("realGazState"));
+                    if (inFlowTag != null && inFlowTag.contains("realGasState")) {
+                        inFlowState = new SpecificRealGasState((CompoundTag) inFlowTag.get("realGasState"));
                     }
                     CompoundTag availableTag = availableFlow.getTag();
                     SpecificRealGasState availableState = SpecificRealGasState.DEFAULT_STATE;
-                    if (availableTag != null && availableTag.contains("realGazState")) {
-                        availableState = new SpecificRealGasState((CompoundTag) availableTag.get("realGazState"));
+                    if (availableTag != null && availableTag.contains("realGasState")) {
+                        availableState = new SpecificRealGasState((CompoundTag) availableTag.get("realGasState"));
                     } else {
                         availableTag = new CompoundTag();
                     }
@@ -120,8 +120,8 @@ public abstract class FluidTransportBehaviourMixin extends BlockEntityBehaviour 
                     availableFlow = fluidInFlow;
 
                     //don't create it if there is no thermal data in both flow.
-                    if (availableTag.contains("realGazState") || inFlowTag != null && inFlowTag.contains("realGazState")) {
-                        availableTag.put("realGazState", mixedState.serialize());
+                    if (availableTag.contains("realGasState") || inFlowTag != null && inFlowTag.contains("realGasState")) {
+                        availableTag.put("realGasState", mixedState.serialize());
                         availableFlow.setTag(availableTag);
                     }
                     continue;

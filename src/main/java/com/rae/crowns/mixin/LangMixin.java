@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class LangMixin {
     @Inject(method = "fluidName", at = @At(value = "RETURN"), cancellable = true, remap = false)
     private static void addWaterStateInfo(@NotNull FluidStack stack, @NotNull CallbackInfoReturnable<LangBuilder> cir) {
-        CompoundTag newStateNBT = stack.getChildTag("realGazState");
+        CompoundTag newStateNBT = stack.getChildTag("realGasState");
         if (newStateNBT != null && !newStateNBT.isEmpty()) {
             SpecificRealGasState newState = new SpecificRealGasState(newStateNBT);
             cir.setReturnValue(cir.getReturnValue().add(CROWNSLang.specificRealFluidState(newState)));

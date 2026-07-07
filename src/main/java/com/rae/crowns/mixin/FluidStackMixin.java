@@ -17,8 +17,8 @@ public abstract class FluidStackMixin {
 
             CompoundTag firstTag  = this.getOrCreateTag().copy();
             CompoundTag secondTag = other.getOrCreateTag().copy();
-            firstTag.remove("realGazState");
-            secondTag.remove("realGazState");
+            firstTag.remove("realGasState");
+            secondTag.remove("realGasState");
 
             cir.setReturnValue(firstTag.equals(secondTag));
 

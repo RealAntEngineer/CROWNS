@@ -22,7 +22,7 @@ public class StateFluidTank extends SmartFluidTank {
         if (fluid.getAmount() > 0) {
 
             CompoundTag          tag         = new CompoundTag();
-            CompoundTag          oldStateNBT = fluid.getChildTag("realGazState");
+            CompoundTag          oldStateNBT = fluid.getChildTag("realGasState");
             SpecificRealGasState oldState;
             if (oldStateNBT != null) {
                 oldState = new SpecificRealGasState(oldStateNBT);
@@ -30,7 +30,7 @@ public class StateFluidTank extends SmartFluidTank {
                 oldState = DEFAULT_STATE;
             }
             SpecificRealGasState state = FullTableBased.isobaricTransfer(oldState, amount / getFluidAmount());
-            tag.put("realGazState", state.serialize());
+            tag.put("realGasState", state.serialize());
             fluid.setTag(tag);
         }
     }
@@ -39,7 +39,7 @@ public class StateFluidTank extends SmartFluidTank {
         if (fluid.getAmount() > 0) {
 
             CompoundTag          tag         = new CompoundTag();
-            CompoundTag          oldStateNBT = fluid.getChildTag("realGazState");
+            CompoundTag          oldStateNBT = fluid.getChildTag("realGasState");
             SpecificRealGasState oldState;
             if (oldStateNBT != null) {
                 oldState = new SpecificRealGasState(oldStateNBT);
@@ -47,13 +47,13 @@ public class StateFluidTank extends SmartFluidTank {
                 oldState = DEFAULT_STATE;
             }
             SpecificRealGasState state = FullTableBased.isentropicCompression(oldState, ratio);
-            tag.put("realGazState", state.serialize());
+            tag.put("realGasState", state.serialize());
             fluid.setTag(tag);
         }
     }
 
     public SpecificRealGasState getState() {
-        CompoundTag          oldStateNBT = fluid.getChildTag("realGazState");
+        CompoundTag          oldStateNBT = fluid.getChildTag("realGasState");
         SpecificRealGasState oldState;
         if (oldStateNBT != null) {
             oldState = new SpecificRealGasState(oldStateNBT);

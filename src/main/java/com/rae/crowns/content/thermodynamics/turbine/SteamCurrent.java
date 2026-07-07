@@ -379,7 +379,7 @@ public class SteamCurrent {
             try {
                 if (getDirection().getOpposite() == steamCollector.getBlockState().getValue(SteamCollectorBlock.FACING)) {
                     CompoundTag nbt = new CompoundTag();
-                    nbt.put("realGazState", getOutputFluidState().serialize());
+                    nbt.put("realGasState", getOutputFluidState().serialize());
                     steamCollector.getTank().fill(new FluidStack(Fluids.WATER, (int) getFlow(level), nbt), IFluidHandler.FluidAction.EXECUTE);
                 }
             } catch (Exception ignored) {
@@ -450,33 +450,55 @@ public class SteamCurrent {
     public float explore(Level world, BlockPos start, float max, Direction facing) {
         float          distance    = 0f;
         List<BlockPos> foundStages = new ArrayList<>();
+        boolean foundCollector = false;
+
+        Direction[] sides = Arrays.stream(Direction.values())
+                .filter(d -> d.getAxis() != facing.getAxis())
+                .toArray(Direction[]::new);
+
+        BlockPos lastPos = start;
+
 
         for (int i = 1; i <= max; i++) {
             BlockPos currentPos = start.relative(facing, i);
             if (!world.isLoaded(currentPos)) break;
             BlockState state = world.getBlockState(currentPos);
+            lastPos = currentPos;
 
             if (!state.isAir()) {
                 if (state.is(BlockInit.STEAM_COLLECTOR.get()) &&
                         state.getValue(DirectionalBlock.FACING) == getDirection().getOpposite()) {
                     collectorPos = currentPos;
+                    foundCollector = true;
                 }
 
-                if (!state.is(BlockInit.TURBINE_STAGE_STRUCTURE.get())) {
-                    break;
-                } else {
-                    BlockPos    controller       = MBStructureBlock.getMaster(world, currentPos);
-                    BlockEntity controllerEntity = world.getChunkAt(controller).getBlockEntity(controller);
+                for (Direction side : sides) {
+                    BlockPos sidePos = currentPos.relative(side);
+                    if (!world.isLoaded(sidePos)) continue;
+
+                    BlockEntity controllerEntity = world.getChunkAt(sidePos).getBlockEntity(sidePos);
                     if (controllerEntity instanceof TurbineStageBlockEntity) {
-                        Direction controllerFacing = world.getBlockState(controller).getValue(DirectionalBlock.FACING);
+                        Direction controllerFacing = world.getBlockState(sidePos).getValue(DirectionalBlock.FACING);
                         if (facing.getAxis() == controllerFacing.getAxis()) {
-                            foundStages.add(controller);
+                            foundStages.add(sidePos);
                         }
                     }
                 }
             }
             distance++;
         }
+
+        // One last check beyond the stage-search range for the collector block
+        BlockPos nextPos = lastPos.relative(facing, 1);
+        if (world.isLoaded(nextPos)) {
+            BlockState nextState = world.getBlockState(nextPos);
+            if (nextState.is(BlockInit.STEAM_COLLECTOR.get()) &&
+                    nextState.getValue(DirectionalBlock.FACING) == getDirection().getOpposite()) {
+                collectorPos = nextPos;
+                foundCollector = true;
+            }
+        }
+        if (!foundCollector) collectorPos = null;
 
         this.stagesPos = new ArrayList<>(foundStages);
         return distance;
@@ -500,7 +522,7 @@ public class SteamCurrent {
 
     public @Nullable SteamCollectorBlockEntity getCollector(Level level) {
         if (collectorPos == null) return null;
-        return (SteamCollectorBlockEntity) level.getChunkAt(collectorPos).getBlockEntity(collectorPos);
+        return level.getChunkAt(collectorPos).getBlockEntity(collectorPos) instanceof SteamCollectorBlockEntity stc ? stc : null;
     }
 
     public record SPR(int stage, float power) {
