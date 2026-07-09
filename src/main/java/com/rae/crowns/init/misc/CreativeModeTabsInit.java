@@ -60,18 +60,18 @@ public class CreativeModeTabsInit {
         Map<Item, Function<Item, Collection<ItemStack>>> factories = new Reference2ReferenceOpenHashMap<>();
 
         // exact doubles
-        List<Double> uraniumGrades = List.of(
-                1.0 / 128.0, // 0.078125
-                3.0 / 16.0,  // 0.1875
-                7.0 / 8.0   // 0.875
+        List<Float> uraniumGrades = List.of(
+                1.0f / 128.0f, // 0.078125
+                3.0f / 16.0f,  // 0.1875
+                7.0f / 8.0f   // 0.875
         );
 
-        final double ASSEMBLY_FACTOR = 1.0 / 4.0; // 0.25
+        final float ASSEMBLY_FACTOR = 1.0f / 4.0f; // 0.25
 
         Map<ItemProviderEntry<?, ?>, Function<Item, Collection<ItemStack>>> simpleFactories = Map.of(
                 ItemInit.FUEL_ROD, item -> {
                     Collection<ItemStack> itemStacks = new ArrayList<>();
-                    for (double grade : uraniumGrades) {
+                    for (float grade : uraniumGrades) {
                         ItemStack   itemStack = item.getDefaultInstance();
                         CustomData  data      = itemStack.get(DataComponents.CUSTOM_DATA);
                         CompoundTag tag;
@@ -81,8 +81,8 @@ public class CreativeModeTabsInit {
                             tag = new CompoundTag();
                         }
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putDouble("crowns:u235", grade);
-                        compositionNBT.putDouble("crowns:u238", 1.0 - grade);
+                        compositionNBT.putFloat("crowns:u235", grade);
+                        compositionNBT.putFloat("crowns:u238", 1.0f - grade);
 
                         tag.put("composition", compositionNBT);
                         itemStack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
@@ -92,7 +92,7 @@ public class CreativeModeTabsInit {
                 },
                 BlockInit.FUEL_ASSEMBLY, item -> {
                     Collection<ItemStack> itemStacks = new ArrayList<>();
-                    for (double grade : uraniumGrades) {
+                    for (float grade : uraniumGrades) {
                         ItemStack   itemStack = item.getDefaultInstance();
                         CustomData  data      = itemStack.get(DataComponents.CUSTOM_DATA);
                         CompoundTag tag;
@@ -102,8 +102,8 @@ public class CreativeModeTabsInit {
                             tag = new CompoundTag();
                         }
                         CompoundTag compositionNBT = new CompoundTag();
-                        compositionNBT.putDouble("crowns:u235", grade * ASSEMBLY_FACTOR);
-                        compositionNBT.putDouble("crowns:u238", (1.0 - grade) * ASSEMBLY_FACTOR);
+                        compositionNBT.putFloat("crowns:u235", grade * ASSEMBLY_FACTOR);
+                        compositionNBT.putFloat("crowns:u238", (1.0f - grade) * ASSEMBLY_FACTOR);
 
                         tag.put("composition", compositionNBT);
                         itemStack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));

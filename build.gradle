@@ -148,13 +148,21 @@ repositories {
     maven {
         url = "https://maven.theillusivec4.top/"
     }
-    maven { url = 'https://jitpack.io' }
+    maven {
+        url = 'https://jitpack.io'
+    }
 
-    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // ForgeConfigAPIPort
+    maven {
+        url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"
+    } // ForgeConfigAPIPort
 
     maven {
         url = "https://maven.ryanhcode.dev/releases"
         name = "RyanHCode Maven"
+    }
+
+    maven {
+        url "https://cursemaven.com"
     }
 
 }
@@ -175,6 +183,7 @@ dependencies {
     implementation("com.github.RealAntEngineer:FormicAPI:v${minecraft_version}-${formicapi_version}"){transitive = false}//jitpack
     //implementation ("dev.simulated_team.simulated:simulated-neoforge-1.21.1:1.2.1") { transitive = false }
 
+    implementation "maven.modrinth:w0xJ0EWR:7Hx5sN6S"
 
 }
 
