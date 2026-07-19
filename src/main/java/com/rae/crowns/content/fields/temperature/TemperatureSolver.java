@@ -4,7 +4,7 @@ import com.rae.crowns.content.fields.util.AbstractDataLayer;
 import com.rae.crowns.content.fields.util.AbstractMatrixPhysicsSolver;
 import com.rae.crowns.content.fields.util.DataLayerType;
 import com.rae.crowns.content.fields.util.PhysicsWorldData;
-import com.rae.formicapi.fondation.math.operators.PaddedCSRMatrix;
+import com.rae.formicapi.foundation.math.operators.PaddedCSRMatrix;
 import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -69,7 +69,7 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
 
     @Override
     protected @Nullable ThermalMatrix getCachedMatrix(PhysicsWorldData data) {
-        return (ThermalMatrix) data.getCachedMatrix(this);
+        return data.getCachedMatrix(this);
     }
 
     @Override
@@ -90,10 +90,13 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
             TemperatureDataLayer layer = (TemperatureDataLayer) data.getLayer(packedSection, DataLayerType.TEMPERATURE);
             if (layer == null) continue;
 
-            for (short localIdx = 0; localIdx < 4096; localIdx++)
-                        matrix.T_current[start + localIdx] = layer.getDirect(localIdx);
+            for (short localIdx = 0; localIdx < 4096; localIdx++) {
+
+                matrix.T_current[start + localIdx] = layer.getDirect(localIdx);
+            }
         }
     }
+
 
     @Override
     protected void writeBackFieldValues(ThermalMatrix matrix, PhysicsWorldData data) {
@@ -185,10 +188,98 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
     protected double[] buildRhs(ThermalMatrix matrix) {
         double[] rhs = matrix.cgRhs;
         double[] src = matrix.sourceVector();
-        double[] t   = matrix.T_current;
-        for (int i = 0; i < rhs.length; i++) rhs[i] = t[i] + src[i];
+        double[] T   = matrix.T_current;
+        for (int i = 0; i < matrix.size(); i++) rhs[i] = T[i] + src[i];
+
+        //THIS isn't the right way to do it but hey, it kinda works (boundary conditions is wrong though)
+        /*for (long packedSection : matrix.sections()) {
+            int start = matrix.sectionToIndex().get(packedSection);
+            if (start < 0) continue;
+
+            //THIS is a copy of NeighborCache, it's here to avoid recomputing the sections
+            final int[]     globalIndices = new int[7];
+            final boolean[]     inMatrix = new boolean[7];
+            int i = 0;
+
+            for (byte[] offset : NEIGHBOR_OFFSETS) {
+                int  dx  = offset[0], dy = offset[1], dz = offset[2];
+                long sec = SectionPos.offset(packedSection, dx, dy, dz);
+
+                inMatrix[i] = matrix.sectionToIndex().containsKey(sec);
+                globalIndices[i] = matrix.sectionToIndex().get(sec);
+                i++;
+            }
+            inMatrix[i] = matrix.sectionToIndex().containsKey(packedSection);
+            globalIndices[i] = matrix.sectionToIndex().get(packedSection);
+
+            double center;
+            double adv;
+
+            double ux = 1, uy = 0, uz = 0;
+            int x, y, z;
+            int nidx;
+            int xSign, ySign, zSign;
+            for (short localIdx = 0; localIdx < 4096; localIdx++) {
+
+                int idx = start + localIdx;
+
+                x = localIdx & 15;
+                z = (localIdx >> 4) & 15;
+                y = (localIdx >> 8) & 15;
+                center = 0;
+                adv = 0;
+
+                if (ux != 0) {
+                    xSign = ux > 0 ? -1 : 1;
+                    nidx = neighborIndex(globalIndices, inMatrix, x + xSign, y, z);
+
+                    center -= xSign * ux;
+                    if (nidx >= 0) {
+                        adv += xSign * ux * matrix.T_current[nidx];
+                    }
+                }
+
+                if (uy != 0) {
+                    ySign = uy > 0 ? -1 : 1;
+                    nidx = neighborIndex(globalIndices, inMatrix, x, y + ySign, z);
+
+                    center -= ySign * uy;
+                    if (nidx >= 0) {
+                        adv += ySign * uy * matrix.T_current[nidx];
+                    }
+                }
+
+                if (uz != 0) {
+                    zSign = uz > 0 ? -1 : 1;
+                    nidx = neighborIndex(globalIndices, inMatrix, x, y, z + zSign);
+
+                    center -= zSign * uz;
+                    if (nidx >= 0) {
+                        adv += zSign * uz * matrix.T_current[nidx];
+                    }
+                }
+
+                adv += center * matrix.T_current[idx];
+
+                rhs[idx] = T[idx] + src[idx] - DT * adv;
+            }
+        }*/
         return rhs;
     }
+
+    private static int neighborIndex(int[] globalIndices, boolean[] inMatrix, int x, int y, int z) {
+        int section = NeighborCache.getIndex(x, y, z);
+        if (!inMatrix[section])
+            return -1;
+
+        return globalIndices[NeighborCache.getIndex(x, y, z)]
+                + index3DTo1D(
+                x & 15,
+                y & 15,
+                z & 15
+        );
+    }
+
 
     // -------------------------------------------------------------------------
     // Physics: implicit diffusion + resilience
@@ -340,12 +431,6 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
         }
 
         @Override
-        protected void onGrow(int newSize) {
-            T_current = Arrays.copyOf(T_current, newSize);
-            T_next    = Arrays.copyOf(T_next,    newSize);
-        }
-
-        @Override
         public void setSolution(double[] solution) {
             System.arraycopy(solution, 0, T_next, 0, solution.length);
         }
@@ -362,9 +447,11 @@ public final class TemperatureSolver extends AbstractMatrixPhysicsSolver<Tempera
         }
 
         @Override
-        protected void onShrink(int newSize) {
-            T_current = Arrays.copyOf(T_current, newSize);
-            T_next    = Arrays.copyOf(T_next,    newSize);
+        protected void onResize(int newSize) {
+            if (newSize > T_current.length) {
+                T_current = Arrays.copyOf(T_current, newSize);
+                T_next = Arrays.copyOf(T_next, newSize);
+            }
         }
     }
 }

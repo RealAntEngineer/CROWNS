@@ -1,9 +1,9 @@
 package com.rae.crowns.content.fields.util;
 
-import com.rae.formicapi.fondation.math.operators.HashSparseMatrix;
-import com.rae.formicapi.fondation.math.operators.PaddedCSRMatrix;
-import com.rae.formicapi.fondation.math.solvers.ConjugateGradient;
-import com.rae.formicapi.fondation.math.solvers.LeastSquare;
+import com.rae.formicapi.foundation.math.operators.HashSparseMatrix;
+import com.rae.formicapi.foundation.math.operators.PaddedCSRMatrix;
+import com.rae.formicapi.foundation.math.solvers.ConjugateGradient;
+import com.rae.formicapi.foundation.math.solvers.LeastSquare;
 import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -137,7 +137,8 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
                 getSolverTolerance() * physicsMatrix.size(),
                 physicsMatrix.cgR,
                 physicsMatrix.cgP,
-                physicsMatrix.cgAp
+                physicsMatrix.cgAp,
+                true
         );
 
         /*LeastSquare2.solve(
@@ -240,7 +241,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
             matrix.sectionToIndex().put(section, nextIdx);
             nextIdx += 16 * 16 * 16;
         }
-        matrix.grow(addedSections.size() * 16 * 16 * 16);
+        matrix.resize(addedSections.size() * 16 * 16 * 16);
 
         // Build rows for the new sections
         for (long section : addedSections) {
@@ -308,7 +309,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
                 // Already at the end — just truncate
                 matrix.sections().remove(removed);
                 matrix.sectionToIndex().remove(removed);
-                matrix.shrink(4096);
+                matrix.resize(-4096);
                 continue;
             }
 
@@ -371,7 +372,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
             matrix.sectionToIndex().remove(removed);
             matrix.sections().remove(removed);
             matrix.sections().add(lastSection); // already present, no-op on LongOpenHashSet
-            matrix.shrink(4096);
+            matrix.resize(-4096);
         }
 
         // Rebuild the face voxels of sections bordering removed ones —
@@ -547,7 +548,7 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
      * the source vector {@code b}. Concrete subclasses add field vectors
      * (e.g. {@code T_current}, {@code T_next}).
      *
-     * <p>{@link #grow} is called when new sections are appended; subclasses must
+     * <p>{@link #resize(int)} is called when new sections are appended ore removed; subclasses must
      * extend their own field arrays accordingly.
      */
     public abstract static class PhysicsMatrix {
@@ -619,57 +620,36 @@ public abstract class AbstractMatrixPhysicsSolver<M extends AbstractMatrixPhysic
             return size;
         }
 
-        // In PhysicsMatrix
-        final void shrink(int removedVoxels) {
-            int newSize = this.size - removedVoxels;
-            this.assemblyMatrix = assemblyMatrix.resize(newSize);
-            this.sourceVector   = Arrays.copyOf(sourceVector, newSize);
-            this.cgR            = Arrays.copyOf(cgR,   newSize);
-            this.cgP            = Arrays.copyOf(cgP,   newSize);
-            this.cgAp           = Arrays.copyOf(cgAp,  newSize);
-            this.cgAtb          = Arrays.copyOf(cgAtb, newSize);
-            this.cgRhs          = Arrays.copyOf(cgRhs, newSize);
-            this.cgTemp          = Arrays.copyOf(cgTemp, newSize);
-            this.size           = newSize;
-            onShrink(newSize);
+        /**
+         * either grow or shrink based on the number of voxel provided. Keep the underlying arrays if it's smaller than
+         * there length and only keeping track of the logical length.
+         */
+        final void resize(int voxelChanged) {
+            int newSize = this.size + voxelChanged;
+            assemblyMatrix.resize(newSize);
+
+            if (newSize > cgR.length) {
+                this.sourceVector = Arrays.copyOf(sourceVector, newSize);
+                this.cgRhs = Arrays.copyOf(cgRhs, newSize);
+                this.cgR = Arrays.copyOf(cgR, newSize);
+                this.cgP = Arrays.copyOf(cgP, newSize);
+                this.cgAp = Arrays.copyOf(cgAp, newSize);
+                this.cgAtb = Arrays.copyOf(cgAtb, newSize);
+                this.cgTemp = Arrays.copyOf(cgTemp, newSize);
+            }
+            this.size = newSize;
+            onResize(newSize);
         }
 
         /**
          * Subclasses truncate their field arrays here.
          */
-        protected abstract void onShrink(int newSize);
+        protected abstract void onResize(int newSize);
 
         /**
          * Subclasses copy their field arrays (T_current, T_next, etc.) from src slot to dst slot.
          */
         protected abstract void copyFieldArrays(int srcStart, int dstStart, int count);
-
-        /**
-         * Called when new sections are added without a full rebuild.
-         * Replaces {@link #assemblyMatrix} and {@link #sourceVector} with
-         * larger copies, then calls {@link #onGrow} so subclasses can extend
-         * their own arrays.
-         */
-        final void grow(int additionalVoxels) {
-            int newSize = this.size + additionalVoxels;
-            this.assemblyMatrix = assemblyMatrix.resize(newSize);
-            this.sourceVector   = Arrays.copyOf(sourceVector, newSize);
-            this.cgR            = Arrays.copyOf(cgR,   newSize);
-            this.cgP            = Arrays.copyOf(cgP,   newSize);
-            this.cgAp           = Arrays.copyOf(cgAp,  newSize);
-            this.cgAtb          = Arrays.copyOf(cgAtb, newSize);
-            this.cgRhs          = Arrays.copyOf(cgRhs, newSize);
-            this.cgTemp          = Arrays.copyOf(cgTemp, newSize);
-            this.size           = newSize;
-            onGrow(newSize);
-        }
-
-        /**
-         * Called after {@link #grow}. Subclasses extend their field arrays here.
-         *
-         * @param newSize the updated total voxel count
-         */
-        protected abstract void onGrow(int newSize);
 
         /**
          * Store the solver's output. Called after every solve.

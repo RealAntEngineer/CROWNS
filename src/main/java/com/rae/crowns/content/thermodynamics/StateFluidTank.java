@@ -49,6 +49,4 @@ public class StateFluidTank extends SmartFluidTank {
         FluidStack stack = super.drain(maxDrain, action);
         return stack;
     }
-
-
 }

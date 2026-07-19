@@ -56,4 +56,3 @@ public class ContinuousSound extends AbstractTickableSoundInstance {
     }
 
 }
-

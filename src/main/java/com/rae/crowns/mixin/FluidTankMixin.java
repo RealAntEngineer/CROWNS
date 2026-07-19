@@ -32,7 +32,7 @@ public abstract class FluidTankMixin {
                 newState = DEFAULT_STATE;
                 newHasData = false;
             }
-            SpecificRealGasState oldState = fluid.isEmpty() ? DEFAULT_STATE : fluid.get(DataComponentsInit.REAL_GAS_STATE);
+            SpecificRealGasState oldState = fluid.get(DataComponentsInit.REAL_GAS_STATE);
             if (oldState == null) {
                 oldState = DEFAULT_STATE;
                 oldHasData = false;

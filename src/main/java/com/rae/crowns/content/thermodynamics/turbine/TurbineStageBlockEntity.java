@@ -92,7 +92,8 @@ public class TurbineStageBlockEntity extends GeneratingKineticBlockEntity implem
     public void tickAudio() {
         super.tickAudio();
         if (Math.abs(speed) > 0) {
-            CrownsSoundScapes.play(CrownsSoundScapes.AmbienceGroup.TURBINE, worldPosition, Mth.lerp(Math.abs(speed) / 256, 0.25f, 1));
+            CrownsSoundScapes.play(CrownsSoundScapes.AmbienceGroup.TURBINE, worldPosition,
+                    Mth.lerp(Math.abs(speed) / 256, 0.25f, 1));
         }
 
     }
